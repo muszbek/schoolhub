@@ -1,0 +1,2 @@
+- handle persistent data in postgres volume
+- check postgres connectivity privacy, SSL
