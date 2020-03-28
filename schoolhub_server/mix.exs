@@ -15,7 +15,6 @@ defmodule Schoolhub.MixProject do
   def application do
     [
       extra_applications: [:logger],
-      applications: [:romeo],
       mod: {Schoolhub, []}
     ]
   end
