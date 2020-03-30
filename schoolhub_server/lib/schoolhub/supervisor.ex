@@ -13,12 +13,12 @@ defmodule Schoolhub.Supervisor do
   @impl true
   def init(:ok) do
     children = [
-      # {Schoolhub.Router, port: 8080},
       %{
 	id: :mochiweb_socket_server,
 	start: {:mochiweb_socket_server,
-		:start_link, [[port: 8080,
-			       loop: {Schoolhub.Rooter, :init, []}]]}
+		:start_link, [[name: :mochiweb,
+			       port: 8080,
+			       loop: {Schoolhub.Router, :init_mochiweb, [[]]}]]}
       },
       Schoolhub.Auth
     ]

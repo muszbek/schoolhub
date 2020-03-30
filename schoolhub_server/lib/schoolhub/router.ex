@@ -16,14 +16,16 @@ defmodule Schoolhub.Router do
 
 
   ### Server callbacks ###
+  
   def init(:ok) do
-    Logger.debug("Rooter started...")
+    Logger.debug("Router started...")
     {:ok, %{}}
   end
 
-  def init(_socket, opts, args) do
+  def init_mochiweb(_socket, opts, args) do
     Logger.debug("Initialize Router. Opts: #{inspect(opts)}, Args: #{inspect(args)}")
-    start_link(args)
+    Process.register(self(), __MODULE__)
+    :gen_server.enter_loop(__MODULE__, [], %{}, {:local, __MODULE__})
   end
   
 end
