@@ -1,31 +1,22 @@
 defmodule Schoolhub.Router do
   @moduledoc """
-  HTTP server and socket endpoint.
+  HTTP router through Plug.
   """
-
   require Logger
-  
-  use GenServer
 
-  ### API functions ###
+  use Plug.Router
 
-  @doc false
-  def start_link(_opts) do
-    GenServer.start_link(__MODULE__, :ok, name: __MODULE__)
+  plug :match
+  plug :dispatch
+
+  get "/auth" do
+    Logger.debug("Received GET request on /auth")
+    Logger.debug(inspect(conn, pretty: true))
+    conn
   end
 
-
-  ### Server callbacks ###
-  
-  def init(:ok) do
-    Logger.debug("Router started...")
-    {:ok, %{}}
-  end
-
-  def init_mochiweb(_socket, opts, args) do
-    Logger.debug("Initialize Router. Opts: #{inspect(opts)}, Args: #{inspect(args)}")
-    Process.register(self(), __MODULE__)
-    :gen_server.enter_loop(__MODULE__, [], %{}, {:local, __MODULE__})
+  match _ do
+    send_resp(conn, 404, "Oops!")
   end
   
 end

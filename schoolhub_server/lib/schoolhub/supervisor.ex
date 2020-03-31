@@ -17,10 +17,11 @@ defmodule Schoolhub.Supervisor do
 	id: :mochiweb_socket_server,
 	start: {:mochiweb_socket_server,
 		:start_link, [[name: :mochiweb,
-			       port: 8080,
-			       loop: {Schoolhub.Router, :init_mochiweb, [[]]}]]}
+			       port: 8081,
+			       loop: {Schoolhub.Router_mochiweb, :init_mochiweb, [[]]}]]}
       },
-      Schoolhub.Auth
+      Schoolhub.Auth,
+      {Plug.Cowboy, scheme: :http, plug: Schoolhub.Router, options: [port: 8080]}
     ]
 
     opts = [strategy: :one_for_one]

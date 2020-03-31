@@ -4,7 +4,7 @@ defmodule Schoolhub do
   use Application
 
   def start(_type, _args) do
-   
     Schoolhub.Supervisor.start_link()
   end
+  
 end
