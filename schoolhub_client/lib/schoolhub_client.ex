@@ -1,18 +1,9 @@
 defmodule SchoolhubClient do
-  @moduledoc """
-  Documentation for `SchoolhubClient`.
-  """
+  @moduledoc false
 
-  @doc """
-  Hello world.
-
-  ## Examples
-
-      iex> SchoolhubClient.hello()
-      :world
-
-  """
-  def hello do
-    :world
+  use Application
+  
+  def start(_type, _args) do
+    Client.Supervisor.start_link()
   end
 end
