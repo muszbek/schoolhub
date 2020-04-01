@@ -10,9 +10,10 @@ defmodule Schoolhub.Router do
   plug :dispatch
 
   get "/auth" do
-    Logger.debug("Received GET request on /auth")
-    Logger.debug(inspect(conn, pretty: true))
-    conn
+    {:ok, body, conn} = Plug.Conn.read_body(conn)
+    Logger.debug("Received GET request on /auth with body: #{inspect(body)}")
+    response_body = GenServer.call(Schoolhub.Auth, {:auth, body})
+    send_resp(conn, 200, response_body)
   end
 
   match _ do

@@ -15,8 +15,10 @@ defmodule Client.Supervisor do
   Called by Client.Auth
   """
   def start_session() do
-
+    Logger.debug("Starting session...")
+    #Supervisor.start_child(__MODULE__, Client.Session.Supervisor)
   end
+  
 
   @impl true
   def init(:ok) do

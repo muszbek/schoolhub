@@ -13,14 +13,15 @@ defmodule Schoolhub.Supervisor do
   @impl true
   def init(:ok) do
     children = [
-      %{
-	id: :mochiweb_socket_server,
-	start: {:mochiweb_socket_server,
-		:start_link, [[name: :mochiweb,
-			       port: 8081,
-			       loop: {Schoolhub.Router_mochiweb, :init_mochiweb, [[]]}]]}
-      },
-      Schoolhub.Auth,
+#      %{
+#	id: :mochiweb_socket_server,
+#	start: {:mochiweb_socket_server,
+#		:start_link, [[name: :mochiweb,
+#			       port: 8081,
+#			       loop: {Schoolhub.Router_mochiweb, :init_mochiweb, [[]]}]]}
+#      },
+      Schoolhub.DataManager,
+      {Schoolhub.Auth, db_api: Schoolhub.DataManager},
       {Plug.Cowboy, scheme: :http, plug: Schoolhub.Router, options: [port: 8080]}
     ]
 
