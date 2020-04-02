@@ -13,6 +13,7 @@ defmodule Client.Auth do
     ip: "localhost",
     port: 8080,
     conn: :nil,
+    socket: :nil,
     username: "",
     password: "",
     auth_stage: :not_started
@@ -27,7 +28,7 @@ defmodule Client.Auth do
 
   @doc false
   def auth(username, password) do
-    auth_result = GenServer.call(__MODULE__, {:auth, string(username), string(password)})
+    auth_result = GenServer.call(__MODULE__, {:auth, charlist(username), charlist(password)})
     Logger.debug(inspect(auth_result))
   end
 
@@ -45,20 +46,51 @@ defmodule Client.Auth do
   def handle_call({:auth, username, password}, _from, state) do
     {:ok, conn} = Mint.HTTP.connect(state.scheme, state.ip, state.port)
     :ok = GenServer.cast(__MODULE__, :client_first)
-    {:reply, :ok, %{state | conn: conn, username: username, password: password}}
+    {:reply, :ok, %{state | conn: conn, socket: conn.socket,
+		    username: username, password: password}}
   end
 
   @impl true
   def handle_cast(:client_first, state = %{username: username, conn: conn}) do
     msg = :scramerl.client_first_message(username)
     {:ok, conn, _request_ref} = Mint.HTTP.request(conn, "GET", "/auth", [], msg)
+    {:noreply, %{state | conn: conn, auth_stage: :client_first}}
+  end
+
+  @impl true
+  def handle_cast(data = %{message: 'server-first-message'},
+	state = %{password: password}) do
+
+    {:ok, salt} = Map.fetch(data, :salt)
+    {:ok, ic} = Map.fetch(data, :"iteration-count")
+    {:ok, nonce} = Map.fetch(data, :nonce)
+
+    normalized_pw = :stringprep.prepare(password)
+    salted_pw = :scramerl_lib.hi(normalized_pw, salt, ic)
+    
+    {:noreply, state}
+  end
+
+  @impl true
+  def handle_info({transport, socket, http_response}, state = %{conn: conn, socket: socket}) do
+    {:ok, conn, response} = Mint.HTTP.stream(conn, {transport, socket, http_response})
+    {:data, _ref, data}  = :lists.keyfind(:data, 1, response)
+    
+    scram_data = :scramerl_lib.parse(data)
+    Logger.debug("Auth client received data: #{inspect(scram_data, pretty: true)}")
+    GenServer.cast(__MODULE__, scram_data)
     {:noreply, %{state | conn: conn}}
   end
 
-  ### Utility functions ###
+  @impl true
+  def handle_info({:tcp_closed, socket}, state = %{socket: socket}) do
+    Logger.debug("TCP closed...")
+    {:noreply, %{state | conn: :nil, socket: :nil}}
+  end
 
-  defp string(text) when is_list(text), do: text
-  defp string(text), do: text |> to_charlist()
+  ### Utility functions ###
+  
+  defp charlist(text), do: text |> to_charlist()
   
 end
 
