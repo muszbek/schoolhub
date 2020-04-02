@@ -7,7 +7,7 @@ defmodule Client.Auth do
 
   use GenServer
 
-  @derive {Inspect, expect: [:password]}
+  @derive {Inspect, expect: [:password, :salted_pw]}
   defstruct(
     scheme: :http,
     ip: "localhost",
@@ -16,7 +16,9 @@ defmodule Client.Auth do
     socket: :nil,
     username: "",
     password: "",
-    auth_stage: :not_started
+    auth_stage: :not_started,
+    client_first_bare: '',
+    salted_pw: ''
   )
     
   ### API functions ###
@@ -51,28 +53,40 @@ defmodule Client.Auth do
   end
 
   @impl true
-  def handle_cast(:client_first, state = %{username: username, conn: conn}) do
+  def handle_cast(:client_first, state = %{conn: conn,
+					   username: username}) do
+    
     msg = :scramerl.client_first_message(username)
+    msg_bare = :scramerl_lib.prune(:"gs2-header", msg)
     {:ok, conn, _request_ref} = Mint.HTTP.request(conn, "GET", "/auth", [], msg)
-    {:noreply, %{state | conn: conn, auth_stage: :client_first}}
+    
+    {:noreply, %{state | conn: conn, auth_stage: :client_first, client_first_bare: msg_bare}}
   end
 
   @impl true
-  def handle_cast(data = %{message: 'server-first-message'},
-	state = %{password: password}) do
-
-    {:ok, salt} = Map.fetch(data, :salt)
-    {:ok, ic} = Map.fetch(data, :"iteration-count")
-    {:ok, nonce} = Map.fetch(data, :nonce)
+  def handle_cast(data = %{message: 'server-first-message',
+			   salt: salt,
+			   "iteration-count": ic,
+			   nonce: nonce,
+			   str: server_first},
+	state = %{conn: conn,
+		  password: password,
+		  client_first_bare: client_first_bare}) do
 
     normalized_pw = :stringprep.prepare(password)
     salted_pw = :scramerl_lib.hi(normalized_pw, salt, ic)
+    auth_msg = client_first_bare ++ ',' ++ server_first
     
-    {:noreply, state}
+    msg = :scramerl.client_final_message(nonce, salted_pw, auth_msg)
+    {:ok, conn, _request_ref} = Mint.HTTP.request(conn, "GET", "/auth", [], msg)
+    
+    {:noreply, %{state | conn: conn, salted_pw: salted_pw}}
   end
 
   @impl true
-  def handle_info({transport, socket, http_response}, state = %{conn: conn, socket: socket}) do
+  def handle_info({transport, socket, http_response}, state = %{conn: conn,
+								socket: socket}) do
+    
     {:ok, conn, response} = Mint.HTTP.stream(conn, {transport, socket, http_response})
     {:data, _ref, data}  = :lists.keyfind(:data, 1, response)
     
