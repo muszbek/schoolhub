@@ -38,14 +38,13 @@ defmodule Schoolhub.Auth do
   end
 
   @impl true
-  def handle_cast({data = %{message: 'client-first-message',
-			    str: client_first}, from},
+  def handle_cast({%{message: 'client-first-message',
+		     nonce: cnonce,
+		     username: username,
+		     str: client_first}, from},
 	state = %{db_api: db_api}) do
     
-    {:ok, username} = Map.fetch(data, :username)
-    {:ok, cnonce} = Map.fetch(data, :nonce)
     client_first_bare = :scramerl_lib.prune(:"gs2-header", client_first)
-    
     scram_stored = db_api.get_scram_pw(username)
     scram_tokens = String.split(scram_stored, ",")
     ["==SCRAM==", stored_key, server_key, salt, iter_count] = scram_tokens
@@ -60,20 +59,37 @@ defmodule Schoolhub.Auth do
   end
 
   @impl true
-  def handle_cast({data = %{message: 'client-final-message',
-			    nonce: nonce,
-			    proof: proof}, from},
+  def handle_cast({%{message: 'client-final-message',
+		     nonce: nonce,
+		     proof: proof}, from},
 	state = %{client_first_bare: client_first_bare, server_first: server_first,
 		  stored_key: stored_key, server_key: server_key, nonce: nonce}) do
 
     ## Nonce already verified via pattern matching! No need to explicitely do so.
 
+    proof = :base64.decode(proof)
     auth_msg = client_first_bare ++ ',' ++ server_first
-    client_key = reproduce_client_key({stored_key, auth_msg, proof})
-    Logger.debug(inspect(client_key))
+
+    stored_key_from_client =
+      {stored_key |> :base64.decode(), auth_msg, proof}
+      |> reproduce_client_key()
+      |> reproduce_stored_key()
     
-    #msg = :scramerl.server_final_message(server_key)
-    #GenServer.reply(from, msg)
+    msg =
+      {stored_key_from_client, stored_key, server_key}
+      |> verify_credentials()
+      |> :scramerl.server_final_message()
+    GenServer.reply(from, msg)
+    {:noreply, state}
+  end
+
+  @impl true
+  def handle_cast({%{message: 'client-final-message',
+		     nonce: _nonce}, from},
+	state = %{nonce: _other_nonce}) do
+
+    msg = {:error, 'nonce_mismatch'}
+    GenServer.reply(from, msg)
     {:noreply, state}
   end
 
@@ -81,14 +97,21 @@ defmodule Schoolhub.Auth do
   ### Utility functions ###
 
   defp reproduce_client_key({stored_key, auth_msg, proof}) do
-    client_signature_bin = :crypto.hmac(:sha, stored_key, auth_msg)
-    client_signature = :base64.encode_to_string(client_signature_bin)
-    client_key_bin = :crypto.exor(proof, client_signature)
-    _client_key = :base64.encode_to_string(client_key_bin)
+    client_signature = :crypto.hmac(:sha, stored_key, auth_msg)
+    _client_key = :crypto.exor(proof, client_signature)
+  end
+
+  defp reproduce_stored_key(client_key) do
+    _stored_key = :crypto.hash(:sha, client_key)
+      |> :base64.encode()
   end
   
-  defp verify_credentials(cnonce, snonce, cproof, sproof) do
-    :correct
+  defp verify_credentials({ckey, skey, server_key}) do
+    if ckey == skey do
+      server_key |> charlist()
+    else
+      {:error, 'stored_key_mismatch'}
+    end
   end
 
   defp string(text), do: text |> to_string()

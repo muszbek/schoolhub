@@ -64,15 +64,16 @@ defmodule Client.Auth do
   end
 
   @impl true
-  def handle_cast(data = %{message: 'server-first-message',
-			   salt: salt,
-			   "iteration-count": ic,
-			   nonce: nonce,
-			   str: server_first},
+  def handle_cast(%{message: 'server-first-message',
+		    salt: salt,
+		    "iteration-count": ic,
+		    nonce: nonce,
+		    str: server_first},
 	state = %{conn: conn,
 		  password: password,
 		  client_first_bare: client_first_bare}) do
 
+    salt = :base64.decode(salt)
     normalized_pw = :stringprep.prepare(password)
     salted_pw = :scramerl_lib.hi(normalized_pw, salt, ic)
     auth_msg = client_first_bare ++ ',' ++ server_first
