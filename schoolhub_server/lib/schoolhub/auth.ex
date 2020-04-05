@@ -54,16 +54,23 @@ defmodule Schoolhub.Auth do
 
     msg = :scramerl.server_first_message(charlist(nonce), charlist(salt), integer(iter_count))
     GenServer.reply(from, msg)
-    {:noreply, %{state | client_first_bare: client_first_bare, server_first: msg,
-		 stored_key: stored_key, server_key: server_key, nonce: nonce}}
+    {:noreply, %{state |
+		 client_first_bare: client_first_bare,
+		 server_first: msg,
+		 stored_key: stored_key,
+		 server_key: server_key,
+		 nonce: nonce}}
   end
 
   @impl true
   def handle_cast({%{message: 'client-final-message',
 		     nonce: nonce,
 		     proof: proof}, from},
-	state = %{client_first_bare: client_first_bare, server_first: server_first,
-		  stored_key: stored_key, server_key: server_key, nonce: nonce}) do
+	state = %{client_first_bare: client_first_bare,
+		  server_first: server_first,
+		  stored_key: stored_key,
+		  server_key: server_key,
+		  nonce: nonce}) do
 
     ## Nonce already verified via pattern matching! No need to explicitely do so.
 
@@ -79,8 +86,8 @@ defmodule Schoolhub.Auth do
       {stored_key_from_client, stored_key, server_key}
       |> verify_credentials()
       |> :scramerl.server_final_message()
-    GenServer.reply(from, msg)
-    {:noreply, state}
+
+    finish_authentication(msg, from, state)
   end
 
   @impl true
@@ -91,13 +98,19 @@ defmodule Schoolhub.Auth do
     msg =
       {:error, 'nonce_mismatch'}
       |> :scramerl.server_final_message()
-    GenServer.reply(from, msg)
-    {:noreply, state}
+
+    finish_authentication(msg, from, state)
   end
 
   
   ### Utility functions ###
 
+  defp string(text), do: text |> to_string()
+  defp charlist(text), do: text |> to_charlist()
+
+  defp integer(text) when is_integer(text), do: text
+  defp integer(text), do: text |> string() |> String.to_integer()
+  
   defp reproduce_client_key({stored_key, auth_msg, proof}) do
     client_signature = :crypto.hmac(:sha, stored_key, auth_msg)
     _client_key = :crypto.exor(proof, client_signature)
@@ -116,11 +129,18 @@ defmodule Schoolhub.Auth do
     end
   end
 
-  defp string(text), do: text |> to_string()
-  defp charlist(text), do: text |> to_charlist()
+  defp reset_state(state) do
+    %{state |
+      client_first_bare: '',
+      server_first: '',
+      stored_key: '',
+      server_key: '',
+      nonce: ''}
+  end
+  
+  defp finish_authentication(msg, from, state) do
+    GenServer.reply(from, msg)
+    {:noreply, state |> reset_state()}
+  end
 
-  defp integer(text) when is_integer(text), do: text
-  defp integer(text), do: text |> string() |> String.to_integer()
-  
-  
 end
