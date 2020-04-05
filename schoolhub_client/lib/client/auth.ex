@@ -16,9 +16,9 @@ defmodule Client.Auth do
     socket: :nil,
     username: "",
     password: "",
-    auth_stage: :not_started,
     client_first_bare: '',
-    salted_pw: ''
+    salted_pw: '',
+    auth_caller: :nil
   )
     
   ### API functions ###
@@ -30,9 +30,9 @@ defmodule Client.Auth do
 
   @doc false
   def auth(username, password) do
-    auth_result = GenServer.call(__MODULE__, {:auth, charlist(username), charlist(password)})
-    Logger.debug(inspect(auth_result))
+    _auth_result = GenServer.call(__MODULE__, {:auth, charlist(username), charlist(password)})
   end
+
 
   ### Server callbacks ###
   @impl true
@@ -42,14 +42,16 @@ defmodule Client.Auth do
     {:ok, state}
   end
 
-  # Message handling in sequential order, not grouped together by type:
-  
   @impl true
-  def handle_call({:auth, username, password}, _from, state) do
+  def handle_call({:auth, username, password}, from, state) do
     {:ok, conn} = Mint.HTTP.connect(state.scheme, state.ip, state.port)
     :ok = GenServer.cast(__MODULE__, :client_first)
-    {:reply, :ok, %{state | conn: conn, socket: conn.socket,
-		    username: username, password: password}}
+    {:noreply, %{state |
+		 conn: conn,
+		 socket: conn.socket,
+		 username: username,
+		 password: password,
+		 auth_caller: from}}
   end
 
   @impl true
@@ -60,7 +62,9 @@ defmodule Client.Auth do
     msg_bare = :scramerl_lib.prune(:"gs2-header", msg)
     {:ok, conn, _request_ref} = Mint.HTTP.request(conn, "GET", "/auth", [], msg)
     
-    {:noreply, %{state | conn: conn, auth_stage: :client_first, client_first_bare: msg_bare}}
+    {:noreply, %{state |
+		 conn: conn,
+		 client_first_bare: msg_bare}}
   end
 
   @impl true
@@ -81,7 +85,37 @@ defmodule Client.Auth do
     msg = :scramerl.client_final_message(nonce, salted_pw, auth_msg)
     {:ok, conn, _request_ref} = Mint.HTTP.request(conn, "GET", "/auth", [], msg)
     
-    {:noreply, %{state | conn: conn, salted_pw: salted_pw}}
+    {:noreply, %{state |
+		 conn: conn,
+		 salted_pw: salted_pw}}
+  end
+
+  @impl true
+  def handle_cast(%{message: 'server-last-message',
+		    "server-error": errorType},
+	state) do
+    
+    result = {:error, errorType}
+    {:noreply, %{state |
+		 conn: :nil}}
+
+    finish_auth(result, state)
+  end
+  
+  @impl true
+  def handle_cast(%{message: 'server-last-message',
+		    verifier: server_key},
+	state = %{salted_pw: salted_pw}) do
+
+    server_key_from_client =
+      salted_pw
+      |> reproduce_server_key()
+
+    result =
+      {server_key_from_client, server_key}
+      |> verify_server_credentials()
+    
+    finish_auth(result, state)
   end
 
   @impl true
@@ -94,18 +128,58 @@ defmodule Client.Auth do
     scram_data = :scramerl_lib.parse(data)
     Logger.debug("Auth client received data: #{inspect(scram_data, pretty: true)}")
     GenServer.cast(__MODULE__, scram_data)
-    {:noreply, %{state | conn: conn}}
+    {:noreply, %{state |
+		 conn: conn}}
   end
 
   @impl true
   def handle_info({:tcp_closed, socket}, state = %{socket: socket}) do
-    Logger.debug("TCP closed...")
-    {:noreply, %{state | conn: :nil, socket: :nil}}
+    Logger.debug("TCP closed for socket #{inspect(socket)}")
+    {:noreply, %{state |
+		 conn: :nil,
+		 socket: :nil} |> reset_state()}
   end
 
+  @impl true
+  def handle_info({:tcp_closed, socket}, state = %{socket: _other_socket}) do
+    ## This message does not affect the current authentication session.
+    Logger.debug("TCP closed for socket #{inspect(socket)}")
+    {:noreply, state}
+  end
+  
+
+  
   ### Utility functions ###
   
   defp charlist(text), do: text |> to_charlist()
+
+  defp reproduce_server_key(salted_pw) do
+    _server_key = :crypto.hmac(:sha, salted_pw, "Server Key")
+      |> :base64.encode()
+      |> charlist()
+  end
+
+  defp verify_server_credentials({ckey, skey}) do
+    if ckey == skey do
+      :authenticated
+    else
+      {:error, 'server_key_mismatch'}
+    end
+  end
+
+  defp reset_state(state) do
+    %{state |
+      username: "",
+      password: "",
+      client_first_bare: '',
+      salted_pw: '',
+      auth_caller: :nil}
+  end
+
+  defp finish_auth(result, state = %{auth_caller: from}) do
+    GenServer.reply(from, result)
+    {:noreply, state |> reset_state()}
+  end
   
 end
 

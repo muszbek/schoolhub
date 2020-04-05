@@ -88,7 +88,9 @@ defmodule Schoolhub.Auth do
 		     nonce: _nonce}, from},
 	state = %{nonce: _other_nonce}) do
 
-    msg = {:error, 'nonce_mismatch'}
+    msg =
+      {:error, 'nonce_mismatch'}
+      |> :scramerl.server_final_message()
     GenServer.reply(from, msg)
     {:noreply, state}
   end
