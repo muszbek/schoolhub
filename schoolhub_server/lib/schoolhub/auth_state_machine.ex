@@ -1,10 +1,11 @@
-defmodule Schoolhub.Auth do
+defmodule Schoolhub.AuthStateMachine do
   @moduledoc """
   Authentication server connecting with the database.
+  Implemented as an erlang gen_statem.
   """
   require Logger
-  
-  use GenServer
+
+  use :gen_statem
 
   defstruct(
     db_api: Schoolhub.DataManager,
@@ -12,14 +13,16 @@ defmodule Schoolhub.Auth do
     server_first: '',
     stored_key: '',
     server_key: '',
-    nonce: ''
+    nonce: '',
+    auth_caller: :nil,
+    msg_data: %{}
   )
 
   ### API functions ###
 
   @doc false
   def start_link(_args) do
-    GenServer.start_link(__MODULE__, :ok, name: __MODULE__)
+    :gen_statem.start_link({:local, __MODULE__}, __MODULE__, :ok, [])
   end
 
   
@@ -27,24 +30,26 @@ defmodule Schoolhub.Auth do
   
   @impl true
   def init(:ok) do
-    {:ok, %__MODULE__{}}
+    {:ok, :idle, %__MODULE__{}}
   end
 
-  @impl true
-  def handle_call({:auth, data}, from, state) do
-    scram_data = :scramerl_lib.parse(data)
-    Logger.debug("Auth server received data: #{inspect(scram_data, pretty: true)}")
-    GenServer.cast(__MODULE__, {scram_data, from})
-    {:noreply, state}
+  
+  def idle({:call, from}, {:auth, data}, state) do
+    scram_data = handle_html_msg(data)
+    {:next_state, :client_first, %{state |
+				   auth_caller: from,
+				   msg_data: data}}
   end
 
-  @impl true
-  def handle_cast({%{message: 'client-first-message',
-		     nonce: cnonce,
-		     username: username,
-		     str: client_first}, from},
-	state = %{db_api: db_api}) do
-    
+  
+  def client_first(:enter, :idle,
+	state = %{db_api: db_api,
+		  auth_caller: from,
+		  msg_data: %{message: 'client-first-message',
+			      nonce: cnonce,
+			      username: username,
+			      str: client_first}}) do
+
     client_first_bare = :scramerl_lib.prune(:"gs2-header", client_first)
     scram_stored = db_api.get_scram_pw(username)
     scram_tokens = String.split(scram_stored, ",")
@@ -54,31 +59,40 @@ defmodule Schoolhub.Auth do
     nonce = cnonce ++ snonce
 
     msg = :scramerl.server_first_message(charlist(nonce), charlist(salt), integer(iter_count))
-    GenServer.reply(from, msg)
+    :gen_statem.reply(from, msg)
     
-    {:noreply, %{state |
-		 client_first_bare: client_first_bare,
-		 server_first: msg,
-		 stored_key: stored_key,
-		 server_key: server_key,
-		 nonce: nonce}}
+    {:next_state, :server_first, %{state |
+				   client_first_bare: client_first_bare,
+				   server_first: msg,
+				   stored_key: stored_key,
+				   server_key: server_key,
+				   nonce: nonce}}
   end
 
-  @impl true
-  def handle_cast({%{message: 'client-final-message',
-		     nonce: nonce,
-		     proof: proof}, from},
+  
+  def server_first({:call, from}, {:auth, data}, state = %{auth_caller: from}) do
+    scram_data = handle_html_msg(data)
+    {:next_state, :client_final, %{state |
+				   msg_data: data}}
+  end
+
+  
+  def client_final(:enter, :server_first,
 	state = %{client_first_bare: client_first_bare,
 		  server_first: server_first,
 		  stored_key: stored_key,
 		  server_key: server_key,
-		  nonce: nonce}) do
+		  nonce: nonce,
+		  auth_caller: from,
+		  msg_data: %{message: 'client-final-message',
+			      nonce: nonce,
+			      proof: proof}}) do
 
     ## Nonce already verified via pattern matching! No need to explicitely do so.
-
+  
     proof = :base64.decode(proof)
     auth_msg = client_first_bare ++ ',' ++ server_first
-
+  
     stored_key_from_client =
       {stored_key |> :base64.decode(), auth_msg, proof}
       |> reproduce_client_key()
@@ -92,10 +106,11 @@ defmodule Schoolhub.Auth do
     finish_authentication(msg, from, state)
   end
 
-  @impl true
-  def handle_cast({%{message: 'client-final-message',
-		     nonce: _nonce}, from},
-	state = %{nonce: _other_nonce}) do
+  def client_final(:enter, :server_first,
+	state = %{nonce: _other_nonce,
+		  auth_caller: from,
+		  msg_data: %{message: 'client-final-message',
+			      nonce: _nonce}}) do
 
     msg =
       {:error, 'nonce_mismatch'}
@@ -104,7 +119,13 @@ defmodule Schoolhub.Auth do
     finish_authentication(msg, from, state)
   end
 
-  
+
+  def server_final(:enter, :client_final, state) do
+    ## This state is only for decoration, to represent the scram flow.
+    {:next_state, :idle, state}
+  end
+
+
   ### Utility functions ###
 
   defp string(text), do: text |> to_string()
@@ -112,6 +133,12 @@ defmodule Schoolhub.Auth do
 
   defp integer(text) when is_integer(text), do: text
   defp integer(text), do: text |> string() |> String.to_integer()
+
+  defp handle_html_msg(data) do
+    scram_data = :scramerl_lib.parse(data)
+    Logger.debug("Auth server received data: #{inspect(scram_data, pretty: true)}")
+    scram_data
+  end
   
   defp reproduce_client_key({stored_key, auth_msg, proof}) do
     client_signature = :crypto.hmac(:sha, stored_key, auth_msg)
@@ -137,12 +164,14 @@ defmodule Schoolhub.Auth do
       server_first: '',
       stored_key: '',
       server_key: '',
-      nonce: ''}
+      nonce: '',
+      auth_caller: :nil,
+      msg_data: %{}}
   end
   
   defp finish_authentication(msg, from, state) do
-    GenServer.reply(from, msg)
-    {:noreply, state |> reset_state()}
+    :gen_statem.reply(from, msg)
+    {:next_state, :server_final, state |> reset_state()}
   end
-
+  
 end
