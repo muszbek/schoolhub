@@ -13,8 +13,7 @@ defmodule Schoolhub.AuthStateMachine do
     server_first: '',
     stored_key: '',
     server_key: '',
-    nonce: '',
-    auth_caller: :nil
+    nonce: ''
   )
 
   ### API functions ###
@@ -40,18 +39,17 @@ defmodule Schoolhub.AuthStateMachine do
   
   def idle({:call, from}, {:auth, data}, state) do
     scram_data = handle_html_msg(data)
-    {:next_state, :client_first, %{state |
-				   auth_caller: from},
-     [{:next_event, :internal, scram_data}]}
+    
+    {:next_state, :client_first, state,
+     [{:next_event, :internal, {scram_data, from}}]}
   end
 
   
-  def client_first(:internal, %{message: 'client-first-message',
-				nonce: cnonce,
-				username: username,
-				str: client_first},
-	state = %{db_api: db_api,
-		  auth_caller: from}) do
+  def client_first(:internal, {%{message: 'client-first-message',
+				 nonce: cnonce,
+				 username: username,
+				 str: client_first}, from},
+	state = %{db_api: db_api}) do
 
     client_first_bare = :scramerl_lib.prune(:"gs2-header", client_first)
     scram_stored = db_api.get_scram_pw(username)
@@ -75,21 +73,20 @@ defmodule Schoolhub.AuthStateMachine do
   
   def server_first({:call, from}, {:auth, data}, state) do
     scram_data = handle_html_msg(data)
-    {:next_state, :client_final, %{state |
-				   auth_caller: from},
-     [{:next_event, :internal, scram_data}]}
+    
+    {:next_state, :client_final, state,
+     [{:next_event, :internal, {scram_data, from}}]}
   end
 
   
-  def client_final(:internal, %{message: 'client-final-message',
-				nonce: nonce,
-				proof: proof},
+  def client_final(:internal, {%{message: 'client-final-message',
+				 nonce: nonce,
+				 proof: proof}, from},
 	state = %{client_first_bare: client_first_bare,
 		  server_first: server_first,
 		  stored_key: stored_key,
 		  server_key: server_key,
-		  nonce: nonce,
-		  auth_caller: from}) do
+		  nonce: nonce}) do
 
     ## Nonce already verified via pattern matching! No need to explicitely do so.
   
@@ -109,10 +106,9 @@ defmodule Schoolhub.AuthStateMachine do
     finish_authentication(msg, from, state)
   end
 
-  def client_final(:internal, %{message: 'client-final-message',
-				nonce: _nonce},
-	state = %{nonce: _other_nonce,
-		  auth_caller: from}) do
+  def client_final(:internal, {%{message: 'client-final-message',
+				 nonce: _nonce}, from},
+	state = %{nonce: _other_nonce}) do
 
     msg =
       {:error, 'nonce_mismatch'}
@@ -177,8 +173,7 @@ defmodule Schoolhub.AuthStateMachine do
       server_first: '',
       stored_key: '',
       server_key: '',
-      nonce: '',
-      auth_caller: :nil}
+      nonce: ''}
   end
   
   defp finish_authentication(msg, from, state) do
