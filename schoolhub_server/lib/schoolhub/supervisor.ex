@@ -21,7 +21,7 @@ defmodule Schoolhub.Supervisor do
 #			       loop: {Schoolhub.Router_mochiweb, :init_mochiweb, [[]]}]]}
 #      },
       Schoolhub.DataManager,
-      {Schoolhub.Auth, db_api: Schoolhub.DataManager},
+      {Schoolhub.AuthStateMachine, db_api: Schoolhub.DataManager},
       {Plug.Cowboy, scheme: :http, plug: Schoolhub.Router, options: [port: 8080]}
     ]
 

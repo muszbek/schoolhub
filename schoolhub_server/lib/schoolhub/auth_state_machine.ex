@@ -5,7 +5,7 @@ defmodule Schoolhub.AuthStateMachine do
   """
   require Logger
 
-  use :gen_statem
+  @behaviour :gen_statem
 
   defstruct(
     db_api: Schoolhub.DataManager,
@@ -14,8 +14,7 @@ defmodule Schoolhub.AuthStateMachine do
     stored_key: '',
     server_key: '',
     nonce: '',
-    auth_caller: :nil,
-    msg_data: %{}
+    auth_caller: :nil
   )
 
   ### API functions ###
@@ -33,22 +32,26 @@ defmodule Schoolhub.AuthStateMachine do
     {:ok, :idle, %__MODULE__{}}
   end
 
+  @impl true
+  def callback_mode() do
+    :state_functions
+  end
+
   
   def idle({:call, from}, {:auth, data}, state) do
     scram_data = handle_html_msg(data)
     {:next_state, :client_first, %{state |
-				   auth_caller: from,
-				   msg_data: data}}
+				   auth_caller: from},
+     [{:next_event, :internal, scram_data}]}
   end
 
   
-  def client_first(:enter, :idle,
+  def client_first(:internal, %{message: 'client-first-message',
+				nonce: cnonce,
+				username: username,
+				str: client_first},
 	state = %{db_api: db_api,
-		  auth_caller: from,
-		  msg_data: %{message: 'client-first-message',
-			      nonce: cnonce,
-			      username: username,
-			      str: client_first}}) do
+		  auth_caller: from}) do
 
     client_first_bare = :scramerl_lib.prune(:"gs2-header", client_first)
     scram_stored = db_api.get_scram_pw(username)
@@ -70,23 +73,23 @@ defmodule Schoolhub.AuthStateMachine do
   end
 
   
-  def server_first({:call, from}, {:auth, data}, state = %{auth_caller: from}) do
+  def server_first({:call, from}, {:auth, data}, state) do
     scram_data = handle_html_msg(data)
     {:next_state, :client_final, %{state |
-				   msg_data: data}}
+				   auth_caller: from},
+     [{:next_event, :internal, scram_data}]}
   end
 
   
-  def client_final(:enter, :server_first,
+  def client_final(:internal, %{message: 'client-final-message',
+				nonce: nonce,
+				proof: proof},
 	state = %{client_first_bare: client_first_bare,
 		  server_first: server_first,
 		  stored_key: stored_key,
 		  server_key: server_key,
 		  nonce: nonce,
-		  auth_caller: from,
-		  msg_data: %{message: 'client-final-message',
-			      nonce: nonce,
-			      proof: proof}}) do
+		  auth_caller: from}) do
 
     ## Nonce already verified via pattern matching! No need to explicitely do so.
   
@@ -106,11 +109,10 @@ defmodule Schoolhub.AuthStateMachine do
     finish_authentication(msg, from, state)
   end
 
-  def client_final(:enter, :server_first,
+  def client_final(:internal, %{message: 'client-final-message',
+				nonce: _nonce},
 	state = %{nonce: _other_nonce,
-		  auth_caller: from,
-		  msg_data: %{message: 'client-final-message',
-			      nonce: _nonce}}) do
+		  auth_caller: from}) do
 
     msg =
       {:error, 'nonce_mismatch'}
@@ -122,7 +124,18 @@ defmodule Schoolhub.AuthStateMachine do
 
   def server_final(:enter, :client_final, state) do
     ## This state is only for decoration, to represent the scram flow.
-    {:next_state, :idle, state}
+    {:next_state, :idle, state |> reset_state()}
+  end
+
+  
+  def child_spec(opts) do
+    %{
+      id: __MODULE__,
+      start: {__MODULE__, :start_link, [opts ++ [name: __MODULE__]]},
+      type: :worker,
+      restart: :permanent,
+      shutdown: 500
+    }
   end
 
 
@@ -165,13 +178,12 @@ defmodule Schoolhub.AuthStateMachine do
       stored_key: '',
       server_key: '',
       nonce: '',
-      auth_caller: :nil,
-      msg_data: %{}}
+      auth_caller: :nil}
   end
   
   defp finish_authentication(msg, from, state) do
     :gen_statem.reply(from, msg)
-    {:next_state, :server_final, state |> reset_state()}
+    {:next_state, :server_final, state, [:next_event, :internal, []]}
   end
   
 end

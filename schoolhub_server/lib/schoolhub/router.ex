@@ -12,7 +12,7 @@ defmodule Schoolhub.Router do
   get "/auth" do
     {:ok, body, conn} = Plug.Conn.read_body(conn)
     Logger.debug("Received GET request on /auth with body: #{inspect(body)}")
-    response_body = GenServer.call(Schoolhub.Auth, {:auth, body})
+    response_body = GenServer.call(Schoolhub.AuthStateMachine, {:auth, body})
     send_resp(conn, 200, response_body)
   end
 
