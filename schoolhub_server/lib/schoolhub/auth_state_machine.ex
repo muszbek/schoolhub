@@ -60,14 +60,14 @@ defmodule Schoolhub.AuthStateMachine do
     nonce = cnonce ++ snonce
 
     msg = :scramerl.server_first_message(charlist(nonce), charlist(salt), integer(iter_count))
-    :gen_statem.reply(from, msg)
     
     {:next_state, :server_first, %{state |
 				   client_first_bare: client_first_bare,
 				   server_first: msg,
 				   stored_key: stored_key,
 				   server_key: server_key,
-				   nonce: nonce}}
+				   nonce: nonce},
+     [{:reply, from, msg}]}
   end
 
   
@@ -118,7 +118,7 @@ defmodule Schoolhub.AuthStateMachine do
   end
 
 
-  def server_final(:enter, :client_final, state) do
+  def server_final(:internal, [], state) do
     ## This state is only for decoration, to represent the scram flow.
     {:next_state, :idle, state |> reset_state()}
   end
@@ -177,8 +177,9 @@ defmodule Schoolhub.AuthStateMachine do
   end
   
   defp finish_authentication(msg, from, state) do
-    :gen_statem.reply(from, msg)
-    {:next_state, :server_final, state, [:next_event, :internal, []]}
+    {:next_state, :server_final, state,
+     [{:reply, from, msg},
+      {:next_event, :internal, []}]}
   end
   
 end
