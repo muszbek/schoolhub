@@ -9,6 +9,7 @@ defmodule Schoolhub.AuthStateMachine do
 
   defstruct(
     db_api: Schoolhub.DataManager,
+    auth_requests: [],
     client_first_bare: '',
     server_first: '',
     stored_key: '',
@@ -37,11 +38,24 @@ defmodule Schoolhub.AuthStateMachine do
   end
 
   
-  def idle({:call, from}, {:auth, data}, state) do
-    scram_data = handle_html_msg(data)
-    
-    {:next_state, :client_first, state,
-     [{:next_event, :internal, {scram_data, from}}]}
+  def idle({:call, from}, {:auth, scram_data = %{message: 'client-first-message'}},
+	state = %{auth_requests: requests}) do
+
+    new_requests = requests ++ [{scram_data, from}]
+    {:next_state, :idle, %{state | auth_requests: new_requests},
+     [{:next_event, :internal, []}]}
+  end
+
+  def idle(:internal, [], state = %{auth_requests: []}) do
+    ## Called by server_final
+    {:next_state, :idle, state}
+  end
+
+  def idle(:internal, [],
+	state = %{auth_requests: [request = {_scram_data, _from} | new_requests]}) do
+    ## Called by idle or server_final
+    {:next_state, :client_first, %{state | auth_requests: new_requests},
+     [{:next_event, :internal, request}]}
   end
 
   
@@ -70,9 +84,16 @@ defmodule Schoolhub.AuthStateMachine do
      [{:reply, from, msg}]}
   end
 
+
+  def server_first({:call, from}, {:auth, scram_data = %{message: 'client-first-message'}},
+	state = %{auth_requests: requests}) do
+
+    new_requests = requests ++ [{scram_data, from}]
+    {:next_state, :server_first, %{state | auth_requests: new_requests}}
+  end
   
-  def server_first({:call, from}, {:auth, data}, state) do
-    scram_data = handle_html_msg(data)
+  def server_first({:call, from}, {:auth, scram_data = %{message: 'client-final-message'}},
+	state) do
     
     {:next_state, :client_final, state,
      [{:next_event, :internal, {scram_data, from}}]}
@@ -120,7 +141,8 @@ defmodule Schoolhub.AuthStateMachine do
 
   def server_final(:internal, [], state) do
     ## This state is only for decoration, to represent the scram flow.
-    {:next_state, :idle, state |> reset_state()}
+    {:next_state, :idle, state |> reset_state(),
+     [{:next_event, :internal, []}]}
   end
 
   
@@ -142,12 +164,6 @@ defmodule Schoolhub.AuthStateMachine do
 
   defp integer(text) when is_integer(text), do: text
   defp integer(text), do: text |> string() |> String.to_integer()
-
-  defp handle_html_msg(data) do
-    scram_data = :scramerl_lib.parse(data)
-    Logger.debug("Auth server received data: #{inspect(scram_data, pretty: true)}")
-    scram_data
-  end
   
   defp reproduce_client_key({stored_key, auth_msg, proof}) do
     client_signature = :crypto.hmac(:sha, stored_key, auth_msg)
