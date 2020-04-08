@@ -20,16 +20,16 @@ defmodule Schoolhub.AuthStateMachine do
   ### API functions ###
 
   @doc false
-  def start_link(_args) do
-    :gen_statem.start_link({:local, __MODULE__}, __MODULE__, :ok, [])
+  def start_link(options) do
+    :gen_statem.start_link({:local, __MODULE__}, __MODULE__, options, [])
   end
 
   
   ### Server callbacks ###
   
   @impl true
-  def init(:ok) do
-    {:ok, :idle, %__MODULE__{}}
+  def init(options) do
+    {:ok, :idle, parse_options(options)}
   end
 
   @impl true
@@ -167,6 +167,23 @@ defmodule Schoolhub.AuthStateMachine do
 
 
   ### Utility functions ###
+
+  defp parse_options(state = %__MODULE__{}) do
+    state
+  end
+  defp parse_options(options) do
+    parse_options(options, %__MODULE__{})
+  end
+  defp parse_options([], state = %__MODULE__{}) do
+    state
+  end
+  defp parse_options([{:db_api, db_api} | remaining_opts], state) do
+    parse_options(remaining_opts, %{state | db_api: db_api})
+  end
+  defp parse_options([{_key, _value} | remaining_opts] ,state) do
+    parse_options(remaining_opts, state)
+  end
+  
 
   defp string(text), do: text |> to_string()
   defp charlist(text), do: text |> to_charlist()
