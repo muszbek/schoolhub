@@ -66,22 +66,31 @@ defmodule Schoolhub.AuthStateMachine do
 	state = %{db_api: db_api}) do
 
     client_first_bare = :scramerl_lib.prune(:"gs2-header", client_first)
-    scram_stored = db_api.get_scram_pw(username)
-    scram_tokens = String.split(scram_stored, ",")
-    ["==SCRAM==", stored_key, server_key, salt, iter_count] = scram_tokens
-
-    snonce = :scramerl.gen_nonce()
-    nonce = cnonce ++ snonce
-
-    msg = :scramerl.server_first_message(charlist(nonce), charlist(salt), integer(iter_count))
     
-    {:next_state, :server_first, %{state |
-				   client_first_bare: client_first_bare,
-				   server_first: msg,
-				   stored_key: stored_key,
-				   server_key: server_key,
-				   nonce: nonce},
-     [{:reply, from, msg}]}
+    case db_api.get_scram_pw(username) do
+      :nil ->
+	msg = 'unknown_user'
+	
+        {:next_state, :idle, state |> reset_state(),
+         [{:reply, from, msg}]}
+      
+      scram_stored ->
+	scram_tokens = String.split(scram_stored, ",")
+	["==SCRAM==", stored_key, server_key, salt, iter_count] = scram_tokens
+	
+	snonce = :scramerl.gen_nonce()
+	nonce = cnonce ++ snonce
+	
+	msg = :scramerl.server_first_message(charlist(nonce), charlist(salt), integer(iter_count))
+	
+	{:next_state, :server_first, %{state |
+				       client_first_bare: client_first_bare,
+				       server_first: msg,
+				       stored_key: stored_key,
+				       server_key: server_key,
+				       nonce: nonce},
+	 [{:reply, from, msg}]}
+    end
   end
 
 

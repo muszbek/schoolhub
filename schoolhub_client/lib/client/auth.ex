@@ -119,15 +119,29 @@ defmodule Client.Auth do
   end
 
   @impl true
+  def handle_cast(result = {:error, _reason}, state = %{auth_caller: from}) do
+    GenServer.reply(from, result)
+    {:noreply, state |> reset_state()}
+  end
+
+  @impl true
   def handle_info({transport, socket, http_response}, state = %{conn: conn,
 								socket: socket}) do
     
     {:ok, conn, response} = Mint.HTTP.stream(conn, {transport, socket, http_response})
     {:data, _ref, data}  = :lists.keyfind(:data, 1, response)
+
+    case data do
+      "unknown_user" ->
+	msg = {:error, 'unknown_user'}
+	GenServer.cast(__MODULE__, msg)
+      
+      correct_data ->
+	scram_data = :scramerl_lib.parse(correct_data)
+	Logger.debug("Auth client received data: #{inspect(scram_data, pretty: true)}")
+	GenServer.cast(__MODULE__, scram_data)
+    end
     
-    scram_data = :scramerl_lib.parse(data)
-    Logger.debug("Auth client received data: #{inspect(scram_data, pretty: true)}")
-    GenServer.cast(__MODULE__, scram_data)
     {:noreply, %{state |
 		 conn: conn}}
   end

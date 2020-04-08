@@ -42,12 +42,16 @@ defmodule Schoolhub.DataManager do
   def handle_call({:get_pw, username}, _from, state = %{pgsql_conn: conn}) do
     query_text = "SELECT pass_details FROM users WHERE username LIKE $1"
     {:ok, data} = Postgrex.query(conn, query_text, [string(username)])
-    [[result]] = data.rows
-    
-    Logger.debug("Fetching scram data from database for username #{inspect(username)}: "
-      <> "#{inspect(result)}")
-    
-    {:reply, result, state}
+
+    case data.rows do
+      [] ->
+	Logger.debug("#{inspect(username)} is not present in database")
+        {:reply, :nil, state}
+      [[result]] ->
+	Logger.debug("Fetching scram data from database for username #{inspect(username)}: "
+	  <> "#{inspect(result)}")
+        {:reply, result, state}
+    end
   end
 
   
