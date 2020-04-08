@@ -8,7 +8,7 @@ defmodule Schoolhub.AuthStateMachine do
   @behaviour :gen_statem
 
   defstruct(
-    db_api: Schoolhub.DataManager,
+    db_api: Schoolhub.DataManagerMock,
     auth_requests: [],
     client_first_bare: '',
     server_first: '',
