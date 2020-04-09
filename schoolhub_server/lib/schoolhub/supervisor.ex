@@ -22,11 +22,21 @@ defmodule Schoolhub.Supervisor do
 #      },
       Schoolhub.DataManager,
       {Schoolhub.AuthStateMachine, db_api: Schoolhub.DataManager},
-      {Plug.Cowboy, scheme: :http, plug: Schoolhub.Router, options: [port: 8080]}
+      {Plug.Cowboy,
+       scheme: server_scheme(), plug: Schoolhub.Router, options: [port: server_port()]}
     ]
 
     opts = [strategy: :one_for_one]
     Supervisor.init(children, opts)
+  end
+
+
+  defp server_scheme() do
+    Application.get_env(:schoolhub, :server_scheme, :http)
+  end
+
+  defp server_port() do
+    Application.get_env(:schoolhub, :server_port, 8080)
   end
   
 end

@@ -23,11 +23,15 @@ defmodule Client.Supervisor do
   @impl true
   def init(:ok) do
     children = [
-      Client.Auth
+      {Client.Auth, server_address()}
     ]
 
     opts = [strategy: :rest_for_one]
     Supervisor.init(children, opts)
+  end
+
+  defp server_address() do
+    Application.get_env(:schoolhub_client, :server_address)
   end
   
 end

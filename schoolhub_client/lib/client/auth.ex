@@ -24,8 +24,8 @@ defmodule Client.Auth do
   ### API functions ###
 
   @doc false
-  def start_link([]) do
-    GenServer.start_link(__MODULE__, :ok, name: __MODULE__)
+  def start_link(options) do
+    GenServer.start_link(__MODULE__, options, name: __MODULE__)
   end
 
   @doc false
@@ -36,10 +36,8 @@ defmodule Client.Auth do
 
   ### Server callbacks ###
   @impl true
-  def init(:ok) do
-    state = %__MODULE__{}
-    
-    {:ok, state}
+  def init(options) do
+    {:ok, parse_options(options)}
   end
 
   @impl true
@@ -164,6 +162,29 @@ defmodule Client.Auth do
 
   
   ### Utility functions ###
+
+  defp parse_options(state = %__MODULE__{}) do
+    state
+  end
+  defp parse_options(options) do
+    parse_options(options, %__MODULE__{})
+  end
+  defp parse_options([], state = %__MODULE__{}) do
+    state
+  end
+  defp parse_options([{:scheme, scheme} | remaining_opts], state) do
+    parse_options(remaining_opts, %{state | scheme: scheme})
+  end
+  defp parse_options([{:ip, ip} | remaining_opts], state) do
+    parse_options(remaining_opts, %{state | ip: ip})
+  end
+  defp parse_options([{:port, port} | remaining_opts], state) do
+    parse_options(remaining_opts, %{state | port: port})
+  end
+  defp parse_options([{_key, _value} | remaining_opts] ,state) do
+    parse_options(remaining_opts, state)
+  end
+  
   
   defp charlist(text), do: text |> to_charlist()
 
@@ -196,12 +217,3 @@ defmodule Client.Auth do
   end
   
 end
-
-# username:
-# test_user
-
-# password:
-# test_pw (not in db)
-
-# pass_details:
-# ==SCRAM==,jv1SCgihx+Q2yj6PggxUZPbmfp4=,r+T1xjRnDwpUPoC/EwOXA+Jjt2Y=,iCgKQkjMSgfZgjh06UMZzg==,4096

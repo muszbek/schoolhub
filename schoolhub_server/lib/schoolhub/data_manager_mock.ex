@@ -6,6 +6,7 @@ defmodule Schoolhub.DataManagerMock do
 
   @mock_user 'test_user'
   @mock_scram "==SCRAM==,jv1SCgihx+Q2yj6PggxUZPbmfp4=,r+T1xjRnDwpUPoC/EwOXA+Jjt2Y=,iCgKQkjMSgfZgjh06UMZzg==,4096"
+  ## The password belonging to this mock entry is "test_pw"
 
   ### API functions ###
   
