@@ -20,6 +20,11 @@ defmodule Schoolhub.AuthStateMachine do
   ### API functions ###
 
   @doc false
+  def start_link([{:name, name} | options]) do
+    :gen_statem.start_link({:local, name}, __MODULE__, options, [])
+  end
+
+  @doc false
   def start_link(options) do
     :gen_statem.start_link({:local, __MODULE__}, __MODULE__, options, [])
   end
@@ -38,9 +43,10 @@ defmodule Schoolhub.AuthStateMachine do
   end
 
   
-  def idle({:call, from}, {:auth, scram_data = %{message: 'client-first-message'}},
+  def idle({:call, from}, {:auth, data},
 	state = %{auth_requests: requests}) do
 
+    scram_data = %{message: 'client-first-message'} = handle_html_msg(data)
     new_requests = requests ++ [{scram_data, from}]
     {:next_state, :idle, %{state | auth_requests: new_requests},
      [{:next_event, :internal, []}]}
@@ -94,18 +100,18 @@ defmodule Schoolhub.AuthStateMachine do
   end
 
 
-  def server_first({:call, from}, {:auth, scram_data = %{message: 'client-first-message'}},
+  def server_first({:call, from}, {:auth, data},
 	state = %{auth_requests: requests}) do
 
-    new_requests = requests ++ [{scram_data, from}]
-    {:next_state, :server_first, %{state | auth_requests: new_requests}}
-  end
-  
-  def server_first({:call, from}, {:auth, scram_data = %{message: 'client-final-message'}},
-	state) do
-    
-    {:next_state, :client_final, state,
-     [{:next_event, :internal, {scram_data, from}}]}
+    case handle_html_msg(data) do
+      scram_data = %{message: 'client-first-message'} ->
+	new_requests = requests ++ [{scram_data, from}]
+        {:next_state, :server_first, %{state | auth_requests: new_requests}}
+      scram_data = %{message: 'client-final-message'} ->
+	{:next_state, :client_final, state,
+	 [{:next_event, :internal, {scram_data, from}}]}
+    end
+	
   end
 
   
@@ -190,6 +196,12 @@ defmodule Schoolhub.AuthStateMachine do
 
   defp integer(text) when is_integer(text), do: text
   defp integer(text), do: text |> string() |> String.to_integer()
+
+  defp handle_html_msg(data) do
+    scram_data = :scramerl_lib.parse(data)
+    Logger.debug("Auth server received data: #{inspect(scram_data, pretty: true)}")
+    scram_data
+  end
   
   defp reproduce_client_key({stored_key, auth_msg, proof}) do
     client_signature = :crypto.hmac(:sha, stored_key, auth_msg)

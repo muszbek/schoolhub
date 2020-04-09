@@ -11,7 +11,13 @@ defmodule Schoolhub.DataManager do
   )
 
   ### API functions ###
-  
+
+  @doc false
+  def start_link([name: name]) do
+    GenServer.start_link(name, :ok, name: __MODULE__)
+  end
+
+  @doc false
   def start_link([]) do
     GenServer.start_link(__MODULE__, :ok, name: __MODULE__)
   end
