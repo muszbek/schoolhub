@@ -9,7 +9,7 @@ defmodule Schoolhub.AuthStateMachine do
 
   defstruct(
     db_api: Schoolhub.DataManagerMock,
-    auth_requests: [],
+    requester: :nil,
     client_first_bare: '',
     server_first: '',
     stored_key: '',
@@ -24,7 +24,6 @@ defmodule Schoolhub.AuthStateMachine do
     :gen_statem.start_link({:local, name}, __MODULE__, options, [])
   end
 
-  @doc false
   def start_link(options) do
     :gen_statem.start_link({:local, __MODULE__}, __MODULE__, options, [])
   end
@@ -34,7 +33,15 @@ defmodule Schoolhub.AuthStateMachine do
   
   @impl true
   def init(options) do
-    {:ok, :idle, parse_options(options)}
+    
+    find_scram_data = fn
+      {:scram_data, data} -> data
+      {_, _} -> false
+    end
+    scram_data = Enum.find_value(options, find_scram_data)
+    
+    {:ok, :client_first, parse_options(options),
+     [{:next_event, :internal, scram_data}]}
   end
 
   @impl true
@@ -43,42 +50,21 @@ defmodule Schoolhub.AuthStateMachine do
   end
 
   
-  def idle({:call, from}, {:auth, data},
-	state = %{auth_requests: requests}) do
-
-    scram_data = %{message: 'client-first-message'} = handle_html_msg(data)
-    new_requests = requests ++ [{scram_data, from}]
-    {:next_state, :idle, %{state | auth_requests: new_requests},
-     [{:next_event, :internal, []}]}
-  end
-
-  def idle(:internal, [], state = %{auth_requests: []}) do
-    ## Called by server_final
-    {:next_state, :idle, state}
-  end
-
-  def idle(:internal, [],
-	state = %{auth_requests: [request = {_scram_data, _from} | new_requests]}) do
-    ## Called by idle or server_final
-    {:next_state, :client_first, %{state | auth_requests: new_requests},
-     [{:next_event, :internal, request}]}
-  end
-
-  
-  def client_first(:internal, {%{message: 'client-first-message',
-				 nonce: cnonce,
-				 username: username,
-				 str: client_first}, from},
-	state = %{db_api: db_api}) do
+  def client_first(:internal, %{message: 'client-first-message',
+				nonce: cnonce,
+				username: username,
+				str: client_first},
+	state = %{db_api: db_api,
+		  requester: from}) do
 
     client_first_bare = :scramerl_lib.prune(:"gs2-header", client_first)
     
     case db_api.get_scram_pw(username) do
       :nil ->
 	msg = 'unknown_user'
-	
-        {:next_state, :idle, state |> reset_state(),
-         [{:reply, from, msg}]}
+
+	send(from, {:reply, msg})
+        {:stop, :unknown_user_error}
       
       scram_stored ->
 	scram_tokens = String.split(scram_stored, ",")
@@ -88,41 +74,35 @@ defmodule Schoolhub.AuthStateMachine do
 	nonce = cnonce ++ snonce
 	
 	msg = :scramerl.server_first_message(charlist(nonce), charlist(salt), integer(iter_count))
-	
+
+	send(from, {:reply, msg})
 	{:next_state, :server_first, %{state |
 				       client_first_bare: client_first_bare,
 				       server_first: msg,
 				       stored_key: stored_key,
 				       server_key: server_key,
-				       nonce: nonce},
-	 [{:reply, from, msg}]}
+				       nonce: nonce}}
     end
   end
 
 
-  def server_first({:call, from}, {:auth, data},
-	state = %{auth_requests: requests}) do
+  def server_first(:cast, {:auth, scram_data = %{message: 'client-final-message'}, from},
+	state) do
 
-    case handle_html_msg(data) do
-      scram_data = %{message: 'client-first-message'} ->
-	new_requests = requests ++ [{scram_data, from}]
-        {:next_state, :server_first, %{state | auth_requests: new_requests}}
-      scram_data = %{message: 'client-final-message'} ->
-	{:next_state, :client_final, state,
-	 [{:next_event, :internal, {scram_data, from}}]}
-    end
-	
+    {:next_state, :client_final, %{state | requester: from},
+     [{:next_event, :internal, scram_data}]}
   end
 
   
-  def client_final(:internal, {%{message: 'client-final-message',
-				 nonce: nonce,
-				 proof: proof}, from},
-	state = %{client_first_bare: client_first_bare,
-		  server_first: server_first,
-		  stored_key: stored_key,
-		  server_key: server_key,
-		  nonce: nonce}) do
+  def client_final(:internal, %{message: 'client-final-message',
+				nonce: nonce,
+				proof: proof},
+	_state = %{client_first_bare: client_first_bare,
+		   server_first: server_first,
+		   stored_key: stored_key,
+		   server_key: server_key,
+		   nonce: nonce,
+		   requester: from}) do
 
     ## Nonce already verified via pattern matching! No need to explicitely do so.
   
@@ -139,36 +119,34 @@ defmodule Schoolhub.AuthStateMachine do
       |> verify_credentials()
       |> :scramerl.server_final_message()
 
-    finish_authentication(msg, from, state)
+    finish_authentication(msg, from, :success)
   end
 
   def client_final(:internal, {%{message: 'client-final-message',
 				 nonce: _nonce}, from},
-	state = %{nonce: _other_nonce}) do
+	_state = %{nonce: _other_nonce}) do
 
     msg =
       {:error, 'nonce_mismatch'}
       |> :scramerl.server_final_message()
+    ## Meaning: someone inpersonating the client
 
-    finish_authentication(msg, from, state)
-  end
-
-
-  def server_final(:internal, [], state) do
-    ## This state is only for decoration, to represent the scram flow.
-    {:next_state, :idle, state |> reset_state(),
-     [{:next_event, :internal, []}]}
+    finish_authentication(msg, from, :auth_error)
   end
 
   
-  def child_spec(opts) do
+  def child_spec(opts = [{:name, name} | _rest_opts]) do
     %{
-      id: __MODULE__,
-      start: {__MODULE__, :start_link, [opts ++ [name: __MODULE__]]},
+      id: name,
+      start: {__MODULE__, :start_link, [opts]},
       type: :worker,
-      restart: :permanent,
+      restart: :temporary,
       shutdown: 500
     }
+  end
+
+  def child_spec(opts) do
+    child_spec(opts ++ [name: __MODULE__])
   end
 
 
@@ -186,6 +164,12 @@ defmodule Schoolhub.AuthStateMachine do
   defp parse_options([{:db_api, db_api} | remaining_opts], state) do
     parse_options(remaining_opts, %{state | db_api: db_api})
   end
+  defp parse_options([{:requester, requester} | remaining_opts], state) do
+    parse_options(remaining_opts, %{state | requester: requester})
+  end
+  defp parse_options([{:scram_data, _data} | remaining_opts], state) do
+    parse_options(remaining_opts, state)
+  end
   defp parse_options([{_key, _value} | remaining_opts] ,state) do
     parse_options(remaining_opts, state)
   end
@@ -197,11 +181,6 @@ defmodule Schoolhub.AuthStateMachine do
   defp integer(text) when is_integer(text), do: text
   defp integer(text), do: text |> string() |> String.to_integer()
 
-  defp handle_html_msg(data) do
-    scram_data = :scramerl_lib.parse(data)
-    Logger.debug("Auth server received data: #{inspect(scram_data, pretty: true)}")
-    scram_data
-  end
   
   defp reproduce_client_key({stored_key, auth_msg, proof}) do
     client_signature = :crypto.hmac(:sha, stored_key, auth_msg)
@@ -218,22 +197,14 @@ defmodule Schoolhub.AuthStateMachine do
       server_key |> charlist()
     else
       {:error, 'stored_key_mismatch'}
+      ## Meaning: wrong password
     end
   end
-
-  defp reset_state(state) do
-    %{state |
-      client_first_bare: '',
-      server_first: '',
-      stored_key: '',
-      server_key: '',
-      nonce: ''}
-  end
   
-  defp finish_authentication(msg, from, state) do
-    {:next_state, :server_final, state,
-     [{:reply, from, msg},
-      {:next_event, :internal, []}]}
+  defp finish_authentication(msg, from, reason) do
+    send(from, {:reply, msg})
+    
+    {:stop, reason}
   end
   
 end
