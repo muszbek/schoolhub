@@ -7,4 +7,6 @@ config :schoolhub,
   postgres_address: [hostname: "10.3.0.3",
 		     username: "schoolhub",
 		     password: "schoolhub",
-		     database: "schoolhub"]
+		     database: "schoolhub"],
+
+  auth_session_timeout: 500

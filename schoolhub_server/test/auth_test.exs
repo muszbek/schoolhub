@@ -85,6 +85,13 @@ defmodule AuthTest do
     assert_server_final_fail()
   end
 
+  test "session times out" do
+    timeout = Application.get_env(:schoolhub, :auth_session_timeout)
+    auth_and_assert_first()
+    :timer.sleep(timeout + 10)
+    assert Supervisor.which_children(@auth_server_name) == []
+  end
+
 
   defp auth_and_assert_first() do
     {cnonce, client_first} = get_client_first(@username)

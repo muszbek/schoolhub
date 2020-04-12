@@ -76,13 +76,15 @@ defmodule Schoolhub.AuthStateMachine do
 	
 	msg = :scramerl.server_first_message(charlist(nonce), charlist(salt), integer(iter_count))
 
+	session_timeout = Application.get_env(:schoolhub, :auth_session_timeout)
 	send(from, {:reply, msg})
 	{:next_state, :server_first, %{state |
 				       client_first_bare: client_first_bare,
 				       server_first: msg,
 				       stored_key: stored_key,
 				       server_key: server_key,
-				       nonce: nonce}}
+				       nonce: nonce},
+	 [{:state_timeout, session_timeout, []}]}
     end
   end
 
@@ -92,6 +94,11 @@ defmodule Schoolhub.AuthStateMachine do
 
     {:next_state, :client_final, %{state | requester: from},
      [{:next_event, :internal, scram_data}]}
+  end
+
+  def server_first(:state_timeout, [], _state = %{username: username}) do
+    Logger.info("Session to authenticate #{inspect(username)} timed out...")
+    {:stop, :client_final_timeout}
   end
 
   
