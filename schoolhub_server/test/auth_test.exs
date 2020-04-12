@@ -19,7 +19,7 @@ defmodule AuthTest do
   @auth_msg_end ",s=iCgKQkjMSgfZgjh06UMZzg==,i=4096"
 
   @auth_server_name Schoolhub.AuthServer
-  @assert_receive_timeout 500
+  @assert_receive_timeout 100
 
   setup do
     kill_session = fn {id, _pid, :worker, [Schoolhub.AuthStateMachine]} ->
@@ -69,6 +69,22 @@ defmodule AuthTest do
     auth_and_assert_final(nonce2)
   end
 
+  test "fails because nonce mismatch" do
+    nonce = auth_and_assert_first()
+
+    client_final = get_client_final_wrong_nonce(nonce)
+    Schoolhub.AuthServer.authenticate(client_final)
+    assert_server_final_fail_or_timeout()
+  end
+
+  test "fails because wrong password" do
+    nonce = auth_and_assert_first()
+
+    client_final = get_client_final_wrong_pw(nonce)
+    Schoolhub.AuthServer.authenticate(client_final)
+    assert_server_final_fail()
+  end
+
 
   defp auth_and_assert_first() do
     {cnonce, client_first} = get_client_first(@username)
@@ -105,9 +121,55 @@ defmodule AuthTest do
     _msg = :scramerl.client_final_message(nonce, @salted_pw, auth_msg)
   end
 
+  defp get_client_final_wrong_nonce(nonce) do
+    <<cnonce::bytes-size(15)>> <> <<_snonce::bytes-size(15)>> = nonce
+    auth_msg = @auth_msg_start <> cnonce <> @auth_msg_mid <> nonce <> @auth_msg_end
+      |> to_charlist()
+    nonce = nonce |> to_charlist() |> Enum.reverse()
+    _msg = :scramerl.client_final_message(nonce, @salted_pw, auth_msg)
+  end
+
+  defp get_client_final_wrong_pw(nonce) do
+    <<cnonce::bytes-size(15)>> <> <<_snonce::bytes-size(15)>> = nonce
+    auth_msg = @auth_msg_start <> cnonce <> @auth_msg_mid <> nonce <> @auth_msg_end
+      |> to_charlist()
+    nonce = nonce |> to_charlist()
+    _msg = :scramerl.client_final_message(nonce, @salted_pw <> <<99>>, auth_msg)
+  end
+
   defp assert_server_final() do
     assert_receive {:reply, response}, @assert_receive_timeout
     assert @server_final == response
+  end
+
+  defp assert_server_final_fail() do
+    receive do
+      message ->
+	refute match?({:reply, @server_final}, message)
+    after
+      @assert_receive_timeout ->
+	flunk("Message timed out...")
+    end
+  end
+
+  defp assert_server_final_timeout() do
+    receive do
+      _message ->
+	flunk("Message should have timed out...")
+    after
+      @assert_receive_timeout ->
+	:ok
+    end
+  end
+
+  defp assert_server_final_fail_or_timeout() do
+    receive do
+      message ->
+	refute match?({:reply, @server_final}, message)
+    after
+      @assert_receive_timeout ->
+	:ok
+    end
   end
 
 end
