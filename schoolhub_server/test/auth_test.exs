@@ -1,55 +1,113 @@
 defmodule AuthTest do
 
   use ExUnit.Case
-  doctest Schoolhub.AuthStateMachine
+  doctest Schoolhub.AuthServer
 
-  @client_first "n,,n=test_user,r=OXr<sUMqzqUr_mM"
+  #@client_first "n,,n=test_user,r=OXr<sUMqzqUr_mM"
   #@client_final "c=biws,r=OXr<sUMqzqUr_mMvLn;CrRX[bB^g@Z,p=cCVZHJsZbxSikIhPiElFF+cTCuA="
 
   #@server_first 'r=OXr<sUMqzqUr_mMvLn;CrRX[bB^g@Z,s=iCgKQkjMSgfZgjh06UMZzg==,i=4096'
   @server_final 'v=r+T1xjRnDwpUPoC/EwOXA+Jjt2Y='
 
-  @server_first_start_match "r=OXr<sUMqzqUr_mM"
+  @username 'test_user'
+  @client_first_start_match "n,,n=test_user,r="
+  @server_first_start_match "r="
   @server_first_end_match ",s=iCgKQkjMSgfZgjh06UMZzg==,i=4096"
-  @client_nonce "OXr<sUMqzqUr_mM"
   @salted_pw <<60, 60, 90, 18, 63, 251, 151, 24, 234, 108, 41, 221, 17, 92, 9, 52, 211, 193, 3, 72>>
-  @auth_msg_start "n=test_user,r=OXr<sUMqzqUr_mM,r="
+  @auth_msg_start "n=test_user,r="
+  @auth_msg_mid ",r="
   @auth_msg_end ",s=iCgKQkjMSgfZgjh06UMZzg==,i=4096"
 
-  @auth_server_name Schoolhub.AuthStateMachineTest
+  @auth_server_name Schoolhub.AuthServer
+  @assert_receive_timeout 500
 
   setup do
-    Schoolhub.AuthStateMachine.start_link([name: @auth_server_name,
-					   db_api: Schoolhub.DataManagerMock])
+    kill_session = fn {id, _pid, :worker, [Schoolhub.AuthStateMachine]} ->
+      Supervisor.terminate_child(@auth_server_name, id)
+    end
+    all_sessions = Supervisor.which_children(@auth_server_name)
+    Enum.map(all_sessions, kill_session)
     {:ok, []}
   end
 
+  
   test "gets server first message" do
-    response_first = GenServer.call(@auth_server_name, {:auth, @client_first})
-    assert_client_first(response_first)
+    auth_and_assert_first()
   end
 
   test "gets server final message" do
-    response_first = GenServer.call(@auth_server_name, {:auth, @client_first})
-    nonce = assert_client_first(response_first)
+    nonce = auth_and_assert_first()
 
-    client_final = get_client_final(nonce)
-    response_final = GenServer.call(@auth_server_name, {:auth, client_final})
-    assert @server_final == response_final
+    auth_and_assert_final(nonce)
   end
 
-  defp assert_client_first(response) do
-    response_text = response |> to_string()
-    assert @server_first_start_match <> <<snonce::bytes-size(15)>> <> @server_first_end_match =
-      response_text
-    _nonce = @client_nonce <> snonce
+  test "succeeds two consequtive sessions" do
+    nonce = auth_and_assert_first()
+
+    auth_and_assert_final(nonce)
+
+    nonce2 = auth_and_assert_first()
+
+    auth_and_assert_final(nonce2)
+  end
+
+  test "succeeds one intersecting session" do
+    nonce = auth_and_assert_first()
+
+    _nonce2 = auth_and_assert_first()
+
+    auth_and_assert_final(nonce)
+  end
+  
+  test "succeeds two intersecting sessions" do
+    nonce = auth_and_assert_first()
+
+    nonce2 = auth_and_assert_first()
+
+    auth_and_assert_final(nonce)
+    
+    auth_and_assert_final(nonce2)
+  end
+
+
+  defp auth_and_assert_first() do
+    {cnonce, client_first} = get_client_first(@username)
+    Schoolhub.AuthServer.authenticate(client_first)
+    _nonce = assert_server_first(cnonce)
+  end
+
+  defp auth_and_assert_final(nonce) do
+    client_final = get_client_final(nonce)
+    Schoolhub.AuthServer.authenticate(client_final)
+    assert_server_final()
+  end
+
+  
+  defp get_client_first(username) do
+    msg = username |> to_charlist |> :scramerl.client_first_message() |> to_string()
+    @client_first_start_match <> <<cnonce::bytes-size(15)>> = msg
+    {cnonce, msg}
+  end
+  
+  defp assert_server_first(cnonce) do
+    assert_receive {:reply, response}, @assert_receive_timeout
+    assert @server_first_start_match <> <<^cnonce::bytes-size(15)>>
+  <> <<snonce::bytes-size(15)>> <> @server_first_end_match =
+      response |> to_string()
+    _nonce = cnonce <> snonce
   end
 
   defp get_client_final(nonce) do
-    auth_msg = @auth_msg_start <> nonce <> @auth_msg_end |> to_charlist()
+    <<cnonce::bytes-size(15)>> <> <<_snonce::bytes-size(15)>> = nonce
+    auth_msg = @auth_msg_start <> cnonce <> @auth_msg_mid <> nonce <> @auth_msg_end
+      |> to_charlist()
     nonce = nonce |> to_charlist()
     _msg = :scramerl.client_final_message(nonce, @salted_pw, auth_msg)
   end
-  
+
+  defp assert_server_final() do
+    assert_receive {:reply, response}, @assert_receive_timeout
+    assert @server_final == response
+  end
 
 end

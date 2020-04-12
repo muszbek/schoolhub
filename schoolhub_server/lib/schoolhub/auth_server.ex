@@ -28,7 +28,11 @@ defmodule Schoolhub.AuthServer do
   end
 
 
-  @doc false
+  @doc """
+  Takes the body of http authentication messages
+  and either creates an auth session,
+  or continues authenticating with an already started session.
+  """
   def authenticate(data) do
     requester = self()
     scram_data = handle_html_msg(data)
@@ -75,7 +79,7 @@ defmodule Schoolhub.AuthServer do
     options = [name: session_name(cnonce),
 	       requester: requester,
 	       scram_data: scram_data] ++ @worker_options
-    Supervisor.start_child(Schoolhub.AuthServer, @auth_worker.child_spec(options))
+    Supervisor.start_child(__MODULE__, @auth_worker.child_spec(options))
   end
 
   defp handle_auth(scram_data = %{message: 'client-final-message',
