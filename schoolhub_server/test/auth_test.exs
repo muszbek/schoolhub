@@ -22,8 +22,11 @@ defmodule AuthTest do
   @assert_receive_timeout 100
 
   setup do
-    kill_session = fn {id, _pid, :worker, [Schoolhub.AuthStateMachine]} ->
-      Supervisor.terminate_child(@auth_server_name, id)
+    kill_session = fn
+      {id, _pid, :worker, [Schoolhub.AuthStateMachine]} ->
+	Supervisor.terminate_child(@auth_server_name, id)
+      {_id, _pid, _type, [_other_module]} ->
+	:ok
     end
     all_sessions = Supervisor.which_children(@auth_server_name)
     Enum.map(all_sessions, kill_session)
@@ -88,8 +91,9 @@ defmodule AuthTest do
   test "session times out" do
     timeout = Application.get_env(:schoolhub, :auth_session_timeout)
     auth_and_assert_first()
-    :timer.sleep(timeout + 10)
-    assert Supervisor.which_children(@auth_server_name) == []
+    :timer.sleep(timeout + 50)
+    assert [{Schoolhub.AuthServerState, _pid, :worker, [Schoolhub.AuthServerState]}] =
+      Supervisor.which_children(@auth_server_name)
   end
 
 

@@ -12,7 +12,6 @@ defmodule Schoolhub.AuthServer do
   )
 
   @auth_worker Schoolhub.AuthStateMachine
-  @worker_options [db_api: Schoolhub.DataManagerMock]
   
   @nonce_length 15
 
@@ -41,8 +40,10 @@ defmodule Schoolhub.AuthServer do
 
   @impl true
   def init(options) do
-    _init_struct = parse_options(options)
-    children = []
+    init_struct = parse_options(options)
+    children = [
+      {Schoolhub.AuthServerState, init_struct}
+    ]
     opts = [strategy: :one_for_one]
     Supervisor.init(children, opts)
   end
@@ -78,7 +79,7 @@ defmodule Schoolhub.AuthServer do
     
     options = [name: session_name(cnonce),
 	       requester: requester,
-	       scram_data: scram_data] ++ @worker_options
+	       scram_data: scram_data] ++ worker_options()
     Supervisor.start_child(__MODULE__, @auth_worker.child_spec(options))
   end
 
@@ -87,6 +88,15 @@ defmodule Schoolhub.AuthServer do
 
     session_name = nonce |> original_nonce() |> session_name()
     GenServer.cast(session_name, {:auth, scram_data, requester})
+  end
+
+  defp worker_options() do
+    db_api = get_value_from_state(:db_api)
+    [db_api: db_api]
+  end
+
+  defp get_value_from_state(key) do
+    _value = GenServer.call(Schoolhub.AuthServerState, {:get, key})
   end
 
   defp session_name(nonce) when is_list(nonce) do
@@ -103,4 +113,36 @@ defmodule Schoolhub.AuthServer do
     nonce |> to_charlist() |> original_nonce()
   end
   
+end
+
+
+
+defmodule Schoolhub.AuthServerState do
+  @moduledoc """
+  A GenServer to keep and access a state of the AuthServer supervisor.
+  Supervised as a child of AuthServer.
+  """
+  use GenServer
+
+  @doc false
+  def start_link(initial_state) do
+    GenServer.start_link(__MODULE__, initial_state, name: __MODULE__)
+  end
+
+  ### Server callbacks ###
+  @impl true
+  def init(initial_state) do
+    {:ok, initial_state}
+  end
+
+  @impl true
+  def handle_call({:get, key}, _from, state) do
+    {:ok, value} = Map.fetch(state, key)
+    {:reply, value, state}
+  end
+
+  @impl true
+  def handle_call({:set, key, new_value}, _from, state) do
+    {:reply, :ok, %{state | key => new_value}}
+  end
 end
