@@ -21,7 +21,7 @@ defmodule Schoolhub.Supervisor do
 #			       loop: {Schoolhub.Router_mochiweb, :init_mochiweb, [[]]}]]}
 #      },
       Schoolhub.DataManager,
-      {Schoolhub.AuthServer, db_api: Schoolhub.DataManagerMock},
+      {Schoolhub.AuthServer, db_api: db_backend()},
       {Plug.Cowboy,
        scheme: server_scheme(), plug: Schoolhub.Router, options: [port: server_port()]}
     ]
@@ -31,6 +31,10 @@ defmodule Schoolhub.Supervisor do
   end
 
 
+  defp db_backend() do
+    Application.get_env(:schoolhub, :db_backend, Schoolhub.DataManagerMock)
+  end
+  
   defp server_scheme() do
     Application.get_env(:schoolhub, :server_scheme, :http)
   end
