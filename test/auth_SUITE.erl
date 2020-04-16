@@ -142,22 +142,12 @@ start_apps() ->
 
 start_elixir() ->
     RootPath = << "/usr/lib/elixir/lib/" >>,
-    start_app_from_root(RootPath, elixir).
+    start_app_with_deps(RootPath, elixir).
 
 start_app(RootPath, AppName) ->
     DepsPath = << RootPath/binary, "/_build/dev/lib/" >>,
     load_configs(RootPath),
-    start_app_from_root(DepsPath, AppName).
-
-start_app_from_root(DepsPath, AppName) ->
-    {ok, DepsNames} = file:list_dir(DepsPath),
-    DepsBin = lists:map(fun list_to_binary/1, DepsNames),
-    ok = lists:foreach(fun(Dep) -> 
-			       DepFullPath = << DepsPath/binary, Dep/binary, "/ebin/" >>,
-			       DepString = binary_to_list(DepFullPath),
-			       true = code:add_path(DepString)
-		       end, DepsBin),
-    {ok, _apps}  = application:ensure_all_started(AppName).
+    start_app_with_deps(DepsPath, AppName).
 
 load_configs(RootPath) ->
     load_config(RootPath, <<"config.exs">>),
@@ -168,6 +158,18 @@ load_config(RootPath, File) ->
     Config = 'Elixir.Config.Reader':'read!'(ConfigPath),
     application:set_env(Config).
 
+start_app_with_deps(DepsPath, AppName) ->
+    add_deps_to_path(DepsPath),
+    {ok, _apps}  = application:ensure_all_started(AppName).
+
+add_deps_to_path(DepsPath) ->
+    {ok, DepsNames} = file:list_dir(DepsPath),
+    DepsBin = lists:map(fun list_to_binary/1, DepsNames),
+    ok = lists:foreach(fun(Dep) -> 
+			       DepFullPath = << DepsPath/binary, Dep/binary, "/ebin/" >>,
+			       DepString = binary_to_list(DepFullPath),
+			       true = code:add_path(DepString)
+		       end, DepsBin).
 
 stop_apps() ->
     application:stop(schoolhub_client),
