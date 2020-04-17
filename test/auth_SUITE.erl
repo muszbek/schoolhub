@@ -12,6 +12,10 @@
 
 -include_lib("common_test/include/ct.hrl").
 
+-define(ELIXIR_PATH, << "/usr/lib/elixir/lib/" >>).
+-define(SERVER_PATH, << "../../../schoolhub_server" >>).
+-define(CLIENT_PATH, << "../../../schoolhub_client" >>).
+
 -define(TEST_USER, <<"test_user">>).
 -define(TEST_PW, <<"test_pw">>).
 -define(TEST_USER_WRONG, <<"test_usera">>).
@@ -154,13 +158,13 @@ auth_in_parallel(_Config) ->
 %% Closures
 
 start_apps() ->
-    ok = application:start(compiler),
     start_elixir(),
-    start_app(<< "../../../schoolhub_server" >>, schoolhub),
-    start_app(<< "../../../schoolhub_client" >>, schoolhub_client).
+    start_app(?SERVER_PATH, schoolhub),
+    start_app(?CLIENT_PATH, schoolhub_client).
 
 start_elixir() ->
-    RootPath = << "/usr/lib/elixir/lib/" >>,
+    ok = application:start(compiler),
+    RootPath = ?ELIXIR_PATH,
     start_app_with_deps(RootPath, elixir).
 
 start_app(RootPath, AppName) ->
