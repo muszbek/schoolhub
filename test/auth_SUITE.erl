@@ -12,6 +12,11 @@
 
 -include_lib("common_test/include/ct.hrl").
 
+-define(TEST_USER, <<"test_user">>).
+-define(TEST_PW, <<"test_pw">>).
+-define(TEST_USER_WRONG, <<"test_usera">>).
+-define(TEST_PW_WRONG, <<"test_pwa">>).
+
 %%--------------------------------------------------------------------
 %% @spec suite() -> Info
 %% Info = [tuple()]
@@ -109,15 +114,15 @@ groups() ->
 %% @end
 %%--------------------------------------------------------------------
 all() -> 
-    [my_test_case].
+    [auth_succeeds, auth_fails, unknown_user].
 
 %%--------------------------------------------------------------------
 %% @spec TestCase() -> Info
 %% Info = [tuple()]
 %% @end
 %%--------------------------------------------------------------------
-my_test_case() -> 
-    [].
+%my_test_case() -> 
+%    [].
 
 %%--------------------------------------------------------------------
 %% @spec TestCase(Config0) ->
@@ -128,12 +133,22 @@ my_test_case() ->
 %% Comment = term()
 %% @end
 %%--------------------------------------------------------------------
-my_test_case(_Config) -> 
-    authenticated = 'Elixir.Client.Auth':auth(<<"test_user">>, <<"test_pw">>),
+auth_succeeds(_Config) -> 
+    authenticated = 'Elixir.Client.Auth':auth(?TEST_USER, ?TEST_PW),
+    ok.
+
+auth_fails(_Config) ->
+    {error, "stored_key_mismatch"} = 'Elixir.Client.Auth':auth(?TEST_USER, ?TEST_PW_WRONG),
+    ok.
+
+unknown_user(_Config) ->
+    {error, "unknown_user"} = 'Elixir.Client.Auth':auth(?TEST_USER_WRONG, ?TEST_PW),
     ok.
 
 
 %% Helper functions
+%% Closures
+
 start_apps() ->
     ok = application:start(compiler),
     start_elixir(),
@@ -174,4 +189,3 @@ add_deps_to_path(DepsPath) ->
 stop_apps() ->
     application:stop(schoolhub_client),
     application:stop(schoolhub).
-
