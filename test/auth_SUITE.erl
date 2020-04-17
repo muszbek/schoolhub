@@ -103,7 +103,8 @@ end_per_testcase(_TestCase, _Config) ->
 %% @end
 %%--------------------------------------------------------------------
 groups() ->
-    [].
+    [{auth_single_client, [shuffle], 
+      [auth_succeeds, auth_fails, unknown_user]}].
 
 %%--------------------------------------------------------------------
 %% @spec all() -> GroupsAndTestCases | {skip,Reason}
@@ -114,7 +115,7 @@ groups() ->
 %% @end
 %%--------------------------------------------------------------------
 all() -> 
-    [auth_succeeds, auth_fails, unknown_user].
+    [{group, auth_single_client}].
 
 %%--------------------------------------------------------------------
 %% @spec TestCase() -> Info
@@ -144,6 +145,9 @@ auth_fails(_Config) ->
 unknown_user(_Config) ->
     {error, "unknown_user"} = 'Elixir.Client.Auth':auth(?TEST_USER_WRONG, ?TEST_PW),
     ok.
+
+auth_in_parallel(_Config) ->
+    auth_in_loop(5).
 
 
 %% Helper functions
@@ -189,3 +193,17 @@ add_deps_to_path(DepsPath) ->
 stop_apps() ->
     application:stop(schoolhub_client),
     application:stop(schoolhub).
+
+
+%% Tests
+
+auth_in_loop(0) ->
+    ok;
+
+auth_in_loop(ProcessAmount) ->
+    spawn_link(fun authenticate/0),
+    io:format("~p", [ProcessAmount]),
+    auth_in_loop(ProcessAmount - 1).
+
+authenticate() ->
+    authenticated = 'Elixir.Client.Auth':auth(?TEST_USER, ?TEST_PW).
