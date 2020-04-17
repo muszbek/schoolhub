@@ -12,10 +12,6 @@
 
 -include_lib("common_test/include/ct.hrl").
 
--define(ELIXIR_PATH, << "/usr/lib/elixir/lib/" >>).
--define(SERVER_PATH, << "../../../schoolhub_server" >>).
--define(CLIENT_PATH, << "../../../schoolhub_client" >>).
-
 -define(TEST_USER, <<"test_user">>).
 -define(TEST_PW, <<"test_pw">>).
 -define(TEST_USER_WRONG, <<"test_usera">>).
@@ -158,46 +154,13 @@ auth_in_parallel(_Config) ->
 %% Closures
 
 start_apps() ->
-    start_elixir(),
-    start_app(?SERVER_PATH, schoolhub),
-    start_app(?CLIENT_PATH, schoolhub_client).
-
-start_elixir() ->
-    ok = application:start(compiler),
-    RootPath = ?ELIXIR_PATH,
-    start_app_with_deps(RootPath, elixir).
-
-start_app(RootPath, AppName) ->
-    DepsPath = << RootPath/binary, "/_build/dev/lib/" >>,
-    load_configs(RootPath),
-    start_app_with_deps(DepsPath, AppName).
-
-load_configs(RootPath) ->
-    load_config(RootPath, <<"config.exs">>),
-    load_config(RootPath, <<"test.exs">>).
-
-load_config(RootPath, File) ->
-    ConfigPath = << RootPath/binary, "/config/", File/binary >>,
-    Config = 'Elixir.Config.Reader':'read!'(ConfigPath),
-    application:set_env(Config).
-
-start_app_with_deps(DepsPath, AppName) ->
-    add_deps_to_path(DepsPath),
-    {ok, _apps}  = application:ensure_all_started(AppName).
-
-add_deps_to_path(DepsPath) ->
-    {ok, DepsNames} = file:list_dir(DepsPath),
-    DepsBin = lists:map(fun list_to_binary/1, DepsNames),
-    ok = lists:foreach(fun(Dep) -> 
-			       DepFullPath = << DepsPath/binary, Dep/binary, "/ebin/" >>,
-			       DepString = binary_to_list(DepFullPath),
-			       true = code:add_path(DepString)
-		       end, DepsBin).
+    app_start_lib:start_elixir(),
+    app_start_lib:start_server(),
+    app_start_lib:start_client().
 
 stop_apps() ->
     application:stop(schoolhub_client),
     application:stop(schoolhub).
-
 
 %% Tests
 
