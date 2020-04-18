@@ -2,11 +2,13 @@
 {node, client1, 'client1@10.3.0.10'}.
 {node, client2, 'client2@10.3.0.10'}.
 
-{logdir, master, "./master_logs/"}.
-{logdir, "/root/test/logs/"}.
-{logdir, tester, "./logs/"}.
+{logdir, master, "./logs_master/"}.
+{logdir, "/root/test/logs_dist/"}.
+{logdir, tester, "./logs_dist/"}.
 
-{suites, tester, ".", all}.
+%{suites, tester, "./local/", all}.
+{suites, tester, "./dist/", all}.
+{suites, tester, "./util/", all}.
 
 %{init, tester, [{node_start, [{monitor_master, true}]}]}.
 %{init, [client1, client2],

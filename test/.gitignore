@@ -1,3 +1,4 @@
-/logs/
-/master_logs/
+/logs_local/
+/logs_dist/
+/logs_master/
 /*.beam

@@ -44,8 +44,6 @@ services:
     container_name: schoolhub_client_test
     image: elixir
     hostname: schoolhub_client
-    expose:
-      - "22"
     networks:
       schoolhub_network:
         ipv4_address: 10.3.0.10
