@@ -38,7 +38,27 @@ services:
     environment:
       - POSTGRES_PASSWORD=schoolhub
       - POSTGRES_USER=schoolhub
-    
+
+
+  client_dist_tester:
+    container_name: schoolhub_client_test
+    image: elixir
+    hostname: schoolhub_client
+    expose:
+      - "22"
+    networks:
+      schoolhub_network:
+        ipv4_address: 10.3.0.10
+    restart: always
+    tty: true
+    volumes:
+      - ./schoolhub_client:/root/schoolhub_client
+      - ./test:/root/test
+    environment:
+      - ERLANG_COOKIE=test_cookie
+      - NODES_AMOUNT=5
+    entrypoint: /root/test/dist_entrypoint.sh
+      
     
 networks:
   schoolhub_network:

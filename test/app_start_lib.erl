@@ -27,7 +27,7 @@
 %%--------------------------------------------------------------------
 
 start_elixir() ->
-    ok = application:start(compiler),
+    ok = start_compiler(),
     RootPath = ?ELIXIR_PATH,
     start_app_with_deps(RootPath, elixir).
 
@@ -41,6 +41,17 @@ start_client() ->
 %%%===================================================================
 %%% Internal functions
 %%%===================================================================
+
+start_compiler() ->
+    Apps = application:loaded_applications(),
+    CompilerStarted = lists:keyfind(compiler, 1, Apps),
+    io:format("Compiler: ~p", [CompilerStarted]),
+    case CompilerStarted of
+	{compiler, _, _} ->
+	    ok;
+	false ->
+	    ok = application:start(compiler)
+    end.
 
 start_app(RootPath, AppName) ->
     DepsPath = << RootPath/binary, "/_build/dev/lib/" >>,
