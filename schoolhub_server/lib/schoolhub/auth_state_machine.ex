@@ -127,7 +127,7 @@ defmodule Schoolhub.AuthStateMachine do
       |> verify_credentials()
       |> :scramerl.server_final_message()
 
-    finish_authentication(msg, from, :success)
+    finish_authentication(msg, from, :normal)
   end
 
   def client_final(:internal, {%{message: 'client-final-message',

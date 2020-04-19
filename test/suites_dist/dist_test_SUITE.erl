@@ -108,15 +108,15 @@ groups() ->
 %% @end
 %%--------------------------------------------------------------------
 all() -> 
-    [my_test_case].
+    [parallel_auth].
 
 %%--------------------------------------------------------------------
 %% @spec TestCase() -> Info
 %% Info = [tuple()]
 %% @end
 %%--------------------------------------------------------------------
-my_test_case() -> 
-    [].
+%my_test_case() -> 
+%    [].
 
 %%--------------------------------------------------------------------
 %% @spec TestCase(Config0) ->
@@ -127,8 +127,10 @@ my_test_case() ->
 %% Comment = term()
 %% @end
 %%--------------------------------------------------------------------
-my_test_case(_Config) -> 
-    io:format("~p", [nodes()]),
+parallel_auth(_Config) -> 
+    Calls = async_call_all_clients({'Elixir.Client.Auth', auth, [<<"test_user">>, <<"test_pw">>]}),
+    %timer:sleep(500),
+    yield_all_clients(Calls, authenticated),
     ok.
 
 
@@ -156,12 +158,15 @@ apply_to_all_clients(ApplyFun) ->
 			    NodeStr = atom_to_list(Node),
 			    case string:rstr(NodeStr, "client") of
 				0 ->
-				    ok;
+				    false;
 				I when is_integer(I) ->
 				    ApplyFun(Node)
 			    end
 		    end,
-    lists:map(ApplyToClient, nodes()).
+    UnfilteredResult = lists:map(ApplyToClient, nodes()),
+    lists:filter(fun(Elem) ->
+			 Elem =/= false
+		 end, UnfilteredResult).
 
 call_all_clients({Module, Fun, Args}) ->
     ApplyFun = fun(Node) ->
@@ -189,5 +194,5 @@ yield_all_clients(AsyncCalls, ExpectedAnswer) ->
 			  ExpectedAnswer = rpc:yield(AsyncCall)
 		  end,
 
-    list:map(YieldClient, AsyncCalls).
+    lists:map(YieldClient, AsyncCalls).
     

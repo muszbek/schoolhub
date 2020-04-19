@@ -45,7 +45,7 @@ start_client() ->
 
 start_client_dist() ->
     start_elixir(?ELIXIR_DOCKER_PATH),
-    start_app(?CLIENT_PATH_DIST, schoolhub_client).
+    start_app(?CLIENT_PATH_DIST, schoolhub_client, [<<"test_dist.exs">>]).
 
 
 %%%===================================================================
@@ -72,15 +72,22 @@ maybe_start(AppName) ->
     end.
 
 start_app(RootPath, AppName) ->
+    start_app(RootPath, AppName, []).
+
+start_app(RootPath, AppName, Configs) ->
     DepsPath = << RootPath/binary, "/_build/dev/lib/" >>,
-    load_configs(RootPath),
+    load_configs(RootPath, Configs),
     add_deps_to_path(DepsPath),
     {ok, _Apps} = application:ensure_all_started(AppName),
     ok.
 
-load_configs(RootPath) ->
-    load_config(RootPath, <<"config.exs">>),
-    load_config(RootPath, <<"test.exs">>).
+load_configs(RootPath, []) ->
+    load_configs(RootPath, [<<"config.exs">>, <<"test.exs">>]);
+
+load_configs(RootPath, Configs) ->
+    lists:map(fun(Config) ->
+		      load_config(RootPath, Config)
+	      end, Configs).
 
 load_config(RootPath, File) ->
     ConfigPath = << RootPath/binary, "/config/", File/binary >>,

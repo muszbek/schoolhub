@@ -6,7 +6,7 @@
 {logdir, "/root/test/logs_dist/"}.
 {logdir, tester, "./logs_dist/"}.
 
-%{suites, tester, "./suites_local/", all}.
+{suites, tester, "./suites_local/", all}.
 {suites, tester, "./suites_dist/", all}.
 {suites, tester, "./util/", all}.
 {suites, [client1, client2], "/root/test/util/", all}.
