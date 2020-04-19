@@ -33,7 +33,7 @@ suite() ->
 %% @end
 %%--------------------------------------------------------------------
 init_per_suite(Config) ->
-    start_apps(Config),
+    start_apps(),
     Config.
 
 %%--------------------------------------------------------------------
@@ -152,7 +152,7 @@ auth_in_parallel(_Config) ->
 %% Helper functions
 %% Closures
 
-start_apps(Config) ->
+start_apps() ->
     ElixirPath = ct:get_config(elixir_path),
     ServerPath = ct:get_config(server_path),
     ClientPath = ct:get_config(client_path),

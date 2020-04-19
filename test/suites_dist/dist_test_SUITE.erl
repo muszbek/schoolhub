@@ -28,7 +28,7 @@ suite() ->
 %% @end
 %%--------------------------------------------------------------------
 init_per_suite(Config) ->
-    start_apps(Config),
+    start_apps(),
     Config.
 
 %%--------------------------------------------------------------------
@@ -136,21 +136,23 @@ parallel_auth(_Config) ->
 
 %% Helper functions
 
-start_apps(Config) ->
+start_apps() ->
     ElixirPath = ct:get_config(elixir_path),
     ServerPath = ct:get_config(server_path),
+    ClientPath = ct:get_config(client_path),
+    ClientConfigs = ct:get_config(client_configs),
 
     app_start_lib:start_elixir(ElixirPath),
     app_start_lib:start_server(ServerPath),
-    start_clients().
+    start_clients(ElixirPath, ClientPath, ClientConfigs).
 
 stop_apps() ->
     stop_clients(),
     application:stop(schoolhub).
-
-
-start_clients() ->
-    call_all_clients({app_start_lib, start_client_dist, []}, ok).
+    
+start_clients(ElixirPath, ClientPath, ClientConfigs) ->
+    call_all_clients({app_start_lib, start_elixir, [ElixirPath]}, ok),
+    call_all_clients({app_start_lib, start_client, [ClientPath, ClientConfigs]}, ok).
 
 stop_clients() ->
     call_all_clients({application, stop, [schoolhub_client]}).

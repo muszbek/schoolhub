@@ -9,12 +9,8 @@
 -module(app_start_lib).
 
 
--define(ELIXIR_DOCKER_PATH, << "/usr/local/lib/elixir/lib/" >>).
--define(CLIENT_PATH_DIST, << "/root/schoolhub_client" >>).
-
 %% API
--export([start_elixir/1, start_server/1, start_client/1, 
-	 start_client_dist/0]).
+-export([start_elixir/1, start_server/1, start_client/1, start_client/2]).
 
 %%%===================================================================
 %%% API
@@ -37,9 +33,8 @@ start_server(RootPath) ->
 start_client(RootPath) ->
     start_app(RootPath, schoolhub_client).
 
-start_client_dist() ->
-    start_elixir(?ELIXIR_DOCKER_PATH),
-    start_app(?CLIENT_PATH_DIST, schoolhub_client, [<<"test_dist.exs">>]).
+start_client(RootPath, Configs) ->
+    start_app(RootPath, schoolhub_client, Configs).
 
 
 %%%===================================================================
