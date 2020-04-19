@@ -5,6 +5,8 @@
 {logdir, master, "./logs_master/"}.
 {logdir, "/root/test/logs_dist/"}.
 
-%{suites, tester, "/root/test/suites_local/", all}.
+{suites, tester, "/root/test/suites_local/", all}.
 {suites, tester, "/root/test/suites_dist/", all}.
 {suites, "/root/test/util/", all}.
+
+{config, "/root/test/dist.config"}.

@@ -33,8 +33,7 @@ suite() ->
 %% @end
 %%--------------------------------------------------------------------
 init_per_suite(Config) ->
-    io:format("~p", [Config]),
-    start_apps(),
+    start_apps(Config),
     Config.
 
 %%--------------------------------------------------------------------
@@ -153,10 +152,14 @@ auth_in_parallel(_Config) ->
 %% Helper functions
 %% Closures
 
-start_apps() ->
-    app_start_lib:start_elixir(),
-    app_start_lib:start_server(),
-    app_start_lib:start_client().
+start_apps(Config) ->
+    ElixirPath = ct:get_config(elixir_path),
+    ServerPath = ct:get_config(server_path),
+    ClientPath = ct:get_config(client_path),
+    
+    app_start_lib:start_elixir(ElixirPath),
+    app_start_lib:start_server(ServerPath),
+    app_start_lib:start_client(ClientPath).
 
 stop_apps() ->
     application:stop(schoolhub_client),

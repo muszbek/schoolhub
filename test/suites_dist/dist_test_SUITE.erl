@@ -28,7 +28,7 @@ suite() ->
 %% @end
 %%--------------------------------------------------------------------
 init_per_suite(Config) ->
-    start_apps(),
+    start_apps(Config),
     Config.
 
 %%--------------------------------------------------------------------
@@ -136,8 +136,12 @@ parallel_auth(_Config) ->
 
 %% Helper functions
 
-start_apps() ->
-    app_start_lib:start_server_dist(),
+start_apps(Config) ->
+    ElixirPath = ct:get_config(elixir_path),
+    ServerPath = ct:get_config(server_path),
+
+    app_start_lib:start_elixir(ElixirPath),
+    app_start_lib:start_server(ServerPath),
     start_clients().
 
 stop_apps() ->

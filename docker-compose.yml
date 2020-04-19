@@ -51,6 +51,7 @@ services:
     tty: true
     volumes:
       - ./schoolhub_server:/root/schoolhub_server
+      - ./schoolhub_client:/root/schoolhub_client
       - ./test:/root/test
     environment:
       - ERLANG_COOKIE=test_cookie
