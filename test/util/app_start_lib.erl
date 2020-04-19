@@ -45,7 +45,6 @@ start_client() ->
 
 start_client_dist() ->
     start_elixir(?ELIXIR_DOCKER_PATH),
-    io:format("~p", [code:get_path()]),
     start_app(?CLIENT_PATH_DIST, schoolhub_client).
 
 

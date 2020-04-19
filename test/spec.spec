@@ -1,4 +1,4 @@
 {logdir, "./logs_local/"}.
 
-{suites, "./local/", all}.
+{suites, "./suites_local/", all}.
 {suites, "./util/", all}.
