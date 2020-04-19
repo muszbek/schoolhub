@@ -137,8 +137,7 @@ parallel_auth(_Config) ->
 %% Helper functions
 
 start_apps() ->
-    app_start_lib:start_elixir(),
-    app_start_lib:start_server(),
+    app_start_lib:start_server_dist(),
     start_clients().
 
 stop_apps() ->

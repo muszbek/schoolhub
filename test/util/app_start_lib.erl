@@ -13,10 +13,12 @@
 -define(ELIXIR_DOCKER_PATH, << "/usr/local/lib/elixir/lib/" >>).
 -define(SERVER_PATH, << "../../../schoolhub_server" >>).
 -define(CLIENT_PATH, << "../../../schoolhub_client" >>).
+-define(SERVER_PATH_DIST, << "/root/schoolhub_server" >>).
 -define(CLIENT_PATH_DIST, << "/root/schoolhub_client" >>).
 
 %% API
--export([start_elixir/0, start_server/0, start_client/0, start_client_dist/0]).
+-export([start_elixir/0, start_server/0, start_client/0, 
+	 start_server_dist/0, start_client_dist/0]).
 
 %%%===================================================================
 %%% API
@@ -42,6 +44,10 @@ start_server() ->
 
 start_client() ->
     start_app(?CLIENT_PATH, schoolhub_client).
+
+start_server_dist() ->
+    start_elixir(?ELIXIR_DOCKER_PATH),
+    start_app(?SERVER_PATH_DIST, schoolhub).
 
 start_client_dist() ->
     start_elixir(?ELIXIR_DOCKER_PATH),
