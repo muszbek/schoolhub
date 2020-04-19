@@ -1,4 +1,7 @@
-/logs_local/
-/logs_dist/
-/logs_master/
+/logs_local/*
+/logs_dist/*
+/logs_master/*
+/suites_local/*.beam
+/suites_dist/*.beam
+/util/*.beam
 /*.beam

@@ -10,11 +10,13 @@
 
 
 -define(ELIXIR_PATH, << "/usr/lib/elixir/lib/" >>).
+-define(ELIXIR_DOCKER_PATH, << "/usr/local/lib/elixir/lib/" >>).
 -define(SERVER_PATH, << "../../../schoolhub_server" >>).
 -define(CLIENT_PATH, << "../../../schoolhub_client" >>).
+-define(CLIENT_PATH_DIST, << "/root/schoolhub_client" >>).
 
 %% API
--export([start_elixir/0, start_server/0, start_client/0]).
+-export([start_elixir/0, start_server/0, start_client/0, start_client_dist/0]).
 
 %%%===================================================================
 %%% API
@@ -27,9 +29,13 @@
 %%--------------------------------------------------------------------
 
 start_elixir() ->
-    ok = start_compiler(),
     RootPath = ?ELIXIR_PATH,
-    start_app_with_deps(RootPath, elixir).
+    start_elixir(RootPath).
+
+start_elixir(RootPath) ->
+    add_deps_to_path(RootPath),
+    ok = maybe_start(compiler),
+    ok = maybe_start(elixir).
 
 start_server() ->
     start_app(?SERVER_PATH, schoolhub).
@@ -37,39 +43,15 @@ start_server() ->
 start_client() ->
     start_app(?CLIENT_PATH, schoolhub_client).
 
+start_client_dist() ->
+    start_elixir(?ELIXIR_DOCKER_PATH),
+    io:format("~p", [code:get_path()]),
+    start_app(?CLIENT_PATH_DIST, schoolhub_client).
+
 
 %%%===================================================================
 %%% Internal functions
 %%%===================================================================
-
-start_compiler() ->
-    Apps = application:loaded_applications(),
-    CompilerStarted = lists:keyfind(compiler, 1, Apps),
-    io:format("Compiler: ~p", [CompilerStarted]),
-    case CompilerStarted of
-	{compiler, _, _} ->
-	    ok;
-	false ->
-	    ok = application:start(compiler)
-    end.
-
-start_app(RootPath, AppName) ->
-    DepsPath = << RootPath/binary, "/_build/dev/lib/" >>,
-    load_configs(RootPath),
-    start_app_with_deps(DepsPath, AppName).
-
-load_configs(RootPath) ->
-    load_config(RootPath, <<"config.exs">>),
-    load_config(RootPath, <<"test.exs">>).
-
-load_config(RootPath, File) ->
-    ConfigPath = << RootPath/binary, "/config/", File/binary >>,
-    Config = 'Elixir.Config.Reader':'read!'(ConfigPath),
-    application:set_env(Config).
-
-start_app_with_deps(DepsPath, AppName) ->
-    add_deps_to_path(DepsPath),
-    {ok, _apps}  = application:ensure_all_started(AppName).
 
 add_deps_to_path(DepsPath) ->
     {ok, DepsNames} = file:list_dir(DepsPath),
@@ -79,3 +61,29 @@ add_deps_to_path(DepsPath) ->
 			       DepString = binary_to_list(DepFullPath),
 			       true = code:add_path(DepString)
 		       end, DepsBin).
+
+maybe_start(AppName) ->
+    Apps = application:loaded_applications(),
+    CheckStarted = lists:keyfind(AppName, 1, Apps),
+    case CheckStarted of
+	{AppName, _, _} ->
+	    ok;
+	false ->
+	    ok = application:start(AppName)
+    end.
+
+start_app(RootPath, AppName) ->
+    DepsPath = << RootPath/binary, "/_build/dev/lib/" >>,
+    load_configs(RootPath),
+    add_deps_to_path(DepsPath),
+    {ok, _Apps} = application:ensure_all_started(AppName),
+    ok.
+
+load_configs(RootPath) ->
+    load_config(RootPath, <<"config.exs">>),
+    load_config(RootPath, <<"test.exs">>).
+
+load_config(RootPath, File) ->
+    ConfigPath = << RootPath/binary, "/config/", File/binary >>,
+    Config = 'Elixir.Config.Reader':'read!'(ConfigPath),
+    application:set_env(Config).

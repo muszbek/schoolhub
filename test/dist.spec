@@ -6,9 +6,10 @@
 {logdir, "/root/test/logs_dist/"}.
 {logdir, tester, "./logs_dist/"}.
 
-%{suites, tester, "./local/", all}.
-{suites, tester, "./dist/", all}.
+%{suites, tester, "./suites_local/", all}.
+{suites, tester, "./suites_dist/", all}.
 {suites, tester, "./util/", all}.
+{suites, [client1, client2], "/root/test/util/", all}.
 
 %{init, tester, [{node_start, [{monitor_master, true}]}]}.
 %{init, [client1, client2],
