@@ -9,4 +9,4 @@ config :schoolhub,
 		     password: "schoolhub",
 		     database: "schoolhub"],
 
-  auth_session_timeout: 500
+  auth_session_timeout: 1000

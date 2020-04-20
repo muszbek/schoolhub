@@ -72,7 +72,7 @@ services:
       - ./test:/root/test
     environment:
       - ERLANG_COOKIE=test_cookie
-      - NODES_AMOUNT=5
+      - NODES_AMOUNT=10
     entrypoint: /root/test/dist_client_entrypoint.sh
       
     
