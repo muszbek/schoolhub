@@ -23,7 +23,6 @@ defmodule Schoolhub.MixProject do
   defp deps do
     [
       {:romeo, git: "https://github.com/scrogson/romeo"},
-      {:mochiweb, git: "https://github.com/mochi/mochiweb"},
       {:plug_cowboy, "~> 2.0"},
       {:jason, "~> 1.0"},
       {:postgrex, git: "https://github.com/elixir-ecto/postgrex"},

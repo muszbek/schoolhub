@@ -9,4 +9,7 @@ config :schoolhub,
 		     password: "schoolhub",
 		     database: "schoolhub"],
 
-  auth_session_timeout: 1000
+  auth_session_timeout: 1000,
+
+  reg_admin_jid: "admin@localhost",
+  reg_admin_pw: "admin"

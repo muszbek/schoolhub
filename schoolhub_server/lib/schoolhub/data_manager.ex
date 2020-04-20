@@ -29,6 +29,10 @@ defmodule Schoolhub.DataManager do
   def get_scram_pw(username) do
     GenServer.call(__MODULE__, {:get_pw, username})
   end
+
+  def check_user_exist(username) do
+    _does_exist = GenServer.call(__MODULE__, {:check_user_exist, username})
+  end
     
 
   ### Server callbacks ###
@@ -54,6 +58,19 @@ defmodule Schoolhub.DataManager do
 	Logger.debug("Fetching scram data from database for username #{inspect(username)}: "
 	  <> "#{inspect(result)}")
         {:reply, result, state}
+    end
+  end
+
+  @impl true
+  def handle_call({:check_user_exist, username}, _from, state = %{pgsql_conn: conn}) do
+    query_text = "SELECT username FROM users WHERE username LIKE $1"
+    {:ok, data} = Postgrex.query(conn, query_text, [string(username)])
+
+    case data.rows do
+      [] ->
+        {:reply, false, state}
+      [[^username]] ->
+        {:reply, true, state}
     end
   end
 

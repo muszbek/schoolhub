@@ -1,10 +1,11 @@
 - handle persistent data in postgres volume
+- handle adding registerer admin
 - check postgres connectivity privacy, SSL
+- check registerer admin privacy, secrets
 
-- implement mock client
-- implement mock server
-- implement auth unit tests in client
-- try to implement common test for auth integrated testing
-
-- implement add register user
+- admin data from config
+- mock db for register user
+- implement delete user
+- implement change user password
+- implement test register user
 - implement start session
