@@ -8,6 +8,7 @@ config :schoolhub,
 		     username: "schoolhub",
 		     password: "schoolhub",
 		     database: "schoolhub"],
+  xmpp_backend: Romeo,
 
   auth_session_timeout: 1000,
 

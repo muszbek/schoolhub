@@ -5,6 +5,7 @@ defmodule Schoolhub.DataManagerMock do
   """
 
   @mock_user 'test_user'
+  @mock_user_string "test_user"
   @mock_scram "==SCRAM==,jv1SCgihx+Q2yj6PggxUZPbmfp4=,r+T1xjRnDwpUPoC/EwOXA+Jjt2Y=,iCgKQkjMSgfZgjh06UMZzg==,4096"
   ## The password belonging to this mock entry is "test_pw"
 
@@ -18,9 +19,21 @@ defmodule Schoolhub.DataManagerMock do
   def get_scram_pw(@mock_user) do
     @mock_scram
   end
-
+  def get_scram_pw(@mock_user_string) do
+    get_scram_pw(@mock_user)
+  end
   def get_scram_pw(_other_user) do
     :nil
+  end
+
+  def check_user_exist(@mock_user) do
+    true
+  end
+  def check_user_exist(@mock_user_string) do
+    check_user_exist(@mock_user)
+  end
+  def check_user_exist(_other_user) do
+    false
   end
   
 end

@@ -22,7 +22,7 @@ defmodule Schoolhub.Supervisor do
 #      },
       Schoolhub.DataManager,
       {Schoolhub.AuthServer, db_api: db_backend()},
-      {Schoolhub.RegServer, db_api: db_backend()},
+      {Schoolhub.RegServer, db_api: db_backend(), xmpp_api: xmpp_backend()},
       {Plug.Cowboy,
        scheme: server_scheme(), plug: Schoolhub.Router, options: [port: server_port()]}
     ]
@@ -34,6 +34,10 @@ defmodule Schoolhub.Supervisor do
 
   defp db_backend() do
     Application.get_env(:schoolhub, :db_backend, Schoolhub.DataManagerMock)
+  end
+
+  defp xmpp_backend() do
+    Application.get_env(:schoolhub, :xmpp_backend, Schoolhub.RomeoMock)
   end
   
   defp server_scheme() do

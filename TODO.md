@@ -2,8 +2,8 @@
 - handle adding registerer admin
 - check postgres connectivity privacy, SSL
 - check registerer admin privacy, secrets
+- register admin password generator script when mongooseim is up ?how to detect?
 
-- admin data from config
 - mock db for register user
 - implement delete user
 - implement change user password

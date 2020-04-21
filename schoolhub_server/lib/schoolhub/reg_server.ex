@@ -3,8 +3,7 @@ defmodule Schoolhub.RegServer do
   A gen server that manages registering new users.
   A mongooseim admin account adds new users to the postgres database.
   """
-  alias Romeo.Connection, as: Conn
-  
+
   require Logger
 
   use GenServer
@@ -12,8 +11,7 @@ defmodule Schoolhub.RegServer do
   @derive {Inspect, expect: :admin_pw}
   defstruct(
     db_api: Schoolhub.DataManagerMock,
-    admin_jid: "admin@localhost",
-    admin_pw: "admin",
+    xmpp_api: Schoolhub.RomeoMock,
     admin_conn: nil,
     admin_bound: false,
     admin_ready: false
@@ -36,18 +34,21 @@ defmodule Schoolhub.RegServer do
   @impl true
   def init(options) do
     state = parse_options(options)
-    admin_conn_opts = [jid: state.admin_jid, password: state.admin_pw]
-    {:ok, admin_conn} = Conn.start_link(admin_conn_opts)
+    admin_conn_opts = get_admin_credentials()
+    xmpp_conn = Module.concat(state.xmpp_api, Connection)
+    {:ok, admin_conn} = xmpp_conn.start_link(admin_conn_opts)
     {:ok, %{state | admin_conn: admin_conn}}
   end
 
 
   @impl true
   def handle_call({:reg_user, username, password}, _from, state = %{db_api: db_api,
+								    xmpp_api: xmpp_api,
 								    admin_conn: conn,
 								    admin_bound: true,
 								    admin_ready: true}) do
     reg_result = %{db_api: db_api,
+		   xmpp_api: xmpp_api,
 		   conn: conn,
 		   username: username,
 		   password: password}
@@ -90,12 +91,21 @@ defmodule Schoolhub.RegServer do
   defp parse_options([{:db_api, db_api} | remaining_opts], state) do
     parse_options(remaining_opts, %{state | db_api: db_api})
   end
+  defp parse_options([{:xmpp_api, xmpp_api} | remaining_opts], state) do
+    parse_options(remaining_opts, %{state | xmpp_api: xmpp_api})
+  end
   defp parse_options([{_key, _value} | remaining_opts] ,state) do
     parse_options(remaining_opts, state)
   end
 
   defp string(text), do: text |> to_string()
 
+  defp get_admin_credentials() do
+    admin_jid = Application.get_env(:schoolhub, :reg_admin_jid, "admin@localhost")
+    admin_pw = Application.get_env(:schoolhub, :reg_admin_pw, "admin")
+    
+    [jid: admin_jid, password: admin_pw]
+  end
 
   defp check_username(reg_info = %{username: username}) do
     case username do
@@ -133,11 +143,14 @@ defmodule Schoolhub.RegServer do
   defp reg_by_admin({:error, reason}) do
     {:error, reason}
   end
-  defp reg_by_admin(%{conn: conn,
+  defp reg_by_admin(%{xmpp_api: xmpp_api,
+		      conn: conn,
 		      username: username,
 		      password: password}) do
-    
-    :ok = Conn.send(conn, Romeo.Stanza.set_inband_register(username, password))
+
+    xmpp_conn = Module.concat(xmpp_api, Connection)
+    xmpp_stanza = Module.concat(xmpp_api, Stanza)
+    :ok = xmpp_conn.send(conn, xmpp_stanza.set_inband_register(username, password))
   end
   
 end
