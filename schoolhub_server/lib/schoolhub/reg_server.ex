@@ -7,6 +7,10 @@ defmodule Schoolhub.RegServer do
   require Logger
 
   use GenServer
+  
+  @scram_default_iteration_count 4096
+  @salt_length 16
+  @scram_serial_prefix "==SCRAM==,"
 
   @derive {Inspect, expect: :admin_pw}
   defstruct(
@@ -24,9 +28,30 @@ defmodule Schoolhub.RegServer do
     GenServer.start_link(__MODULE__, options, name: __MODULE__)
   end
 
-  @doc false
+  @doc """
+  Adds a new user entry into the database indirectly,
+  through an admin xmpp user of mongooseim.
+  """
   def register_user(username, password) do
     GenServer.call(__MODULE__, {:reg_user, string(username), string(password)})
+  end
+
+  @doc """
+  Adds a new user entry into the database directly,
+  by encoding the password into scram.
+  """
+  def register_user_db(username, password, db_api) do
+    pass_details = password_to_scram(to_charlist(password))
+    Logger.debug("Inserting new user: #{inspect(username)} ; #{inspect(pass_details)}")
+    db_api.add_scram_user(username, pass_details)
+  end
+
+  @doc """
+  Encodes the password plain string according to the SCRAM protocol
+  into a valid user entry into the database.
+  """
+  def password_to_scram(password) do
+    password_to_scram(password, @scram_default_iteration_count)
   end
 
   
@@ -108,7 +133,7 @@ defmodule Schoolhub.RegServer do
   end
 
   defp check_username(reg_info = %{username: username}) do
-    case username do
+    case :stringprep.prepare(username) do
       "" ->
 	{:error, :username_invalid}
       username_checked ->
@@ -132,7 +157,7 @@ defmodule Schoolhub.RegServer do
     {:error, reason}
   end
   defp check_password(reg_info = %{password: password}) do
-    case password do
+    case :stringprep.prepare(password) do
       "" ->
 	{:error, :password_invalid}
       password_checked ->
@@ -151,6 +176,51 @@ defmodule Schoolhub.RegServer do
     xmpp_conn = Module.concat(xmpp_api, Connection)
     xmpp_stanza = Module.concat(xmpp_api, Stanza)
     :ok = xmpp_conn.send(conn, xmpp_stanza.set_inband_register(username, password))
+  end
+
+
+  ## Ported from erlang code of mongooseim
+  
+  defp password_to_scram(password, iteration_count) do
+    salt = :crypto.strong_rand_bytes(@salt_length)
+    server_stored_keys = password_to_scram(password, salt, iteration_count, :sha)
+    result_list = server_stored_keys ++ [salt: :base64.encode(salt),
+					 iteration_count: iteration_count |> to_string()]
+    serialize(Enum.into(result_list, %{}))
+  end
+  
+  defp password_to_scram(password, salt, iteration_count, hash_type) do
+    salted_password = salted_password(hash_type, password, salt, iteration_count)
+    stored_key = stored_key(hash_type, client_key(hash_type, salted_password))
+    server_key = server_key(hash_type, salted_password)
+    
+    [server_key: :base64.encode(server_key),
+     stored_key: :base64.encode(stored_key)]
+  end
+
+  defp salted_password(_hash_type, password, salt, iteration_count) do
+    normalized_pw = :stringprep.prepare(password)
+    _salted_pw = :scramerl_lib.hi(normalized_pw, salt, iteration_count)
+  end
+
+  defp client_key(hash_type, salted_password) do
+    :crypto.hmac(hash_type, salted_password, "Client Key")
+  end
+  
+  defp stored_key(hash_type, client_key) do
+    :crypto.hash(hash_type, client_key)
+  end
+
+  defp server_key(hash_type, salted_password) do
+    :crypto.hmac(hash_type, salted_password, "Server Key")
+  end
+
+  defp serialize(%{server_key: server_key,
+		   stored_key: stored_key,
+		   salt: salt,
+		   iteration_count: ic}) do
+    
+    @scram_serial_prefix <> stored_key <> "," <> server_key <> "," <> salt <> "," <> ic
   end
   
 end

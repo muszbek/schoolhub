@@ -30,8 +30,20 @@ defmodule Schoolhub.DataManager do
     GenServer.call(__MODULE__, {:get_pw, username})
   end
 
+  @doc """
+  Returns true if an entry with 'username' already exists within the database,
+  otherwise false.
+  """
   def check_user_exist(username) do
     _does_exist = GenServer.call(__MODULE__, {:check_user_exist, username})
+  end
+
+  @doc """
+  Adds the same database user entry as mongooseim.
+  The caller should construct the scram 'pass_details' (normally Schoolhub.RegServer)
+  """
+  def add_scram_user(username, pass_details) do
+    GenServer.call(__MODULE__, {:add_scram_user, username, pass_details})
   end
     
 
@@ -71,6 +83,22 @@ defmodule Schoolhub.DataManager do
         {:reply, false, state}
       [[^username]] ->
         {:reply, true, state}
+    end
+  end
+
+  @impl true
+  def handle_call({:add_scram_user, username, pass_details}, _from, state = %{pgsql_conn: conn}) do
+    query_text = "INSERT INTO users (username, password, pass_details) VALUES ($1, '', $2);"
+    result = Postgrex.query(conn, query_text, [string(username), string(pass_details)])
+
+    case result do
+      {:ok, %{columns: nil, command: :insert, messages: [], num_rows: 1, rows: nil}} ->
+	{:reply, :ok, state}
+      {:error, %Postgrex.Error{postgres: %{code: :unique_violation,
+					   constraint: "users_pkey",
+					   severity: "ERROR",
+					   table: "users"}}} ->
+	{:reply, :user_exists, state}
     end
   end
 
