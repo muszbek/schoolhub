@@ -8,6 +8,7 @@ defmodule RegTest do
   @test_new_user "new_user"
   @test_new_pw "new_pw"
   @test_admin "admin"
+  @test_replacable_user "replacable_user"
 
   
   test "register new user succeeds" do
@@ -25,6 +26,8 @@ defmodule RegTest do
     assert result == {:error, :user_exists}
   end
 
+
+  
   test "remove existing user succeeds" do
     result = Schoolhub.RegServer.remove_user(@test_old_user)
     assert result == {:ok, :user_removed}
@@ -33,6 +36,23 @@ defmodule RegTest do
   test "remove non existing user succeeds" do
     result = Schoolhub.RegServer.remove_user(@test_new_user)
     assert result == {:ok, :user_not_existed}
+  end
+
+
+  
+  test "change existing user password succeeds" do
+    result = Schoolhub.RegServer.change_user_pw(@test_replacable_user, @test_new_pw)
+    assert result == :ok
+  end
+
+  test "change non existing user password fails" do
+    result = Schoolhub.RegServer.change_user_pw(@test_new_user, @test_old_pw)
+    assert result == {:error, :user_not_exist}
+  end
+
+  test "change user with wrong password fails" do
+    result = Schoolhub.RegServer.change_user_pw(@test_old_user, "")
+    assert result == {:error, :password_invalid}
   end
   
 end

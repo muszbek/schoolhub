@@ -44,6 +44,23 @@ defmodule Schoolhub.RegServer do
     GenServer.call(__MODULE__, {:remove_user, string(username)})
   end
 
+  @doc """
+  Effectively removes the user (if exists) and adds it again with updated password.
+  """
+  def change_user_pw(username, password) do
+    case check_password(%{password: charlist(password)}) do
+      result = {:error, :password_invalid} ->
+	result
+      _ ->
+	if check_user_exist_call(username) do
+	  {:ok, :user_removed} = remove_user(username)
+	  :ok = register_user(username, password)
+	else
+	  {:error, :user_not_exist}
+	end
+    end
+  end
+
   
   ### Server callbacks ###
   @impl true
@@ -86,6 +103,12 @@ defmodule Schoolhub.RegServer do
   @impl true
   def handle_call({:remove_user, username}, _from, state = %{db_api: db_api}) do
     result = remove_user(username, db_api)
+    {:reply, result, state}
+  end
+
+  @impl true
+  def handle_call({:check_user_exist, username}, _from, state = %{db_api: db_api}) do
+    result = db_api.check_user_exist(string(username))
     {:reply, result, state}
   end
 
@@ -205,6 +228,10 @@ defmodule Schoolhub.RegServer do
   def remove_user(username, db_api) do
     Logger.debug("Removing user: #{inspect(username)}")
     db_api.remove_scram_user(username)
+  end
+
+  defp check_user_exist_call(username) do
+    GenServer.call(__MODULE__, {:check_user_exist, username})
   end
 
 

@@ -6,6 +6,8 @@ defmodule Schoolhub.DataManagerMock do
 
   @mock_user 'test_user'
   @mock_user_string "test_user"
+  @mock_replacable_user 'replacable_user'
+  @mock_replacable_user_string "replacable_user"
   @mock_admin 'admin'
   @mock_admin_string "admin"
 
@@ -42,6 +44,15 @@ defmodule Schoolhub.DataManagerMock do
   def check_user_exist(@mock_admin_string) do
     check_user_exist(@mock_admin)
   end
+  def check_user_exist(@mock_replacable_user) do
+    case flag() do
+      :set -> true
+      :reset -> false
+    end
+  end
+  def check_user_exist(@mock_replacable_user_string) do
+    check_user_exist(@mock_replacable_user)
+  end
   def check_user_exist(_other_user) do
     false
   end
@@ -62,8 +73,31 @@ defmodule Schoolhub.DataManagerMock do
   def remove_scram_user(@mock_user_string) do
     remove_scram_user(@mock_user)
   end
+  def remove_scram_user(@mock_replacable_user) do
+    {:ok, :user_removed}
+  end
+  def remove_scram_user(@mock_replacable_user_string) do
+    remove_scram_user(@mock_replacable_user)
+  end
   def remove_scram_user(_other_user) do
     {:ok, :user_not_existed}
+  end
+
+
+  defp flag() do
+    spawn_flag = fn() ->
+      receive do
+	:kill -> :ok
+      end
+    end
+
+    if Process.whereis(:flag) == :nil do
+      Process.register(Process.spawn(spawn_flag,[]), :flag)
+      :set
+    else
+      Process.send(:flag, :kill, [])
+      :reset
+    end
   end
   
 end
