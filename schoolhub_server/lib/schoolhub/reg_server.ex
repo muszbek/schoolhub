@@ -156,9 +156,14 @@ defmodule Schoolhub.RegServer do
   defp get_admin_credentials() do
     admin_name = Application.get_env(:schoolhub, :reg_admin_name, "admin")
     admin_host = Application.get_env(:schoolhub, :mongooseim_hostname, "localhost")
-    admin_pw = Application.get_env(:schoolhub, :reg_admin_pw, "admin")
+    random_pw = random_string(@salt_length)
     
-    {admin_name, admin_host, admin_pw}
+    {admin_name, admin_host, random_pw}
+  end
+
+  defp random_string(length) do
+    alphabet = Enum.to_list(?a..?z) ++ Enum.to_list(?0..?9)
+    Enum.take_random(alphabet, length) |> to_string()
   end
 
   defp admin_conn_opts({admin_name, admin_host, admin_pw}) do

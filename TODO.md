@@ -1,11 +1,6 @@
 - handle persistent data in postgres volume
-- handle adding registerer admin
 - check postgres connectivity privacy, SSL
-- check registerer admin privacy, secrets
 - register admin password generator script when mongooseim is up ?how to detect?
 
-- mock db for register user
-- implement delete user
-- implement change user password
-- implement test register user
 - implement start session
+- check romeo authentication fail PLAIN error so auth server does not crash

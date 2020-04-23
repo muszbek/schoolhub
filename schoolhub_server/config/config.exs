@@ -13,5 +13,4 @@ config :schoolhub,
   auth_session_timeout: 1000,
 
   mongooseim_hostname: "localhost",
-  reg_admin_name: "admin",
-  reg_admin_pw: "admin"
+  reg_admin_name: "admin"
