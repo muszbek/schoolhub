@@ -24,5 +24,15 @@ defmodule RegTest do
     result = Schoolhub.RegServer.register_user(@test_admin, @test_new_pw)
     assert result == {:error, :user_exists}
   end
+
+  test "remove existing user succeeds" do
+    result = Schoolhub.RegServer.remove_user(@test_old_user)
+    assert result == {:ok, :user_removed}
+  end
+
+  test "remove non existing user succeeds" do
+    result = Schoolhub.RegServer.remove_user(@test_new_user)
+    assert result == {:ok, :user_not_existed}
+  end
   
 end

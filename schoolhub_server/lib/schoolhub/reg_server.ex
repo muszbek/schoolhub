@@ -33,29 +33,7 @@ defmodule Schoolhub.RegServer do
   through an admin xmpp user of mongooseim.
   """
   def register_user(username, password) do
-    GenServer.call(__MODULE__, {:reg_user, string(username), string(password)})
-  end
-
-  @doc """
-  Adds a new user entry into the database directly,
-  by encoding the password into scram.
-
-  Private, this is not the standard way to use the API.
-  I do not want to duplicate and bypass the Mongooseim register procedure,
-  only when I have to! (In init for the admin that registers other users)
-  """
-  defp register_user_db(username, password, db_api) do
-    pass_details = password_to_scram(to_charlist(password))
-    Logger.debug("Inserting new user: #{inspect(username)} ; #{inspect(pass_details)}")
-    db_api.add_scram_user(username, pass_details)
-  end
-
-  @doc """
-  Encodes the password plain string according to the SCRAM protocol
-  into a valid user entry into the database.
-  """
-  def password_to_scram(password) do
-    password_to_scram(password, @scram_default_iteration_count)
+    GenServer.call(__MODULE__, {:reg_user, charlist(username), charlist(password)})
   end
 
   @doc """
@@ -150,6 +128,7 @@ defmodule Schoolhub.RegServer do
   end
 
   defp string(text), do: text |> to_string()
+  defp charlist(text), do: text |> to_charlist()
 
   defp get_admin_credentials() do
     admin_name = Application.get_env(:schoolhub, :reg_admin_name, "admin")
@@ -163,9 +142,23 @@ defmodule Schoolhub.RegServer do
     [jid: admin_name <> "@" <> admin_host, password: admin_pw]
   end
 
+  defp register_user_db(username, password, db_api) do
+    ## This is only used for the admin registration in init.
+    ## Better not to duplicate the Mongooseim registration process
+    ## when it is not absolutely necessary.
+    pass_details = password_to_scram(to_charlist(password))
+    Logger.debug("Inserting new user: #{inspect(username)} ; #{inspect(pass_details)}")
+    db_api.add_scram_user(username, pass_details)
+  end
+
+  defp password_to_scram(password) do
+    password_to_scram(password, @scram_default_iteration_count)
+  end
+
+  
   defp check_username(reg_info = %{username: username}) do
     case :stringprep.prepare(username) do
-      "" ->
+      '' ->
 	{:error, :username_invalid}
       username_checked ->
 	%{reg_info | username: username_checked}
@@ -177,7 +170,7 @@ defmodule Schoolhub.RegServer do
   end
   defp check_user_exist(reg_info = %{db_api: db_api,
 				     username: username}) do
-    if db_api.check_user_exist(username) do
+    if db_api.check_user_exist(string(username)) do
       {:error, :user_exists}
     else
       reg_info
@@ -189,7 +182,7 @@ defmodule Schoolhub.RegServer do
   end
   defp check_password(reg_info = %{password: password}) do
     case :stringprep.prepare(password) do
-      "" ->
+      '' ->
 	{:error, :password_invalid}
       password_checked ->
 	%{reg_info | password: password_checked}

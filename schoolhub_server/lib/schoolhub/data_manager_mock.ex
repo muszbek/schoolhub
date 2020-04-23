@@ -8,7 +8,8 @@ defmodule Schoolhub.DataManagerMock do
   @mock_user_string "test_user"
   @mock_admin 'admin'
   @mock_admin_string "admin"
-  
+
+  @scram_prefix "==SCRAM==,"
   @mock_scram "==SCRAM==,jv1SCgihx+Q2yj6PggxUZPbmfp4=,r+T1xjRnDwpUPoC/EwOXA+Jjt2Y=,iCgKQkjMSgfZgjh06UMZzg==,4096"
   ## The password belonging to this mock entry is "test_pw"
 
@@ -43,6 +44,26 @@ defmodule Schoolhub.DataManagerMock do
   end
   def check_user_exist(_other_user) do
     false
+  end
+
+  def add_scram_user(@mock_user, @scram_prefix <> _rest_of_scram) do
+    :user_exists
+  end
+  def add_scram_user(@mock_user_string, scram) do
+    add_scram_user(@mock_user, scram)
+  end
+  def add_scram_user(_other_user, @scram_prefix <> _rest_of_scram) do
+    :ok
+  end
+
+  def remove_scram_user(@mock_user) do
+    {:ok, :user_removed}
+  end
+  def remove_scram_user(@mock_user_string) do
+    remove_scram_user(@mock_user)
+  end
+  def remove_scram_user(_other_user) do
+    {:ok, :user_not_existed}
   end
   
 end
