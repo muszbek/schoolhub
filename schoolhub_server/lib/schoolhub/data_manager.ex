@@ -45,6 +45,13 @@ defmodule Schoolhub.DataManager do
   def add_scram_user(username, pass_details) do
     GenServer.call(__MODULE__, {:add_scram_user, username, pass_details})
   end
+
+  @doc """
+  Removes the database entry associated with 'username'.
+  """
+  def remove_scram_user(username) do
+    GenServer.call(__MODULE__, {:remove_scram_user, username})
+  end
     
 
   ### Server callbacks ###
@@ -99,6 +106,19 @@ defmodule Schoolhub.DataManager do
 					   severity: "ERROR",
 					   table: "users"}}} ->
 	{:reply, :user_exists, state}
+    end
+  end
+
+  @impl true
+  def handle_call({:remove_scram_user, username}, _from, state = %{pgsql_conn: conn}) do
+    query_text = "DELETE FROM users WHERE username LIKE $1;"
+    result = Postgrex.query(conn, query_text, [string(username)])
+
+    case result do
+      {:ok, %{columns: nil, command: :delete, messages: [], num_rows: 1, rows: nil}} ->
+	{:reply, {:ok, :user_removed}, state}
+      {:ok, %{columns: nil, command: :delete, messages: [], num_rows: 0, rows: nil}} ->
+	{:reply, {:ok, :user_not_existed}, state}
     end
   end
 

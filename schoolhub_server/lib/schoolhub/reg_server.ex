@@ -39,8 +39,12 @@ defmodule Schoolhub.RegServer do
   @doc """
   Adds a new user entry into the database directly,
   by encoding the password into scram.
+
+  Private, this is not the standard way to use the API.
+  I do not want to duplicate and bypass the Mongooseim register procedure,
+  only when I have to! (In init for the admin that registers other users)
   """
-  def register_user_db(username, password, db_api) do
+  defp register_user_db(username, password, db_api) do
     pass_details = password_to_scram(to_charlist(password))
     Logger.debug("Inserting new user: #{inspect(username)} ; #{inspect(pass_details)}")
     db_api.add_scram_user(username, pass_details)
@@ -54,14 +58,30 @@ defmodule Schoolhub.RegServer do
     password_to_scram(password, @scram_default_iteration_count)
   end
 
+  @doc """
+  Calls the database API to remove a user directly.
+  Succeeds if the user is removed, or if it was not there in the first place.
+  """
+  def remove_user(username) do
+    GenServer.call(__MODULE__, {:remove_user, string(username)})
+  end
+
   
   ### Server callbacks ###
   @impl true
   def init(options) do
     state = parse_options(options)
-    admin_conn_opts = get_admin_credentials()
+    admin_creds = {admin_name, _admin_host, admin_pw} = get_admin_credentials()
+    
+    {:ok, _reason} = remove_user(admin_name, state.db_api)
+    :ok = register_user_db(admin_name, admin_pw, state.db_api)
+    
     xmpp_conn = Module.concat(state.xmpp_api, Connection)
-    {:ok, admin_conn} = xmpp_conn.start_link(admin_conn_opts)
+    {:ok, admin_conn} =
+      admin_creds
+      |> admin_conn_opts()
+      |> xmpp_conn.start_link()
+    
     {:ok, %{state | admin_conn: admin_conn}}
   end
 
@@ -83,6 +103,12 @@ defmodule Schoolhub.RegServer do
 	|> reg_by_admin()
     
     {:reply, reg_result, state}
+  end
+
+  @impl true
+  def handle_call({:remove_user, username}, _from, state = %{db_api: db_api}) do
+    result = remove_user(username, db_api)
+    {:reply, result, state}
   end
 
   
@@ -126,10 +152,15 @@ defmodule Schoolhub.RegServer do
   defp string(text), do: text |> to_string()
 
   defp get_admin_credentials() do
-    admin_jid = Application.get_env(:schoolhub, :reg_admin_jid, "admin@localhost")
+    admin_name = Application.get_env(:schoolhub, :reg_admin_name, "admin")
+    admin_host = Application.get_env(:schoolhub, :mongooseim_hostname, "localhost")
     admin_pw = Application.get_env(:schoolhub, :reg_admin_pw, "admin")
     
-    [jid: admin_jid, password: admin_pw]
+    {admin_name, admin_host, admin_pw}
+  end
+
+  defp admin_conn_opts({admin_name, admin_host, admin_pw}) do
+    [jid: admin_name <> "@" <> admin_host, password: admin_pw]
   end
 
   defp check_username(reg_info = %{username: username}) do
@@ -176,6 +207,11 @@ defmodule Schoolhub.RegServer do
     xmpp_conn = Module.concat(xmpp_api, Connection)
     xmpp_stanza = Module.concat(xmpp_api, Stanza)
     :ok = xmpp_conn.send(conn, xmpp_stanza.set_inband_register(username, password))
+  end
+
+  def remove_user(username, db_api) do
+    Logger.debug("Removing user: #{inspect(username)}")
+    db_api.remove_scram_user(username)
   end
 
 
