@@ -10,25 +10,6 @@ defmodule Client.Supervisor do
   def start_link() do
     Supervisor.start_link(__MODULE__, :ok, name: __MODULE__)
   end
-
-  @doc false
-  def start_session(username, password) do
-    auth_result = Client.Auth.auth(username, password)
-    
-    if auth_result == :authenticated do
-      Supervisor.start_child(__MODULE__, {Client.SessionSup, {username, password}})
-      Logger.debug("Starting session...")
-    end
-	
-    auth_result
-  end
-
-  @doc false
-  def end_session() do
-    Logger.debug("Ending session...")
-    Supervisor.terminate_child(__MODULE__, Client.SessionSup)
-    Supervisor.delete_child(__MODULE__, Client.SessionSup)
-  end
   
 
   @impl true
