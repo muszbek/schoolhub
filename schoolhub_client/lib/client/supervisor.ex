@@ -34,7 +34,8 @@ defmodule Client.Supervisor do
   @impl true
   def init(:ok) do
     children = [
-      {Client.Auth, server_address()}
+      {Client.Auth, server_address()},
+      {Client.LoginServer, server_address()}
     ]
 
     opts = [strategy: :rest_for_one]

@@ -19,6 +19,17 @@ defmodule Schoolhub.Router do
     http_respond(conn)
   end
 
+  get "/reg_user" do
+    {:ok, body, conn} = Plug.Conn.read_body(conn)
+    Logger.debug("Received GET request on /auth with body: #{inspect(body)}")
+    
+    %{"username" => username, "password" => password} = Jason.decode!(body)
+    result = Schoolhub.RegServer.register_user(username, password)
+
+    response_body = result |> inspect() |> to_string() |> Jason.encode!()
+    send_resp(conn, 200, response_body)
+  end
+
   match _ do
     send_resp(conn, 404, "Oops!")
   end

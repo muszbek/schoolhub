@@ -41,8 +41,10 @@ defmodule Client.Auth do
   end
 
   @impl true
-  def handle_call({:auth, username, password}, from, state) do
-    {:ok, conn} = Mint.HTTP.connect(state.scheme, state.ip, state.port)
+  def handle_call({:auth, username, password}, from, state = %{scheme: scheme,
+							       ip: ip,
+							       port: port}) do
+    {:ok, conn} = Mint.HTTP.connect(scheme, ip, port)
     :ok = GenServer.cast(__MODULE__, :client_first)
     {:noreply, %{state |
 		 conn: conn,
