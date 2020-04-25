@@ -4,11 +4,6 @@
 {node, client3, 'client3@10.3.0.10'}.
 {node, client4, 'client4@10.3.0.10'}.
 {node, client5, 'client5@10.3.0.10'}.
-{node, client6, 'client6@10.3.0.10'}.
-{node, client7, 'client7@10.3.0.10'}.
-{node, client8, 'client8@10.3.0.10'}.
-{node, client9, 'client9@10.3.0.10'}.
-{node, client10, 'client10@10.3.0.10'}.
 
 {logdir, master, "./logs_master/"}.
 {logdir, "/root/test/logs_dist/"}.
