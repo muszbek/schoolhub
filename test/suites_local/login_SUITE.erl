@@ -4,9 +4,9 @@
 %%% @doc
 %%%
 %%% @end
-%%% Created : 13 Apr 2020 by tmuszbek <tmuszbek@tmuszbek-VirtualBox>
+%%% Created : 25 Apr 2020 by tmuszbek <tmuszbek@tmuszbek-VirtualBox>
 %%%-------------------------------------------------------------------
--module(auth_SUITE).
+-module(login_SUITE).
 
 -compile(export_all).
 
@@ -75,6 +75,7 @@ end_per_group(_GroupName, _Config) ->
 %% @end
 %%--------------------------------------------------------------------
 init_per_testcase(_TestCase, Config) ->
+    'Elixir.Client.LoginServer':end_session(),
     Config.
 
 %%--------------------------------------------------------------------
@@ -86,6 +87,7 @@ init_per_testcase(_TestCase, Config) ->
 %% @end
 %%--------------------------------------------------------------------
 end_per_testcase(_TestCase, _Config) ->
+'Elixir.Client.LoginServer':end_session(),
     ok.
 
 %%--------------------------------------------------------------------
@@ -102,8 +104,10 @@ end_per_testcase(_TestCase, _Config) ->
 %% @end
 %%--------------------------------------------------------------------
 groups() ->
-    [{auth_single_client, [shuffle], 
-      [auth_succeeds, auth_fails, unknown_user]}].
+    [{session_single_client, [shuffle], 
+      [start_session_succeeds, session_already_started, session_auth_fails, session_no_user,
+       end_session_succeeds, end_session_no_session]},
+     {reg_single_client, [shuffle], []}].
 
 %%--------------------------------------------------------------------
 %% @spec all() -> GroupsAndTestCases | {skip,Reason}
@@ -114,7 +118,7 @@ groups() ->
 %% @end
 %%--------------------------------------------------------------------
 all() -> 
-    [{group, auth_single_client}].
+    [{group, session_single_client}].
 
 %%--------------------------------------------------------------------
 %% @spec TestCase() -> Info
@@ -134,16 +138,33 @@ all() ->
 %% @end
 %%--------------------------------------------------------------------
 
-auth_succeeds(_Config) -> 
-    authenticated = 'Elixir.Client.Auth':auth(?TEST_USER, ?TEST_PW),
+start_session_succeeds(_Config) ->
+    {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER, ?TEST_PW),
     ok.
 
-auth_fails(_Config) ->
-    {error, "stored_key_mismatch"} = 'Elixir.Client.Auth':auth(?TEST_USER, ?TEST_PW_WRONG),
+session_already_started(_Config) ->
+    {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER, ?TEST_PW),
+    {error, {already_started, _Pid}} = 
+	'Elixir.Client.LoginServer':start_session(?TEST_USER, ?TEST_PW),
     ok.
 
-unknown_user(_Config) ->
-    {error, "unknown_user"} = 'Elixir.Client.Auth':auth(?TEST_USER_WRONG, ?TEST_PW),
+session_auth_fails(_Config) ->
+    {error, "stored_key_mismatch"} = 
+	'Elixir.Client.LoginServer':start_session(?TEST_USER, ?TEST_PW_WRONG),
+    ok.
+
+session_no_user(_Config) ->
+    {error, "unknown_user"} = 
+	'Elixir.Client.LoginServer':start_session(?TEST_USER_WRONG, ?TEST_PW),
+    ok.
+
+end_session_succeeds(_Config) ->
+    {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER, ?TEST_PW),
+    ok = 'Elixir.Client.LoginServer':end_session(),
+    ok.
+
+end_session_no_session(_Config) ->
+    {error, not_found} = 'Elixir.Client.LoginServer':end_session(),
     ok.
 
 
@@ -162,5 +183,3 @@ start_apps() ->
 stop_apps() ->
     application:stop(schoolhub_client),
     application:stop(schoolhub).
-
-
