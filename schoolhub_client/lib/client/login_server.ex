@@ -30,11 +30,11 @@ defmodule Client.LoginServer do
     auth_result = Client.Auth.auth(username, password)
     
     if auth_result == :authenticated do
-      Supervisor.start_child(@supervisor, {Client.SessionSup, {username, password}})
       Logger.debug("Starting session...")
+      Supervisor.start_child(@supervisor, {Client.SessionSup, {username, password}})
+    else
+      auth_result
     end
-	
-    auth_result
   end
 
   @doc false
@@ -47,6 +47,18 @@ defmodule Client.LoginServer do
   @doc false
   def reg_user(username, password) do
     _reg_result = GenServer.call(__MODULE__, {:reg, username, password})
+  end
+
+  @doc false
+  def remove_user(username, password) do
+    auth_result = Client.Auth.auth(username, password)
+    
+    if auth_result == :authenticated do
+      Logger.debug("Removing user...")
+      _remove_result = GenServer.call(__MODULE__, {:remove, username})
+    else
+      auth_result
+    end
   end
 
 
@@ -64,6 +76,21 @@ defmodule Client.LoginServer do
     msg = Jason.encode!(%{username: username, password: password})
     {:ok, conn} = Mint.HTTP.connect(scheme, ip, port)
     {:ok, conn, _request_ref} = Mint.HTTP.request(conn, "GET", "/reg_user", [], msg)
+    
+    {:noreply, %{state |
+		 conn: conn,
+		 socket: conn.socket,
+		 reg_caller: from}}
+  end
+
+  @impl true
+  def handle_call({:remove, username}, from, state = %{scheme: scheme,
+						       ip: ip,
+						       port: port}) do
+    
+    msg = username |> to_string()
+    {:ok, conn} = Mint.HTTP.connect(scheme, ip, port)
+    {:ok, conn, _request_ref} = Mint.HTTP.request(conn, "GET", "/remove_user", [], msg)
     
     {:noreply, %{state |
 		 conn: conn,

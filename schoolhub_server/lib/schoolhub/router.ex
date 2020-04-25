@@ -26,7 +26,18 @@ defmodule Schoolhub.Router do
     %{"username" => username, "password" => password} = Jason.decode!(body)
     result = Schoolhub.RegServer.register_user(username, password)
 
-    response_body = result |> inspect() |> to_string() |> Jason.encode!()
+    response_body = result |> encode_response()
+    send_resp(conn, 200, response_body)
+  end
+
+  get "/remove_user" do
+    {:ok, body, conn} = Plug.Conn.read_body(conn)
+    Logger.debug("Received GET request on /auth with body: #{inspect(body)}")
+    
+    username = body
+    result = Schoolhub.RegServer.remove_user(username)
+
+    response_body = result |> encode_response()
     send_resp(conn, 200, response_body)
   end
 
@@ -43,6 +54,15 @@ defmodule Schoolhub.Router do
       @http_response_timeout ->
 	raise "http_timeout"
     end	
+  end
+
+  defp encode_response(response) do
+    case response do
+      {:ok, _reason} -> "ok"
+      {:error, reason} -> "ERROR_" <> Atom.to_string(reason)
+      :ok -> "ok"
+      other -> other |> inspect() |> to_string() |> Jason.encode!()
+    end
   end
   
 end
