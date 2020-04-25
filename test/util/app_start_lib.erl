@@ -64,11 +64,18 @@ start_app(RootPath, AppName) ->
     start_app(RootPath, AppName, []).
 
 start_app(RootPath, AppName, Configs) ->
+    compile_app(RootPath),
     DepsPath = << RootPath/binary, "/_build/dev/lib/" >>,
     load_configs(RootPath, Configs),
     add_deps_to_path(DepsPath),
     {ok, _Apps} = application:ensure_all_started(AppName),
     ok.
+
+compile_app(RootPath) ->
+    {ok, Cwd} = file:get_cwd(),
+    ok = cd(RootPath),
+    _ = os:cmd("mix compile"),
+    ok = cd(Cwd).
 
 load_configs(RootPath, []) ->
     load_configs(RootPath, [<<"config.exs">>, <<"test.exs">>]);
