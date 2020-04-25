@@ -107,7 +107,9 @@ groups() ->
     [{session_single_client, [shuffle], 
       [start_session_succeeds, session_already_started, session_auth_fails, session_no_user,
        end_session_succeeds, end_session_no_session]},
-     {reg_single_client, [shuffle], []}].
+     {reg_single_client, [shuffle], 
+      [reg_user_succeeds, reg_user_fails,
+       remove_user_succeeds, remove_wrong_user_fails, remove_user_auth_fails]}].
 
 %%--------------------------------------------------------------------
 %% @spec all() -> GroupsAndTestCases | {skip,Reason}
@@ -118,7 +120,8 @@ groups() ->
 %% @end
 %%--------------------------------------------------------------------
 all() -> 
-    [{group, session_single_client}].
+    [{group, session_single_client},
+     {group, reg_single_client}].
 
 %%--------------------------------------------------------------------
 %% @spec TestCase() -> Info
@@ -165,6 +168,29 @@ end_session_succeeds(_Config) ->
 
 end_session_no_session(_Config) ->
     {error, not_found} = 'Elixir.Client.LoginServer':end_session(),
+    ok.
+
+
+reg_user_succeeds(_Config) ->
+    <<"ok">> = 'Elixir.Client.LoginServer':reg_user(?TEST_USER_WRONG, ?TEST_PW),
+    ok.
+
+reg_user_fails(_Config) ->
+    <<"ERROR_", Rest/binary>> = 'Elixir.Client.LoginServer':reg_user(<<"">>, ?TEST_PW),
+    ok.
+
+remove_user_succeeds(_Config) ->
+    <<"ok">> = 'Elixir.Client.LoginServer':remove_user(?TEST_USER, ?TEST_PW),
+    ok.
+
+remove_wrong_user_fails(_Config) ->
+    {error, "unknown_user"} = 
+	'Elixir.Client.LoginServer':remove_user(?TEST_USER_WRONG, ?TEST_PW),
+    ok.
+
+remove_user_auth_fails(_Config) ->
+    {error, "stored_key_mismatch"} = 
+	'Elixir.Client.LoginServer':remove_user(?TEST_USER, ?TEST_PW_WRONG),
     ok.
 
 
