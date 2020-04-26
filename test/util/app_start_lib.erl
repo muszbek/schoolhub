@@ -73,9 +73,36 @@ start_app(RootPath, AppName, Configs) ->
 
 compile_app(RootPath) ->
     {ok, Cwd} = file:get_cwd(),
-    ok = cd(RootPath),
-    _ = os:cmd("mix compile"),
-    ok = cd(Cwd).
+    ok = c:cd(RootPath),
+    {0, _StdioStream} = invoke_mix(),
+    ok = c:cd(Cwd).
+
+invoke_mix() ->
+    {0, _} = invoke_command("mix compile").
+    
+%% implementation for calling bash command from erlang found at link below:
+%% https://stackoverflow.com/questions/27028486/how-to-execute-system-command-in-erlang-and-get-results-unreliable-oscmd-1/27047529
+invoke_command(Command) ->
+    Port = open_port({spawn, Command}, [stream, in, eof, hide, exit_status]),
+    get_data(Port, []).
+
+get_data(Port, Sofar) ->
+    receive
+	{Port, {data, Bytes}} ->
+	    get_data(Port, [Sofar|Bytes]);
+	{Port, eof} ->
+	    Port ! {self(), close},
+	    receive
+		{Port, closed} ->
+		    true
+	    end,
+	    ExitCode =
+		receive
+		    {Port, {exit_status, Code}} ->
+			Code
+		end,
+	    {ExitCode, lists:flatten(Sofar)}
+    end.
 
 load_configs(RootPath, []) ->
     load_configs(RootPath, [<<"config.exs">>, <<"test.exs">>]);
