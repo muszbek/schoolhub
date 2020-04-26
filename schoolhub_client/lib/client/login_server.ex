@@ -31,7 +31,7 @@ defmodule Client.LoginServer do
     
     if auth_result == :authenticated do
       Logger.debug("Starting session...")
-      Supervisor.start_child(@supervisor, {Client.SessionSup, {username, password}})
+      @supervisor.sup_start_session(username, password)
     else
       auth_result
     end
@@ -40,8 +40,7 @@ defmodule Client.LoginServer do
   @doc false
   def end_session() do
     Logger.debug("Ending session...")
-    Supervisor.terminate_child(@supervisor, Client.SessionSup)
-    Supervisor.delete_child(@supervisor, Client.SessionSup)
+    @supervisor.sup_stop_session()
   end
 
   @doc false

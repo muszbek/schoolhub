@@ -7,8 +7,20 @@ defmodule Client.Supervisor do
 
   use Supervisor
 
+  @doc false
   def start_link() do
     Supervisor.start_link(__MODULE__, :ok, name: __MODULE__)
+  end
+
+  @doc false
+  def sup_start_session(username, password) do
+    Supervisor.start_child(__MODULE__, {Client.SessionSup, {username, password}})
+  end
+
+  @doc false
+  def sup_stop_session() do
+    Supervisor.terminate_child(__MODULE__, Client.SessionSup)
+    Supervisor.delete_child(__MODULE__, Client.SessionSup)
   end
   
 
