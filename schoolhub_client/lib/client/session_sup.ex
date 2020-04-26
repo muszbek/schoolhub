@@ -15,7 +15,9 @@ defmodule Client.SessionSup do
     auth_check = Client.Auth.auth(username, password)
     
     if auth_check == :authenticated do
-      children = []
+      children = [
+	{Client.ChatServer, {username, password}}
+      ]
       opts = [strategy: :one_for_one]
       Supervisor.init(children, opts)
     else
