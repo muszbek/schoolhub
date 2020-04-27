@@ -10,7 +10,7 @@
 
 
 %% API
--export([start_elixir/1, start_server/1, start_client/1, start_client/2]).
+-export([start_elixir/1, start_server/1, start_server/2, start_client/1, start_client/2]).
 
 %%%===================================================================
 %%% API
@@ -29,6 +29,9 @@ start_elixir(RootPath) ->
 
 start_server(RootPath) ->
     start_app(RootPath, schoolhub).
+
+start_server(RootPath, Configs) ->
+    start_app(RootPath, schoolhub, Configs).
 
 start_client(RootPath) ->
     start_app(RootPath, schoolhub_client).

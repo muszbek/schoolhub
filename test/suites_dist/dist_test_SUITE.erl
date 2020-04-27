@@ -12,6 +12,10 @@
 
 -include_lib("common_test/include/ct.hrl").
 
+-define(TEST_USER, <<"test_user">>).
+-define(TEST_PW, <<"test_pw">>).
+-define(TEST_SCRAM, <<"==SCRAM==,opPudj+B+gGiZTRa3sckarTdghw=,2RN6tJzQGQwx+fiPilbQL6z0Ui8=,wv9lZ+Fuo36TRBqap+yfnQ==,4096">>).
+
 %%--------------------------------------------------------------------
 %% @spec suite() -> Info
 %% Info = [tuple()]
@@ -29,6 +33,7 @@ suite() ->
 %%--------------------------------------------------------------------
 init_per_suite(Config) ->
     start_apps(),
+    'Elixir.Schoolhub.RegServer':register_user(?TEST_USER, ?TEST_PW),
     Config.
 
 %%--------------------------------------------------------------------
@@ -37,6 +42,7 @@ init_per_suite(Config) ->
 %% @end
 %%--------------------------------------------------------------------
 end_per_suite(_Config) ->
+    {ok, _} = 'Elixir.Schoolhub.RegServer':remove_user(?TEST_USER),
     stop_apps(),
     ok.
 
@@ -128,8 +134,7 @@ all() ->
 %% @end
 %%--------------------------------------------------------------------
 parallel_auth(_Config) -> 
-    Calls = async_call_all_clients({'Elixir.Client.Auth', auth, [<<"test_user">>, <<"test_pw">>]}),
-    %timer:sleep(500),
+    Calls = async_call_all_clients({'Elixir.Client.Auth', auth, [?TEST_USER, ?TEST_PW]}),
     yield_all_clients(Calls, authenticated),
     ok.
 
@@ -140,9 +145,11 @@ start_apps() ->
     ElixirPath = ct:get_config(elixir_path),
     ServerPath = ct:get_config(server_path),
     ClientPath = ct:get_config(client_path),
+    ServerConfigs = ct:get_config(server_configs),
     ClientConfigs = ct:get_config(client_configs),
 
     app_start_lib:start_elixir(ElixirPath),
+    %app_start_lib:start_server(ServerPath, ServerConfigs),
     app_start_lib:start_server(ServerPath),
     start_clients(ElixirPath, ClientPath, ClientConfigs).
 
