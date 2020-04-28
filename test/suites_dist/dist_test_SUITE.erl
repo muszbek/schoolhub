@@ -142,14 +142,11 @@ parallel_auth(_Config) ->
 %% Helper functions
 
 start_apps() ->
-    ElixirPath = ct:get_config(elixir_path),
-    ServerPath = ct:get_config(server_path),
     ClientPath = ct:get_config(client_path),
-    ServerConfigs = ct:get_config(server_configs),
     ClientConfigs = ct:get_config(client_configs),
 
-    app_start_lib:start_elixir(ElixirPath),
-    app_start_lib:start_server(ServerPath, ServerConfigs),
+    app_start_lib:start_elixir(),
+    app_start_lib:start_server(),
     start_clients(ElixirPath, ClientPath, ClientConfigs).
 
 stop_apps() ->

@@ -10,7 +10,7 @@
 
 
 %% API
--export([start_elixir/1, start_server/1, start_server/2, start_client/1, start_client/2]).
+-export([start_elixir/0, start_server/0, start_client/0, start_client/2]).
 
 %%%===================================================================
 %%% API
@@ -22,19 +22,19 @@
 %% @end
 %%--------------------------------------------------------------------
 
-start_elixir(RootPath) ->
-    add_deps_to_path(RootPath),
-    ok = maybe_start(compiler),
-    ok = maybe_start(elixir).
+start_elixir() ->
+    ElixirPath = ct:get_config(elixir_path),
+    start_elixir(ElixirPath).
 
-start_server(RootPath) ->
-    start_app(RootPath, schoolhub).
+start_server() ->
+    ServerPath = ct:get_config(server_path),
+    ServerConfigs = ct:get_config(server_configs),
+    start_server(ServerPath, ServerConfigs).
 
-start_server(RootPath, Configs) ->
-    start_app(RootPath, schoolhub, Configs).
-
-start_client(RootPath) ->
-    start_app(RootPath, schoolhub_client).
+start_client() ->
+    ClientPath = ct:get_config(client_path),
+    ClientConfigs = ct:get_config(client_configs),
+    start_client(ClientPath, ClientConfigs).
 
 start_client(RootPath, Configs) ->
     start_app(RootPath, schoolhub_client, Configs).
@@ -43,6 +43,15 @@ start_client(RootPath, Configs) ->
 %%%===================================================================
 %%% Internal functions
 %%%===================================================================
+
+start_elixir(RootPath) ->
+    add_deps_to_path(RootPath),
+    ok = maybe_start(compiler),
+    ok = maybe_start(elixir).
+
+start_server(RootPath, Configs) ->
+    start_app(RootPath, schoolhub, Configs).
+
 
 add_deps_to_path(DepsPath) ->
     {ok, DepsNames} = file:list_dir(DepsPath),
