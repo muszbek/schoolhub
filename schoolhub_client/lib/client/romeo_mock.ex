@@ -6,7 +6,7 @@ end
 
 
 defmodule Client.RomeoMock.Connection do
-  @mock_host "localhost"
+  @mock_host "10.3.0.2"
   @mock_user "test_user"
   @mock_pw "test_pw"
 

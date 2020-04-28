@@ -149,8 +149,7 @@ start_apps() ->
     ClientConfigs = ct:get_config(client_configs),
 
     app_start_lib:start_elixir(ElixirPath),
-    %app_start_lib:start_server(ServerPath, ServerConfigs),
-    app_start_lib:start_server(ServerPath),
+    app_start_lib:start_server(ServerPath, ServerConfigs),
     start_clients(ElixirPath, ClientPath, ClientConfigs).
 
 stop_apps() ->
