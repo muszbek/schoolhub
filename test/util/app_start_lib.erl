@@ -8,6 +8,7 @@
 %%%-------------------------------------------------------------------
 -module(app_start_lib).
 
+-include_lib("common_test/include/ct.hrl").
 
 %% API
 -export([start_elixir/0, start_server/0, start_client/0, start_client/2]).

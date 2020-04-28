@@ -16,6 +16,7 @@
 -define(TEST_PW, <<"test_pw">>).
 -define(TEST_USER_WRONG, <<"test_usera">>).
 -define(TEST_PW_WRONG, <<"test_pwa">>).
+-define(TEST_USER_NEW, <<"test_user_new">>).
 
 %%--------------------------------------------------------------------
 %% @spec suite() -> Info
@@ -34,6 +35,8 @@ suite() ->
 %%--------------------------------------------------------------------
 init_per_suite(Config) ->
     start_apps(),
+    {ok, _} = 'Elixir.Schoolhub.RegServer':remove_user(?TEST_USER_NEW),
+    'Elixir.Schoolhub.RegServer':register_user(?TEST_USER, ?TEST_PW),
     Config.
 
 %%--------------------------------------------------------------------
@@ -42,6 +45,8 @@ init_per_suite(Config) ->
 %% @end
 %%--------------------------------------------------------------------
 end_per_suite(_Config) ->
+    {ok, _} = 'Elixir.Schoolhub.RegServer':remove_user(?TEST_USER),
+    {ok, _} = 'Elixir.Schoolhub.RegServer':remove_user(?TEST_USER_NEW),
     stop_apps(),
     ok.
 
@@ -87,7 +92,7 @@ init_per_testcase(_TestCase, Config) ->
 %% @end
 %%--------------------------------------------------------------------
 end_per_testcase(_TestCase, _Config) ->
-'Elixir.Client.LoginServer':end_session(),
+    'Elixir.Client.LoginServer':end_session(),
     ok.
 
 %%--------------------------------------------------------------------
@@ -172,15 +177,18 @@ end_session_no_session(_Config) ->
 
 
 reg_user_succeeds(_Config) ->
-    <<"ok">> = 'Elixir.Client.LoginServer':reg_user(?TEST_USER_WRONG, ?TEST_PW),
+    <<"ok">> = 'Elixir.Client.LoginServer':reg_user(?TEST_USER_NEW, ?TEST_PW),
+    {ok, _} = 'Elixir.Schoolhub.RegServer':remove_user(?TEST_USER_NEW),
     ok.
 
 reg_user_fails(_Config) ->
-    <<"ERROR_", Rest/binary>> = 'Elixir.Client.LoginServer':reg_user(<<"">>, ?TEST_PW),
+    <<"ERROR_", _Rest/binary>> = 'Elixir.Client.LoginServer':reg_user(<<"">>, ?TEST_PW),
     ok.
 
 remove_user_succeeds(_Config) ->
-    <<"ok">> = 'Elixir.Client.LoginServer':remove_user(?TEST_USER, ?TEST_PW),
+    'Elixir.Schoolhub.RegServer':register_user(?TEST_USER_NEW, ?TEST_PW),
+    <<"ok">> = 'Elixir.Client.LoginServer':remove_user(?TEST_USER_NEW, ?TEST_PW),
+    {ok, _} = 'Elixir.Schoolhub.RegServer':remove_user(?TEST_USER_NEW),
     ok.
 
 remove_wrong_user_fails(_Config) ->

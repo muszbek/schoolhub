@@ -5,4 +5,4 @@ config :schoolhub_client,
 		   ip: "10.3.0.9",
 		   port: 8080],
   xmpp_backend: Romeo,
-  mongooseim_hostname: "localhost"
+  mongooseim_hostname: "10.3.0.2"

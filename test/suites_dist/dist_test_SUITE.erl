@@ -147,14 +147,14 @@ start_apps() ->
 
     app_start_lib:start_elixir(),
     app_start_lib:start_server(),
-    start_clients(ElixirPath, ClientPath, ClientConfigs).
+    start_clients(ClientPath, ClientConfigs).
 
 stop_apps() ->
     stop_clients(),
     application:stop(schoolhub).
     
-start_clients(ElixirPath, ClientPath, ClientConfigs) ->
-    call_all_clients({app_start_lib, start_elixir, [ElixirPath]}, ok),
+start_clients(ClientPath, ClientConfigs) ->
+    call_all_clients({app_start_lib, start_elixir, []}, ok),
     call_all_clients({app_start_lib, start_client, [ClientPath, ClientConfigs]}, ok).
 
 stop_clients() ->

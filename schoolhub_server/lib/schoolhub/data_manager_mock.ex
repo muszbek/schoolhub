@@ -6,6 +6,8 @@ defmodule Schoolhub.DataManagerMock do
 
   @mock_user 'test_user'
   @mock_user_string "test_user"
+  @mock_user_new 'test_user_new'
+  @mock_user_new_string "test_user_new"
   @mock_replacable_user 'replacable_user'
   @mock_replacable_user_string "replacable_user"
   @mock_admin 'admin'
@@ -26,6 +28,12 @@ defmodule Schoolhub.DataManagerMock do
     @mock_scram
   end
   def get_scram_pw(@mock_user_string) do
+    get_scram_pw(@mock_user)
+  end
+  def get_scram_pw(@mock_user_new) do
+    @mock_scram
+  end
+  def get_scram_pw(@mock_user_new_string) do
     get_scram_pw(@mock_user)
   end
   def get_scram_pw(_other_user) do

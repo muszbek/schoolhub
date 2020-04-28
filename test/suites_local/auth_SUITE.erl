@@ -34,6 +34,7 @@ suite() ->
 %%--------------------------------------------------------------------
 init_per_suite(Config) ->
     start_apps(),
+    'Elixir.Schoolhub.RegServer':register_user(?TEST_USER, ?TEST_PW),
     Config.
 
 %%--------------------------------------------------------------------
@@ -42,6 +43,7 @@ init_per_suite(Config) ->
 %% @end
 %%--------------------------------------------------------------------
 end_per_suite(_Config) ->
+    {ok, _} = 'Elixir.Schoolhub.RegServer':remove_user(?TEST_USER),
     stop_apps(),
     ok.
 
