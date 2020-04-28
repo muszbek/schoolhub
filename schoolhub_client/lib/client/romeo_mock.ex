@@ -6,7 +6,7 @@ end
 
 
 defmodule Client.RomeoMock.Connection do
-  @mock_admin ""
+  @mock_host "localhost"
   @mock_user "test_user"
   @mock_pw "test_pw"
 
@@ -22,7 +22,7 @@ defmodule Client.RomeoMock.Connection do
   def send(@mock_conn, stanza) do
     if stanza == Romeo.Stanza.presence() do
 
-      reply = %Romeo.Stanza.Presence{from: %Romeo.JID{full: @mock_user <>"@localhost/" <> @mock_resource, resource: @mock_resource, server: "localhost", user: @mock_user}, id: nil, show: "", status: "", to: %Romeo.JID{full: @mock_user <> "@localhost/" <> @mock_resource, resource: @mock_resource, server: "localhost", user: @mock_user}, type: nil, xml: {:xmlel, "presence", [{"from", @mock_user <> "@localhost/" <> @mock_resource}, {"to", @mock_user <> "@localhost/" <> @mock_resource}, {"xml:lang", "en"}], []}}
+      reply = %Romeo.Stanza.Presence{from: %Romeo.JID{full: @mock_user <>"@" <> @mock_host <> "/" <> @mock_resource, resource: @mock_resource, server: @mock_host, user: @mock_user}, id: nil, show: "", status: "", to: %Romeo.JID{full: @mock_user <> "@" <> @mock_host <> "/" <> @mock_resource, resource: @mock_resource, server: @mock_host, user: @mock_user}, type: nil, xml: {:xmlel, "presence", [{"from", @mock_user <> "@" <> @mock_host<> "/" <> @mock_resource}, {"to", @mock_user <> "@" <> @mock_host <> "/" <> @mock_resource}, {"xml:lang", "en"}], []}}
 
       Process.send(self(), {:stanza, reply}, [])
     end

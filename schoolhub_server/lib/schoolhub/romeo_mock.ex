@@ -7,7 +7,8 @@ end
 
 defmodule Schoolhub.RomeoMock.Connection do
 
-  @mock_admin "admin@localhost"
+  @mock_admin "admin"
+  @mock_host "localhost"
 
   @mock_user "new_user"
   @mock_pw "new_pw"
@@ -15,7 +16,7 @@ defmodule Schoolhub.RomeoMock.Connection do
   @mock_conn :connection_stub
   @mock_resource "51D7588DEFD5CA6C1587-494607-823546"
   
-  def start_link([jid: @mock_admin, password: _mock_admin_pw]) do
+  def start_link([jid: @mock_admin <> "@" <> @mock_host, password: _mock_admin_pw]) do
     Process.send(self(), {:resource_bound, @mock_resource}, [])
     Process.send(self(), :connection_ready, [])
     {:ok, @mock_conn}
@@ -24,7 +25,8 @@ defmodule Schoolhub.RomeoMock.Connection do
   def send(@mock_conn, stanza) do
     if stanza == Schoolhub.RomeoMock.Stanza.set_inband_register(@mock_user, @mock_pw) do
       
-      reply = "<iq from='" <> @mock_admin <> "' to='" <> @mock_admin <> "/" <> @mock_resource <>
+      reply = "<iq from='" <> @mock_admin <> "@" <> @mock_host <> "' to='" <>
+	@mock_admin <> "@" <> @mock_host <> "/" <> @mock_resource <>
 	"' id='7929' type='result'><query xmlns='jabber:iq:register'><username>" <>
 	@mock_user <> "</username><password>" <> @mock_pw <> "</password></query></iq>"
       
