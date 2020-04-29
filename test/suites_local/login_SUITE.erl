@@ -187,6 +187,7 @@ reg_user_fails(_Config) ->
 
 remove_user_succeeds(_Config) ->
     'Elixir.Schoolhub.RegServer':register_user(?TEST_USER_NEW, ?TEST_PW),
+    timer:sleep(100),
     <<"ok">> = 'Elixir.Client.LoginServer':remove_user(?TEST_USER_NEW, ?TEST_PW),
     {ok, _} = 'Elixir.Schoolhub.RegServer':remove_user(?TEST_USER_NEW),
     ok.

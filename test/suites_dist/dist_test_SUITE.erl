@@ -142,19 +142,20 @@ parallel_auth(_Config) ->
 %% Helper functions
 
 start_apps() ->
-    ClientPath = ct:get_config(client_path),
-    ClientConfigs = ct:get_config(client_configs),
-
     app_start_lib:start_elixir(),
     app_start_lib:start_server(),
-    start_clients(ClientPath, ClientConfigs).
+
+    ElixirPath = ct:get_config(elixir_path),
+    ClientPath = ct:get_config(client_path),
+    ClientConfigs = ct:get_config(client_configs),
+    start_clients(ElixirPath, ClientPath, ClientConfigs).
 
 stop_apps() ->
     stop_clients(),
     application:stop(schoolhub).
     
-start_clients(ClientPath, ClientConfigs) ->
-    call_all_clients({app_start_lib, start_elixir, []}, ok),
+start_clients(ElixirPath, ClientPath, ClientConfigs) ->
+    call_all_clients({app_start_lib, start_elixir, [ElixirPath]}, ok),
     call_all_clients({app_start_lib, start_client, [ClientPath, ClientConfigs]}, ok).
 
 stop_clients() ->

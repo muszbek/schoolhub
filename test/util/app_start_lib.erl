@@ -11,7 +11,7 @@
 -include_lib("common_test/include/ct.hrl").
 
 %% API
--export([start_elixir/0, start_server/0, start_client/0, start_client/2]).
+-export([start_elixir/0, start_elixir/1, start_server/0, start_client/0, start_client/2]).
 
 %%%===================================================================
 %%% API
@@ -23,9 +23,18 @@
 %% @end
 %%--------------------------------------------------------------------
 
+%% The server always run within ct.
+%% The client runs in ct in local test, outside of ct in distributed.
+%% So in distributed the ct config has to be injected.
+
 start_elixir() ->
     ElixirPath = ct:get_config(elixir_path),
     start_elixir(ElixirPath).
+
+start_elixir(RootPath) ->
+    add_deps_to_path(RootPath),
+    ok = maybe_start(compiler),
+    ok = maybe_start(elixir).
 
 start_server() ->
     ServerPath = ct:get_config(server_path),
@@ -44,11 +53,6 @@ start_client(RootPath, Configs) ->
 %%%===================================================================
 %%% Internal functions
 %%%===================================================================
-
-start_elixir(RootPath) ->
-    add_deps_to_path(RootPath),
-    ok = maybe_start(compiler),
-    ok = maybe_start(elixir).
 
 start_server(RootPath, Configs) ->
     start_app(RootPath, schoolhub, Configs).
