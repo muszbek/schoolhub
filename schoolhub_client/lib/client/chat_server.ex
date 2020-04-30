@@ -236,27 +236,24 @@ defmodule Client.ChatServer do
   defp read_inbox_stanza(start_time \\ 0, end_time \\ 0,
 	order \\ "asc", hidden_read \\ "false") do
 
-    field_type = xmlel(name: "field", attrs: [{"type", "hidden"}, {"var", "FORM_TYPE"}],
-      children: [xmlel(name: "value", children: [Stanza.cdata(ns_inbox())])])
-    field_start = xmlel(name: "field", attrs: [{"type", "text-single"}, {"var", "start"}],
-      children: [xmlel(name: "value", children: [Stanza.cdata(start_time)])])
-    field_end = xmlel(name: "field", attrs: [{"type", "text-single"}, {"var", "end"}],
-      children: [xmlel(name: "value", children: [Stanza.cdata(end_time)])])
-    field_order = xmlel(name: "field", attrs: [{"type", "list-single"}, {"var", "order"}],
-      children: [xmlel(name: "value", children: [Stanza.cdata(order)])])
-    field_hidden = xmlel(name: "field", attrs: [{"type", "text-single"}, {"var", "hidden_read"}],
-      children: [xmlel(name: "value", children: [Stanza.cdata(hidden_read)])])
+    field_type = inbox_stanza_field("hidden", "FORM_TYPE", ns_inbox())
+    field_start = inbox_stanza_field("text-single", "start", start_time)
+    field_end = inbox_stanza_field("text-single", "end", end_time)
+    field_order = inbox_stanza_field("list-single", "order", order)
+    field_hidden = inbox_stanza_field("text-single", "hidden_read", hidden_read)
     
     x = xmlel(name: "x", attrs: [{"xmlns", ns_data_forms()},
-				 {"type", "form"}], children: [field_type,
-							      field_start,
-							      field_end,
-							      field_order,
-							      field_hidden])
+				 {"type", "form"}],
+      children: [field_type, field_start, field_end, field_order, field_hidden])
     
     Stanza.iq("set", xmlel(name: "inbox",
 	  attrs: [{"xmlns", ns_inbox()},
 		  {"queryid", Stanza.id()}], children: [x]))
+  end
+
+  defp inbox_stanza_field(type, var, value) do
+    xmlel(name: "field", attrs: [{"type", type}, {"var", var}],
+      children: [xmlel(name: "value", children: [Stanza.cdata(value)])])
   end
 
 end
