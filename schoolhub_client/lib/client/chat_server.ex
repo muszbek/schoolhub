@@ -53,7 +53,10 @@ defmodule Client.ChatServer do
 
   @doc false
   def read_inbox() do
-    GenServer.call(__MODULE__, :read_inbox)
+    read_inbox(1)
+  end
+  def read_inbox(days_before) do
+    GenServer.call(__MODULE__, {:read_inbox, days_before})
   end
   
   
@@ -150,16 +153,18 @@ defmodule Client.ChatServer do
   end
 
   @impl true
-  def handle_call(:read_inbox, _from,
+  def handle_call({:read_inbox, days_before}, _from,
 	  state = %{xmpp_api: xmpp_api,
 		  conn: conn,
 		  readiness: :ready}) do
 
-    today = DateTime.utc_now() |> DateTime.to_iso8601()
-    seconds = 3600 * 24
-    yesterday = DateTime.add(DateTime.utc_now(), -seconds, :second) |> DateTime.to_iso8601()
+    seconds_before = 3600 * 24 * days_before
+    today = DateTime.utc_now()
+    yesterday = DateTime.add(today, -seconds_before, :second)
+    
+    stanza = read_inbox_stanza(isodate(today), isodate(yesterday))
+
     xmpp_conn = Module.concat(xmpp_api, Connection)
-    stanza = read_inbox_stanza(today, yesterday)
     result = xmpp_conn.send(conn, stanza)
     {:reply, result, state}
   end
@@ -181,14 +186,14 @@ defmodule Client.ChatServer do
 							   from: %Romeo.JID{user: sender}}},
 	state) do
     ## TODO: compare with roster items
-    Logger.warn(inspect(stanza))
+    Logger.warn(inspect(stanza, pretty: true))
     Logger.info(sender <> " says: " <> msg)
     {:noreply, state}
   end
   
   @impl true
   def handle_info(info, state) do
-    Logger.warn(inspect(info))
+    Logger.warn(inspect(info, pretty: true))
     {:noreply, state}
   end
 
@@ -231,10 +236,11 @@ defmodule Client.ChatServer do
     :ok = xmpp_conn.send(conn, Stanza.chat(jid, msg))
   end
 
+  defp isodate(date), do: date |> DateTime.to_iso8601()
+
   defp ns_inbox, do: "erlang-solutions.com:xmpp:inbox:0"
   
-  defp read_inbox_stanza(start_time \\ 0, end_time \\ 0,
-	order \\ "asc", hidden_read \\ "false") do
+  defp read_inbox_stanza(start_time, end_time, order \\ "asc", hidden_read \\ "false") do
 
     field_type = inbox_stanza_field("hidden", "FORM_TYPE", ns_inbox())
     field_start = inbox_stanza_field("text-single", "start", start_time)
