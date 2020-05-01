@@ -12,6 +12,7 @@ defmodule Client.ChatServer do
   defstruct(
     xmpp_api: Romeo,
     xmpp_hostname: "localhost",
+    username: :nil,
     conn: :nil,
     readiness: :not_connected
   )
@@ -73,7 +74,7 @@ defmodule Client.ChatServer do
     {:ok, conn} = xmpp_conn.start_link(creds)
     :ok = xmpp_conn.send(conn, Stanza.presence)
     
-    {:ok, %{state | xmpp_api: xmpp_api, xmpp_hostname: host, conn: conn}}
+    {:ok, %{state | xmpp_api: xmpp_api, xmpp_hostname: host, username: username, conn: conn}}
   end
 
   @impl true
@@ -162,7 +163,7 @@ defmodule Client.ChatServer do
     today = DateTime.utc_now()
     yesterday = DateTime.add(today, -seconds_before, :second)
     
-    stanza = read_inbox_stanza(isodate(today), isodate(yesterday))
+    stanza = read_inbox_stanza(isodate(yesterday), isodate(today))
 
     xmpp_conn = Module.concat(xmpp_api, Connection)
     result = xmpp_conn.send(conn, stanza)
@@ -181,13 +182,38 @@ defmodule Client.ChatServer do
   end
 
   @impl true
-  def handle_info({:stanza, stanza = %Romeo.Stanza.Message{type: "chat",
-							   body: msg,
-							   from: %Romeo.JID{user: sender}}},
-	state) do
-    ## TODO: compare with roster items
-    Logger.warn(inspect(stanza, pretty: true))
+  def handle_info({:stanza, %Romeo.Stanza.Message{type: "chat",
+						  body: msg,
+						  from: %Romeo.JID{user: sender},
+						  to: %Romeo.JID{user: username}}},
+	state = %{username: username}) do
+    
     Logger.info(sender <> " says: " <> msg)
+    {:noreply, state}
+  end
+
+  @impl true
+  def handle_info({:stanza,
+		   %Romeo.Stanza.Message{type: "normal",
+					 body: "",
+					 from: %Romeo.JID{user: username},
+					 xml: {:xmlel, "message", _, [
+						  {:xmlel, "result", _, [
+						      {:xmlel, "forwarded", _, [
+							  {:xmlel, "delay", [_, {"stamp",
+										 timestamp}],
+							   []}, message]}]}]}}},
+	state = %{xmpp_hostname: host, username: username}) do
+
+    self_jid = username <> "@" <> host
+    {:xmlel, "message", [{"from", sender_full},
+			 {"to", ^self_jid},
+			 {"type", "chat"}, _, _],
+     [{:xmlel, "body", [], [xmlcdata: msg_body]}]} = message
+
+    [sender | _] = String.split(sender_full, "@")
+
+    Logger.info("Last message from " <> sender <> " at " <> timestamp <> ": " <> msg_body)
     {:noreply, state}
   end
   
