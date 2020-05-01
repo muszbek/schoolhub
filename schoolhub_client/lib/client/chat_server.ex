@@ -182,6 +182,14 @@ defmodule Client.ChatServer do
   end
 
   @impl true
+  def handle_info({:stanza, %Romeo.Stanza.Presence{from: %Romeo.JID{user: username},
+						   to: %Romeo.JID{user: username}}},
+	state = %{username: username}) do
+
+    {:noreply, state}
+  end
+
+  @impl true
   def handle_info({:stanza, %Romeo.Stanza.Message{type: "chat",
 						  body: msg,
 						  from: %Romeo.JID{user: sender},
@@ -214,6 +222,25 @@ defmodule Client.ChatServer do
     [sender | _] = String.split(sender_full, "@")
 
     Logger.info("Last message from " <> sender <> " at " <> timestamp <> ": " <> msg_body)
+    {:noreply, state}
+  end
+
+  @impl true
+  def handle_info({:stanza, %Romeo.Stanza.IQ{from: %Romeo.JID{user: username},
+					     to: %Romeo.JID{user: username},
+					     type: "result",
+					     xml: {:xmlel, "iq", _, [
+						      {:xmlel, "fin", _, content}]}}},
+	state = %{username: username}) do
+
+    [{:xmlel, "active-conversations", [], [xmlcdata: active_conv]},
+     {:xmlel, "count", [], [xmlcdata: count]},
+     {:xmlel, "unread-messages", [], [xmlcdata: unread_msg]}] = content
+    
+    Logger.info("Total conversations: " <> count <>
+      "\nActive conversations: " <> active_conv <>
+      "\nUnread messages: " <> unread_msg)
+    
     {:noreply, state}
   end
   
