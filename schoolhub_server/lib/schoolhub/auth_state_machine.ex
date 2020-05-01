@@ -20,8 +20,6 @@ defmodule Schoolhub.AuthStateMachine do
   ### API functions ###
 
   @doc false
-  ## TODO: naming seems useless, it is not a server,
-  ## authenticate is not a message but a module call so it has to be a singleton.
   def start_link([{:name, name} | options]) do
     :gen_statem.start_link({:local, name}, __MODULE__, options, [])
   end
