@@ -45,7 +45,11 @@ defmodule Schoolhub.Router do
     {:ok, body, conn} = Plug.Conn.read_body(conn)
     Logger.debug("Received GET request on /get_mam with body: #{inspect(body)}")
 
-    send_resp(conn, 200, "ok")
+    %{"self" => self, "partner" => partner, "limit" => limit} = Jason.decode!(body)
+    result = Schoolhub.ChatServer.get_archive(self, partner, limit)
+
+    {:ok, response_body} = Jason.encode(result)
+    send_resp(conn, 200, response_body)
   end
 
   match _ do

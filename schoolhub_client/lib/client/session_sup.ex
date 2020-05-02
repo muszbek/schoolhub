@@ -16,7 +16,8 @@ defmodule Client.SessionSup do
     
     if auth_check == :authenticated do
       children = [
-	{Client.ChatServer, {username, password}}
+	{Client.ChatServer, {username, password}},
+	{Client.ChatArchiveServer, [username: username] ++ server_address()}
       ]
       opts = [strategy: :one_for_one]
       Supervisor.init(children, opts)
@@ -33,5 +34,10 @@ defmodule Client.SessionSup do
       restart: :transient,
       type: :supervisor
     }
+  end
+
+  
+  defp server_address() do
+    Application.get_env(:schoolhub_client, :server_address)
   end
 end
