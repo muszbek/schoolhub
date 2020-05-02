@@ -56,8 +56,8 @@ defmodule Schoolhub.DataManager do
   @doc """
   Fetches XMPP message archive between two users.
   """
-  def get_archive(self, partner) do
-    GenServer.call(__MODULE__, {:get_archive, self, partner})
+  def get_archive(self, partner, limit) do
+    GenServer.call(__MODULE__, {:get_archive, self, partner, limit})
   end
     
 
@@ -130,10 +130,16 @@ defmodule Schoolhub.DataManager do
   end
 
   @impl true
-  def handle_call({:get_archive, self, partner}, _from, state = %{pgsql_conn: conn}) do
+  def handle_call({:get_archive, self, partner, limit}, _from, state = %{pgsql_conn: conn}) do
+    limit_query = case limit do
+		    :all -> ""
+		    number when is_integer(number) and number > 0 ->
+		      "LIMIT " <> string(number)
+		  end
     id_query = "SELECT id FROM mam_server_user WHERE user_name LIKE $1"
     query_text = "SELECT direction, search_body FROM mam_message WHERE user_id = (" <>
-      id_query <> ") AND remote_bare_jid LIKE $2;"
+      id_query <> ") AND remote_bare_jid LIKE $2 " <> limit_query <> ";"
+    
     {:ok, data} = Postgrex.query(conn, query_text, [string(self), string(partner)])
     {:reply, data.rows, state}
   end

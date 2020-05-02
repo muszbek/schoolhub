@@ -11,6 +11,8 @@ defmodule Schoolhub.ChatServer do
     db_api: Schoolhub.DataManagerMock
   )
 
+  @default_message_limit 10
+
   ### API functions ###
   
   @doc false
@@ -18,9 +20,15 @@ defmodule Schoolhub.ChatServer do
     GenServer.start_link(__MODULE__, options, name: __MODULE__)
   end
   
-  @doc false
+  @doc """
+  If limit == :all, all messages are fetched.
+  Otherwise it is limited as specified, or the default.
+  """
   def get_archive(self, partner) do
-    GenServer.call(__MODULE__, {:get_archive, self, partner})
+    get_archive(self, partner, @default_message_limit)
+  end
+  def get_archive(self, partner, limit) do
+    GenServer.call(__MODULE__, {:get_archive, self, partner, limit})
   end
   
   ### Server callbacks ###
@@ -30,8 +38,8 @@ defmodule Schoolhub.ChatServer do
   end
 
   @impl true
-  def handle_call({:get_archive, self, partner}, _from, state = %{db_api: db_api}) do
-    archive = db_api.get_archive(self, partner)
+  def handle_call({:get_archive, self, partner, limit}, _from, state = %{db_api: db_api}) do
+    archive = db_api.get_archive(self, partner, limit)
     {:reply, archive, state}
   end
 

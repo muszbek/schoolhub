@@ -21,7 +21,7 @@ defmodule Schoolhub.Router do
 
   get "/reg_user" do
     {:ok, body, conn} = Plug.Conn.read_body(conn)
-    Logger.debug("Received GET request on /auth with body: #{inspect(body)}")
+    Logger.debug("Received GET request on /reg_user with body: #{inspect(body)}")
     
     %{"username" => username, "password" => password} = Jason.decode!(body)
     result = Schoolhub.RegServer.register_user(username, password)
@@ -32,13 +32,20 @@ defmodule Schoolhub.Router do
 
   get "/remove_user" do
     {:ok, body, conn} = Plug.Conn.read_body(conn)
-    Logger.debug("Received GET request on /auth with body: #{inspect(body)}")
+    Logger.debug("Received GET request on /remove_user with body: #{inspect(body)}")
     
     username = body
     result = Schoolhub.RegServer.remove_user(username)
 
     response_body = result |> encode_response()
     send_resp(conn, 200, response_body)
+  end
+
+  get "/get_mam" do
+    {:ok, body, conn} = Plug.Conn.read_body(conn)
+    Logger.debug("Received GET request on /get_mam with body: #{inspect(body)}")
+
+    send_resp(conn, 200, "ok")
   end
 
   match _ do
