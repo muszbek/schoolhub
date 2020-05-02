@@ -195,7 +195,9 @@ defmodule Client.ChatServer do
 						  from: %Romeo.JID{user: sender},
 						  to: %Romeo.JID{user: username}}},
 	state = %{username: username}) do
-    
+
+    chat_received = {sender, ["I", msg]}
+    add_chat_to_archive(chat_received)
     Logger.info(sender <> " says: " <> msg)
     {:noreply, state}
   end
@@ -287,6 +289,11 @@ defmodule Client.ChatServer do
     jid = string(username) <> "@" <> string(hostname)
 
     :ok = xmpp_conn.send(conn, Stanza.chat(jid, msg))
+    add_chat_to_archive({username, ["O", msg]})
+  end
+
+  defp add_chat_to_archive(msg = {_sender, [_direction, _body]}) do
+    Client.ChatArchiveServer.handle_chat(msg)
   end
 
   defp isodate(date), do: date |> DateTime.to_iso8601()

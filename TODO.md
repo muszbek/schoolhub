@@ -1,7 +1,6 @@
 - handle persistent data in postgres volume
 - check postgres connectivity privacy, SSL
 
-- implement chat archive REST api
 - implement chat archive unit test
 - implement chat archive common test
 - implement chat "seen", that updates inbox

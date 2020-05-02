@@ -14,7 +14,8 @@ defmodule Client.ChatArchiveServer do
     port: 8080,
     conn: :nil,
     socket: :nil,
-    reg_caller: :nil
+    reg_caller: :nil,
+    conv_table: :nil
   )
 
   @default_server_limit 10
@@ -26,7 +27,33 @@ defmodule Client.ChatArchiveServer do
     GenServer.start_link(__MODULE__, options, name: __MODULE__)
   end
 
-  @doc false
+  @doc """
+  Deletes all the local (client-side) in-memory message archives.
+  They can be again interrogated dynamically from the server.
+  """
+  def refresh_cache() do
+    GenServer.call(__MODULE__, :refresh_cache)
+  end
+
+  @doc """
+  Adds new chat message to local cache archive.
+  If archive corresponding to that user is empty, interrogates server through REST.
+  """
+  def handle_chat({partner, msg = [_direction, _body]}) do
+    table = :conversations
+    case :ets.lookup(table, partner) do
+      [] ->
+	messages = get_server_archive(partner) ++ [msg]
+	count = length(messages)
+	true = :ets.insert(table, {partner, messages, count})
+      [{partner, messages, count}] ->
+	true = :ets.insert(table, {partner, messages ++ [msg], count+1})
+    end
+  end
+    
+  @doc """
+  Fetches mam from server through REST api.
+  """
   def get_server_archive(partner) do
     get_server_archive(partner, @default_server_limit)
   end
@@ -38,7 +65,9 @@ defmodule Client.ChatArchiveServer do
   ### Server callbacks ###
   @impl true
   def init(options) do
-    {:ok, parse_options(options)}
+    state = parse_options(options)
+    conversations = :ets.new(:conversations, [:set, :public, :named_table])
+    {:ok, %{state | conv_table: conversations}}
   end
 
   
@@ -56,6 +85,29 @@ defmodule Client.ChatArchiveServer do
 		 conn: conn,
 		 socket: conn.socket,
 		 reg_caller: from}}
+  end
+
+  @impl true
+  def handle_call(:refresh_cache, _from, state = %{conv_table: table}) do
+    :true = :ets.delete(table)
+    new_table = :ets.new(:conversations, [:set, :public, :named_table])
+    {:reply, :ok, %{state | conv_table: new_table}}
+  end
+
+
+  @impl true
+  def handle_cast({:new_chat_msg, {partner, msg = [_direction, _body]}},
+	state = %{conv_table: table}) do
+    
+    case :ets.lookup(table, partner) do
+      [] ->
+	messages = get_server_archive(partner) ++ [msg]
+	count = length(messages)
+	:ets.insert(table, {partner, messages, count})
+      [{partner, messages, count}] ->
+	:ets.insert(table, {partner, messages ++ [msg], count+1})
+    end
+    {:noreply, state}
   end
 
 
