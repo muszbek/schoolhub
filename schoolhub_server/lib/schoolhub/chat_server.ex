@@ -17,12 +17,22 @@ defmodule Schoolhub.ChatServer do
   def start_link(options) do
     GenServer.start_link(__MODULE__, options, name: __MODULE__)
   end
-
+  
+  @doc false
+  def get_archive(self, partner) do
+    GenServer.call(__MODULE__, {:get_archive, self, partner})
+  end
   
   ### Server callbacks ###
   @impl true
   def init(options) do
     {:ok, parse_options(options)}
+  end
+
+  @impl true
+  def handle_call({:get_archive, self, partner}, _from, state = %{db_api: db_api}) do
+    archive = db_api.get_archive(self, partner)
+    {:reply, archive, state}
   end
 
   

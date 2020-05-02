@@ -1,5 +1,11 @@
 - handle persistent data in postgres volume
 - check postgres connectivity privacy, SSL
 
-- implement xmpp client server
+- implement chat archive REST api
+- implement chat archive unit test
+- implement chat archive common test
+- implement chat "seen", that updates inbox
+- implement create course
+- implement invite users (students)
+- implement course privileges
 - check romeo authentication fail PLAIN error so auth server does not crash

@@ -52,6 +52,13 @@ defmodule Schoolhub.DataManager do
   def remove_scram_user(username) do
     GenServer.call(__MODULE__, {:remove_scram_user, username})
   end
+
+  @doc """
+  Fetches XMPP message archive between two users.
+  """
+  def get_archive(self, partner) do
+    GenServer.call(__MODULE__, {:get_archive, self, partner})
+  end
     
 
   ### Server callbacks ###
@@ -120,6 +127,15 @@ defmodule Schoolhub.DataManager do
       {:ok, %{columns: nil, command: :delete, messages: [], num_rows: 0, rows: nil}} ->
 	{:reply, {:ok, :user_not_existed}, state}
     end
+  end
+
+  @impl true
+  def handle_call({:get_archive, self, partner}, _from, state = %{pgsql_conn: conn}) do
+    id_query = "SELECT id FROM mam_server_user WHERE user_name LIKE $1"
+    query_text = "SELECT direction, search_body FROM mam_message WHERE user_id = (" <>
+      id_query <> ") AND remote_bare_jid LIKE $2;"
+    {:ok, data} = Postgrex.query(conn, query_text, [string(self), string(partner)])
+    {:reply, data.rows, state}
   end
 
   
