@@ -188,7 +188,7 @@ defmodule Client.ChatServer do
 
     {:noreply, state}
   end
-
+  
   @impl true
   def handle_info({:stanza, %Romeo.Stanza.Message{type: "chat",
 						  body: msg,
@@ -213,17 +213,19 @@ defmodule Client.ChatServer do
 							  {:xmlel, "delay", [_, {"stamp",
 										 timestamp}],
 							   []}, message]}]}]}}},
-	state = %{xmpp_hostname: host, username: username}) do
+	state = %{username: username}) do
 
-    self_jid = username <> "@" <> host
     {:xmlel, "message", [{"from", sender_full},
-			 {"to", ^self_jid},
+			 {"to", _jid},
 			 {"type", "chat"}, _, _],
-     [{:xmlel, "body", [], [xmlcdata: msg_body]}]} = message
+     [{:xmlel, "body", [], msg_body}]} = message
 
-    [sender | _] = String.split(sender_full, "@")
-
-    Logger.info("Last message from " <> sender <> " at " <> timestamp <> ": " <> msg_body)
+    case msg_body do
+      [] -> :ok
+      [xmlcdata: msg_body] ->
+	[sender | _] = String.split(sender_full, "@")
+	Logger.info("Last message from " <> sender <> " at " <> timestamp <> ": " <> msg_body)
+    end
     {:noreply, state}
   end
 

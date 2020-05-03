@@ -19,6 +19,7 @@ defmodule Client.ChatArchiveServer do
   )
 
   @default_server_limit 10
+  @ets_name :conversations
 
   ### API functions ###
 
@@ -40,14 +41,67 @@ defmodule Client.ChatArchiveServer do
   If archive corresponding to that user is empty, interrogates server through REST.
   """
   def handle_chat({partner, msg = [_direction, _body]}) do
-    table = :conversations
+    table = @ets_name
     case :ets.lookup(table, partner) do
       [] ->
 	messages = get_server_archive(partner) ++ [msg]
-	count = length(messages)
+	count = get_initial_message_count(messages)
 	true = :ets.insert(table, {partner, messages, count})
       [{partner, messages, count}] ->
 	true = :ets.insert(table, {partner, messages ++ [msg], count+1})
+    end
+  end
+
+  @doc """
+  Returns locally stored archive corresponding to partner.
+  If archive is empty, queries the server.
+  """
+  def get_archive(partner) do
+    case get_local_archive(partner) do
+      [] ->
+	case get_server_archive(partner) do
+	  [] -> []
+	  messages ->
+	    table = @ets_name
+	    count = get_initial_message_count(messages)
+	    true = :ets.insert(table, {partner, messages, count})
+	    messages
+	end
+      
+      messages -> messages
+    end
+  end
+
+  @doc """
+  Returns locally stored archive corresponding to partner.
+  """
+  def get_local_archive(partner) do
+    table = @ets_name
+    case :ets.lookup(table, partner) do
+      [] -> []
+      [{^partner, messages, _count}] -> messages
+    end
+  end
+
+  @doc """
+  Loads more messages from the server, increasing the interrogation limit.
+  If all the messages are already stored locally, no more queries to the server.
+  """
+  def get_more_archive(partner) do
+    table = @ets_name
+    case :ets.lookup(table, partner) do
+      [] -> []
+      [{^partner, messages, :all}] -> messages
+      [{^partner, _messages, count}] ->
+	limit = count + @default_server_limit
+	new_messages = get_server_archive(partner, limit)
+	new_count = case length(new_messages) do
+		      number when number < limit -> :all
+		      ^limit -> limit
+		    end
+	
+	true = :ets.insert(table, {partner, new_messages, new_count})
+	new_messages
     end
   end
     
@@ -66,7 +120,7 @@ defmodule Client.ChatArchiveServer do
   @impl true
   def init(options) do
     state = parse_options(options)
-    conversations = :ets.new(:conversations, [:set, :public, :named_table])
+    conversations = :ets.new(@ets_name, [:set, :public, :named_table])
     {:ok, %{state | conv_table: conversations}}
   end
 
@@ -90,7 +144,7 @@ defmodule Client.ChatArchiveServer do
   @impl true
   def handle_call(:refresh_cache, _from, state = %{conv_table: table}) do
     :true = :ets.delete(table)
-    new_table = :ets.new(:conversations, [:set, :public, :named_table])
+    new_table = :ets.new(@ets_name, [:set, :public, :named_table])
     {:reply, :ok, %{state | conv_table: new_table}}
   end
 
@@ -165,6 +219,14 @@ defmodule Client.ChatArchiveServer do
   end
   defp parse_options([{_key, _value} | remaining_opts] ,state) do
     parse_options(remaining_opts, state)
+  end
+
+
+  defp get_initial_message_count(messages) do
+    case length(messages) do
+      number when number < @default_server_limit -> :all
+      number -> number
+    end
   end
   
 end
