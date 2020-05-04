@@ -118,6 +118,13 @@ defmodule Schoolhub.DataManager do
 
   @impl true
   def handle_call({:remove_scram_user, username}, _from, state = %{pgsql_conn: conn}) do
+    sub_query_mam_id = "SELECT id FROM mam_server_user WHERE user_name LIKE $1"
+    query_delete_mam = "DELETE FROM mam_message WHERE user_id = (" <> sub_query_mam_id <> ") ;"
+    {:ok, %{command: :delete}} = Postgrex.query(conn, query_delete_mam, [string(username)])
+
+    query_delete_mam_user = "DELETE FROM mam_server_user WHERE user_name LIKE $1 ;"
+    {:ok, %{command: :delete}} = Postgrex.query(conn, query_delete_mam_user, [string(username)])
+    
     query_text = "DELETE FROM users WHERE username LIKE $1;"
     result = Postgrex.query(conn, query_text, [string(username)])
 

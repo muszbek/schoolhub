@@ -47,6 +47,8 @@ defmodule Client.ChatArchiveServer do
 	messages = get_server_archive(partner) ++ [msg]
 	count = get_initial_message_count(messages)
 	true = :ets.insert(table, {partner, messages, count})
+      [{partner, messages, :all}] ->
+	true = :ets.insert(table, {partner, messages ++ [msg], :all})
       [{partner, messages, count}] ->
 	true = :ets.insert(table, {partner, messages ++ [msg], count+1})
     end
