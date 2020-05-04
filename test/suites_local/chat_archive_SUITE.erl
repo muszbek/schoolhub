@@ -4,9 +4,9 @@
 %%% @doc
 %%%
 %%% @end
-%%% Created : 18 Apr 2020 by tmuszbek <tmuszbek@tmuszbek-VirtualBox>
+%%% Created :  4 May 2020 by tmuszbek <tmuszbek@tmuszbek-VirtualBox>
 %%%-------------------------------------------------------------------
--module(dist_test_SUITE).
+-module(chat_archive_SUITE).
 
 -compile(export_all).
 
@@ -14,7 +14,7 @@
 
 -define(TEST_USER, <<"test_user">>).
 -define(TEST_PW, <<"test_pw">>).
--define(TEST_SCRAM, <<"==SCRAM==,opPudj+B+gGiZTRa3sckarTdghw=,2RN6tJzQGQwx+fiPilbQL6z0Ui8=,wv9lZ+Fuo36TRBqap+yfnQ==,4096">>).
+-define(TEST_USER_NEW, <<"test_user_new">>).
 
 %%--------------------------------------------------------------------
 %% @spec suite() -> Info
@@ -33,8 +33,6 @@ suite() ->
 %%--------------------------------------------------------------------
 init_per_suite(Config) ->
     start_apps(),
-    'Elixir.Schoolhub.RegServer':register_user(?TEST_USER, ?TEST_PW),
-    timer:sleep(100),
     Config.
 
 %%--------------------------------------------------------------------
@@ -43,7 +41,6 @@ init_per_suite(Config) ->
 %% @end
 %%--------------------------------------------------------------------
 end_per_suite(_Config) ->
-    {ok, _} = 'Elixir.Schoolhub.RegServer':remove_user(?TEST_USER),
     stop_apps(),
     ok.
 
@@ -77,6 +74,10 @@ end_per_group(_GroupName, _Config) ->
 %% @end
 %%--------------------------------------------------------------------
 init_per_testcase(_TestCase, Config) ->
+    'Elixir.Schoolhub.RegServer':register_user(?TEST_USER, ?TEST_PW),
+    'Elixir.Schoolhub.RegServer':register_user(?TEST_USER_NEW, ?TEST_PW),
+    timer:sleep(100),
+    {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER, ?TEST_PW),
     Config.
 
 %%--------------------------------------------------------------------
@@ -88,6 +89,9 @@ init_per_testcase(_TestCase, Config) ->
 %% @end
 %%--------------------------------------------------------------------
 end_per_testcase(_TestCase, _Config) ->
+    'Elixir.Client.LoginServer':end_session(),
+    {ok, _} = 'Elixir.Schoolhub.RegServer':remove_user(?TEST_USER),
+    {ok, _} = 'Elixir.Schoolhub.RegServer':remove_user(?TEST_USER_NEW),
     ok.
 
 %%--------------------------------------------------------------------
@@ -104,7 +108,7 @@ end_per_testcase(_TestCase, _Config) ->
 %% @end
 %%--------------------------------------------------------------------
 groups() ->
-    [].
+    [{mam, [shuffle], [empty_archive_returns_empty]}].
 
 %%--------------------------------------------------------------------
 %% @spec all() -> GroupsAndTestCases | {skip,Reason}
@@ -115,7 +119,7 @@ groups() ->
 %% @end
 %%--------------------------------------------------------------------
 all() -> 
-    [parallel_auth].
+    [{group, mam}].
 
 %%--------------------------------------------------------------------
 %% @spec TestCase() -> Info
@@ -134,75 +138,19 @@ all() ->
 %% Comment = term()
 %% @end
 %%--------------------------------------------------------------------
-parallel_auth(_Config) -> 
-    Calls = async_call_all_clients({'Elixir.Client.Auth', auth, [?TEST_USER, ?TEST_PW]}),
-    yield_all_clients(Calls, authenticated),
+empty_archive_returns_empty(_Config) -> 
+    [] = 'Elixir.Client.ChatArchiveServer':get_archive(?TEST_USER_NEW),
     ok.
 
 
 %% Helper functions
+%% Closures
 
 start_apps() ->
     app_start_lib:start_elixir(),
     app_start_lib:start_server(),
-
-    ElixirPath = ct:get_config(elixir_path),
-    ClientPath = ct:get_config(client_path),
-    ClientConfigs = ct:get_config(client_configs),
-    start_clients(ElixirPath, ClientPath, ClientConfigs).
+    app_start_lib:start_client().
 
 stop_apps() ->
-    stop_clients(),
+    application:stop(schoolhub_client),
     application:stop(schoolhub).
-    
-start_clients(ElixirPath, ClientPath, ClientConfigs) ->
-    call_all_clients({app_start_lib, start_elixir, [ElixirPath]}, ok),
-    call_all_clients({app_start_lib, start_client, [ClientPath, ClientConfigs]}, ok).
-
-stop_clients() ->
-    call_all_clients({application, stop, [schoolhub_client]}).
-
-
-apply_to_all_clients(ApplyFun) ->
-    ApplyToClient = fun(Node) ->
-			    NodeStr = atom_to_list(Node),
-			    case string:rstr(NodeStr, "client") of
-				0 ->
-				    false;
-				I when is_integer(I) ->
-				    ApplyFun(Node)
-			    end
-		    end,
-    UnfilteredResult = lists:map(ApplyToClient, nodes()),
-    lists:filter(fun(Elem) ->
-			 Elem =/= false
-		 end, UnfilteredResult).
-
-call_all_clients({Module, Fun, Args}) ->
-    ApplyFun = fun(Node) ->
-		       rpc:call(Node, Module, Fun, Args)
-	       end,
-
-    apply_to_all_clients(ApplyFun).
-
-call_all_clients({Module, Fun, Args}, ExpectedAnswer) ->
-    ApplyFun = fun(Node) ->
-		       ExpectedAnswer = rpc:call(Node, Module, Fun, Args)
-	       end,
-    
-    apply_to_all_clients(ApplyFun).
-
-async_call_all_clients({Module, Fun, Args}) ->
-    ApplyFun = fun(Node) ->
-		       rpc:async_call(Node, Module, Fun, Args)
-	       end,
-    
-    apply_to_all_clients(ApplyFun).
-
-yield_all_clients(AsyncCalls, ExpectedAnswer) ->
-    YieldClient = fun(AsyncCall) ->
-			  ExpectedAnswer = rpc:yield(AsyncCall)
-		  end,
-
-    lists:map(YieldClient, AsyncCalls).
-    
