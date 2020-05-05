@@ -45,6 +45,14 @@ defmodule Schoolhub.RegServer do
   end
 
   @doc """
+  Like remove_user, but removes every reference to the user also, 
+  like messages with other users.
+  """
+  def purge_user(username) do
+    GenServer.call(__MODULE__, {:purge_user, string(username)})
+  end
+
+  @doc """
   Effectively removes the user (if exists) and adds it again with updated password.
   """
   def change_user_pw(username, password) do
@@ -103,6 +111,12 @@ defmodule Schoolhub.RegServer do
   @impl true
   def handle_call({:remove_user, username}, _from, state = %{db_api: db_api}) do
     result = remove_user(username, db_api)
+    {:reply, result, state}
+  end
+
+  @impl true
+  def handle_call({:purge_user, username}, _from, state = %{db_api: db_api}) do
+    result = purge_user(username, db_api)
     {:reply, result, state}
   end
 
@@ -233,6 +247,11 @@ defmodule Schoolhub.RegServer do
   def remove_user(username, db_api) do
     Logger.debug("Removing user: #{inspect(username)}")
     db_api.remove_scram_user(username)
+  end
+
+  def purge_user(username, db_api) do
+    Logger.debug("Purging user: #{inspect(username)}")
+    db_api.purge_user(username)
   end
 
   defp check_user_exist_call(username) do

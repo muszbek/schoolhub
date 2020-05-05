@@ -15,6 +15,8 @@
 -define(TEST_USER, <<"test_user">>).
 -define(TEST_PW, <<"test_pw">>).
 -define(TEST_USER_NEW, <<"test_user_new">>).
+-define(TEST_USER_WRONG, <<"test_user_non_existent">>).
+-define(TEST_MESSAGE, <<"The quick brown fox jumps over the lazy dog.">>).
 
 %%--------------------------------------------------------------------
 %% @spec suite() -> Info
@@ -22,7 +24,7 @@
 %% @end
 %%--------------------------------------------------------------------
 suite() ->
-    [{timetrap,{seconds,30}}].
+    [{timetrap,{seconds,60}}].
 
 %%--------------------------------------------------------------------
 %% @spec init_per_suite(Config0) ->
@@ -90,8 +92,8 @@ init_per_testcase(_TestCase, Config) ->
 %%--------------------------------------------------------------------
 end_per_testcase(_TestCase, _Config) ->
     'Elixir.Client.LoginServer':end_session(),
-    {ok, _} = 'Elixir.Schoolhub.RegServer':remove_user(?TEST_USER),
-    {ok, _} = 'Elixir.Schoolhub.RegServer':remove_user(?TEST_USER_NEW),
+    {ok, _} = 'Elixir.Schoolhub.RegServer':purge_user(?TEST_USER),
+    {ok, _} = 'Elixir.Schoolhub.RegServer':purge_user(?TEST_USER_NEW),
     ok.
 
 %%--------------------------------------------------------------------
@@ -108,7 +110,11 @@ end_per_testcase(_TestCase, _Config) ->
 %% @end
 %%--------------------------------------------------------------------
 groups() ->
-    [{mam, [shuffle], [empty_archive_returns_empty]}].
+    [{mam, [shuffle], [empty_archive_returns_empty,
+		       get_archive_succeeds,
+		       get_more_archive_does_not_bring_more,
+		       message_after_archive_is_recorded,
+		       get_unknown_archive_returns_empty]}].
 
 %%--------------------------------------------------------------------
 %% @spec all() -> GroupsAndTestCases | {skip,Reason}
@@ -140,6 +146,37 @@ all() ->
 %%--------------------------------------------------------------------
 empty_archive_returns_empty(_Config) -> 
     [] = 'Elixir.Client.ChatArchiveServer':get_archive(?TEST_USER_NEW),
+    ok.
+
+get_archive_succeeds(_Config) ->
+    ok = 'Elixir.Client.ChatServer':chat(?TEST_USER_NEW, ?TEST_MESSAGE),
+    ok = 'Elixir.Client.ChatServer':chat(?TEST_USER_NEW, ?TEST_MESSAGE),
+    Archive = 'Elixir.Client.ChatArchiveServer':get_archive(?TEST_USER_NEW),
+    [[<<"O">>, ?TEST_MESSAGE], [<<"O">>, ?TEST_MESSAGE]] = Archive,
+    ok.
+
+get_more_archive_does_not_bring_more(_Config) ->
+    ok = 'Elixir.Client.ChatServer':chat(?TEST_USER_NEW, ?TEST_MESSAGE),
+    ok = 'Elixir.Client.ChatServer':chat(?TEST_USER_NEW, ?TEST_MESSAGE),
+    Archive = 'Elixir.Client.ChatArchiveServer':get_archive(?TEST_USER_NEW),
+    [[<<"O">>, ?TEST_MESSAGE], [<<"O">>, ?TEST_MESSAGE]] = Archive,
+    Archive = 'Elixir.Client.ChatArchiveServer':get_more_archive(?TEST_USER_NEW),
+    Archive = 'Elixir.Client.ChatArchiveServer':get_more_archive(?TEST_USER_NEW),
+    ok.
+
+message_after_archive_is_recorded(_Config) ->
+    ok = 'Elixir.Client.ChatServer':chat(?TEST_USER_NEW, ?TEST_MESSAGE),
+    ok = 'Elixir.Client.ChatServer':chat(?TEST_USER_NEW, ?TEST_MESSAGE),
+    Archive = 'Elixir.Client.ChatArchiveServer':get_archive(?TEST_USER_NEW),
+    [[<<"O">>, ?TEST_MESSAGE], [<<"O">>, ?TEST_MESSAGE]] = Archive,
+    ok = 'Elixir.Client.ChatServer':chat(?TEST_USER_NEW, ?TEST_MESSAGE),
+    NewArchive = 'Elixir.Client.ChatArchiveServer':get_archive(?TEST_USER_NEW),
+    [[<<"O">>, ?TEST_MESSAGE], [<<"O">>, ?TEST_MESSAGE], [<<"O">>, ?TEST_MESSAGE]] = NewArchive,
+    ok.
+
+get_unknown_archive_returns_empty(_Config) ->
+    [] = 'Elixir.Client.ChatArchiveServer':get_archive(?TEST_USER_WRONG),
+    [] = 'Elixir.Client.ChatArchiveServer':get_more_archive(?TEST_USER_NEW),
     ok.
 
 

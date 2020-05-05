@@ -52,6 +52,7 @@ defmodule Client.ChatArchiveServer do
       [{partner, messages, count}] ->
 	true = :ets.insert(table, {partner, messages ++ [msg], count+1})
     end
+    :ok
   end
 
   @doc """

@@ -54,6 +54,13 @@ defmodule Schoolhub.DataManager do
   end
 
   @doc """
+  Removes the database entry and every reference associated with 'username'.
+  """
+  def purge_user(username) do
+    GenServer.call(__MODULE__, {:purge_user, username})
+  end
+
+  @doc """
   Fetches XMPP message archive between two users.
   """
   def get_archive(self, partner, limit) do
@@ -117,23 +124,15 @@ defmodule Schoolhub.DataManager do
   end
 
   @impl true
-  def handle_call({:remove_scram_user, username}, _from, state = %{pgsql_conn: conn}) do
-    sub_query_mam_id = "SELECT id FROM mam_server_user WHERE user_name LIKE $1"
-    query_delete_mam = "DELETE FROM mam_message WHERE user_id = (" <> sub_query_mam_id <> ") ;"
-    {:ok, %{command: :delete}} = Postgrex.query(conn, query_delete_mam, [string(username)])
+  def handle_call({:remove_scram_user, username}, _from, state) do
+    remove_user(username, state)
+  end
 
-    query_delete_mam_user = "DELETE FROM mam_server_user WHERE user_name LIKE $1 ;"
-    {:ok, %{command: :delete}} = Postgrex.query(conn, query_delete_mam_user, [string(username)])
-    
-    query_text = "DELETE FROM users WHERE username LIKE $1;"
-    result = Postgrex.query(conn, query_text, [string(username)])
-
-    case result do
-      {:ok, %{columns: nil, command: :delete, messages: [], num_rows: 1, rows: nil}} ->
-	{:reply, {:ok, :user_removed}, state}
-      {:ok, %{columns: nil, command: :delete, messages: [], num_rows: 0, rows: nil}} ->
-	{:reply, {:ok, :user_not_existed}, state}
-    end
+  @impl true
+  def handle_call({:purge_user, username}, _from, state = %{pgsql_conn: conn}) do
+    query_text = "DELETE FROM mam_message WHERE remote_bare_jid LIKE $1;"
+    {:ok, %{command: :delete}} = Postgrex.query(conn, query_text, [string(username)])
+    remove_user(username, state)
   end
 
   @impl true
@@ -155,5 +154,24 @@ defmodule Schoolhub.DataManager do
   ### Utility functions ###
   
   defp string(text), do: text |> to_string()
+
+  defp remove_user(username, state = %{pgsql_conn: conn}) do
+    sub_query_mam_id = "SELECT id FROM mam_server_user WHERE user_name LIKE $1"
+    query_delete_mam = "DELETE FROM mam_message WHERE user_id = (" <> sub_query_mam_id <> ") ;"
+    {:ok, %{command: :delete}} = Postgrex.query(conn, query_delete_mam, [string(username)])
+
+    query_delete_mam_user = "DELETE FROM mam_server_user WHERE user_name LIKE $1 ;"
+    {:ok, %{command: :delete}} = Postgrex.query(conn, query_delete_mam_user, [string(username)])
+    
+    query_text = "DELETE FROM users WHERE username LIKE $1;"
+    result = Postgrex.query(conn, query_text, [string(username)])
+
+    case result do
+      {:ok, %{columns: nil, command: :delete, messages: [], num_rows: 1, rows: nil}} ->
+	{:reply, {:ok, :user_removed}, state}
+      {:ok, %{columns: nil, command: :delete, messages: [], num_rows: 0, rows: nil}} ->
+	{:reply, {:ok, :user_not_existed}, state}
+    end
+  end
   
 end
