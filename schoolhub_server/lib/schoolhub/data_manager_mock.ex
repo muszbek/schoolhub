@@ -10,6 +10,7 @@ defmodule Schoolhub.DataManagerMock do
   @mock_user_new_string "test_user_new"
   @mock_replacable_user 'replacable_user'
   @mock_replacable_user_string "replacable_user"
+  @mock_archive_message "The quick brown fox jumps over the lazy dog."
   @mock_admin 'admin'
   @mock_admin_string "admin"
 
@@ -89,6 +90,14 @@ defmodule Schoolhub.DataManagerMock do
   end
   def remove_scram_user(_other_user) do
     {:ok, :user_not_existed}
+  end
+
+  def purge_user(user) do
+    remove_scram_user(user)
+  end
+
+  def get_archive(_, _, _) do
+    []
   end
 
 

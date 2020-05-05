@@ -179,6 +179,16 @@ get_unknown_archive_returns_empty(_Config) ->
     [] = 'Elixir.Client.ChatArchiveServer':get_more_archive(?TEST_USER_NEW),
     ok.
 
+%%Skipping, not yet implemented authenticating other user in mock database
+fetch_archive_from_db_succeeds(_Config) ->
+    ok = 'Elixir.Client.ChatServer':chat(?TEST_USER_NEW, ?TEST_MESSAGE),
+    ok = 'Elixir.Client.ChatServer':chat(?TEST_USER_NEW, ?TEST_MESSAGE),
+    'Elixir.Client.LoginServer':end_session(),
+    {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_NEW, ?TEST_PW),
+    Archive = 'Elixir.Client.ChatArchiveServer':get_archive(?TEST_USER),
+    [[<<"I">>, ?TEST_MESSAGE], [<<"I">>, ?TEST_MESSAGE]] = Archive,
+    ok.
+
 
 %% Helper functions
 %% Closures
