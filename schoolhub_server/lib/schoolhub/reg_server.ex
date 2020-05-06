@@ -70,6 +70,14 @@ defmodule Schoolhub.RegServer do
     end
   end
 
+  @doc """
+  Returns the privilege level of the user:
+  'student' (default), 'teacher', 'admin'
+  """
+  def get_user_privilege(username) do
+    GenServer.call(__MODULE__, {:get_privilege, string(username)})
+  end
+
   
   ### Server callbacks ###
   @impl true
@@ -125,6 +133,12 @@ defmodule Schoolhub.RegServer do
   @impl true
   def handle_call({:check_user_exist, username}, _from, state = %{db_api: db_api}) do
     result = db_api.check_user_exist(string(username))
+    {:reply, result, state}
+  end
+
+  @impl true
+  def handle_call({:get_privilege, username}, _from, state = %{db_api: db_api}) do
+    result = db_api.get_user_privilege(username)
     {:reply, result, state}
   end
 

@@ -70,9 +70,20 @@ defmodule Schoolhub.DataManager do
   @doc """
   Adds user to user_privileges table when
   creating new user through mongooseim.
+  Default privilege is 'student', an admin has to change it.
   """
   def add_user_privilege(username) do
     GenServer.call(__MODULE__, {:add_privilege, username})
+  end
+
+  @doc """
+  Interrogates the privilege level of the user.
+  'student' -> normal user with restricted privileges, default
+  'teacher' -> can create courses
+  'admin' -> can create courses and changes privileges of others
+  """
+  def get_user_privilege(username) do
+    GenServer.call(__MODULE__, {:get_privilege, username})
   end
     
 
@@ -166,6 +177,21 @@ defmodule Schoolhub.DataManager do
     result = Postgrex.query(conn, query_text, [string(username)])
     {:ok, %{columns: nil, command: :insert, messages: [], num_rows: 1, rows: nil}} = result
     {:reply, :ok, state}
+  end
+
+  @impl true
+  def handle_call({:get_privilege, username}, _from, state = %{pgsql_conn: conn}) do
+    query_text = "SELECT permission FROM user_privileges WHERE username LIKE $1;"
+    result = Postgrex.query(conn, query_text, [string(username)])
+    
+    permission = case result do
+		   {:ok, %{columns: ["permission"], num_rows: 1, rows: [[perm]]}} ->
+		     perm
+		   {:ok, %{columns: ["permission"], num_rows: 0, rows: []}} ->
+		     :nil
+		 end
+    
+    {:reply, permission, state}
   end
 
   
