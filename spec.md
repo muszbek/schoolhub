@@ -2,7 +2,7 @@
 - Anyone can register and set their title voluntairily. Default is student. (Maybe change later that need special access to change.)
   - PostgreSQL
   
-- Anyone can create a module and invite others to participate.
+- Users with teacher rights can create a module and invite others to participate.
 - The creator is admin.
 - The admin can extend the privileges of others.
 - The admin can give module description.
@@ -35,3 +35,12 @@
 Authenticate:
 - TCP sockets gen_tcp? (mochiweb?)
 - if authenticated, create session which is new server (or new supervisor?)
+
+User rights:
+global rights: admin / teacher / student
+admin can reassign rights and create courses
+teacher can create courses
+
+course rights: owner / assistant / student
+owner can reassign rights and modify courses
+assistant can modify courses

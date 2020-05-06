@@ -7,7 +7,7 @@ defmodule RegTest do
   @test_old_pw "test_pw"
   @test_new_user "new_user"
   @test_new_pw "new_pw"
-  @test_admin "admin"
+  @test_regger "reg_agent"
   @test_replacable_user "replacable_user"
 
   
@@ -21,8 +21,8 @@ defmodule RegTest do
     assert result == {:error, :user_exists}
   end
 
-  test "register admin fails" do
-    result = Schoolhub.RegServer.register_user(@test_admin, @test_new_pw)
+  test "register regger fails" do
+    result = Schoolhub.RegServer.register_user(@test_regger, @test_new_pw)
     assert result == {:error, :user_exists}
   end
 

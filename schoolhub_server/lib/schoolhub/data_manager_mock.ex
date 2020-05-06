@@ -10,9 +10,9 @@ defmodule Schoolhub.DataManagerMock do
   @mock_user_new_string "test_user_new"
   @mock_replacable_user 'replacable_user'
   @mock_replacable_user_string "replacable_user"
-  @mock_archive_message "The quick brown fox jumps over the lazy dog."
-  @mock_admin 'admin'
-  @mock_admin_string "admin"
+  #@mock_archive_message "The quick brown fox jumps over the lazy dog."
+  @mock_regger 'reg_agent'
+  @mock_regger_string "reg_agent"
 
   @scram_prefix "==SCRAM==,"
   @mock_scram "==SCRAM==,jv1SCgihx+Q2yj6PggxUZPbmfp4=,r+T1xjRnDwpUPoC/EwOXA+Jjt2Y=,iCgKQkjMSgfZgjh06UMZzg==,4096"
@@ -47,11 +47,11 @@ defmodule Schoolhub.DataManagerMock do
   def check_user_exist(@mock_user_string) do
     check_user_exist(@mock_user)
   end
-  def check_user_exist(@mock_admin) do
+  def check_user_exist(@mock_regger) do
     true
   end
-  def check_user_exist(@mock_admin_string) do
-    check_user_exist(@mock_admin)
+  def check_user_exist(@mock_regger_string) do
+    check_user_exist(@mock_regger)
   end
   def check_user_exist(@mock_replacable_user) do
     case flag() do

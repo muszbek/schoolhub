@@ -1,7 +1,8 @@
 defmodule Schoolhub.RegServer do
   @moduledoc """
   A gen server that manages registering new users.
-  A mongooseim admin account adds new users to the postgres database.
+  A mongooseim regger account adds new users to the postgres database
+  using inband register.
   """
 
   require Logger
@@ -16,9 +17,9 @@ defmodule Schoolhub.RegServer do
   defstruct(
     db_api: Schoolhub.DataManagerMock,
     xmpp_api: Schoolhub.RomeoMock,
-    admin_conn: nil,
-    admin_bound: false,
-    admin_ready: false
+    regger_conn: nil,
+    regger_bound: false,
+    regger_ready: false
   )
 
   ### API functions ###
@@ -74,27 +75,27 @@ defmodule Schoolhub.RegServer do
   @impl true
   def init(options) do
     state = parse_options(options)
-    admin_creds = {admin_name, _admin_host, admin_pw} = get_admin_credentials()
+    regger_creds = {regger_name, _regger_host, regger_pw} = get_regger_credentials()
     
-    {:ok, _reason} = remove_user(admin_name, state.db_api)
-    :ok = register_user_db(admin_name, admin_pw, state.db_api)
+    {:ok, _reason} = remove_user(regger_name, state.db_api)
+    :ok = register_user_db(regger_name, regger_pw, state.db_api)
     
     xmpp_conn = Module.concat(state.xmpp_api, Connection)
-    {:ok, admin_conn} =
-      admin_creds
-      |> admin_conn_opts()
+    {:ok, regger_conn} =
+      regger_creds
+      |> regger_conn_opts()
       |> xmpp_conn.start_link()
     
-    {:ok, %{state | admin_conn: admin_conn}}
+    {:ok, %{state | regger_conn: regger_conn}}
   end
 
 
   @impl true
   def handle_call({:reg_user, username, password}, _from, state = %{db_api: db_api,
 								    xmpp_api: xmpp_api,
-								    admin_conn: conn,
-								    admin_bound: true,
-								    admin_ready: true}) do
+								    regger_conn: conn,
+								    regger_bound: true,
+								    regger_ready: true}) do
     reg_result = %{db_api: db_api,
 		   xmpp_api: xmpp_api,
 		   conn: conn,
@@ -129,12 +130,12 @@ defmodule Schoolhub.RegServer do
   
   @impl true
   def handle_info({:resource_bound, _res}, state) do
-    {:noreply, %{state | admin_bound: true}}
+    {:noreply, %{state | regger_bound: true}}
   end
 
   @impl true
   def handle_info(:connection_ready, state) do
-    {:noreply, %{state | admin_ready: true}}
+    {:noreply, %{state | regger_ready: true}}
   end
 
   @impl true
@@ -167,12 +168,12 @@ defmodule Schoolhub.RegServer do
   defp string(text), do: text |> to_string()
   defp charlist(text), do: text |> to_charlist()
 
-  defp get_admin_credentials() do
-    admin_name = Application.get_env(:schoolhub, :reg_admin_name, "admin")
-    admin_host = Application.get_env(:schoolhub, :mongooseim_hostname, "localhost")
+  defp get_regger_credentials() do
+    regger_name = Application.get_env(:schoolhub, :reg_agent_name, "reg_agent")
+    regger_host = Application.get_env(:schoolhub, :mongooseim_hostname, "localhost")
     random_pw = random_string(@salt_length)
     
-    {admin_name, admin_host, random_pw}
+    {regger_name, regger_host, random_pw}
   end
 
   defp random_string(length) do
@@ -180,8 +181,8 @@ defmodule Schoolhub.RegServer do
     Enum.take_random(alphabet, length) |> to_string()
   end
 
-  defp admin_conn_opts({admin_name, admin_host, admin_pw}) do
-    [jid: admin_name <> "@" <> admin_host, password: admin_pw]
+  defp regger_conn_opts({regger_name, regger_host, regger_pw}) do
+    [jid: regger_name <> "@" <> regger_host, password: regger_pw]
   end
 
   defp register_user_db(username, password, db_api) do

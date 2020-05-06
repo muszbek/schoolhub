@@ -10,6 +10,6 @@ config :schoolhub,
 		     database: "schoolhub"],
   xmpp_backend: Romeo,
   mongooseim_hostname: "10.3.0.2",
-  reg_admin_name: "admin",
+  reg_admin_name: "register_admin",
 
   auth_session_timeout: 1000
