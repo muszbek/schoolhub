@@ -100,6 +100,10 @@ defmodule Schoolhub.DataManagerMock do
     []
   end
 
+  def add_user_privilege(_username) do
+    :ok
+  end
+
 
   defp flag() do
     spawn_flag = fn() ->

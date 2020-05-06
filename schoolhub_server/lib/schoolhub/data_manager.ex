@@ -66,6 +66,14 @@ defmodule Schoolhub.DataManager do
   def get_archive(self, partner, limit) do
     GenServer.call(__MODULE__, {:get_archive, self, partner, limit})
   end
+
+  @doc """
+  Adds user to user_privileges table when
+  creating new user through mongooseim.
+  """
+  def add_user_privilege(username) do
+    GenServer.call(__MODULE__, {:add_privilege, username})
+  end
     
 
   ### Server callbacks ###
@@ -124,15 +132,17 @@ defmodule Schoolhub.DataManager do
   end
 
   @impl true
-  def handle_call({:remove_scram_user, username}, _from, state) do
-    remove_user(username, state)
+  def handle_call({:remove_scram_user, username}, _from, state = %{pgsql_conn: conn}) do
+    result = remove_user(username, conn)
+    {:reply, {:ok, result}, state}
   end
 
   @impl true
   def handle_call({:purge_user, username}, _from, state = %{pgsql_conn: conn}) do
     query_text = "DELETE FROM mam_message WHERE remote_bare_jid LIKE $1;"
     {:ok, %{command: :delete}} = Postgrex.query(conn, query_text, [string(username)])
-    remove_user(username, state)
+    result = remove_user(username, conn)
+    {:reply, {:ok, result}, state}
   end
 
   @impl true
@@ -150,28 +160,44 @@ defmodule Schoolhub.DataManager do
     {:reply, data.rows, state}
   end
 
+  @impl true
+  def handle_call({:add_privilege, username}, _from, state = %{pgsql_conn: conn}) do
+    query_text = "INSERT INTO user_privileges (username, permission) VALUES ($1, 'student');"
+    result = Postgrex.query(conn, query_text, [string(username)])
+    {:ok, %{columns: nil, command: :insert, messages: [], num_rows: 1, rows: nil}} = result
+    {:reply, :ok, state}
+  end
+
   
   ### Utility functions ###
   
   defp string(text), do: text |> to_string()
 
-  defp remove_user(username, state = %{pgsql_conn: conn}) do
+  defp remove_user(username, conn) do
     sub_query_mam_id = "SELECT id FROM mam_server_user WHERE user_name LIKE $1"
     query_delete_mam = "DELETE FROM mam_message WHERE user_id = (" <> sub_query_mam_id <> ") ;"
     {:ok, %{command: :delete}} = Postgrex.query(conn, query_delete_mam, [string(username)])
 
     query_delete_mam_user = "DELETE FROM mam_server_user WHERE user_name LIKE $1 ;"
     {:ok, %{command: :delete}} = Postgrex.query(conn, query_delete_mam_user, [string(username)])
+
+    :ok = remove_privilege(username, conn)
     
     query_text = "DELETE FROM users WHERE username LIKE $1;"
     result = Postgrex.query(conn, query_text, [string(username)])
 
     case result do
       {:ok, %{columns: nil, command: :delete, messages: [], num_rows: 1, rows: nil}} ->
-	{:reply, {:ok, :user_removed}, state}
+	:user_removed
       {:ok, %{columns: nil, command: :delete, messages: [], num_rows: 0, rows: nil}} ->
-	{:reply, {:ok, :user_not_existed}, state}
+	:user_not_existed
     end
+  end
+
+  defp remove_privilege(username, conn) do
+    query_text = "DELETE FROM user_privileges WHERE username LIKE $1 ;"
+    {:ok, %{command: :delete}} = Postgrex.query(conn, query_text, [string(username)])
+    :ok
   end
   
 end

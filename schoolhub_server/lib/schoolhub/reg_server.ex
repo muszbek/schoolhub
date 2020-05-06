@@ -104,7 +104,8 @@ defmodule Schoolhub.RegServer do
 	|> check_username()
 	|> check_user_exist()
 	|> check_password()
-	|> reg_by_admin()
+        |> reg_by_admin()
+        |> add_privilege()
     
     {:reply, reg_result, state}
   end
@@ -235,14 +236,24 @@ defmodule Schoolhub.RegServer do
   defp reg_by_admin({:error, reason}) do
     {:error, reason}
   end
-  defp reg_by_admin(%{xmpp_api: xmpp_api,
-		      conn: conn,
-		      username: username,
-		      password: password}) do
+  defp reg_by_admin(reg_info = %{xmpp_api: xmpp_api,
+				 conn: conn,
+				 username: username,
+				 password: password}) do
 
     xmpp_conn = Module.concat(xmpp_api, Connection)
     xmpp_stanza = Module.concat(xmpp_api, Stanza)
     :ok = xmpp_conn.send(conn, xmpp_stanza.set_inband_register(username, password))
+    reg_info
+  end
+
+  defp add_privilege({:error, reason}) do
+    {:error, reason}
+  end
+  defp add_privilege(%{db_api: db_api,
+		       username: username}) do
+    
+    :ok = db_api.add_user_privilege(username)
   end
 
   def remove_user(username, db_api) do
