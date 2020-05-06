@@ -78,6 +78,15 @@ defmodule Schoolhub.RegServer do
     GenServer.call(__MODULE__, {:get_privilege, string(username)})
   end
 
+  @doc """
+  Following a privilege check on self (only admins are allowed to use this)
+  changes the privilage of target.
+  """
+  def set_user_privilege(self, target, privilege) do
+    GenServer.call(__MODULE__, {:set_privilege,
+				string(self), string(target), string(privilege)})
+  end
+
   
   ### Server callbacks ###
   @impl true
@@ -139,6 +148,23 @@ defmodule Schoolhub.RegServer do
   @impl true
   def handle_call({:get_privilege, username}, _from, state = %{db_api: db_api}) do
     result = db_api.get_user_privilege(username)
+    {:reply, result, state}
+  end
+
+  @impl true
+  def handle_call({:set_privilege, self, target, privilege}, _from,
+	state = %{db_api: db_api}) do
+
+    # last clause in with is to check if target exists
+    result = with :ok <- self |> db_api.get_user_privilege() |> can_i_change_privilege(),
+                  {:ok, ^privilege} <- privilege |> check_privilege(),
+                  {:ok, _priv} <- target |> db_api.get_user_privilege() |> check_privilege()
+             do
+               :ok = db_api.set_user_privilege(target, privilege)
+             else
+               err = {:error, _reason} -> err
+             end
+
     {:reply, result, state}
   end
 
@@ -269,6 +295,14 @@ defmodule Schoolhub.RegServer do
     
     :ok = db_api.add_user_privilege(username)
   end
+
+  defp check_privilege("admin"), do: {:ok, "admin"}
+  defp check_privilege("teacher"), do: {:ok, "teacher"}
+  defp check_privilege("student"), do: {:ok, "student"}
+  defp check_privilege(_other), do: {:error, :worng_privilege}
+
+  defp can_i_change_privilege("admin"), do: :ok
+  defp can_i_change_privilege(_other), do: {:error, :no_permission}
 
   def remove_user(username, db_api) do
     Logger.debug("Removing user: #{inspect(username)}")
