@@ -85,6 +85,14 @@ defmodule Schoolhub.DataManager do
   def get_user_privilege(username) do
     GenServer.call(__MODULE__, {:get_privilege, username})
   end
+
+  @doc """
+  Sets the privilege level of the user.
+  The RegServer controls whether the user has right to do this.
+  """
+  def set_user_privilege(username, privilege) do
+    GenServer.call(__MODULE__, {:set_privilege, username, privilege})
+  end
     
 
   ### Server callbacks ###
@@ -192,6 +200,19 @@ defmodule Schoolhub.DataManager do
 		 end
     
     {:reply, permission, state}
+  end
+
+  @impl true
+  def handle_call({:set_privilege, username, privilege}, _from, state = %{pgsql_conn: conn}) do
+    query_text = "UPDATE user_privileges SET permission = $2 WHERE username LIKE $1;"
+    query_result = Postgrex.query(conn, query_text, [string(username), string(privilege)])
+
+    result = case query_result do
+	       {:ok, %{command: :update, num_rows: 1, rows: nil}} -> :ok
+	       {:ok, %{command: :update, num_rows: 0, rows: nil}} -> {:error, :user_not_exist}
+	     end
+    
+    {:reply, result, state}
   end
 
   

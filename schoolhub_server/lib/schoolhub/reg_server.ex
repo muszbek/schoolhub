@@ -12,6 +12,8 @@ defmodule Schoolhub.RegServer do
   @scram_default_iteration_count 4096
   @salt_length 16
   @scram_serial_prefix "==SCRAM==,"
+  @reg_agent_name "reg_agent"
+  @admin_name "admin"
 
   @derive {Inspect, expect: :admin_pw}
   defstruct(
@@ -102,7 +104,7 @@ defmodule Schoolhub.RegServer do
       regger_creds
       |> regger_conn_opts()
       |> xmpp_conn.start_link()
-    
+
     {:ok, %{state | regger_conn: regger_conn}}
   end
 
@@ -142,16 +144,7 @@ defmodule Schoolhub.RegServer do
   def handle_call({:set_privilege, self, target, privilege}, _from,
 	state = %{db_api: db_api}) do
 
-    # last clause in with is to check if target exists
-    result = with :ok <- self |> db_api.get_user_privilege() |> can_i_change_privilege(),
-                  {:ok, ^privilege} <- privilege |> check_privilege(),
-                  {:ok, _priv} <- target |> db_api.get_user_privilege() |> check_privilege()
-             do
-               :ok = db_api.set_user_privilege(target, privilege)
-             else
-               err = {:error, _reason} -> err
-             end
-
+    result = set_privilege(self, target, privilege, db_api)
     {:reply, result, state}
   end
 
@@ -163,6 +156,9 @@ defmodule Schoolhub.RegServer do
 
   @impl true
   def handle_info(:connection_ready, state) do
+    admin_result = create_admin_if_needed(state)
+    Logger.info("Creating admin account: #{inspect(admin_result)}")
+    
     {:noreply, %{state | regger_ready: true}}
   end
 
@@ -197,7 +193,7 @@ defmodule Schoolhub.RegServer do
   defp charlist(text), do: text |> to_charlist()
 
   defp get_regger_credentials() do
-    regger_name = Application.get_env(:schoolhub, :reg_agent_name, "reg_agent")
+    regger_name = @reg_agent_name
     regger_host = Application.get_env(:schoolhub, :mongooseim_hostname, "localhost")
     random_pw = random_string(@salt_length)
     
@@ -306,6 +302,18 @@ defmodule Schoolhub.RegServer do
   defp can_i_change_privilege("admin"), do: :ok
   defp can_i_change_privilege(_other), do: {:error, :no_permission}
 
+  defp set_privilege(self, target, privilege, db_api) do
+    # last clause in with is to check if target exists
+    _result = with :ok <- self |> db_api.get_user_privilege() |> can_i_change_privilege(),
+                   {:ok, ^privilege} <- privilege |> check_privilege(),
+                   {:ok, _priv} <- target |> db_api.get_user_privilege() |> check_privilege()
+              do
+                :ok = db_api.set_user_privilege(target, privilege)
+              else
+                err = {:error, _reason} -> err
+              end
+  end
+
   defp remove_user(username, db_api) do
     Logger.debug("Removing user: #{inspect(username)}")
     db_api.remove_scram_user(username)
@@ -320,8 +328,14 @@ defmodule Schoolhub.RegServer do
     GenServer.call(__MODULE__, {:check_user_exist, username})
   end
 
-  defp create_admin_if_needed(db_api) do
-    :ok
+  defp create_admin_if_needed(state) do
+    admin_name = @admin_name |> charlist()
+    admin_pw = Application.get_env(:schoolhub, :admin_password, "admin") |> charlist()
+    
+    case register_user(admin_name, admin_pw, state) do
+      :ok -> state.db_api.set_user_privilege("admin", "admin")
+      {:error, reason} -> reason
+    end
   end
 
 
