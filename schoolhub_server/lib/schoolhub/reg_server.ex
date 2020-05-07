@@ -108,22 +108,9 @@ defmodule Schoolhub.RegServer do
 
 
   @impl true
-  def handle_call({:reg_user, username, password}, _from, state = %{db_api: db_api,
-								    xmpp_api: xmpp_api,
-								    regger_conn: conn,
-								    regger_bound: true,
+  def handle_call({:reg_user, username, password}, _from, state = %{regger_bound: true,
 								    regger_ready: true}) do
-    reg_result = %{db_api: db_api,
-		   xmpp_api: xmpp_api,
-		   conn: conn,
-		   username: username,
-		   password: password}
-	|> check_username()
-	|> check_user_exist()
-	|> check_password()
-        |> reg_by_admin()
-        |> add_privilege()
-    
+    reg_result = register_user(username, password, state)
     {:reply, reg_result, state}
   end
 
@@ -226,6 +213,21 @@ defmodule Schoolhub.RegServer do
     [jid: regger_name <> "@" <> regger_host, password: regger_pw]
   end
 
+  defp register_user(username, password, _state = %{db_api: db_api,
+						    xmpp_api: xmpp_api,
+						    regger_conn: conn}) do
+    _reg_result = %{db_api: db_api,
+		    xmpp_api: xmpp_api,
+		    conn: conn,
+		    username: username,
+		    password: password}
+	|> check_username()
+	|> check_user_exist()
+	|> check_password()
+        |> reg_by_admin()
+        |> add_privilege()
+  end
+
   defp register_user_db(username, password, db_api) do
     ## This is only used for the admin registration in init.
     ## Better not to duplicate the Mongooseim registration process
@@ -304,18 +306,22 @@ defmodule Schoolhub.RegServer do
   defp can_i_change_privilege("admin"), do: :ok
   defp can_i_change_privilege(_other), do: {:error, :no_permission}
 
-  def remove_user(username, db_api) do
+  defp remove_user(username, db_api) do
     Logger.debug("Removing user: #{inspect(username)}")
     db_api.remove_scram_user(username)
   end
 
-  def purge_user(username, db_api) do
+  defp purge_user(username, db_api) do
     Logger.debug("Purging user: #{inspect(username)}")
     db_api.purge_user(username)
   end
 
   defp check_user_exist_call(username) do
     GenServer.call(__MODULE__, {:check_user_exist, username})
+  end
+
+  defp create_admin_if_needed(db_api) do
+    :ok
   end
 
 
