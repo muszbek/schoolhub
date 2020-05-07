@@ -52,6 +52,17 @@ defmodule Schoolhub.Router do
     send_resp(conn, 200, response_body)
   end
 
+  get "/set_privilege" do
+    {:ok, body, conn} = Plug.Conn.read_body(conn)
+    Logger.debug("Received GET request on /set_privilege with body: #{inspect(body)}")
+
+    %{"self" => self, "target" => target, "privilege" => priv} = Jason.decode!(body)
+    result = Schoolhub.RegServer.set_user_privilege(self, target, priv)
+
+    response_body = result |> encode_response()
+    send_resp(conn, 200, response_body)
+  end
+
   match _ do
     send_resp(conn, 404, "Oops!")
   end

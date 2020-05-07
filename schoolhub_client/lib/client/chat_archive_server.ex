@@ -130,9 +130,9 @@ defmodule Client.ChatArchiveServer do
   
   @impl true
   def handle_call({:get_server_archive, partner, limit}, from, state = %{username: self,
-								  scheme: scheme,
-								  ip: ip,
-								  port: port}) do
+									 scheme: scheme,
+									 ip: ip,
+									 port: port}) do
 
     msg = Jason.encode!(%{self: self, partner: partner, limit: limit})
     {:ok, conn} = Mint.HTTP.connect(scheme, ip, port)

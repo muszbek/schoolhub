@@ -3,8 +3,7 @@
 - check postgres connectivity privacy, SSL
 - check mam common test why database is not cleaned
 
-- create admin admin
-- implement global rights
+- implement global rights common test
 - implement create course
 - implement invite users (students)
 - implement course privileges

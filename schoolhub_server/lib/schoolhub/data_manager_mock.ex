@@ -15,6 +15,8 @@ defmodule Schoolhub.DataManagerMock do
   @mock_regger_string "reg_agent"
   @mock_admin 'admin'
   @mock_admin_string "admin"
+  @mock_user_wrong 'test_user_wrong'
+  @mock_user_wrong_string "test_user_wrong"
 
   @scram_prefix "==SCRAM==,"
   @mock_scram "==SCRAM==,jv1SCgihx+Q2yj6PggxUZPbmfp4=,r+T1xjRnDwpUPoC/EwOXA+Jjt2Y=,iCgKQkjMSgfZgjh06UMZzg==,4096"
@@ -106,11 +108,33 @@ defmodule Schoolhub.DataManagerMock do
     :ok
   end
 
-  def set_user_privilege(@mock_admin, @mock_admin) do
+  def get_user_privilege(@mock_admin) do
+    "admin"
+  end
+  def get_user_privilege(@mock_admin_string) do
+    get_user_privilege(@mock_admin)
+  end
+  def get_user_privilege(@mock_user_wrong) do
+    :nil
+  end
+  def get_user_privilege(@mock_user_wrong_string) do
+    get_user_privilege(@mock_user_wrong)
+  end
+  def get_user_privilege(_username) do
+    "student"
+  end
+
+  def set_user_privilege(@mock_admin, 'admin') do
     :ok
   end
-  def set_user_privilege(@mock_admin_string, @mock_admin_string) do
-    set_user_privilege(@mock_admin, @mock_admin)
+  def set_user_privilege(@mock_admin_string, "admin") do
+    set_user_privilege(@mock_admin, 'admin')
+  end
+  def set_user_privilege(@mock_user_new, 'teacher') do
+    :ok
+  end
+  def set_user_privilege(@mock_user_new_string, "teacher") do
+    set_user_privilege(@mock_user_new, 'teacher')
   end
 
 

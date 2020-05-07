@@ -17,7 +17,8 @@ defmodule Client.SessionSup do
     if auth_check == :authenticated do
       children = [
 	{Client.ChatServer, {username, password}},
-	{Client.ChatArchiveServer, [username: username] ++ server_address()}
+	{Client.ChatArchiveServer, [username: username] ++ server_address()},
+	{Client.AdminServer, [username: username] ++ server_address()}
       ]
       opts = [strategy: :one_for_one]
       Supervisor.init(children, opts)
