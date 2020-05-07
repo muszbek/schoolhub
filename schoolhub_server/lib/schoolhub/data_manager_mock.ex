@@ -13,6 +13,8 @@ defmodule Schoolhub.DataManagerMock do
   #@mock_archive_message "The quick brown fox jumps over the lazy dog."
   @mock_regger 'reg_agent'
   @mock_regger_string "reg_agent"
+  @mock_admin 'admin'
+  @mock_admin_string "admin"
 
   @scram_prefix "==SCRAM==,"
   @mock_scram "==SCRAM==,jv1SCgihx+Q2yj6PggxUZPbmfp4=,r+T1xjRnDwpUPoC/EwOXA+Jjt2Y=,iCgKQkjMSgfZgjh06UMZzg==,4096"
@@ -102,6 +104,13 @@ defmodule Schoolhub.DataManagerMock do
 
   def add_user_privilege(_username) do
     :ok
+  end
+
+  def set_user_privilege(@mock_admin, @mock_admin) do
+    :ok
+  end
+  def set_user_privilege(@mock_admin_string, @mock_admin_string) do
+    set_user_privilege(@mock_admin, @mock_admin)
   end
 
 

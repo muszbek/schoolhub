@@ -84,6 +84,9 @@ defmodule Schoolhub.RegServer do
   Following a privilege check on self (only admins are allowed to use this)
   changes the privilage of target.
   """
+  def set_user_privilege(self, self, _privilege) do
+    {:error, :set_self_privilege}
+  end
   def set_user_privilege(self, target, privilege) do
     GenServer.call(__MODULE__, {:set_privilege,
 				string(self), string(target), string(privilege)})

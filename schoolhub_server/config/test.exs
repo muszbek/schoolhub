@@ -2,4 +2,5 @@ import Config
 
 config :schoolhub,
   db_backend: Schoolhub.DataManagerMock,
-  xmpp_backend: Schoolhub.RomeoMock
+  xmpp_backend: Schoolhub.RomeoMock,
+  admin_password: "admin"
