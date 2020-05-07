@@ -300,7 +300,7 @@ defmodule Schoolhub.RegServer do
   defp check_privilege("admin"), do: {:ok, "admin"}
   defp check_privilege("teacher"), do: {:ok, "teacher"}
   defp check_privilege("student"), do: {:ok, "student"}
-  defp check_privilege(_other), do: {:error, :worng_privilege}
+  defp check_privilege(_other), do: {:error, :wrong_privilege}
 
   defp can_i_change_privilege("admin"), do: :ok
   defp can_i_change_privilege(_other), do: {:error, :no_permission}

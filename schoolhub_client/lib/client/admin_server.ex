@@ -40,6 +40,12 @@ defmodule Client.AdminServer do
   end
 
   @impl true
+  def handle_call({:set_privilege, self, _priv}, _from, state = %{username: self}) do
+    result = "ERROR_set_self_privilege"
+    {:reply, result, state}
+  end
+  
+  @impl true
   def handle_call({:set_privilege, username, privilege}, from, state = %{username: self,
 									 scheme: scheme,
 									 ip: ip,

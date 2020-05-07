@@ -32,12 +32,12 @@ defmodule PrivilegeTest do
 
   test "wrong privilege fails" do
     result = Schoolhub.RegServer.set_user_privilege(@admin, @test_user, "unknown")
-    assert result == {:error, :worng_privilege}
+    assert result == {:error, :wrong_privilege}
   end
 
   test "non existing user change privilege fails" do
     result = Schoolhub.RegServer.set_user_privilege(@admin, @test_user_wrong, "teacher")
-    assert result == {:error, :worng_privilege}
+    assert result == {:error, :wrong_privilege}
   end
 
   test "self change privilege fails" do
