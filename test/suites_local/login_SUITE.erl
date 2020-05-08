@@ -14,9 +14,11 @@
 
 -define(TEST_USER, <<"test_user">>).
 -define(TEST_PW, <<"test_pw">>).
--define(TEST_USER_WRONG, <<"test_usera">>).
+-define(TEST_USER_WRONG, <<"test_user_wrong">>).
 -define(TEST_PW_WRONG, <<"test_pwa">>).
 -define(TEST_USER_NEW, <<"test_user_new">>).
+-define(ADMIN, <<"admin">>).
+-define(ADMIN_PW, <<"admin">>).
 
 %%--------------------------------------------------------------------
 %% @spec suite() -> Info
@@ -114,7 +116,13 @@ groups() ->
        end_session_succeeds, end_session_no_session]},
      {reg_single_client, [shuffle], 
       [reg_user_succeeds, reg_user_fails,
-       remove_user_succeeds, remove_wrong_user_fails, remove_user_auth_fails]}].
+       remove_user_succeeds, remove_wrong_user_fails, remove_user_auth_fails]},
+     {change_privileges_client, [shuffle],
+      [non_admin_change_privilege_fails,
+       admin_change_privilege_succeeds,
+       set_wrong_privilege_fails,
+       change_privilege_on_non_existing_user_fails,
+       set_self_privilege_fails]}].
 
 %%--------------------------------------------------------------------
 %% @spec all() -> GroupsAndTestCases | {skip,Reason}
@@ -126,7 +134,8 @@ groups() ->
 %%--------------------------------------------------------------------
 all() -> 
     [{group, session_single_client},
-     {group, reg_single_client}].
+     {group, reg_single_client},
+     {group, change_privileges_client}].
 
 %%--------------------------------------------------------------------
 %% @spec TestCase() -> Info
@@ -200,6 +209,38 @@ remove_wrong_user_fails(_Config) ->
 remove_user_auth_fails(_Config) ->
     {error, "stored_key_mismatch"} = 
 	'Elixir.Client.LoginServer':remove_user(?TEST_USER, ?TEST_PW_WRONG),
+    ok.
+
+
+non_admin_change_privilege_fails(_Config) ->
+    {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER, ?TEST_PW),
+    Result = 'Elixir.Client.AdminServer':set_privilege(?ADMIN, <<"teacher">>),
+    <<"ERROR_no_permission">> = Result,
+    ok.
+
+admin_change_privilege_succeeds(_Config) ->
+    'Elixir.Schoolhub.RegServer':register_user(?TEST_USER_NEW, ?TEST_PW),
+    {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?ADMIN, ?ADMIN_PW),
+    Result = 'Elixir.Client.AdminServer':set_privilege(?TEST_USER_NEW, <<"teacher">>),
+    <<"ok">> = Result,
+    ok.
+
+set_wrong_privilege_fails(_Config) ->
+    {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?ADMIN, ?ADMIN_PW),
+    Result = 'Elixir.Client.AdminServer':set_privilege(?TEST_USER, <<"unknown">>),
+    <<"ERROR_wrong_privilege">> = Result,
+    ok.
+
+change_privilege_on_non_existing_user_fails(_Config) ->
+    {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?ADMIN, ?ADMIN_PW),
+    Result = 'Elixir.Client.AdminServer':set_privilege(?TEST_USER_WRONG, <<"teacher">>),
+    <<"ERROR_wrong_privilege">> = Result,
+    ok.
+
+set_self_privilege_fails(_Config) ->
+    {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER, ?TEST_PW),
+    Result = 'Elixir.Client.AdminServer':set_privilege(?TEST_USER, <<"teacher">>),
+    <<"ERROR_set_self_privilege">> = Result,
     ok.
 
 

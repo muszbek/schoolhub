@@ -21,6 +21,8 @@ defmodule Schoolhub.DataManagerMock do
   @scram_prefix "==SCRAM==,"
   @mock_scram "==SCRAM==,jv1SCgihx+Q2yj6PggxUZPbmfp4=,r+T1xjRnDwpUPoC/EwOXA+Jjt2Y=,iCgKQkjMSgfZgjh06UMZzg==,4096"
   ## The password belonging to this mock entry is "test_pw"
+  @admin_scram "==SCRAM==,q8IV+Dmd+cGd4/0HeuXIpcQKfbY=,pQcMX+3lNyu4XQHOAPqI7RkVMOg=,3xUQoBdvCUdUQCWJYCYAIg==,4096"
+  ## The password belonging to this mock entry is "admin"
 
   ### API functions ###
   
@@ -40,6 +42,12 @@ defmodule Schoolhub.DataManagerMock do
   end
   def get_scram_pw(@mock_user_new_string) do
     get_scram_pw(@mock_user)
+  end
+  def get_scram_pw(@mock_admin) do
+    @admin_scram
+  end
+  def get_scram_pw(@mock_admin_string) do
+    get_scram_pw(@mock_admin)
   end
   def get_scram_pw(_other_user) do
     :nil

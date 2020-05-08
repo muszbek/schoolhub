@@ -9,14 +9,17 @@ defmodule Client.RomeoMock.Connection do
   @mock_host "10.3.0.2"
   @mock_user "test_user"
   @mock_pw "test_pw"
+  @mock_admin "admin"
+  @mock_admin_pw "admin"
 
   @mock_conn :connection_stub
   @mock_resource "51D7588DEFD5CA6C1587-494607-823546"
   
   def start_link([jid: @mock_user <> "@" <> @mock_host <> "", password: @mock_pw]) do
-    Process.send(self(), {:resource_bound, @mock_resource}, [])
-    Process.send(self(), :connection_ready, [])
-    {:ok, @mock_conn}
+    start_mock()
+  end
+  def start_link([jid: @mock_admin <> "@" <> @mock_host <> "", password: @mock_admin_pw]) do
+    start_mock()
   end
 
   def send(@mock_conn, stanza) do
@@ -28,6 +31,12 @@ defmodule Client.RomeoMock.Connection do
     end
     
     :ok
+  end
+
+  defp start_mock() do
+    Process.send(self(), {:resource_bound, @mock_resource}, [])
+    Process.send(self(), :connection_ready, [])
+    {:ok, @mock_conn}
   end
 end
 
