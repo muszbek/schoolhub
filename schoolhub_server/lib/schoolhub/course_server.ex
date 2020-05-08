@@ -64,6 +64,9 @@ defmodule Schoolhub.CourseServer do
     result = case do_get_affiliation(self, course_name, db_api) do
 	       "owner" ->
 		 do_remove_course(course_name, db_api)
+
+	       err = {:error, _reason} ->
+		 err
 	       
 	       _other_aff ->
 		 case Schoolhub.RegServer.get_user_privilege(self) do

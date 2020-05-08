@@ -102,6 +102,13 @@ defmodule Schoolhub.DataManager do
   end
 
   @doc """
+  Removes course entry from courses table and all related affiliations.
+  """
+  def remove_course(name) do
+    GenServer.call(__MODULE__, {:remove_course, name})
+  end
+  
+  @doc """
   Interrogates affiliation of user to a given course, from the course_affiliations table.
   """
   def get_affiliation(user, course_name) do
@@ -280,6 +287,19 @@ defmodule Schoolhub.DataManager do
 		 
     {:reply, result, state}
   end
+
+  @impl true
+  def handle_call({:remove_course, name}, _from, state = %{pgsql_conn: conn}) do
+    subquery_id = "SELECT id FROM courses WHERE name LIKE $1"
+    query_affiliation = "DELETE FROM course_affiliations WHERE course = (" <> subquery_id <> ");"
+    {:ok, %{command: :delete}} = Postgrex.query(conn, query_affiliation, [string(name)])
+
+    query_course = "DELETE FROM courses WHERE name LIKE $1;"
+    {:ok, %{command: :delete}} = Postgrex.query(conn, query_course, [string(name)])
+    
+    {:reply, :ok, state}
+  end
+
 
   
   ### Utility functions ###
