@@ -32,6 +32,16 @@ defmodule Schoolhub.CourseServer do
     GenServer.call(__MODULE__, {:remove_course, self, course_name})
   end
 
+  @doc """
+  Interrogates the database to check affiliation of user to course.
+  'student' -> restricted privileges, default
+  'assistant' -> able to modify course, invite new students
+  'owner' -> able to modify course, invite new student, change affiliation
+  """
+  def get_affiliation(user, course_name) do
+    GenServer.call(__MODULE__, {:get_affiliation, user, course_name})
+  end
+
 
   ### Server callbacks ###
   @impl true
@@ -43,10 +53,35 @@ defmodule Schoolhub.CourseServer do
   def handle_call({:create_course, owner, course_name}, _from, state = %{db_api: db_api}) do
     result = case Schoolhub.RegServer.get_user_privilege(owner) do
 	       "student" -> {:error, :no_permission}
-	       "teacher" -> create_course(course_name, owner, db_api)
-	       "admin" -> create_course(course_name, owner, db_api)
+	       "teacher" -> do_create_course(course_name, owner, db_api)
+	       "admin" -> do_create_course(course_name, owner, db_api)
 	     end
     {:reply, result, state}
+  end
+
+  @impl true
+  def handle_call({:remove_course, self, course_name}, _from, state = %{db_api: db_api}) do
+    result = case do_get_affiliation(self, course_name, db_api) do
+	       "owner" ->
+		 do_remove_course(course_name, db_api)
+	       
+	       _other_aff ->
+		 case Schoolhub.RegServer.get_user_privilege(self) do
+		   "admin" ->
+		     do_remove_course(course_name, db_api)
+		   
+		   _other_priv ->
+		     {:error, :no_permission}
+		 end
+	     end
+		 
+    {:reply, result, state}
+  end
+
+  @impl true
+  def handle_call({:get_affiliation, user, course_name}, _from, state = %{db_api: db_api}) do
+    affiliation = do_get_affiliation(user, course_name, db_api)
+    {:reply, affiliation, state}
   end
 
 
@@ -68,16 +103,25 @@ defmodule Schoolhub.CourseServer do
     parse_options(remaining_opts, state)
   end
 
-  defp string(text), do: text |> to_string()
+  
   defp charlist(text), do: text |> to_charlist()
 
-  defp create_course(course_name, owner, db_api) do
+  
+  defp do_create_course(course_name, owner, db_api) do
     case course_name |> charlist() |> :stringprep.prepare() do
       '' ->
 	{:error, :name_invalid}
       name_checked ->
 	db_api.create_course(name_checked, owner)
     end
+  end
+
+  defp do_get_affiliation(user, course_name, db_api) do
+    db_api.get_affiliation(user, course_name)
+  end
+
+  defp do_remove_course(name, db_api) do
+    db_api.remove_course(name)
   end
   
 end

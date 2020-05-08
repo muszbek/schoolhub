@@ -100,6 +100,13 @@ defmodule Schoolhub.DataManager do
   def create_course(course_name, owner) do
     GenServer.call(__MODULE__, {:create_course, course_name, owner})
   end
+
+  @doc """
+  Interrogates affiliation of user to a given course, from the course_affiliations table.
+  """
+  def get_affiliation(user, course_name) do
+    GenServer.call(__MODULE__, {:get_affiliation, user, course_name})
+  end
     
 
   ### Server callbacks ###
@@ -244,6 +251,33 @@ defmodule Schoolhub.DataManager do
 				      table: "courses"}}} ->
 		 {:error, :name_already_used}
 	     end
+    {:reply, result, state}
+  end
+
+  @impl true
+  def handle_call({:get_affiliation, user, course_name}, _from, state = %{pgsql_conn: conn}) do
+    query_id = "SELECT id FROM courses WHERE name LIKE $1;"
+    id_result = Postgrex.query(conn, query_id, [string(course_name)])
+
+    result = case id_result do
+	       {:ok, %{columns: ["id"], command: :select, num_rows: 1, rows: [[course_id]]}} ->
+		 
+		 query_affiliation = "SELECT affiliation FROM course_affiliations WHERE " <>
+		   "course = $1 AND username LIKE $2;"
+		 affiliation_result = Postgrex.query(conn, query_affiliation, [course_id,
+									       string(user)])
+
+		 case affiliation_result do
+		   {:ok, %{columns: ["affiliation"], command: :select,
+			    num_rows: 1, rows: [[aff]]}} -> aff
+		   {:ok, %{columns: ["affiliation"], command: :select,
+			    num_rows: 0, rows: []}} -> {:error, :no_affiliation}
+		 end
+	       
+	       {:ok, %{columns: ["id"], command: :select, num_rows: 0, rows: []}} ->
+		 {:error, :course_not_exist}
+	     end
+		 
     {:reply, result, state}
   end
 
