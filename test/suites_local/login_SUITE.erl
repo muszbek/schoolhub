@@ -26,7 +26,7 @@
 %% @end
 %%--------------------------------------------------------------------
 suite() ->
-    [{timetrap,{seconds,60}}].
+    [{timetrap,{seconds,120}}].
 
 %%--------------------------------------------------------------------
 %% @spec init_per_suite(Config0) ->
@@ -220,6 +220,7 @@ non_admin_change_privilege_fails(_Config) ->
 
 admin_change_privilege_succeeds(_Config) ->
     'Elixir.Schoolhub.RegServer':register_user(?TEST_USER_NEW, ?TEST_PW),
+    timer:sleep(500),
     {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?ADMIN, ?ADMIN_PW),
     Result = 'Elixir.Client.AdminServer':set_privilege(?TEST_USER_NEW, <<"teacher">>),
     <<"ok">> = Result,
