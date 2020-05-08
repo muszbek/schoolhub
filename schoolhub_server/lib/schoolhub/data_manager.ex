@@ -93,6 +93,13 @@ defmodule Schoolhub.DataManager do
   def set_user_privilege(username, privilege) do
     GenServer.call(__MODULE__, {:set_privilege, username, privilege})
   end
+
+  @doc """
+  Creates a course entry with the given name and adding the owner user with owner affiliation.
+  """
+  def create_course(course_name, owner) do
+    GenServer.call(__MODULE__, {:create_course, course_name, owner})
+  end
     
 
   ### Server callbacks ###
@@ -212,6 +219,31 @@ defmodule Schoolhub.DataManager do
 	       {:ok, %{command: :update, num_rows: 0, rows: nil}} -> {:error, :user_not_exist}
 	     end
     
+    {:reply, result, state}
+  end
+
+  @impl true
+  def handle_call({:create_course, course_name, owner}, _from, state = %{pgsql_conn: conn}) do
+    query_course = "INSERT INTO courses (name, owner, active) VALUES ($1, $2, true);"
+    course_result = Postgrex.query(conn, query_course, [string(course_name), string(owner)])
+
+    result = case course_result do
+	       {:ok, %{command: :insert, num_rows: 1, rows: nil}} ->
+		 subquery_id = "SELECT id FROM courses WHERE name LIKE $1"
+		 query_affiliation = "INSERT INTO course_affiliations " <>
+		   "(username, course, affiliation) VALUES ($2, (" <> subquery_id <>
+		   "), 'owner');"
+		 
+		 {:ok, %{command: :insert, num_rows: 1, rows: nil}} =
+		   Postgrex.query(conn, query_affiliation, [string(course_name), string(owner)])
+		 :ok
+		 
+               {:error, %{postgres: %{code: :unique_violation,
+				      constraint: "courses_name_key",
+				      severity: "ERROR",
+				      table: "courses"}}} ->
+		 {:error, :name_already_used}
+	     end
     {:reply, result, state}
   end
 
