@@ -115,7 +115,10 @@ groups() ->
       [teacher_create_course_succeeds,
        owner_get_affiliation_succeeds,
        not_affiliated_user_no_affiliation,
-       affiliation_on_wrong_course_fails]}].
+       affiliation_on_wrong_course_fails,
+       owner_remove_course_succeeds,
+       admin_remove_course_succeeds,
+       student_remove_course_fails]}].
 
 %%--------------------------------------------------------------------
 %% @spec all() -> GroupsAndTestCases | {skip,Reason}
@@ -171,6 +174,29 @@ affiliation_on_wrong_course_fails(_Config) ->
     {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_TEACHER, ?TEST_PW),
     Result = 'Elixir.Client.CourseAdminServer':get_affiliation(?TEST_COURSE_WRONG),
     <<"ERROR_course_not_exist">> = Result,
+    ok.
+
+owner_remove_course_succeeds(_Config) ->
+    {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_TEACHER, ?TEST_PW),
+    <<"ok">> = 'Elixir.Client.CourseAdminServer':create_course(?TEST_COURSE),
+    Result = 'Elixir.Client.CourseAdminServer':remove_course(?TEST_COURSE),
+    <<"ok">> = Result,
+    ok.
+
+admin_remove_course_succeeds(_Config) ->
+    ok = 'Elixir.Schoolhub.CourseServer':create_course(?TEST_USER_TEACHER, ?TEST_COURSE),
+    {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?ADMIN, ?ADMIN_PW),
+    Result = 'Elixir.Client.CourseAdminServer':remove_course(?TEST_COURSE),
+    <<"ok">> = Result,
+    ok.
+
+student_remove_course_fails(_Config) ->
+    'Elixir.Schoolhub.RegServer':register_user(?TEST_USER_STUDENT, ?TEST_PW),
+    timer:sleep(500),
+    ok = 'Elixir.Schoolhub.CourseServer':create_course(?TEST_USER_TEACHER, ?TEST_COURSE),
+    {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_STUDENT, ?TEST_PW),
+    Result = 'Elixir.Client.CourseAdminServer':remove_course(?TEST_COURSE),
+    <<"ERROR_no_permission">> = Result,
     ok.
 
 
