@@ -148,6 +148,10 @@ defmodule Schoolhub.DataManagerMock do
     "student"
   end
 
+  def get_all_privilege() do
+    [[@mock_admin_string, "admin"], [@mock_user_new_string, "student"]]
+  end
+
   def set_user_privilege(@mock_admin, 'admin') do
     :ok
   end

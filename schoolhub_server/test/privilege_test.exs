@@ -44,5 +44,15 @@ defmodule PrivilegeTest do
     result = Schoolhub.RegServer.set_user_privilege(@test_user, @test_user, "teacher")
     assert result == {:error, :set_self_privilege}
   end
+
+  test "admin get all privilege succeeds" do
+    result = Schoolhub.RegServer.get_all_privilege(@admin)
+    assert result == [[@admin |> to_string(), "admin"], [@test_user |> to_string(), "student"]]
+  end
+
+  test "non admin get all privilege fails" do
+    result = Schoolhub.RegServer.get_all_privilege(@test_user)
+    assert result == {:error, :no_permission}
+  end
   
 end

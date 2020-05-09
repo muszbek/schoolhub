@@ -56,7 +56,7 @@ defmodule Schoolhub.Router do
     {:ok, body, conn} = Plug.Conn.read_body(conn)
     Logger.debug("Received GET request on /get_privilege with body: #{inspect(body)}")
 
-    %{"user" => self} = Jason.decode!(body)
+    %{"user" => self, "get_all" => get_all} = Jason.decode!(body)
     result = Schoolhub.RegServer.get_user_privilege(self)
 
     response_body = result |> encode_response()

@@ -87,6 +87,13 @@ defmodule Schoolhub.DataManager do
   end
 
   @doc """
+  Returns a list of all users with their privileges.
+  """
+  def get_all_privilege() do
+    GenServer.call(__MODULE__, :get_all_privilege)
+  end
+
+  @doc """
   Sets the privilege level of the user.
   The RegServer controls whether the user has right to do this.
   """
@@ -221,6 +228,14 @@ defmodule Schoolhub.DataManager do
 		 end
     
     {:reply, permission, state}
+  end
+
+  @impl true
+  def handle_call(:get_all_privilege, _from, state = %{pgsql_conn: conn}) do
+    query_text = "SELECT username, permission FROM user_privileges ORDER BY permission DESC;"
+    result = Postgrex.query(conn, query_text, [])
+    {:ok, %{columns: ["username", "permission"], command: :select, rows: privileges}} = result
+    {:reply, privileges, state}
   end
 
   @impl true

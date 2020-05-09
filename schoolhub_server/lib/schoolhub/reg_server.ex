@@ -81,6 +81,15 @@ defmodule Schoolhub.RegServer do
   end
 
   @doc """
+  Returns a list of all users with their privileges.
+  Only admins are allowed to use this.
+  Username is needed as argument to check if admin.
+  """
+  def get_all_privilege(username) do
+    GenServer.call(__MODULE__, {:get_all_privilege, string(username)})
+  end
+
+  @doc """
   Following a privilege check on self (only admins are allowed to use this)
   changes the privilage of target.
   """
@@ -140,6 +149,15 @@ defmodule Schoolhub.RegServer do
   @impl true
   def handle_call({:get_privilege, username}, _from, state = %{db_api: db_api}) do
     result = db_api.get_user_privilege(username)
+    {:reply, result, state}
+  end
+
+  @impl true
+  def handle_call({:get_all_privilege, username}, _from, state = %{db_api: db_api}) do
+    result = case db_api.get_user_privilege(username) do
+	       "admin" -> db_api.get_all_privilege()
+	       _other -> {:error, :no_permission}
+	     end
     {:reply, result, state}
   end
 
