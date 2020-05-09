@@ -30,6 +30,14 @@ defmodule Client.AdminServer do
   def get_privilege() do
     GenServer.call(__MODULE__, :get_privilege)
   end
+
+  @doc """
+  Interrogates all users with respective privileges from database through server.
+  Gets rejected if user is not admin.
+  """
+  def get_all_privilege() do
+    GenServer.call(__MODULE__, :get_all_privilege)
+  end
   
   @doc """
   Changing the privilege of another user.
@@ -52,6 +60,21 @@ defmodule Client.AdminServer do
 						  ip: ip,
 						  port: port}) do
     msg = Jason.encode!(%{user: self, get_all: false})
+    {:ok, conn} = Mint.HTTP.connect(scheme, ip, port)
+    {:ok, conn, _request_ref} = Mint.HTTP.request(conn, "GET", "/get_privilege", [], msg)
+    
+    {:noreply, %{state |
+		 conn: conn,
+		 socket: conn.socket,
+		 reg_caller: from}}
+  end
+
+  @impl true
+  def handle_call(:get_all_privilege, from, state = %{username: self,
+						      scheme: scheme,
+						      ip: ip,
+						      port: port}) do
+    msg = Jason.encode!(%{user: self, get_all: true})
     {:ok, conn} = Mint.HTTP.connect(scheme, ip, port)
     {:ok, conn, _request_ref} = Mint.HTTP.request(conn, "GET", "/get_privilege", [], msg)
     
@@ -89,7 +112,8 @@ defmodule Client.AdminServer do
 								reg_caller: from}) do
 
     {:ok, _conn, response} = Mint.HTTP.stream(conn, {transport, socket, http_response})
-    {:data, _ref, data}  = :lists.keyfind(:data, 1, response)
+    {:data, _ref, data_json}  = :lists.keyfind(:data, 1, response)
+    data = Jason.decode!(data_json)
     
     GenServer.reply(from, data)
     {:noreply, state}

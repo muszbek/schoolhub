@@ -103,7 +103,8 @@ defmodule Client.LoginServer do
 								reg_caller: from}) do
 
     {:ok, _conn, response} = Mint.HTTP.stream(conn, {transport, socket, http_response})
-    {:data, _ref, data}  = :lists.keyfind(:data, 1, response)
+    {:data, _ref, data_json}  = :lists.keyfind(:data, 1, response)
+    data = Jason.decode!(data_json)
 
     GenServer.reply(from, data)
     {:noreply, state}

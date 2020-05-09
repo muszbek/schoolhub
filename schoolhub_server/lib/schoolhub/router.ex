@@ -57,7 +57,10 @@ defmodule Schoolhub.Router do
     Logger.debug("Received GET request on /get_privilege with body: #{inspect(body)}")
 
     %{"user" => self, "get_all" => get_all} = Jason.decode!(body)
-    result = Schoolhub.RegServer.get_user_privilege(self)
+    result = case get_all do
+	       false -> Schoolhub.RegServer.get_user_privilege(self)
+	       true -> Schoolhub.RegServer.get_all_privilege(self)
+	     end
 
     response_body = result |> encode_response()
     send_resp(conn, 200, response_body)
@@ -91,12 +94,14 @@ defmodule Schoolhub.Router do
   end
 
   defp encode_response(response) do
-    case response do
-      {:ok, _reason} -> "ok"
-      {:error, reason} -> "ERROR_" <> Atom.to_string(reason)
-      :ok -> "ok"
-      other -> other |> inspect() |> to_string() |> Jason.encode!()
-    end
+    result = case response do
+	       {:ok, _reason} -> "ok"
+	       {:error, reason} -> "ERROR_" <> Atom.to_string(reason)
+	       :ok -> "ok"
+	       other -> other
+	     end
+    
+    result |> Jason.encode!()
   end
   
 end

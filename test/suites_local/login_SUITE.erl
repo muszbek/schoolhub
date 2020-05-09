@@ -118,7 +118,10 @@ groups() ->
       [reg_user_succeeds, reg_user_fails,
        remove_user_succeeds, remove_wrong_user_fails, remove_user_auth_fails]},
      {change_privileges_client, [shuffle],
-      [non_admin_change_privilege_fails,
+      [get_privilege_succeeds,
+       admin_get_all_privilege_succeeds,
+       non_admin_get_all_privilege_fails,
+       non_admin_change_privilege_fails,
        admin_change_privilege_succeeds,
        set_wrong_privilege_fails,
        change_privilege_on_non_existing_user_fails,
@@ -216,6 +219,18 @@ get_privilege_succeeds(_Config) ->
     {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?ADMIN, ?ADMIN_PW),
     Result = 'Elixir.Client.AdminServer':get_privilege(),
     <<"admin">> = Result,
+    ok.
+
+admin_get_all_privilege_succeeds(_Config) ->
+    {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?ADMIN, ?ADMIN_PW),
+    Result = 'Elixir.Client.AdminServer':get_all_privilege(),
+    [[?ADMIN, <<"admin">>] | _Rest] = Result,
+    ok.
+
+non_admin_get_all_privilege_fails(_Config) ->
+    {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER, ?TEST_PW),
+    Result = 'Elixir.Client.AdminServer':get_all_privilege(),
+    <<"ERROR_no_permission">> = Result,
     ok.
 
 non_admin_change_privilege_fails(_Config) ->
