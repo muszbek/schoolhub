@@ -3,7 +3,6 @@
 - check postgres connectivity privacy, SSL
 - check mam common test why database is not cleaned
 
-- implement create course unit tests
 - create course client api
 - create course common test
 - implement invite users (students)

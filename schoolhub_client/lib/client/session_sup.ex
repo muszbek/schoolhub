@@ -18,7 +18,8 @@ defmodule Client.SessionSup do
       children = [
 	{Client.ChatServer, {username, password}},
 	{Client.ChatArchiveServer, [username: username] ++ server_address()},
-	{Client.AdminServer, [username: username] ++ server_address()}
+	{Client.AdminServer, [username: username] ++ server_address()},
+	{Client.CourseAdminServer, [username: username] ++ server_address()}
       ]
       opts = [strategy: :one_for_one]
       Supervisor.init(children, opts)

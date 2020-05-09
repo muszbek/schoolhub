@@ -17,7 +17,7 @@ defmodule CourseAdminTest do
   end
 
   def teardown() do
-    Schoolhub.CourseServer.remove_course(@admin, @test_course)
+    :ok = Schoolhub.CourseServer.remove_course(@admin, @test_course)
     Schoolhub.RegServer.remove_user(@test_user_teacher)
     :ok
   end
