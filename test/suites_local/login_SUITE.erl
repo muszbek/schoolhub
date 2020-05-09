@@ -212,6 +212,12 @@ remove_user_auth_fails(_Config) ->
     ok.
 
 
+get_privilege_succeeds(_Config) ->
+    {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?ADMIN, ?ADMIN_PW),
+    Result = 'Elixir.Client.AdminServer':get_privilege(),
+    <<"admin">> = Result,
+    ok.
+
 non_admin_change_privilege_fails(_Config) ->
     {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER, ?TEST_PW),
     Result = 'Elixir.Client.AdminServer':set_privilege(?ADMIN, <<"teacher">>),
