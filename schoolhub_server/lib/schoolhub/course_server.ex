@@ -65,7 +65,7 @@ defmodule Schoolhub.CourseServer do
 	       "owner" ->
 		 do_remove_course(course_name, db_api)
 
-	       err = {:error, _reason} ->
+	       err = {:error, :course_not_exist} ->
 		 err
 	       
 	       _other_aff ->

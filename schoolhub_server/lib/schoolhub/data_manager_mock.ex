@@ -17,6 +17,10 @@ defmodule Schoolhub.DataManagerMock do
   @mock_admin_string "admin"
   @mock_user_wrong 'test_user_wrong'
   @mock_user_wrong_string "test_user_wrong"
+  @mock_user_teacher 'test_user_teacher'
+  @mock_user_teacher_string "test_user_teacher"
+  @mock_course 'test_course'
+  @mock_course_string "test_course"
 
   @scram_prefix "==SCRAM==,"
   @mock_scram "==SCRAM==,jv1SCgihx+Q2yj6PggxUZPbmfp4=,r+T1xjRnDwpUPoC/EwOXA+Jjt2Y=,iCgKQkjMSgfZgjh06UMZzg==,4096"
@@ -41,7 +45,13 @@ defmodule Schoolhub.DataManagerMock do
     @mock_scram
   end
   def get_scram_pw(@mock_user_new_string) do
-    get_scram_pw(@mock_user)
+    get_scram_pw(@mock_user_new)
+  end
+  def get_scram_pw(@mock_user_teacher) do
+    @mock_scram
+  end
+  def get_scram_pw(@mock_user_teacher_string) do
+    get_scram_pw(@mock_user_teacher)
   end
   def get_scram_pw(@mock_admin) do
     @admin_scram
@@ -128,6 +138,12 @@ defmodule Schoolhub.DataManagerMock do
   def get_user_privilege(@mock_user_wrong_string) do
     get_user_privilege(@mock_user_wrong)
   end
+  def get_user_privilege(@mock_user_teacher) do
+    "teacher"
+  end
+  def get_user_privilege(@mock_user_teacher_string) do
+    get_user_privilege(@mock_user_teacher)
+  end
   def get_user_privilege(_username) do
     "student"
   end
@@ -143,6 +159,33 @@ defmodule Schoolhub.DataManagerMock do
   end
   def set_user_privilege(@mock_user_new_string, "teacher") do
     set_user_privilege(@mock_user_new, 'teacher')
+  end
+
+  def create_course(@mock_course, _owner) do
+    :ok
+  end
+  def create_course(@mock_course_string, owner) do
+    create_course(@mock_course, owner)
+  end
+
+  def remove_course(_course) do
+    :ok
+  end
+
+  def get_affiliation(@mock_user_teacher, @mock_course) do
+    "owner"
+  end
+  def get_affiliation(@mock_user_teacher_string, @mock_course_string) do
+    get_affiliation(@mock_user_teacher, @mock_course)
+  end
+  def get_affiliation(_other, @mock_course) do
+    {:error, :no_affiliation}
+  end
+  def get_affiliation(other, @mock_course_string) do
+    get_affiliation(other, @mock_course)
+  end
+  def get_affiliation(_any_user, _other_course) do
+    {:error, :course_not_exist}
   end
 
 
