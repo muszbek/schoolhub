@@ -164,6 +164,12 @@ defmodule Schoolhub.DataManagerMock do
   def set_user_privilege(@mock_user_new_string, "teacher") do
     set_user_privilege(@mock_user_new, 'teacher')
   end
+  def set_user_privilege(@mock_user_teacher, 'teacher') do
+    :ok
+  end
+  def set_user_privilege(@mock_user_teacher_string, "teacher") do
+    set_user_privilege(@mock_user_teacher, 'teacher')
+  end
 
   def create_course(@mock_course, _owner) do
     :ok
