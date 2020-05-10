@@ -7,7 +7,7 @@ CREATE TABLE user_privileges(
 CREATE TABLE courses(
     id SERIAL UNIQUE PRIMARY KEY,
     name varchar(250) UNIQUE NOT NULL,
-    owner varchar(250) NOT NULL,
+    creator varchar(250) NOT NULL,
     description jsonb,
     active boolean
 );

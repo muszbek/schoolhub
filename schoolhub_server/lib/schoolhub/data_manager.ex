@@ -123,6 +123,14 @@ defmodule Schoolhub.DataManager do
   end
 
   @doc """
+  Updates the affiliation of the user to the specified course,
+  if it already has been invited.
+  """
+  def set_affiliation(user, course_name, aff) do
+    GenServer.call(__MODULE__, {:set_affiliation, user, course_name, aff})
+  end
+
+  @doc """
   Adds a student affiliation to the user with the specified course
   (if course exists).
   """
@@ -268,7 +276,7 @@ defmodule Schoolhub.DataManager do
 
   @impl true
   def handle_call({:create_course, course_name, owner}, _from, state = %{pgsql_conn: conn}) do
-    query_course = "INSERT INTO courses (name, owner, active) VALUES ($1, $2, true);"
+    query_course = "INSERT INTO courses (name, creator, active) VALUES ($1, $2, true);"
     course_result = Postgrex.query(conn, query_course, [string(course_name), string(owner)])
 
     result = case course_result do
@@ -292,21 +300,45 @@ defmodule Schoolhub.DataManager do
   end
 
   @impl true
-  def handle_call({:get_affiliation, user, course_name}, _from, state = %{pgsql_conn: conn}) do
-    result = do_get_affiliation(user, course_name, conn)
-    {:reply, result, state}
-  end
-
-  @impl true
   def handle_call({:remove_course, name}, _from, state = %{pgsql_conn: conn}) do
     subquery_id = "SELECT id FROM courses WHERE name LIKE $1"
-    query_affiliation = "DELETE FROM course_affiliations WHERE course = (" <> subquery_id <> ");"
+    query_affiliation = "DELETE FROM course_affiliations WHERE course = (" <>
+      subquery_id <> ");"
     {:ok, %{command: :delete}} = Postgrex.query(conn, query_affiliation, [string(name)])
 
     query_course = "DELETE FROM courses WHERE name LIKE $1;"
     {:ok, %{command: :delete}} = Postgrex.query(conn, query_course, [string(name)])
     
     {:reply, :ok, state}
+  end
+
+  @impl true
+  def handle_call({:get_affiliation, user, course_name}, _from,
+	state = %{pgsql_conn: conn}) do
+    
+    result = do_get_affiliation(user, course_name, conn)
+    {:reply, result, state}
+  end
+
+  @impl true
+  def handle_call({:set_affiliation, user, course_name, aff}, _from,
+	state = %{pgsql_conn: conn}) do
+
+    result = case do_get_affiliation(user, course_name, conn) do
+	       {:error, :no_affiliation} -> {:error, :user_not_affiliated}
+	       err = {:error, _reason} -> err
+	       _other ->
+		 subquery_id = "SELECT id FROM courses WHERE name LIKE $2"
+		 query_text = "UPDATE course_affiliations SET affiliation = $3 " <>
+		   "WHERE username LIKE $1 AND course = (" <> subquery_id <> ");"
+                 {:ok, %{command: :update, num_rows: 1, rows: nil}} =
+		   Postgrex.query(conn, query_text,
+		     [string(user), string(course_name), string(aff)])
+
+		 :ok
+	     end
+    
+    {:reply, result, state}
   end
 
   @impl true

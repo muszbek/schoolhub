@@ -110,6 +110,14 @@ defmodule Schoolhub.CourseServer do
   end
 
   @impl true
+  def handle_call({:set_affiliation, self, target, course_name, aff}, _from,
+	state = %{db_api: db_api}) do
+
+    result = do_set_affiliation(self, target, course_name, aff, db_api)
+    {:reply, result, state}
+  end
+
+  @impl true
   def handle_call({:invite_student, self, target, course_name}, _from,
 	state = %{db_api: db_api}) do
     
@@ -179,18 +187,36 @@ defmodule Schoolhub.CourseServer do
   defp check_affiliation(_other), do: {:error, :wrong_affiliation}
 
   defp can_i_change_affiliation("owner"), do: :ok
+  defp can_i_change_affiliation({:error, reason}), do: {:error, reason}
   defp can_i_change_affiliation(_other), do: {:error, :no_permission}
+
+  defp can_i_change_affiliation(user, course_name, db_api) do
+    case Schoolhub.RegServer.get_user_privilege(user) do
+      "admin" -> :ok
+      _other -> do_get_affiliation(user, course_name, db_api) |> can_i_change_affiliation()
+    end
+  end
   
   defp can_i_admin_course("owner"), do: :ok
   defp can_i_admin_course("assistant"), do: :ok
-  defp can_i_admin_course("student"), do: {:error, :no_permission}
-  defp can_i_admin_course(err), do: err
+  defp can_i_admin_course({:error, reason}), do: {:error, reason}
+  defp can_i_admin_course(_other), do: {:error, :no_permission}
 
   defp can_i_admin_course(user, course_name, db_api) do
     case Schoolhub.RegServer.get_user_privilege(user) do
       "admin" -> :ok
       _other -> do_get_affiliation(user, course_name, db_api) |> can_i_admin_course()
     end
+  end
+
+  defp do_set_affiliation(self, target, course_name, aff, db_api) do
+    _result = with :ok <- can_i_change_affiliation(self, course_name, db_api),
+                   {:ok, ^aff} <- aff |> check_affiliation()
+              do
+                db_api.set_affiliation(target, course_name, aff)
+	      else
+                err = {:error, _reason} -> err
+              end
   end
   
 end
