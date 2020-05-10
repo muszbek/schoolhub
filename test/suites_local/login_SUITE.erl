@@ -48,7 +48,6 @@ init_per_suite(Config) ->
 %%--------------------------------------------------------------------
 end_per_suite(_Config) ->
     {ok, _} = 'Elixir.Schoolhub.RegServer':remove_user(?TEST_USER),
-    {ok, _} = 'Elixir.Schoolhub.RegServer':remove_user(?TEST_USER_NEW),
     stop_apps(),
     ok.
 
@@ -71,6 +70,7 @@ init_per_group(_GroupName, Config) ->
 %% @end
 %%--------------------------------------------------------------------
 end_per_group(_GroupName, _Config) ->
+    {ok, _} = 'Elixir.Schoolhub.RegServer':remove_user(?TEST_USER_NEW),
     ok.
 
 %%--------------------------------------------------------------------
@@ -245,6 +245,7 @@ admin_change_privilege_succeeds(_Config) ->
     {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?ADMIN, ?ADMIN_PW),
     Result = 'Elixir.Client.AdminServer':set_privilege(?TEST_USER_NEW, <<"teacher">>),
     <<"ok">> = Result,
+    {ok, _} = 'Elixir.Schoolhub.RegServer':remove_user(?TEST_USER_NEW),
     ok.
 
 set_wrong_privilege_fails(_Config) ->

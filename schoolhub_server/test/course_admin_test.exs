@@ -12,12 +12,13 @@ defmodule CourseAdminTest do
 
   setup_all do
     :ok = Schoolhub.RegServer.register_user(@test_user_teacher, @test_pw)
+    :ok = Schoolhub.RegServer.set_user_privilege(@admin, @test_user_teacher, "teacher")
     on_exit(fn() -> teardown() end)
     :ok
   end
 
   def teardown() do
-    :ok = Schoolhub.CourseServer.remove_course(@admin, @test_course)
+    Schoolhub.CourseServer.remove_course(@admin, @test_course)
     Schoolhub.RegServer.remove_user(@test_user_teacher)
     :ok
   end

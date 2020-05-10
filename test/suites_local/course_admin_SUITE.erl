@@ -39,6 +39,7 @@ suite() ->
 init_per_suite(Config) ->
     start_apps(),
     'Elixir.Schoolhub.RegServer':register_user(?TEST_USER_TEACHER, ?TEST_PW),
+    'Elixir.Schoolhub.RegServer':set_user_privilege(?ADMIN, ?TEST_USER_TEACHER, <<"teacher">>),
     Config.
 
 %%--------------------------------------------------------------------
@@ -47,7 +48,7 @@ init_per_suite(Config) ->
 %% @end
 %%--------------------------------------------------------------------
 end_per_suite(_Config) ->
-    ok = 'Elixir.Schoolhub.CourseServer':remove_course(?ADMIN, ?TEST_COURSE),
+    'Elixir.Schoolhub.CourseServer':remove_course(?ADMIN, ?TEST_COURSE),
     {ok, _} = 'Elixir.Schoolhub.RegServer':remove_user(?TEST_USER_STUDENT),
     {ok, _} = 'Elixir.Schoolhub.RegServer':remove_user(?TEST_USER_TEACHER),
     stop_apps(),
@@ -95,6 +96,7 @@ init_per_testcase(_TestCase, Config) ->
 %%--------------------------------------------------------------------
 end_per_testcase(_TestCase, _Config) ->
     'Elixir.Client.LoginServer':end_session(),
+    'Elixir.Schoolhub.CourseServer':remove_course(?ADMIN, ?TEST_COURSE),
     ok.
 
 %%--------------------------------------------------------------------
