@@ -387,6 +387,9 @@ defmodule Schoolhub.DataManager do
     query_delete_mam_user = "DELETE FROM mam_server_user WHERE user_name LIKE $1 ;"
     {:ok, %{command: :delete}} = Postgrex.query(conn, query_delete_mam_user, [string(username)])
 
+    query_delete_affs = "DELETE FROM course_affiliations WHERE username LIKE $1 ;"
+    {:ok, %{command: :delete}} = Postgrex.query(conn, query_delete_affs, [string(username)])
+
     :ok = remove_privilege(username, conn)
     
     query_text = "DELETE FROM users WHERE username LIKE $1;"

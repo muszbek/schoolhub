@@ -19,6 +19,8 @@ defmodule Schoolhub.DataManagerMock do
   @mock_user_wrong_string "test_user_wrong"
   @mock_user_teacher 'test_user_teacher'
   @mock_user_teacher_string "test_user_teacher"
+  @mock_user_student 'test_user_student'
+  @mock_user_student_string "test_user_student"
   @mock_course 'test_course'
   @mock_course_string "test_course"
 
@@ -188,6 +190,12 @@ defmodule Schoolhub.DataManagerMock do
   def get_affiliation(@mock_user_teacher_string, @mock_course_string) do
     get_affiliation(@mock_user_teacher, @mock_course)
   end
+  def get_affiliation(@mock_user_student, @mock_course) do
+    "student"
+  end
+  def get_affiliation(@mock_user_student_string, @mock_course_string) do
+    get_affiliation(@mock_user_student, @mock_course)
+  end
   def get_affiliation(_other, @mock_course) do
     {:error, :no_affiliation}
   end
@@ -196,6 +204,28 @@ defmodule Schoolhub.DataManagerMock do
   end
   def get_affiliation(_any_user, _other_course) do
     {:error, :course_not_exist}
+  end
+
+  def invite_student(@mock_user_student, @mock_course) do
+    :ok
+  end
+  def invite_student(@mock_user_student_string, @mock_course_string) do
+    invite_student(@mock_user_student, @mock_course)
+  end
+  def invite_student(@mock_user_teacher, @mock_course) do
+    {:ok, :already_invited}
+  end
+  def invite_student(@mock_user_teacher_string, @mock_course_string) do
+    invite_student(@mock_user_teacher, @mock_course)
+  end
+  def invite_student(@mock_user_student, _other_course) do
+    {:error, :course_not_exist}
+  end
+  def invite_student(@mock_user_student_string, other_course) do
+    invite_student(@mock_user_student, other_course)
+  end
+  def invite_student(_other_student, _any_course) do
+    {:error, :user_not_exist}
   end
 
 
