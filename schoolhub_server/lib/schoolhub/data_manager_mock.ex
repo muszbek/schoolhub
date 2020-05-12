@@ -228,6 +228,32 @@ defmodule Schoolhub.DataManagerMock do
     {:error, :user_not_exist}
   end
 
+  def remove_student(@mock_user_student, @mock_course) do
+    :ok
+  end
+  def remove_student(@mock_user_student_string, @mock_course_string) do
+    remove_student(@mock_user_student, @mock_course)
+  end
+  def remove_student(_other_student, @mock_course) do
+    {:ok, :already_removed}
+  end
+  def remove_student(other_student, @mock_course_string) do
+    remove_student(other_student, @mock_course)
+  end
+  def remove_student(_any_student, _other_course) do
+    {:error, :course_not_exist}
+  end
+
+  def set_affiliation(@mock_user_student, @mock_course, "assistant") do
+    :ok
+  end
+  def set_affiliation(@mock_user_student_string, @mock_course_string, aff) do
+    set_affiliation(@mock_user_student, @mock_course, aff)
+  end
+  def set_affiliation(_other_user, _any_course, _any_aff) do
+    {:error, :user_not_affiliated}
+  end
+
 
   defp flag() do
     spawn_flag = fn() ->

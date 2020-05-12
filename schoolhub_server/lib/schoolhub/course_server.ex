@@ -47,7 +47,7 @@ defmodule Schoolhub.CourseServer do
   Only works if the target is already invited to the course.
   """
   def set_affiliation(self, target, course_name, affiliation) do
-    GenServer.call(__MODULE__, {:set_affiliation, self, target, course_name, affiliation})
+    GenServer.call(__MODULE__, {:set_affiliation, self, target, course_name, string(affiliation)})
   end
 
   @doc """
@@ -162,6 +162,7 @@ defmodule Schoolhub.CourseServer do
 
   
   defp charlist(text), do: text |> to_charlist()
+  defp string(text), do: text |> to_string()
 
   
   defp do_create_course(course_name, owner, db_api) do
@@ -210,6 +211,7 @@ defmodule Schoolhub.CourseServer do
   end
 
   defp do_set_affiliation(self, target, course_name, aff, db_api) do
+    ## Last with clause is to check if target is affiliated to begin with.
     _result = with :ok <- can_i_change_affiliation(self, course_name, db_api),
                    {:ok, ^aff} <- aff |> check_affiliation()
               do

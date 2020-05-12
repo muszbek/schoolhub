@@ -5,6 +5,7 @@ defmodule CourseMembershipTest do
 
   @test_user_teacher 'test_user_teacher'
   @test_user_student 'test_user_student'
+  @test_user_any 'test_user'
   @test_user_wrong 'test_user_wrong'
   @test_pw 'test_pw'
   @admin 'admin'
@@ -45,6 +46,12 @@ defmodule CourseMembershipTest do
     assert result == :ok
   end
 
+  test "invite invited succeeds" do
+    result = Schoolhub.CourseServer.invite_student(@test_user_teacher,
+      @test_user_teacher, @test_course)
+    assert result == {:ok, :already_invited}
+  end
+
   test "invite to wrong course fails" do
     result = Schoolhub.CourseServer.invite_student(@test_user_teacher,
       @test_user_student, @test_course_wrong)
@@ -60,6 +67,90 @@ defmodule CourseMembershipTest do
   test "student invite user fails" do
     result = Schoolhub.CourseServer.invite_student(@test_user_student,
       @test_user_student, @test_course)
+    assert result == {:error, :no_permission}
+  end
+
+  
+  test "teacher remove student succeeds" do
+    :ok = Schoolhub.CourseServer.invite_student(@test_user_teacher,
+      @test_user_student, @test_course)
+    result = Schoolhub.CourseServer.remove_student(@test_user_teacher,
+      @test_user_student, @test_course)
+    assert result == :ok
+  end
+
+  test "admin remove student succeeds" do
+    :ok = Schoolhub.CourseServer.invite_student(@test_user_teacher,
+      @test_user_student, @test_course)
+    result = Schoolhub.CourseServer.remove_student(@admin,
+      @test_user_student, @test_course)
+    assert result == :ok
+  end
+
+  test "remove removed succeeds" do
+    result = Schoolhub.CourseServer.remove_student(@test_user_teacher,
+      @test_user_any, @test_course)
+    assert result == {:ok, :already_removed}
+  end
+
+  test "remove from wrong course fails" do
+    result = Schoolhub.CourseServer.remove_student(@test_user_teacher,
+      @test_user_student, @test_course_wrong)
+    assert result == {:error, :course_not_exist}
+  end
+
+  test "student remove student fails" do
+    result = Schoolhub.CourseServer.remove_student(@test_user_student,
+      @test_user_student, @test_course)
+    assert result == {:error, :no_permission}
+  end
+
+
+  test "teacher set affiliation succeeds" do
+    :ok = Schoolhub.CourseServer.invite_student(@test_user_teacher,
+      @test_user_student, @test_course)
+    result = Schoolhub.CourseServer.set_affiliation(@test_user_teacher,
+      @test_user_student, @test_course, 'assistant')
+    assert result == :ok
+  end
+
+  test "admin set affiliation succeeds" do
+    :ok = Schoolhub.CourseServer.invite_student(@test_user_teacher,
+      @test_user_student, @test_course)
+    result = Schoolhub.CourseServer.set_affiliation(@admin,
+      @test_user_student, @test_course, 'assistant')
+    assert result == :ok
+  end
+
+  test "change affiliation for wrong course fails" do
+    :ok = Schoolhub.CourseServer.invite_student(@test_user_teacher,
+      @test_user_student, @test_course)
+    result = Schoolhub.CourseServer.set_affiliation(@test_user_teacher,
+      @test_user_student, @test_course_wrong, 'assistant')
+    assert result == {:error, :course_not_exist}
+  end
+
+  test "change wrong affiliation fails" do
+    :ok = Schoolhub.CourseServer.invite_student(@test_user_teacher,
+      @test_user_student, @test_course)
+    result = Schoolhub.CourseServer.set_affiliation(@test_user_teacher,
+      @test_user_student, @test_course, 'wrong_affiliation')
+    assert result == {:error, :wrong_affiliation}
+  end
+
+  test "change affiliation for wrong student fails" do
+    :ok = Schoolhub.CourseServer.invite_student(@test_user_teacher,
+      @test_user_student, @test_course)
+    result = Schoolhub.CourseServer.set_affiliation(@test_user_teacher,
+      @test_user_any, @test_course, 'assistant')
+    assert result == {:error, :user_not_affiliated}
+  end
+
+  test "student change affiliation fails" do
+    :ok = Schoolhub.CourseServer.invite_student(@test_user_teacher,
+      @test_user_student, @test_course)
+    result = Schoolhub.CourseServer.set_affiliation(@test_user_student,
+      @test_user_student, @test_course, 'assistant')
     assert result == {:error, :no_permission}
   end
   
