@@ -120,6 +120,7 @@ groups() ->
        affiliation_on_wrong_course_fails,
        owner_remove_course_succeeds,
        admin_remove_course_succeeds,
+       remove_wrong_course_fails,
        student_remove_course_fails]}].
 
 %%--------------------------------------------------------------------
@@ -193,6 +194,9 @@ admin_remove_course_succeeds(_Config) ->
     ok.
 
 remove_wrong_course_fails(_Config) ->
+    {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_TEACHER, ?TEST_PW),
+    Result = 'Elixir.Client.CourseAdminServer':remove_course(?TEST_COURSE_WRONG),
+    <<"ERROR_course_not_exist">> = Result,
     ok.
 
 student_remove_course_fails(_Config) ->
