@@ -10,6 +10,7 @@ defmodule Client.RomeoMock.Connection do
   @mock_user "test_user"
   @mock_user_new "test_user_new"
   @mock_user_teacher "test_user_teacher"
+  @mock_user_student "test_user_student"
   @mock_pw "test_pw"
   @mock_admin "admin"
   @mock_admin_pw "admin"
@@ -24,6 +25,9 @@ defmodule Client.RomeoMock.Connection do
     start_mock()
   end
   def start_link([jid: @mock_user_teacher <> "@" <> @mock_host <> "", password: @mock_pw]) do
+    start_mock()
+  end
+  def start_link([jid: @mock_user_student <> "@" <> @mock_host <> "", password: @mock_pw]) do
     start_mock()
   end
   def start_link([jid: @mock_user_new <> "@" <> @mock_host <> "", password: @mock_pw]) do

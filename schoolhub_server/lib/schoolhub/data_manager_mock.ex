@@ -55,6 +55,12 @@ defmodule Schoolhub.DataManagerMock do
   def get_scram_pw(@mock_user_teacher_string) do
     get_scram_pw(@mock_user_teacher)
   end
+  def get_scram_pw(@mock_user_student) do
+    @mock_scram
+  end
+  def get_scram_pw(@mock_user_student_string) do
+    get_scram_pw(@mock_user_student)
+  end
   def get_scram_pw(@mock_admin) do
     @admin_scram
   end

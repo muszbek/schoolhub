@@ -49,6 +49,28 @@ defmodule Client.CourseAdminServer do
   def get_affiliation(course_name) do
     GenServer.call(__MODULE__, {:get_affiliation, course_name})
   end
+
+  @doc """
+  Updates the affiliation of target user in the specified course, if it is affiliated already.
+  Only with admin privilege, or being the owner of the course.
+  """
+  def set_affiliation(user, course_name, affiliation) do
+    GenServer.call(__MODULE__, {:set_affiliation, user, course_name, affiliation})
+  end
+
+  @doc """
+  Makes the target user affiliated to the specified course, if it exists.
+  """
+  def invite_student(user, course_name) do
+    GenServer.call(__MODULE__, {:invite_student, user, course_name})
+  end
+
+  @doc """
+  Removes the affiliation of target user from the specified course.
+  """
+  def remove_student(user, course_name) do
+    GenServer.call(__MODULE__, {:remove_student, user, course_name})
+  end
   
 
   ### Server callbacks ###
@@ -97,6 +119,51 @@ defmodule Client.CourseAdminServer do
     msg = Jason.encode!(%{user: self, course_name: course_name, get_all: false})
     {:ok, conn} = Mint.HTTP.connect(scheme, ip, port)
     {:ok, conn, _request_ref} = Mint.HTTP.request(conn, "GET", "/get_affiliation", [], msg)
+    
+    {:noreply, %{state |
+		 conn: conn,
+		 socket: conn.socket,
+		 reg_caller: from}}
+  end
+
+  @impl true
+  def handle_call({:set_affiliation, target, course_name, aff}, from, state = %{username: self,
+										scheme: scheme,
+										ip: ip,
+										port: port}) do
+    msg = Jason.encode!(%{self: self, target: target, course_name: course_name, affiliation: aff})
+    {:ok, conn} = Mint.HTTP.connect(scheme, ip, port)
+    {:ok, conn, _request_ref} = Mint.HTTP.request(conn, "GET", "/set_affiliation", [], msg)
+    
+    {:noreply, %{state |
+		 conn: conn,
+		 socket: conn.socket,
+		 reg_caller: from}}
+  end
+
+  @impl true
+  def handle_call({:invite_student, target, course_name}, from, state = %{username: self,
+									  scheme: scheme,
+									  ip: ip,
+									  port: port}) do
+    msg = Jason.encode!(%{self: self, target: target, course_name: course_name})
+    {:ok, conn} = Mint.HTTP.connect(scheme, ip, port)
+    {:ok, conn, _request_ref} = Mint.HTTP.request(conn, "GET", "/invite_student", [], msg)
+    
+    {:noreply, %{state |
+		 conn: conn,
+		 socket: conn.socket,
+		 reg_caller: from}}
+  end
+
+  @impl true
+  def handle_call({:remove_student, target, course_name}, from, state = %{username: self,
+									  scheme: scheme,
+									  ip: ip,
+									  port: port}) do
+    msg = Jason.encode!(%{self: self, target: target, course_name: course_name})
+    {:ok, conn} = Mint.HTTP.connect(scheme, ip, port)
+    {:ok, conn, _request_ref} = Mint.HTTP.request(conn, "GET", "/remove_student", [], msg)
     
     {:noreply, %{state |
 		 conn: conn,

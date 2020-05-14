@@ -4,16 +4,16 @@
 %%% @doc
 %%%
 %%% @end
-%%% Created :  9 May 2020 by tmuszbek <tmuszbek@tmuszbek-VirtualBox>
+%%% Created : 13 May 2020 by tmuszbek <tmuszbek@tmuszbek-VirtualBox>
 %%%-------------------------------------------------------------------
--module(course_admin_SUITE).
+-module(course_manage_students_SUITE).
 
 -compile(export_all).
 
 -include_lib("common_test/include/ct.hrl").
 
--define(TEST_USER_TEACHER, <<"test_user_teacher">>).
--define(TEST_USER_STUDENT, <<"test_user_new">>).
+-define(TEST_USER_OWNER, <<"test_user_teacher">>).
+-define(TEST_USER_STUDENT, <<"test_user_student">>).
 -define(TEST_PW, <<"test_pw">>).
 -define(TEST_USER_WRONG, <<"test_user_wrong">>).
 -define(ADMIN, <<"admin">>).
@@ -38,8 +38,10 @@ suite() ->
 %%--------------------------------------------------------------------
 init_per_suite(Config) ->
     start_apps(),
-    'Elixir.Schoolhub.RegServer':register_user(?TEST_USER_TEACHER, ?TEST_PW),
-    'Elixir.Schoolhub.RegServer':set_user_privilege(?ADMIN, ?TEST_USER_TEACHER, <<"teacher">>),
+    'Elixir.Schoolhub.RegServer':register_user(?TEST_USER_OWNER, ?TEST_PW),
+    'Elixir.Schoolhub.RegServer':register_user(?TEST_USER_STUDENT, ?TEST_PW),
+    'Elixir.Schoolhub.RegServer':set_user_privilege(?ADMIN, ?TEST_USER_OWNER, <<"teacher">>),
+    ok = 'Elixir.Schoolhub.CourseServer':create_course(?ADMIN, ?TEST_COURSE),
     Config.
 
 %%--------------------------------------------------------------------
@@ -50,8 +52,7 @@ init_per_suite(Config) ->
 end_per_suite(_Config) ->
     'Elixir.Schoolhub.CourseServer':remove_course(?ADMIN, ?TEST_COURSE),
     {ok, _} = 'Elixir.Schoolhub.RegServer':remove_user(?TEST_USER_STUDENT),
-    {ok, _} = 'Elixir.Schoolhub.RegServer':remove_user(?TEST_USER_TEACHER),
-    stop_apps(),
+    {ok, _} = 'Elixir.Schoolhub.RegServer':remove_user(?TEST_USER_OWNER),
     ok.
 
 %%--------------------------------------------------------------------
@@ -113,14 +114,17 @@ end_per_testcase(_TestCase, _Config) ->
 %% @end
 %%--------------------------------------------------------------------
 groups() ->
-    [{course_admin_client, [shuffle],
-      [teacher_create_course_succeeds,
-       owner_get_affiliation_succeeds,
-       not_affiliated_user_no_affiliation,
-       affiliation_on_wrong_course_fails,
-       owner_remove_course_succeeds,
-       admin_remove_course_succeeds,
-       student_remove_course_fails]}].
+    [{course_invite_students, [shuffle],
+      [owner_invite_student_succeeds,
+       admin_invite_student_succeeds,
+       invite_invited_succeeds,
+       invite_non_existing_student_fails,
+       invite_wrong_course_fails,
+       student_invite_fails]},
+     {course_remove_students, [shuffle],
+      []},
+     {course_set_affiliation, [shuffle],
+      []}].
 
 %%--------------------------------------------------------------------
 %% @spec all() -> GroupsAndTestCases | {skip,Reason}
@@ -131,7 +135,7 @@ groups() ->
 %% @end
 %%--------------------------------------------------------------------
 all() -> 
-    [{group, course_admin_client}].
+    [{group, course_invite_students}].
 
 %%--------------------------------------------------------------------
 %% @spec TestCase() -> Info
@@ -150,60 +154,79 @@ all() ->
 %% Comment = term()
 %% @end
 %%--------------------------------------------------------------------
-teacher_create_course_succeeds(_Config) ->
-    {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_TEACHER, ?TEST_PW),
-    Result = 'Elixir.Client.CourseAdminServer':create_course(?TEST_COURSE),
+
+owner_invite_student_succeeds(_Config) -> 
+    {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_OWNER, ?TEST_PW),
+    Result = 'Elixir.Client.CourseAdminServer':invite_student(?TEST_USER_STUDENT, ?TEST_COURSE),
     <<"ok">> = Result,
     ok.
 
-owner_get_affiliation_succeeds(_Config) ->
-    {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_TEACHER, ?TEST_PW),
-    <<"ok">> = 'Elixir.Client.CourseAdminServer':create_course(?TEST_COURSE),
-    Result = 'Elixir.Client.CourseAdminServer':get_affiliation(?TEST_COURSE),
-    <<"owner">> = Result,
+admin_invite_student_succeeds(_Config) ->
+    {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?ADMIN, ?ADMIN_PW),
+    Result = 'Elixir.Client.CourseAdminServer':invite_student(?TEST_USER_STUDENT, ?TEST_COURSE),
+    <<"ok">> = Result,
     ok.
 
-not_affiliated_user_no_affiliation(_Config) ->
-    'Elixir.Schoolhub.RegServer':register_user(?TEST_USER_STUDENT, ?TEST_PW),
-    timer:sleep(500),
-    ok = 'Elixir.Schoolhub.CourseServer':create_course(?TEST_USER_TEACHER, ?TEST_COURSE),
-    {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_STUDENT, ?TEST_PW),
-    Result = 'Elixir.Client.CourseAdminServer':get_affiliation(?TEST_COURSE),
-    <<"ERROR_no_affiliation">> = Result,
+invite_invited_succeeds(_Config) ->
+    {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_OWNER, ?TEST_PW),
+    <<"ok">> = 'Elixir.Client.CourseAdminServer':invite_student(?TEST_USER_STUDENT, ?TEST_COURSE),
+    Result = 'Elixir.Client.CourseAdminServer':invite_student(?TEST_USER_STUDENT, ?TEST_COURSE),
+    <<"ok">> = Result,
     ok.
 
-affiliation_on_wrong_course_fails(_Config) ->
-    {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_TEACHER, ?TEST_PW),
-    Result = 'Elixir.Client.CourseAdminServer':get_affiliation(?TEST_COURSE_WRONG),
+invite_non_existing_student_fails(_Config) ->
+    {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_OWNER, ?TEST_PW),
+    Result = 'Elixir.Client.CourseAdminServer':invite_student(?TEST_USER_WRONG, ?TEST_COURSE),
+    <<"ERROR_user_not_exist">> = Result,
+    ok.
+
+invite_wrong_course_fails(_Config) ->
+    {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_OWNER, ?TEST_PW),
+    Result = 'Elixir.Client.CourseAdminServer':invite_student(?TEST_USER_STUDENT, 
+							      ?TEST_COURSE_WRONG),
     <<"ERROR_course_not_exist">> = Result,
     ok.
 
-owner_remove_course_succeeds(_Config) ->
-    {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_TEACHER, ?TEST_PW),
-    <<"ok">> = 'Elixir.Client.CourseAdminServer':create_course(?TEST_COURSE),
-    Result = 'Elixir.Client.CourseAdminServer':remove_course(?TEST_COURSE),
-    <<"ok">> = Result,
-    ok.
-
-admin_remove_course_succeeds(_Config) ->
-    ok = 'Elixir.Schoolhub.CourseServer':create_course(?TEST_USER_TEACHER, ?TEST_COURSE),
-    {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?ADMIN, ?ADMIN_PW),
-    Result = 'Elixir.Client.CourseAdminServer':remove_course(?TEST_COURSE),
-    <<"ok">> = Result,
-    ok.
-
-remove_wrong_course_fails(_Config) ->
-    ok.
-
-student_remove_course_fails(_Config) ->
-    'Elixir.Schoolhub.RegServer':register_user(?TEST_USER_STUDENT, ?TEST_PW),
-    timer:sleep(500),
-    ok = 'Elixir.Schoolhub.CourseServer':create_course(?TEST_USER_TEACHER, ?TEST_COURSE),
+student_invite_fails(_Config) ->
     {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_STUDENT, ?TEST_PW),
-    Result = 'Elixir.Client.CourseAdminServer':remove_course(?TEST_COURSE),
+    Result = 'Elixir.Client.CourseAdminServer':invite_student(?TEST_USER_STUDENT, ?TEST_COURSE),
     <<"ERROR_no_permission">> = Result,
     ok.
 
+
+owner_remove_student_succeeds(_Config) -> 
+    ok.
+
+admin_remove_student_succeeds(_Config) ->
+    ok.
+
+remove_removed_succeeds(_Config) ->
+    ok.
+
+remove_from_wrong_course_fails(_Config) ->
+    ok.
+
+student_remove_fails(_Config) ->
+    ok.
+
+
+owner_set_affiliation_succeeds(_Config) -> 
+    ok.
+
+admin_set_affiliation_succeeds(_Config) ->
+    ok.
+
+change_affiliation_wrong_course_fails(_Config) ->
+    ok.
+
+change_wrong_affiliation_fails(_Config) ->
+    ok.
+
+change_affiliation_wrong_student_fails(_Config) ->
+    ok.
+
+student_change_affiliation_fails(_Config) ->
+    ok.
 
 %% Helper functions
 %% Closures

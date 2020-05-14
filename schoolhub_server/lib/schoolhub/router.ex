@@ -103,10 +103,44 @@ defmodule Schoolhub.Router do
 
   get "/get_affiliation" do
     {:ok, body, conn} = Plug.Conn.read_body(conn)
-    Logger.debug("Received GET request on /remove_course with body: #{inspect(body)}")
+    Logger.debug("Received GET request on /get_affiliation with body: #{inspect(body)}")
 
     %{"user" => user, "course_name" => course_name, "get_all" => _get_all} = Jason.decode!(body)
     result = Schoolhub.CourseServer.get_affiliation(user, course_name)
+
+    response_body = result |> encode_response()
+    send_resp(conn, 200, response_body)
+  end
+
+  get "/set_affiliation" do
+    {:ok, body, conn} = Plug.Conn.read_body(conn)
+    Logger.debug("Received GET request on /set_affiliation with body: #{inspect(body)}")
+
+    %{"self" => self, "target" => target,
+      "course_name" => course_name, "affiliation" => aff} = Jason.decode!(body)
+    result = Schoolhub.CourseServer.set_affiliation(self, target, course_name, aff)
+
+    response_body = result |> encode_response()
+    send_resp(conn, 200, response_body)
+  end
+
+  get "/invite_student" do
+    {:ok, body, conn} = Plug.Conn.read_body(conn)
+    Logger.debug("Received GET request on /invite_student with body: #{inspect(body)}")
+
+    %{"self" => self, "target" => target, "course_name" => course_name} = Jason.decode!(body)
+    result = Schoolhub.CourseServer.invite_student(self, target, course_name)
+
+    response_body = result |> encode_response()
+    send_resp(conn, 200, response_body)
+  end
+
+  get "/remove_student" do
+    {:ok, body, conn} = Plug.Conn.read_body(conn)
+    Logger.debug("Received GET request on /remove_student with body: #{inspect(body)}")
+
+    %{"self" => self, "target" => target, "course_name" => course_name} = Jason.decode!(body)
+    result = Schoolhub.CourseServer.remove_student(self, target, course_name)
 
     response_body = result |> encode_response()
     send_resp(conn, 200, response_body)
