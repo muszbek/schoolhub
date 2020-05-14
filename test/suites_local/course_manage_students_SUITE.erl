@@ -41,7 +41,7 @@ init_per_suite(Config) ->
     'Elixir.Schoolhub.RegServer':register_user(?TEST_USER_OWNER, ?TEST_PW),
     'Elixir.Schoolhub.RegServer':register_user(?TEST_USER_STUDENT, ?TEST_PW),
     'Elixir.Schoolhub.RegServer':set_user_privilege(?ADMIN, ?TEST_USER_OWNER, <<"teacher">>),
-    ok = 'Elixir.Schoolhub.CourseServer':create_course(?ADMIN, ?TEST_COURSE),
+    ok = 'Elixir.Schoolhub.CourseServer':create_course(?TEST_USER_OWNER, ?TEST_COURSE),
     Config.
 
 %%--------------------------------------------------------------------
@@ -97,7 +97,7 @@ init_per_testcase(_TestCase, Config) ->
 %%--------------------------------------------------------------------
 end_per_testcase(_TestCase, _Config) ->
     'Elixir.Client.LoginServer':end_session(),
-    'Elixir.Schoolhub.CourseServer':remove_course(?ADMIN, ?TEST_COURSE),
+    'Elixir.Schoolhub.CourseServer':remove_student(?ADMIN, ?TEST_USER_STUDENT, ?TEST_COURSE),
     ok.
 
 %%--------------------------------------------------------------------
@@ -204,8 +204,9 @@ invite_wrong_course_fails(_Config) ->
     ok.
 
 student_invite_fails(_Config) ->
+    'Elixir.Schoolhub.CourseServer':invite_student(?ADMIN, ?TEST_USER_STUDENT, ?TEST_COURSE),
     {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_STUDENT, ?TEST_PW),
-    Result = 'Elixir.Client.CourseAdminServer':invite_student(?TEST_USER_STUDENT, 
+    Result = 'Elixir.Client.CourseAdminServer':invite_student(?ADMIN, 
 							      ?TEST_COURSE),
     <<"ERROR_no_permission">> = Result,
     ok.
@@ -244,8 +245,9 @@ remove_from_wrong_course_fails(_Config) ->
     ok.
 
 student_remove_fails(_Config) ->
+    'Elixir.Schoolhub.CourseServer':invite_student(?ADMIN, ?TEST_USER_STUDENT, ?TEST_COURSE),
     {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_STUDENT, ?TEST_PW),
-    Result = 'Elixir.Client.CourseAdminServer':remove_student(?TEST_USER_STUDENT, 
+    Result = 'Elixir.Client.CourseAdminServer':remove_student(?TEST_USER_OWNER, 
 							      ?TEST_COURSE),
     <<"ERROR_no_permission">> = Result,
     ok.
@@ -296,8 +298,9 @@ change_affiliation_wrong_student_fails(_Config) ->
     ok.
 
 student_change_affiliation_fails(_Config) ->
+    'Elixir.Schoolhub.CourseServer':invite_student(?ADMIN, ?TEST_USER_STUDENT, ?TEST_COURSE),
     {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_STUDENT, ?TEST_PW),
-    Result = 'Elixir.Client.CourseAdminServer':set_affiliation(?TEST_USER_STUDENT, 
+    Result = 'Elixir.Client.CourseAdminServer':set_affiliation(?TEST_USER_OWNER, 
 							       ?TEST_COURSE, <<"assistant">>),
     <<"ERROR_no_permission">> = Result,
     ok.
