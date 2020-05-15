@@ -97,7 +97,7 @@ defmodule Client.AdminServer do
 									 port: port}) do
     msg = Jason.encode!(%{self: self, target: username, privilege: privilege})
     {:ok, conn} = Mint.HTTP.connect(scheme, ip, port)
-    {:ok, conn, _request_ref} = Mint.HTTP.request(conn, "GET", "/set_privilege", [], msg)
+    {:ok, conn, _request_ref} = Mint.HTTP.request(conn, "PUT", "/set_privilege", [], msg)
     
     {:noreply, %{state |
 		 conn: conn,

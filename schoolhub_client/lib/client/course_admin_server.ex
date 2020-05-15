@@ -88,7 +88,7 @@ defmodule Client.CourseAdminServer do
 								 port: port}) do
     msg = Jason.encode!(%{self: self, course_name: course_name})
     {:ok, conn} = Mint.HTTP.connect(scheme, ip, port)
-    {:ok, conn, _request_ref} = Mint.HTTP.request(conn, "GET", "/create_course", [], msg)
+    {:ok, conn, _request_ref} = Mint.HTTP.request(conn, "PUT", "/create_course", [], msg)
     
     {:noreply, %{state |
 		 conn: conn,
@@ -103,7 +103,7 @@ defmodule Client.CourseAdminServer do
 								 port: port}) do
     msg = Jason.encode!(%{self: self, course_name: course_name})
     {:ok, conn} = Mint.HTTP.connect(scheme, ip, port)
-    {:ok, conn, _request_ref} = Mint.HTTP.request(conn, "GET", "/remove_course", [], msg)
+    {:ok, conn, _request_ref} = Mint.HTTP.request(conn, "PUT", "/remove_course", [], msg)
     
     {:noreply, %{state |
 		 conn: conn,
@@ -133,7 +133,7 @@ defmodule Client.CourseAdminServer do
 										port: port}) do
     msg = Jason.encode!(%{self: self, target: target, course_name: course_name, affiliation: aff})
     {:ok, conn} = Mint.HTTP.connect(scheme, ip, port)
-    {:ok, conn, _request_ref} = Mint.HTTP.request(conn, "GET", "/set_affiliation", [], msg)
+    {:ok, conn, _request_ref} = Mint.HTTP.request(conn, "PUT", "/set_affiliation", [], msg)
     
     {:noreply, %{state |
 		 conn: conn,
@@ -148,7 +148,7 @@ defmodule Client.CourseAdminServer do
 									  port: port}) do
     msg = Jason.encode!(%{self: self, target: target, course_name: course_name})
     {:ok, conn} = Mint.HTTP.connect(scheme, ip, port)
-    {:ok, conn, _request_ref} = Mint.HTTP.request(conn, "GET", "/invite_student", [], msg)
+    {:ok, conn, _request_ref} = Mint.HTTP.request(conn, "PUT", "/invite_student", [], msg)
     
     {:noreply, %{state |
 		 conn: conn,
@@ -163,7 +163,7 @@ defmodule Client.CourseAdminServer do
 									  port: port}) do
     msg = Jason.encode!(%{self: self, target: target, course_name: course_name})
     {:ok, conn} = Mint.HTTP.connect(scheme, ip, port)
-    {:ok, conn, _request_ref} = Mint.HTTP.request(conn, "GET", "/remove_student", [], msg)
+    {:ok, conn, _request_ref} = Mint.HTTP.request(conn, "PUT", "/remove_student", [], msg)
     
     {:noreply, %{state |
 		 conn: conn,

@@ -74,7 +74,7 @@ defmodule Client.LoginServer do
     
     msg = Jason.encode!(%{username: username, password: password})
     {:ok, conn} = Mint.HTTP.connect(scheme, ip, port)
-    {:ok, conn, _request_ref} = Mint.HTTP.request(conn, "GET", "/reg_user", [], msg)
+    {:ok, conn, _request_ref} = Mint.HTTP.request(conn, "PUT", "/reg_user", [], msg)
     
     {:noreply, %{state |
 		 conn: conn,
@@ -89,7 +89,7 @@ defmodule Client.LoginServer do
     
     msg = username |> to_string()
     {:ok, conn} = Mint.HTTP.connect(scheme, ip, port)
-    {:ok, conn, _request_ref} = Mint.HTTP.request(conn, "GET", "/remove_user", [], msg)
+    {:ok, conn, _request_ref} = Mint.HTTP.request(conn, "PUT", "/remove_user", [], msg)
     
     {:noreply, %{state |
 		 conn: conn,
