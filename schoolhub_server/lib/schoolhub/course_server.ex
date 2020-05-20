@@ -43,6 +43,14 @@ defmodule Schoolhub.CourseServer do
   end
 
   @doc """
+  Interrogates the database for a list of all users affiliated with the course
+  and corresponding affiliations.
+  """
+  def get_all_affiliation(user, course_name) do
+    GenServer.call(__MODULE__, {:get_all_affiliation, user, course_name})
+  end
+
+  @doc """
   Changes the affiliation of the target user with the specified course.
   Only works if the target is already invited to the course.
   """
@@ -107,6 +115,12 @@ defmodule Schoolhub.CourseServer do
   def handle_call({:get_affiliation, user, course_name}, _from, state = %{db_api: db_api}) do
     affiliation = do_get_affiliation(user, course_name, db_api)
     {:reply, affiliation, state}
+  end
+
+  @impl true
+  def handle_call({:get_all_affiliation, user, course_name}, _from, state = %{db_api: db_api}) do
+    affiliations = do_get_all_affiliation(user, course_name, db_api)
+    {:reply, affiliations, state}
   end
 
   @impl true
@@ -176,6 +190,15 @@ defmodule Schoolhub.CourseServer do
 
   defp do_get_affiliation(user, course_name, db_api) do
     db_api.get_affiliation(user, course_name)
+  end
+
+  defp do_get_all_affiliation(user, course_name, db_api) do
+    case can_i_change_affiliation(user, course_name, db_api) do
+      :ok ->
+	db_api.get_all_affiliation(course_name)
+      other ->
+	other
+    end	
   end
 
   defp do_remove_course(name, db_api) do
