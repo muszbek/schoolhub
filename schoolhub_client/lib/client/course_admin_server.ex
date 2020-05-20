@@ -51,6 +51,13 @@ defmodule Client.CourseAdminServer do
   end
 
   @doc """
+  Interrogates the database to return an affiliation list of all users to course.
+  """
+  def get_all_affiliation(course_name) do
+    GenServer.call(__MODULE__, {:get_all_affiliation, course_name})
+  end
+
+  @doc """
   Updates the affiliation of target user in the specified course, if it is affiliated already.
   Only with admin privilege, or being the owner of the course.
   """
@@ -117,6 +124,21 @@ defmodule Client.CourseAdminServer do
 								   ip: ip,
 								   port: port}) do
     msg = Jason.encode!(%{user: self, course_name: course_name, get_all: false})
+    {:ok, conn} = Mint.HTTP.connect(scheme, ip, port)
+    {:ok, conn, _request_ref} = Mint.HTTP.request(conn, "GET", "/get_affiliation", [], msg)
+    
+    {:noreply, %{state |
+		 conn: conn,
+		 socket: conn.socket,
+		 reg_caller: from}}
+  end
+
+  @impl true
+  def handle_call({:get_all_affiliation, course_name}, from, state = %{username: self,
+								       scheme: scheme,
+								       ip: ip,
+								       port: port}) do
+    msg = Jason.encode!(%{user: self, course_name: course_name, get_all: true})
     {:ok, conn} = Mint.HTTP.connect(scheme, ip, port)
     {:ok, conn, _request_ref} = Mint.HTTP.request(conn, "GET", "/get_affiliation", [], msg)
     
