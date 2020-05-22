@@ -212,6 +212,16 @@ defmodule Schoolhub.DataManagerMock do
     {:error, :course_not_exist}
   end
 
+  def get_all_affiliation(@mock_course) do
+    [[@mock_user_teacher_string, "owner"], [@mock_user_student_string, "student"]]
+  end
+  def get_all_affiliation(@mock_course_string) do
+    get_all_affiliation(@mock_course)
+  end
+  def get_all_affiliation(_other_course) do
+    {:error, :course_not_exist}
+  end
+
   def invite_student(@mock_user_student, @mock_course) do
     :ok
   end

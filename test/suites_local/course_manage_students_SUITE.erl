@@ -133,7 +133,12 @@ groups() ->
        change_affiliation_wrong_course_fails,
        change_wrong_affiliation_fails,
        change_affiliation_wrong_student_fails,
-       student_change_affiliation_fails]}].
+       student_change_affiliation_fails]},
+     {course_get_all_affiliation, [shuffle],
+      [owner_get_all_affiliation_succeeds,
+       admin_get_all_affiliation_succeeds,
+       get_all_affiliation_wrong_course_fails,
+       student_get_all_affiliation_fails]}].
 
 %%--------------------------------------------------------------------
 %% @spec all() -> GroupsAndTestCases | {skip,Reason}
@@ -146,7 +151,8 @@ groups() ->
 all() -> 
     [{group, course_invite_students},
      {group, course_remove_students},
-     {group, course_set_affiliation}].
+     {group, course_set_affiliation},
+     {group, course_get_all_affiliation}].
 
 %%--------------------------------------------------------------------
 %% @spec TestCase() -> Info
@@ -302,6 +308,36 @@ student_change_affiliation_fails(_Config) ->
     {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_STUDENT, ?TEST_PW),
     Result = 'Elixir.Client.CourseAdminServer':set_affiliation(?TEST_USER_OWNER, 
 							       ?TEST_COURSE, <<"assistant">>),
+    <<"ERROR_no_permission">> = Result,
+    ok.
+
+
+owner_get_all_affiliation_succeeds(_Config) -> 
+    {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_OWNER, ?TEST_PW),
+    <<"ok">> = 'Elixir.Client.CourseAdminServer':invite_student(?TEST_USER_STUDENT, 
+								?TEST_COURSE),
+    Result = 'Elixir.Client.CourseAdminServer':get_all_affiliation(?TEST_COURSE),
+    [[?TEST_USER_OWNER, <<"owner">>], [?TEST_USER_STUDENT, <<"student">>]] = Result,
+    ok.
+
+admin_get_all_affiliation_succeeds(_Config) ->
+    {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?ADMIN, ?ADMIN_PW),
+    <<"ok">> = 'Elixir.Client.CourseAdminServer':invite_student(?TEST_USER_STUDENT, 
+								?TEST_COURSE),
+    Result = 'Elixir.Client.CourseAdminServer':get_all_affiliation(?TEST_COURSE),
+    [[?TEST_USER_OWNER, <<"owner">>], [?TEST_USER_STUDENT, <<"student">>]] = Result,
+    ok.
+
+get_all_affiliation_wrong_course_fails(_Config) ->
+    {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?ADMIN, ?ADMIN_PW),
+    Result = 'Elixir.Client.CourseAdminServer':get_all_affiliation(?TEST_COURSE_WRONG),
+    <<"ERROR_course_not_exist">> = Result,
+    ok.
+
+student_get_all_affiliation_fails(_Config) ->
+    'Elixir.Schoolhub.CourseServer':invite_student(?ADMIN, ?TEST_USER_STUDENT, ?TEST_COURSE),
+    {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_STUDENT, ?TEST_PW),
+    Result = 'Elixir.Client.CourseAdminServer':get_all_affiliation(?TEST_COURSE),
     <<"ERROR_no_permission">> = Result,
     ok.
 
