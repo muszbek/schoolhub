@@ -24,8 +24,8 @@ defmodule Schoolhub.Router do
     %{"username" => username, "password" => password} = Jason.decode!(body)
     result = Schoolhub.RegServer.register_user(username, password)
 
-    response_body = result |> encode_response()
-    send_resp(conn, 200, response_body)
+    {code, response_body} = result |> encode_response()
+    send_resp(conn, code, response_body)
   end
 
   put "/remove_user" do
@@ -34,8 +34,8 @@ defmodule Schoolhub.Router do
     %{"username" => username} = Jason.decode!(body)
     result = Schoolhub.RegServer.remove_user(username)
 
-    response_body = result |> encode_response()
-    send_resp(conn, 200, response_body)
+    {code, response_body} = result |> encode_response()
+    send_resp(conn, code, response_body)
   end
   
   get "/get_privilege" do
@@ -47,8 +47,8 @@ defmodule Schoolhub.Router do
 	       true -> Schoolhub.RegServer.get_all_privilege(self)
 	     end
 
-    response_body = result |> encode_response()
-    send_resp(conn, 200, response_body)
+    {code, response_body} = result |> encode_response()
+    send_resp(conn, code, response_body)
   end
 
   put "/set_privilege" do
@@ -57,8 +57,8 @@ defmodule Schoolhub.Router do
     %{"self" => self, "target" => target, "privilege" => priv} = Jason.decode!(body)
     result = Schoolhub.RegServer.set_user_privilege(self, target, priv)
 
-    response_body = result |> encode_response()
-    send_resp(conn, 200, response_body)
+    {code, response_body} = result |> encode_response()
+    send_resp(conn, code, response_body)
   end
 
   
@@ -68,8 +68,8 @@ defmodule Schoolhub.Router do
     %{"self" => self, "partner" => partner, "limit" => limit} = Jason.decode!(body)
     result = Schoolhub.ChatServer.get_archive(self, partner, limit)
 
-    {:ok, response_body} = Jason.encode(result)
-    send_resp(conn, 200, response_body)
+    {code, response_body} = result |> encode_response()
+    send_resp(conn, code, response_body)
   end
 
 
@@ -79,8 +79,8 @@ defmodule Schoolhub.Router do
     %{"self" => self, "course_name" => course_name} = Jason.decode!(body)
     result = Schoolhub.CourseServer.create_course(self, course_name)
 
-    response_body = result |> encode_response()
-    send_resp(conn, 200, response_body)
+    {code, response_body} = result |> encode_response()
+    send_resp(conn, code, response_body)
   end
 
   put "/remove_course" do
@@ -89,8 +89,8 @@ defmodule Schoolhub.Router do
     %{"self" => self, "course_name" => course_name} = Jason.decode!(body)
     result = Schoolhub.CourseServer.remove_course(self, course_name)
 
-    response_body = result |> encode_response()
-    send_resp(conn, 200, response_body)
+    {code, response_body} = result |> encode_response()
+    send_resp(conn, code, response_body)
   end
 
   get "/get_affiliation" do
@@ -102,8 +102,8 @@ defmodule Schoolhub.Router do
 	       true -> Schoolhub.CourseServer.get_all_affiliation(user, course_name)
 	     end
 
-    response_body = result |> encode_response()
-    send_resp(conn, 200, response_body)
+    {code, response_body} = result |> encode_response()
+    send_resp(conn, code, response_body)
   end
 
   put "/set_affiliation" do
@@ -113,8 +113,8 @@ defmodule Schoolhub.Router do
       "course_name" => course_name, "affiliation" => aff} = Jason.decode!(body)
     result = Schoolhub.CourseServer.set_affiliation(self, target, course_name, aff)
 
-    response_body = result |> encode_response()
-    send_resp(conn, 200, response_body)
+    {code, response_body} = result |> encode_response()
+    send_resp(conn, code, response_body)
   end
 
   put "/invite_student" do
@@ -123,8 +123,8 @@ defmodule Schoolhub.Router do
     %{"self" => self, "target" => target, "course_name" => course_name} = Jason.decode!(body)
     result = Schoolhub.CourseServer.invite_student(self, target, course_name)
 
-    response_body = result |> encode_response()
-    send_resp(conn, 200, response_body)
+    {code, response_body} = result |> encode_response()
+    send_resp(conn, code, response_body)
   end
 
   put "/remove_student" do
@@ -133,8 +133,8 @@ defmodule Schoolhub.Router do
     %{"self" => self, "target" => target, "course_name" => course_name} = Jason.decode!(body)
     result = Schoolhub.CourseServer.remove_student(self, target, course_name)
 
-    response_body = result |> encode_response()
-    send_resp(conn, 200, response_body)
+    {code, response_body} = result |> encode_response()
+    send_resp(conn, code, response_body)
   end
   
 
@@ -167,7 +167,8 @@ defmodule Schoolhub.Router do
 	       other -> other
 	     end
     
-    result |> Jason.encode!()
+    code = 200
+    {code, result |> Jason.encode!()}
   end
   
 end
