@@ -4,6 +4,7 @@ defmodule Client.LoginServer do
   or registering new user.
   """
   require Logger
+  alias Client.RestLib, as: Rest
 
   use GenServer
 
@@ -68,46 +69,21 @@ defmodule Client.LoginServer do
   end
 
   @impl true
-  def handle_call({:reg, username, password}, from, state = %{scheme: scheme,
-							      ip: ip,
-							      port: port}) do
-    
-    msg = Jason.encode!(%{username: username, password: password})
-    {:ok, conn} = Mint.HTTP.connect(scheme, ip, port)
-    {:ok, conn, _request_ref} = Mint.HTTP.request(conn, "PUT", "/reg_user", [], msg)
-    
-    {:noreply, %{state |
-		 conn: conn,
-		 socket: conn.socket,
-		 reg_caller: from}}
+  def handle_call({:reg, username, password}, from, state) do
+    body = %{username: username, password: password}
+    Rest.send_http(body, from, "PUT", "/reg_user", state)
   end
 
   @impl true
-  def handle_call({:remove, username}, from, state = %{scheme: scheme,
-						       ip: ip,
-						       port: port}) do
-    
-    msg = username |> to_string()
-    {:ok, conn} = Mint.HTTP.connect(scheme, ip, port)
-    {:ok, conn, _request_ref} = Mint.HTTP.request(conn, "PUT", "/remove_user", [], msg)
-    
-    {:noreply, %{state |
-		 conn: conn,
-		 socket: conn.socket,
-		 reg_caller: from}}
+  def handle_call({:remove, username}, from, state) do
+    body = %{username: username}
+    Rest.send_http(body, from, "PUT", "/remove_user", state)
   end
 
+
   @impl true
-  def handle_info({transport, socket, http_response}, state = %{conn: conn,
-								socket: socket,
-								reg_caller: from}) do
-
-    {:ok, _conn, response} = Mint.HTTP.stream(conn, {transport, socket, http_response})
-    {:data, _ref, data_json}  = :lists.keyfind(:data, 1, response)
-    data = Jason.decode!(data_json)
-
-    GenServer.reply(from, data)
-    {:noreply, state}
+  def handle_info(http_info = {_transport, _socket, _http_response}, state) do
+    Rest.receive_http(http_info, state)
   end
 
   @impl true

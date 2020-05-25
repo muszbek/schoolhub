@@ -31,7 +31,7 @@ defmodule Schoolhub.Router do
   put "/remove_user" do
     body = read_body(conn, "PUT", "/remove_user")
     
-    username = body
+    %{"username" => username} = Jason.decode!(body)
     result = Schoolhub.RegServer.remove_user(username)
 
     response_body = result |> encode_response()
