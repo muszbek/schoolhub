@@ -4,6 +4,7 @@ defmodule Client.AdminServer do
   Not all users have access to these functionalities.
   """
   require Logger
+  alias Client.RestLib, as: Rest
 
   use GenServer
 
@@ -55,33 +56,15 @@ defmodule Client.AdminServer do
   end
 
   @impl true
-  def handle_call(:get_privilege, from, state = %{username: self,
-						  scheme: scheme,
-						  ip: ip,
-						  port: port}) do
-    msg = Jason.encode!(%{user: self, get_all: false})
-    {:ok, conn} = Mint.HTTP.connect(scheme, ip, port)
-    {:ok, conn, _request_ref} = Mint.HTTP.request(conn, "GET", "/get_privilege", [], msg)
-    
-    {:noreply, %{state |
-		 conn: conn,
-		 socket: conn.socket,
-		 reg_caller: from}}
+  def handle_call(:get_privilege, from, state) do
+    body = %{get_all: false}
+    Rest.send_http_id(body, from, "GET", "/get_privilege", state)
   end
 
   @impl true
-  def handle_call(:get_all_privilege, from, state = %{username: self,
-						      scheme: scheme,
-						      ip: ip,
-						      port: port}) do
-    msg = Jason.encode!(%{user: self, get_all: true})
-    {:ok, conn} = Mint.HTTP.connect(scheme, ip, port)
-    {:ok, conn, _request_ref} = Mint.HTTP.request(conn, "GET", "/get_privilege", [], msg)
-    
-    {:noreply, %{state |
-		 conn: conn,
-		 socket: conn.socket,
-		 reg_caller: from}}
+  def handle_call(:get_all_privilege, from, state) do
+    body = %{get_all: true}
+    Rest.send_http_id(body, from, "GET", "/get_privilege", state)
   end
   
   @impl true
@@ -91,32 +74,15 @@ defmodule Client.AdminServer do
   end
   
   @impl true
-  def handle_call({:set_privilege, username, privilege}, from, state = %{username: self,
-									 scheme: scheme,
-									 ip: ip,
-									 port: port}) do
-    msg = Jason.encode!(%{self: self, target: username, privilege: privilege})
-    {:ok, conn} = Mint.HTTP.connect(scheme, ip, port)
-    {:ok, conn, _request_ref} = Mint.HTTP.request(conn, "PUT", "/set_privilege", [], msg)
-    
-    {:noreply, %{state |
-		 conn: conn,
-		 socket: conn.socket,
-		 reg_caller: from}}
+  def handle_call({:set_privilege, username, privilege}, from, state) do
+    body = %{target: username, privilege: privilege}
+    Rest.send_http_id(body, from, "PUT", "/set_privilege", state)
   end
 
 
   @impl true
-  def handle_info({transport, socket, http_response}, state = %{conn: conn,
-								socket: socket,
-								reg_caller: from}) do
-
-    {:ok, _conn, response} = Mint.HTTP.stream(conn, {transport, socket, http_response})
-    {:data, _ref, data_json}  = :lists.keyfind(:data, 1, response)
-    data = Jason.decode!(data_json)
-    
-    GenServer.reply(from, data)
-    {:noreply, state}
+  def handle_info(http_info = {_transport, _socket, _http_response}, state) do
+    Rest.receive_http(http_info, state)
   end
 
   @impl true

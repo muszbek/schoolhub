@@ -4,6 +4,7 @@ defmodule Client.CourseAdminServer do
   Not all users have access to these functionalities.
   """
   require Logger
+  alias Client.RestLib, as: Rest
 
   use GenServer
 
@@ -89,122 +90,51 @@ defmodule Client.CourseAdminServer do
 
   
   @impl true
-  def handle_call({:create_course, course_name}, from, state = %{username: self,
-								 scheme: scheme,
-								 ip: ip,
-								 port: port}) do
-    msg = Jason.encode!(%{self: self, course_name: course_name})
-    {:ok, conn} = Mint.HTTP.connect(scheme, ip, port)
-    {:ok, conn, _request_ref} = Mint.HTTP.request(conn, "PUT", "/create_course", [], msg)
-    
-    {:noreply, %{state |
-		 conn: conn,
-		 socket: conn.socket,
-		 reg_caller: from}}
+  def handle_call({:create_course, course_name}, from, state) do
+    body = %{course_name: course_name}
+    Rest.send_http_id(body, from, "PUT", "/create_course", state)
   end
 
   @impl true
-  def handle_call({:remove_course, course_name}, from, state = %{username: self,
-								 scheme: scheme,
-								 ip: ip,
-								 port: port}) do
-    msg = Jason.encode!(%{self: self, course_name: course_name})
-    {:ok, conn} = Mint.HTTP.connect(scheme, ip, port)
-    {:ok, conn, _request_ref} = Mint.HTTP.request(conn, "PUT", "/remove_course", [], msg)
-    
-    {:noreply, %{state |
-		 conn: conn,
-		 socket: conn.socket,
-		 reg_caller: from}}
+  def handle_call({:remove_course, course_name}, from, state) do
+    body = %{course_name: course_name}
+    Rest.send_http_id(body, from, "PUT", "/remove_course", state)
   end
 
   @impl true
-  def handle_call({:get_affiliation, course_name}, from, state = %{username: self,
-								   scheme: scheme,
-								   ip: ip,
-								   port: port}) do
-    msg = Jason.encode!(%{user: self, course_name: course_name, get_all: false})
-    {:ok, conn} = Mint.HTTP.connect(scheme, ip, port)
-    {:ok, conn, _request_ref} = Mint.HTTP.request(conn, "GET", "/get_affiliation", [], msg)
-    
-    {:noreply, %{state |
-		 conn: conn,
-		 socket: conn.socket,
-		 reg_caller: from}}
+  def handle_call({:get_affiliation, course_name}, from, state) do
+    body = %{course_name: course_name, get_all: false}
+    Rest.send_http_id(body, from, "GET", "/get_affiliation", state)
   end
 
   @impl true
-  def handle_call({:get_all_affiliation, course_name}, from, state = %{username: self,
-								       scheme: scheme,
-								       ip: ip,
-								       port: port}) do
-    msg = Jason.encode!(%{user: self, course_name: course_name, get_all: true})
-    {:ok, conn} = Mint.HTTP.connect(scheme, ip, port)
-    {:ok, conn, _request_ref} = Mint.HTTP.request(conn, "GET", "/get_affiliation", [], msg)
-    
-    {:noreply, %{state |
-		 conn: conn,
-		 socket: conn.socket,
-		 reg_caller: from}}
+  def handle_call({:get_all_affiliation, course_name}, from, state) do
+    body = %{course_name: course_name, get_all: true}
+    Rest.send_http_id(body, from, "GET", "/get_affiliation", state)
   end
 
   @impl true
-  def handle_call({:set_affiliation, target, course_name, aff}, from, state = %{username: self,
-										scheme: scheme,
-										ip: ip,
-										port: port}) do
-    msg = Jason.encode!(%{self: self, target: target, course_name: course_name, affiliation: aff})
-    {:ok, conn} = Mint.HTTP.connect(scheme, ip, port)
-    {:ok, conn, _request_ref} = Mint.HTTP.request(conn, "PUT", "/set_affiliation", [], msg)
-    
-    {:noreply, %{state |
-		 conn: conn,
-		 socket: conn.socket,
-		 reg_caller: from}}
+  def handle_call({:set_affiliation, target, course_name, aff}, from, state) do
+    body = %{target: target, course_name: course_name, affiliation: aff}
+    Rest.send_http_id(body, from, "PUT", "/set_affiliation", state)
   end
 
   @impl true
-  def handle_call({:invite_student, target, course_name}, from, state = %{username: self,
-									  scheme: scheme,
-									  ip: ip,
-									  port: port}) do
-    msg = Jason.encode!(%{self: self, target: target, course_name: course_name})
-    {:ok, conn} = Mint.HTTP.connect(scheme, ip, port)
-    {:ok, conn, _request_ref} = Mint.HTTP.request(conn, "PUT", "/invite_student", [], msg)
-    
-    {:noreply, %{state |
-		 conn: conn,
-		 socket: conn.socket,
-		 reg_caller: from}}
+  def handle_call({:invite_student, target, course_name}, from, state) do
+    body = %{target: target, course_name: course_name}
+    Rest.send_http_id(body, from, "PUT", "/invite_student", state)
   end
 
   @impl true
-  def handle_call({:remove_student, target, course_name}, from, state = %{username: self,
-									  scheme: scheme,
-									  ip: ip,
-									  port: port}) do
-    msg = Jason.encode!(%{self: self, target: target, course_name: course_name})
-    {:ok, conn} = Mint.HTTP.connect(scheme, ip, port)
-    {:ok, conn, _request_ref} = Mint.HTTP.request(conn, "PUT", "/remove_student", [], msg)
-    
-    {:noreply, %{state |
-		 conn: conn,
-		 socket: conn.socket,
-		 reg_caller: from}}
+  def handle_call({:remove_student, target, course_name}, from, state) do
+    body = %{target: target, course_name: course_name}
+    Rest.send_http_id(body, from, "PUT", "/remove_student", state)
   end
   
 
   @impl true
-  def handle_info({transport, socket, http_response}, state = %{conn: conn,
-								socket: socket,
-								reg_caller: from}) do
-
-    {:ok, _conn, response} = Mint.HTTP.stream(conn, {transport, socket, http_response})
-    {:data, _ref, data_json}  = :lists.keyfind(:data, 1, response)
-    data = Jason.decode!(data_json)
-    
-    GenServer.reply(from, data)
-    {:noreply, state}
+  def handle_info(http_info = {_transport, _socket, _http_response}, state) do
+    Rest.receive_http(http_info, state)
   end
 
   @impl true

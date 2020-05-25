@@ -41,7 +41,7 @@ defmodule Schoolhub.Router do
   get "/get_privilege" do
     body = read_body(conn, "GET", "/get_privilege")
 
-    %{"user" => self, "get_all" => get_all} = Jason.decode!(body)
+    %{"get_all" => get_all, "self" => self} = Jason.decode!(body)
     result = case get_all do
 	       false -> Schoolhub.RegServer.get_user_privilege(self)
 	       true -> Schoolhub.RegServer.get_all_privilege(self)
@@ -96,7 +96,7 @@ defmodule Schoolhub.Router do
   get "/get_affiliation" do
     body = read_body(conn, "GET", "/get_affiliation")
 
-    %{"user" => user, "course_name" => course_name, "get_all" => get_all} = Jason.decode!(body)
+    %{"self" => user, "course_name" => course_name, "get_all" => get_all} = Jason.decode!(body)
     result = case get_all do
 	       false -> Schoolhub.CourseServer.get_affiliation(user, course_name)
 	       true -> Schoolhub.CourseServer.get_all_affiliation(user, course_name)

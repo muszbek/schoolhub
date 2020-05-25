@@ -4,6 +4,7 @@ defmodule Client.ChatArchiveServer do
   No XMPP connection.
   """
   require Logger
+  alias Client.RestLib, as: Rest
 
   use GenServer
 
@@ -129,19 +130,9 @@ defmodule Client.ChatArchiveServer do
 
   
   @impl true
-  def handle_call({:get_server_archive, partner, limit}, from, state = %{username: self,
-									 scheme: scheme,
-									 ip: ip,
-									 port: port}) do
-
-    msg = Jason.encode!(%{self: self, partner: partner, limit: limit})
-    {:ok, conn} = Mint.HTTP.connect(scheme, ip, port)
-    {:ok, conn, _request_ref} = Mint.HTTP.request(conn, "GET", "/get_mam", [], msg)
-    
-    {:noreply, %{state |
-		 conn: conn,
-		 socket: conn.socket,
-		 reg_caller: from}}
+  def handle_call({:get_server_archive, partner, limit}, from, state) do
+    body = %{partner: partner, limit: limit}
+    Rest.send_http_id(body, from, "GET", "/get_mam", state)
   end
 
   @impl true
@@ -169,16 +160,8 @@ defmodule Client.ChatArchiveServer do
 
 
   @impl true
-  def handle_info({transport, socket, http_response}, state = %{conn: conn,
-								socket: socket,
-								reg_caller: from}) do
-
-    {:ok, _conn, response} = Mint.HTTP.stream(conn, {transport, socket, http_response})
-    {:data, _ref, data_json}  = :lists.keyfind(:data, 1, response)
-    data = Jason.decode!(data_json)
-    
-    GenServer.reply(from, data)
-    {:noreply, state}
+  def handle_info(http_info = {_transport, _socket, _http_response}, state) do
+    Rest.receive_http(http_info, state)
   end
 
   @impl true
