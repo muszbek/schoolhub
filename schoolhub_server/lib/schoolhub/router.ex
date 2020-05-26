@@ -94,7 +94,7 @@ defmodule Schoolhub.Router do
   end
 
   
-  post "/students" do
+  post "/courses/students" do
     body = get_body(conn)
 
     %{"self" => self, "target" => target, "course_name" => course_name} = Jason.decode!(body)
@@ -104,7 +104,7 @@ defmodule Schoolhub.Router do
     send_resp(conn, code, response_body)
   end
 
-  delete "/students" do
+  delete "/courses/students" do
     body = get_body(conn)
 
     %{"self" => self, "target" => target, "course_name" => course_name} = Jason.decode!(body)
@@ -114,7 +114,7 @@ defmodule Schoolhub.Router do
     send_resp(conn, code, response_body)
   end
   
-  get "/students/affiliations" do
+  get "/courses/students/affiliations" do
     body = get_body(conn)
 
     %{"self" => user, "course_name" => course_name, "get_all" => get_all} = Jason.decode!(body)
@@ -127,7 +127,7 @@ defmodule Schoolhub.Router do
     send_resp(conn, code, response_body)
   end
 
-  put "/students/affiliations" do
+  put "/courses/students/affiliations" do
     body = get_body(conn)
 
     %{"self" => self, "target" => target,

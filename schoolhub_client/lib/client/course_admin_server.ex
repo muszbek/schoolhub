@@ -104,31 +104,31 @@ defmodule Client.CourseAdminServer do
   @impl true
   def handle_call({:get_affiliation, course_name}, from, state) do
     body = %{course_name: course_name, get_all: false}
-    Rest.send_http_id(body, from, "GET", "/students/affiliations", state)
+    Rest.send_http_id(body, from, "GET", "/courses/students/affiliations", state)
   end
 
   @impl true
   def handle_call({:get_all_affiliation, course_name}, from, state) do
     body = %{course_name: course_name, get_all: true}
-    Rest.send_http_id(body, from, "GET", "/students/affiliations", state)
+    Rest.send_http_id(body, from, "GET", "/courses/students/affiliations", state)
   end
 
   @impl true
   def handle_call({:set_affiliation, target, course_name, aff}, from, state) do
     body = %{target: target, course_name: course_name, affiliation: aff}
-    Rest.send_http_id(body, from, "PUT", "/students/affiliations", state)
+    Rest.send_http_id(body, from, "PUT", "/courses/students/affiliations", state)
   end
 
   @impl true
   def handle_call({:invite_student, target, course_name}, from, state) do
     body = %{target: target, course_name: course_name}
-    Rest.send_http_id(body, from, "POST", "/students", state)
+    Rest.send_http_id(body, from, "POST", "/courses/students", state)
   end
 
   @impl true
   def handle_call({:remove_student, target, course_name}, from, state) do
     body = %{target: target, course_name: course_name}
-    Rest.send_http_id(body, from, "DELETE", "/students", state)
+    Rest.send_http_id(body, from, "DELETE", "/courses/students", state)
   end
   
 

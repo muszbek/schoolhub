@@ -37,8 +37,13 @@ defmodule Client.RestLib do
 								reg_caller: from}) do
     
     {:ok, _conn, response} = Mint.HTTP.stream(conn, {transport, socket, http_response})
+    {:status, _ref, status_code} = :lists.keyfind(:status, 1, response)
     {:data, _ref, data_json}  = :lists.keyfind(:data, 1, response)
-    data = Jason.decode!(data_json)
+
+    data = case status_code do
+	     400 -> "ERROR_404"
+	     _ -> Jason.decode!(data_json)
+	   end
     
     GenServer.reply(from, data)
     {:noreply, state}
