@@ -71,13 +71,13 @@ defmodule Client.LoginServer do
   @impl true
   def handle_call({:reg, username, password}, from, state) do
     body = %{username: username, password: password}
-    Rest.send_http(body, from, "PUT", "/reg_user", state)
+    Rest.send_http(body, from, "POST", "/users", state)
   end
 
   @impl true
   def handle_call({:remove, username}, from, state) do
     body = %{username: username}
-    Rest.send_http(body, from, "PUT", "/remove_user", state)
+    Rest.send_http(body, from, "DELETE", "/users", state)
   end
 
 

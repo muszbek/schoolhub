@@ -12,14 +12,14 @@ defmodule Schoolhub.Router do
   plug :dispatch
 
   get "/auth" do
-    body = read_body(conn, "GET", "/auth")
+    body = get_body(conn)
 
     Schoolhub.AuthServer.authenticate(body)
     http_respond(conn)
   end
 
-  put "/reg_user" do
-    body = read_body(conn, "PUT", "/reg_user")
+  post "/users" do
+    body = get_body(conn)
     
     %{"username" => username, "password" => password} = Jason.decode!(body)
     result = Schoolhub.RegServer.register_user(username, password)
@@ -28,8 +28,8 @@ defmodule Schoolhub.Router do
     send_resp(conn, code, response_body)
   end
 
-  put "/remove_user" do
-    body = read_body(conn, "PUT", "/remove_user")
+  delete "/users" do
+    body = get_body(conn)
     
     %{"username" => username} = Jason.decode!(body)
     result = Schoolhub.RegServer.remove_user(username)
@@ -38,8 +38,8 @@ defmodule Schoolhub.Router do
     send_resp(conn, code, response_body)
   end
   
-  get "/get_privilege" do
-    body = read_body(conn, "GET", "/get_privilege")
+  get "/privileges" do
+    body = get_body(conn)
 
     %{"get_all" => get_all, "self" => self} = Jason.decode!(body)
     result = case get_all do
@@ -51,8 +51,8 @@ defmodule Schoolhub.Router do
     send_resp(conn, code, response_body)
   end
 
-  put "/set_privilege" do
-    body = read_body(conn, "PUT", "/set_privilege")
+  put "/privileges" do
+    body = get_body(conn)
 
     %{"self" => self, "target" => target, "privilege" => priv} = Jason.decode!(body)
     result = Schoolhub.RegServer.set_user_privilege(self, target, priv)
@@ -63,7 +63,7 @@ defmodule Schoolhub.Router do
 
   
   get "/get_mam" do
-    body = read_body(conn, "GET", "/get_mam")
+    body = get_body(conn)
 
     %{"self" => self, "partner" => partner, "limit" => limit} = Jason.decode!(body)
     result = Schoolhub.ChatServer.get_archive(self, partner, limit)
@@ -73,8 +73,8 @@ defmodule Schoolhub.Router do
   end
 
 
-  put "/create_course" do
-    body = read_body(conn, "PUT", "/create_course")
+  post "/courses" do
+    body = get_body(conn)
 
     %{"self" => self, "course_name" => course_name} = Jason.decode!(body)
     result = Schoolhub.CourseServer.create_course(self, course_name)
@@ -83,8 +83,8 @@ defmodule Schoolhub.Router do
     send_resp(conn, code, response_body)
   end
 
-  put "/remove_course" do
-    body = read_body(conn, "PUT", "/remove_course")
+  delete "/courses" do
+    body = get_body(conn)
 
     %{"self" => self, "course_name" => course_name} = Jason.decode!(body)
     result = Schoolhub.CourseServer.remove_course(self, course_name)
@@ -93,8 +93,8 @@ defmodule Schoolhub.Router do
     send_resp(conn, code, response_body)
   end
 
-  get "/get_affiliation" do
-    body = read_body(conn, "GET", "/get_affiliation")
+  get "/affiliations" do
+    body = get_body(conn)
 
     %{"self" => user, "course_name" => course_name, "get_all" => get_all} = Jason.decode!(body)
     result = case get_all do
@@ -106,8 +106,8 @@ defmodule Schoolhub.Router do
     send_resp(conn, code, response_body)
   end
 
-  put "/set_affiliation" do
-    body = read_body(conn, "PUT", "/set_affiliation")
+  put "/affiliations" do
+    body = get_body(conn)
 
     %{"self" => self, "target" => target,
       "course_name" => course_name, "affiliation" => aff} = Jason.decode!(body)
@@ -117,8 +117,8 @@ defmodule Schoolhub.Router do
     send_resp(conn, code, response_body)
   end
 
-  put "/invite_student" do
-    body = read_body(conn, "PUT", "/invite_student")
+  post "/students" do
+    body = get_body(conn)
 
     %{"self" => self, "target" => target, "course_name" => course_name} = Jason.decode!(body)
     result = Schoolhub.CourseServer.invite_student(self, target, course_name)
@@ -127,8 +127,8 @@ defmodule Schoolhub.Router do
     send_resp(conn, code, response_body)
   end
 
-  put "/remove_student" do
-    body = read_body(conn, "PUT", "/remove_student")
+  delete "/students" do
+    body = get_body(conn)
 
     %{"self" => self, "target" => target, "course_name" => course_name} = Jason.decode!(body)
     result = Schoolhub.CourseServer.remove_student(self, target, course_name)
@@ -143,9 +143,9 @@ defmodule Schoolhub.Router do
   end
 
 
-  defp read_body(conn, type, url) do
+  defp get_body(conn) do
     {:ok, body, _conn} = Plug.Conn.read_body(conn)
-    Logger.debug("Received " <> type <> " request on " <> url <> " with body: #{inspect(body)}")
+    Logger.debug("Received HTTP request with body: #{inspect(body)}")
     body
   end
   
