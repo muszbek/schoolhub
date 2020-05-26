@@ -58,13 +58,13 @@ defmodule Client.AdminServer do
   @impl true
   def handle_call(:get_privilege, from, state) do
     body = %{get_all: false}
-    Rest.send_http_id(body, from, "GET", "/privileges", state)
+    Rest.send_http_id(body, from, "GET", "/users/privileges", state)
   end
 
   @impl true
   def handle_call(:get_all_privilege, from, state) do
     body = %{get_all: true}
-    Rest.send_http_id(body, from, "GET", "/privileges", state)
+    Rest.send_http_id(body, from, "GET", "/users/privileges", state)
   end
   
   @impl true
@@ -76,7 +76,7 @@ defmodule Client.AdminServer do
   @impl true
   def handle_call({:set_privilege, username, privilege}, from, state) do
     body = %{target: username, privilege: privilege}
-    Rest.send_http_id(body, from, "PUT", "/privileges", state)
+    Rest.send_http_id(body, from, "PUT", "/users/privileges", state)
   end
 
 
