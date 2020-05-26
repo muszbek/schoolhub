@@ -160,14 +160,14 @@ defmodule Schoolhub.Router do
   end
 
   defp encode_response(response) do
-    result = case response do
-	       {:ok, _reason} -> "ok"
-	       {:error, reason} -> "ERROR_" <> Atom.to_string(reason)
-	       :ok -> "ok"
-	       other -> other
-	     end
+    {code, result} = case response do
+		       {:ok, _reason} -> {200, "ok"}
+		       :ok -> {200, "ok"}
+		       {:error, :no_permission} -> {401, "ERROR_no_permission"}
+		       {:error, reason} -> {403, "ERROR_" <> Atom.to_string(reason)}
+		       other -> {200, other}
+		     end
     
-    code = 200
     {code, result |> Jason.encode!()}
   end
   
