@@ -77,7 +77,7 @@ defmodule Schoolhub.Router do
     body = get_body(conn)
 
     %{"self" => self, "course_name" => course_name} = Jason.decode!(body)
-    result = Schoolhub.CourseServer.create_course(self, course_name)
+    result = Schoolhub.CourseAdminServer.create_course(self, course_name)
 
     {code, response_body} = result |> encode_response()
     send_resp(conn, code, response_body)
@@ -87,7 +87,7 @@ defmodule Schoolhub.Router do
     body = get_body(conn)
 
     %{"self" => self, "course_name" => course_name} = Jason.decode!(body)
-    result = Schoolhub.CourseServer.remove_course(self, course_name)
+    result = Schoolhub.CourseAdminServer.remove_course(self, course_name)
 
     {code, response_body} = result |> encode_response()
     send_resp(conn, code, response_body)
@@ -98,7 +98,7 @@ defmodule Schoolhub.Router do
     body = get_body(conn)
 
     %{"self" => self, "target" => target, "course_name" => course_name} = Jason.decode!(body)
-    result = Schoolhub.CourseServer.invite_student(self, target, course_name)
+    result = Schoolhub.CourseAdminServer.invite_student(self, target, course_name)
 
     {code, response_body} = result |> encode_response()
     send_resp(conn, code, response_body)
@@ -108,7 +108,7 @@ defmodule Schoolhub.Router do
     body = get_body(conn)
 
     %{"self" => self, "target" => target, "course_name" => course_name} = Jason.decode!(body)
-    result = Schoolhub.CourseServer.remove_student(self, target, course_name)
+    result = Schoolhub.CourseAdminServer.remove_student(self, target, course_name)
 
     {code, response_body} = result |> encode_response()
     send_resp(conn, code, response_body)
@@ -119,8 +119,8 @@ defmodule Schoolhub.Router do
 
     %{"self" => user, "course_name" => course_name, "get_all" => get_all} = Jason.decode!(body)
     result = case get_all do
-	       false -> Schoolhub.CourseServer.get_affiliation(user, course_name)
-	       true -> Schoolhub.CourseServer.get_all_affiliation(user, course_name)
+	       false -> Schoolhub.CourseAdminServer.get_affiliation(user, course_name)
+	       true -> Schoolhub.CourseAdminServer.get_all_affiliation(user, course_name)
 	     end
 
     {code, response_body} = result |> encode_response()
@@ -132,7 +132,7 @@ defmodule Schoolhub.Router do
 
     %{"self" => self, "target" => target,
       "course_name" => course_name, "affiliation" => aff} = Jason.decode!(body)
-    result = Schoolhub.CourseServer.set_affiliation(self, target, course_name, aff)
+    result = Schoolhub.CourseAdminServer.set_affiliation(self, target, course_name, aff)
 
     {code, response_body} = result |> encode_response()
     send_resp(conn, code, response_body)

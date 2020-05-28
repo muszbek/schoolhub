@@ -48,7 +48,7 @@ init_per_suite(Config) ->
 %% @end
 %%--------------------------------------------------------------------
 end_per_suite(_Config) ->
-    'Elixir.Schoolhub.CourseServer':remove_course(?ADMIN, ?TEST_COURSE),
+    'Elixir.Schoolhub.CourseAdminServer':remove_course(?ADMIN, ?TEST_COURSE),
     {ok, _} = 'Elixir.Schoolhub.RegServer':remove_user(?TEST_USER_STUDENT),
     {ok, _} = 'Elixir.Schoolhub.RegServer':remove_user(?TEST_USER_TEACHER),
     stop_apps(),
@@ -96,7 +96,7 @@ init_per_testcase(_TestCase, Config) ->
 %%--------------------------------------------------------------------
 end_per_testcase(_TestCase, _Config) ->
     'Elixir.Client.LoginServer':end_session(),
-    'Elixir.Schoolhub.CourseServer':remove_course(?ADMIN, ?TEST_COURSE),
+    'Elixir.Schoolhub.CourseAdminServer':remove_course(?ADMIN, ?TEST_COURSE),
     ok.
 
 %%--------------------------------------------------------------------
@@ -167,7 +167,7 @@ owner_get_affiliation_succeeds(_Config) ->
 not_affiliated_user_no_affiliation(_Config) ->
     'Elixir.Schoolhub.RegServer':register_user(?TEST_USER_STUDENT, ?TEST_PW),
     timer:sleep(500),
-    ok = 'Elixir.Schoolhub.CourseServer':create_course(?TEST_USER_TEACHER, ?TEST_COURSE),
+    ok = 'Elixir.Schoolhub.CourseAdminServer':create_course(?TEST_USER_TEACHER, ?TEST_COURSE),
     {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_STUDENT, ?TEST_PW),
     Result = 'Elixir.Client.CourseAdminServer':get_affiliation(?TEST_COURSE),
     <<"ERROR_no_affiliation">> = Result,
@@ -187,7 +187,7 @@ owner_remove_course_succeeds(_Config) ->
     ok.
 
 admin_remove_course_succeeds(_Config) ->
-    ok = 'Elixir.Schoolhub.CourseServer':create_course(?TEST_USER_TEACHER, ?TEST_COURSE),
+    ok = 'Elixir.Schoolhub.CourseAdminServer':create_course(?TEST_USER_TEACHER, ?TEST_COURSE),
     {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?ADMIN, ?ADMIN_PW),
     Result = 'Elixir.Client.CourseAdminServer':remove_course(?TEST_COURSE),
     <<"ok">> = Result,
@@ -202,7 +202,7 @@ remove_wrong_course_fails(_Config) ->
 student_remove_course_fails(_Config) ->
     'Elixir.Schoolhub.RegServer':register_user(?TEST_USER_STUDENT, ?TEST_PW),
     timer:sleep(500),
-    ok = 'Elixir.Schoolhub.CourseServer':create_course(?TEST_USER_TEACHER, ?TEST_COURSE),
+    ok = 'Elixir.Schoolhub.CourseAdminServer':create_course(?TEST_USER_TEACHER, ?TEST_COURSE),
     {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_STUDENT, ?TEST_PW),
     Result = 'Elixir.Client.CourseAdminServer':remove_course(?TEST_COURSE),
     <<"ERROR_no_permission">> = Result,

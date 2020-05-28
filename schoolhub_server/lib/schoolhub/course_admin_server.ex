@@ -1,4 +1,4 @@
-defmodule Schoolhub.CourseServer do
+defmodule Schoolhub.CourseAdminServer do
   @moduledoc """
   GenServer creating and modifying courses, handling member affiliations.
   """
