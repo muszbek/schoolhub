@@ -25,6 +25,7 @@ defmodule Schoolhub.Supervisor do
       {Schoolhub.RegServer, db_api: db_backend(), xmpp_api: xmpp_backend()},
       {Schoolhub.ChatServer, db_api: db_backend()},
       {Schoolhub.CourseAdminServer, db_api: db_backend()},
+      {Schoolhub.CourseContentServer, db_api: db_backend()},
       {Plug.Cowboy,
        scheme: server_scheme(), plug: Schoolhub.Router, options: [port: server_port()]}
     ]
