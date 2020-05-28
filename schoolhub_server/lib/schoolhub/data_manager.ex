@@ -151,6 +151,20 @@ defmodule Schoolhub.DataManager do
   def remove_student(user, course_name) do
     GenServer.call(__MODULE__, {:remove_student, user, course_name})
   end
+
+  @doc """
+  Interrogates the database for the description field of the course.
+  """
+  def get_course_desc(course_name) do
+    GenServer.call(__MODULE__, {:get_desc, course_name})
+  end
+  
+  @doc """
+  Modifies the description field of the course.
+  """
+  def set_course_desc(course_name, desc) do
+    GenServer.call(__MODULE__, {:set_desc, course_name, desc})
+  end
     
 
   ### Server callbacks ###
@@ -387,6 +401,22 @@ defmodule Schoolhub.DataManager do
 	     end
     
     {:reply, result, state}
+  end
+
+  @impl true
+  def handle_call({:get_desc, course_name}, _from, state = %{pgsql_conn: conn}) do
+    query_text = "SELECT description FROM courses WHERE name LIKE $1;"
+    result = Postgrex.query(conn, query_text, [string(course_name)])
+    {:ok, %{columns: ["description"], command: :select, num_rows: 1, rows: [[json]]}} = result
+    {:reply, json, state}
+  end
+
+  @impl true
+  def handle_call({:set_desc, course_name, desc}, _from, state = %{pgsql_conn: conn}) do
+    query_text = "UPDATE courses SET description = $2 WHERE name LIKE $1;"
+    result = Postgrex.query(conn, query_text, [string(course_name), desc])
+    {:ok, %{command: :update, num_rows: 1, rows: nil}} = result
+    {:reply, :ok, state}
   end
 
   

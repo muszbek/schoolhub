@@ -1,6 +1,6 @@
 defmodule Schoolhub.CourseAdminServer do
   @moduledoc """
-  GenServer creating and modifying courses, handling member affiliations.
+  GenServer creating courses, handling member affiliations.
   """
   require Logger
 
@@ -70,7 +70,15 @@ defmodule Schoolhub.CourseAdminServer do
   """
   def remove_student(self, target, course_name) do
     GenServer.call(__MODULE__, {:remove_student, self, target, course_name})
-  end  
+  end
+
+  
+  @doc """
+  Externally query if the user has privileges to administer the specified course.
+  """
+  def can_i_admin_course(user, course_name) do
+    GenServer.call(__MODULE__, {:can_admin, user, course_name})
+  end
 
 
   ### Server callbacks ###
@@ -152,6 +160,14 @@ defmodule Schoolhub.CourseAdminServer do
 	       err -> err
 	     end
     
+    {:reply, result, state}
+  end
+
+  @impl true
+  def handle_call({:can_admin, user, course_name}, _from,
+	state = %{db_api: db_api}) do
+    
+    result = can_i_admin_course(user, course_name, db_api)
     {:reply, result, state}
   end
 
