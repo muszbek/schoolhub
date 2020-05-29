@@ -23,6 +23,8 @@ defmodule Schoolhub.DataManagerMock do
   @mock_user_student_string "test_user_student"
   @mock_course 'test_course'
   @mock_course_string "test_course"
+  @mock_course_desc %{"text" => "test"}
+  @mock_course_desc_short %{text: "test"}
 
   @scram_prefix "==SCRAM==,"
   @mock_scram "==SCRAM==,jv1SCgihx+Q2yj6PggxUZPbmfp4=,r+T1xjRnDwpUPoC/EwOXA+Jjt2Y=,iCgKQkjMSgfZgjh06UMZzg==,4096"
@@ -268,6 +270,32 @@ defmodule Schoolhub.DataManagerMock do
   end
   def set_affiliation(_other_user, _any_course, _any_aff) do
     {:error, :user_not_affiliated}
+  end
+
+  def get_course_desc(@mock_course) do
+    @mock_course_desc
+  end
+  def get_course_desc(@mock_course_string) do
+    get_course_desc(@mock_course)
+  end
+  def get_course_desc(_other_course) do
+    {:error, :course_not_exist}
+  end
+
+  def set_course_desc(@mock_course, @mock_course_desc) do
+    :ok
+  end
+  def set_course_desc(@mock_course_string, @mock_course_desc) do
+    set_course_desc(@mock_course, @mock_course_desc)
+  end
+  def set_course_desc(@mock_course, @mock_course_desc_short) do
+    :ok
+  end
+  def set_course_desc(@mock_course_string, @mock_course_desc_short) do
+    set_course_desc(@mock_course, @mock_course_desc_short)
+  end
+  def set_course_desc(_other_course, _any_course_desc) do
+    {:error, :course_not_exist}
   end
 
 
