@@ -5,8 +5,6 @@ defmodule CourseContentTest do
 
   @test_user_teacher 'test_user_teacher'
   @test_user_student 'test_user_student'
-  @test_user_any 'test_user'
-  @test_user_wrong 'test_user_wrong'
   @test_pw 'test_pw'
   @admin 'admin'
   @test_course 'test_course'
@@ -64,6 +62,25 @@ defmodule CourseContentTest do
       @test_course, @test_desc_charlist)
     result = Schoolhub.CourseContentServer.get_description(@test_course)
     assert result == @test_desc
+  end
+
+  test "admin set desc succeeds" do
+    :ok = Schoolhub.CourseContentServer.set_description(@admin,
+      @test_course, @test_desc)
+    result = Schoolhub.CourseContentServer.get_description(@test_course)
+    assert result == @test_desc
+  end
+
+  test "student set desc fails" do
+    result = Schoolhub.CourseContentServer.set_description(@test_user_student,
+      @test_course, @test_desc)
+    assert result == {:error, :no_permission}
+  end
+
+  test "set desc on wrong course fails" do
+    result = Schoolhub.CourseContentServer.set_description(@test_user_teacher,
+      @test_course_wrong, @test_desc)
+    assert result == {:error, :course_not_exist}
   end
 
 end
