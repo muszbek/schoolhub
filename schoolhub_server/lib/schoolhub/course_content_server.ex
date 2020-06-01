@@ -87,7 +87,7 @@ defmodule Schoolhub.CourseContentServer do
     case do_pack_desc(desc) do
       :json_decode_error -> desc |> string()
       :invalid -> nil
-      json -> json
+      map -> map
     end
   end
 
