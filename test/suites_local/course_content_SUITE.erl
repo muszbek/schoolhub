@@ -116,7 +116,12 @@ end_per_testcase(_TestCase, _Config) ->
 %%--------------------------------------------------------------------
 groups() ->
     [{course_description, [shuffle],
-      [owner_set_desc_as_map_succeeds]}].
+      [owner_set_desc_as_map_succeeds,
+       owner_set_desc_as_string_succeeds,
+       admin_set_desc_succeeds,
+       student_set_desc_fails,
+       student_get_desc_succeeds,
+       set_desc_on_wrong_course_fails]}].
 
 %%--------------------------------------------------------------------
 %% @spec all() -> GroupsAndTestCases | {skip,Reason}
@@ -152,6 +157,44 @@ owner_set_desc_as_map_succeeds(_Config) ->
     Result = 'Elixir.Client.CourseContentServer':get_description(?TEST_COURSE),
     ?TEST_DESC_MATCH = Result,
     ok.
+
+owner_set_desc_as_string_succeeds(_Config) -> 
+    {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_OWNER, ?TEST_PW),
+    <<"ok">> = 'Elixir.Client.CourseContentServer':set_description(?TEST_COURSE, 
+								   ?TEST_DESC_STRING),
+    Result = 'Elixir.Client.CourseContentServer':get_description(?TEST_COURSE),
+    ?TEST_DESC_MATCH = Result,
+    ok.
+
+admin_set_desc_succeeds(_Config) -> 
+    {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?ADMIN, ?ADMIN_PW),
+    <<"ok">> = 'Elixir.Client.CourseContentServer':set_description(?TEST_COURSE, ?TEST_DESC),
+    Result = 'Elixir.Client.CourseContentServer':get_description(?TEST_COURSE),
+    ?TEST_DESC_MATCH = Result,
+    ok.
+
+student_set_desc_fails(_Config) -> 
+    {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_STUDENT, ?TEST_PW),
+    Result = 'Elixir.Client.CourseContentServer':set_description(?TEST_COURSE, ?TEST_DESC),
+    <<"ERROR_no_permission">> = Result,
+    ok.
+
+student_get_desc_succeeds(_Config) ->
+    {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_OWNER, ?TEST_PW),
+    <<"ok">> = 'Elixir.Client.CourseContentServer':set_description(?TEST_COURSE, ?TEST_DESC),
+    'Elixir.Client.LoginServer':end_session(),
+    {ok, _OtherPid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_STUDENT, ?TEST_PW),
+    Result = 'Elixir.Client.CourseContentServer':get_description(?TEST_COURSE),
+    ?TEST_DESC_MATCH = Result,
+    ok.
+
+set_desc_on_wrong_course_fails(_Config) -> 
+    {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_OWNER, ?TEST_PW),
+    Result = 'Elixir.Client.CourseContentServer':set_description(?TEST_COURSE_WRONG, 
+								   ?TEST_DESC),
+    <<"ERROR_course_not_exist">> = Result,
+    ok.
+
 
 
 %% Helper functions
