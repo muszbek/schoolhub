@@ -99,6 +99,9 @@ init_per_testcase(_TestCase, Config) ->
 %%--------------------------------------------------------------------
 end_per_testcase(_TestCase, _Config) ->
     'Elixir.Client.LoginServer':end_session(),
+    ok = 'Elixir.Schoolhub.CourseAdminServer':remove_student(?TEST_USER_OWNER,
+							     ?TEST_USER_STUDENT, 
+							     ?TEST_COURSE),
     ok.
 
 %%--------------------------------------------------------------------
@@ -174,12 +177,18 @@ admin_set_desc_succeeds(_Config) ->
     ok.
 
 student_set_desc_fails(_Config) -> 
+    ok = 'Elixir.Schoolhub.CourseAdminServer':invite_student(?TEST_USER_OWNER,
+							     ?TEST_USER_STUDENT, 
+							     ?TEST_COURSE),
     {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_STUDENT, ?TEST_PW),
     Result = 'Elixir.Client.CourseContentServer':set_description(?TEST_COURSE, ?TEST_DESC),
     <<"ERROR_no_permission">> = Result,
     ok.
 
 student_get_desc_succeeds(_Config) ->
+    ok = 'Elixir.Schoolhub.CourseAdminServer':invite_student(?TEST_USER_OWNER,
+							     ?TEST_USER_STUDENT, 
+							     ?TEST_COURSE),
     {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_OWNER, ?TEST_PW),
     <<"ok">> = 'Elixir.Client.CourseContentServer':set_description(?TEST_COURSE, ?TEST_DESC),
     'Elixir.Client.LoginServer':end_session(),
