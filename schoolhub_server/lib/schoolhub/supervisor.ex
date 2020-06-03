@@ -21,11 +21,13 @@ defmodule Schoolhub.Supervisor do
 #			       loop: {Schoolhub.Router_mochiweb, :init_mochiweb, [[]]}]]}
 #      },
       Schoolhub.DataManager,
+      Schoolhub.ContentManager,
       {Schoolhub.AuthServer, db_api: db_backend()},
       {Schoolhub.RegServer, db_api: db_backend(), xmpp_api: xmpp_backend()},
       {Schoolhub.ChatServer, db_api: db_backend()},
       {Schoolhub.CourseAdminServer, db_api: db_backend()},
-      {Schoolhub.CourseContentServer, db_api: db_backend()},
+      {Schoolhub.CourseContentServer, db_generic_api: db_backend(),
+       db_content_api: db_content_backend()},
       {Plug.Cowboy,
        scheme: server_scheme(), plug: Schoolhub.Router, options: [port: server_port()]}
     ]
@@ -37,6 +39,10 @@ defmodule Schoolhub.Supervisor do
 
   defp db_backend() do
     Application.get_env(:schoolhub, :db_backend, Schoolhub.DataManagerMock)
+  end
+
+  defp db_content_backend() do
+    Application.get_env(:schoolhub, :db_content_backend, Schoolhub.ContentManagerMock)
   end
 
   defp xmpp_backend() do

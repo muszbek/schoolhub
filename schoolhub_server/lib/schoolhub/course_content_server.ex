@@ -8,7 +8,8 @@ defmodule Schoolhub.CourseContentServer do
   use GenServer
 
   defstruct(
-    db_api: Schoolhub.DataManagerMock
+    db_generic_api: Schoolhub.DataManagerMock,
+    db_content_api: Schoolhub.ContentManagerMock
   )
 
   ### API functions ###
@@ -41,7 +42,7 @@ defmodule Schoolhub.CourseContentServer do
 
   @impl true
   def handle_call({:get_desc, course_name}, _from,
-	state = %{db_api: db_api}) do
+	state = %{db_generic_api: db_api}) do
     
     result = db_api.get_course_desc(course_name)
     {:reply, result, state}
@@ -49,7 +50,7 @@ defmodule Schoolhub.CourseContentServer do
 
   @impl true
   def handle_call({:set_desc, self, course_name, desc}, _from,
-	state = %{db_api: db_api}) do
+	state = %{db_generic_api: db_api}) do
     
     result = case Schoolhub.CourseAdminServer.can_i_admin_course(self, course_name) do
 	       :ok -> db_api.set_course_desc(course_name, desc |> pack_desc())
@@ -71,8 +72,8 @@ defmodule Schoolhub.CourseContentServer do
   defp parse_options([], state = %__MODULE__{}) do
     state
   end
-  defp parse_options([{:db_api, db_api} | remaining_opts], state) do
-    parse_options(remaining_opts, %{state | db_api: db_api})
+  defp parse_options([{:db_generic_api, db_api} | remaining_opts], state) do
+    parse_options(remaining_opts, %{state | db_generic_api: db_api})
   end
   defp parse_options([{_key, _value} | remaining_opts] ,state) do
     parse_options(remaining_opts, state)

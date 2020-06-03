@@ -1,6 +1,7 @@
 defmodule Schoolhub.DataManager do
   @moduledoc """
   API for accessing the Postgres database.
+  Concerns generic data, course contents are handled by Schoolhub.ContentManager.
   """
   require Logger
 
