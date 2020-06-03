@@ -33,6 +33,20 @@ defmodule Schoolhub.CourseContentServer do
     GenServer.call(__MODULE__, {:set_desc, self, course_name, desc})
   end
 
+  @doc """
+  Post a root level message on the course message board.
+  """
+  def post_message(self, course_name, message) do
+    GenServer.call(__MODULE__, {:post_message, self, course_name, message})
+  end
+
+  @doc """
+  Post an answer to an existing message.
+  """
+  def post_reply(id, self, course_name, message) do
+    GenServer.call(__MODULE__, {:post_reply, id, self, course_name, message})
+  end
+
 
   ### Server callbacks ###
   @impl true
@@ -57,6 +71,30 @@ defmodule Schoolhub.CourseContentServer do
 	       err = {:error, _reason} -> err
 	     end
     
+    {:reply, result, state}
+  end
+
+  @impl true
+  def handle_call({:post_message, self, course_name, message}, _from,
+	state = %{db_content_api: db_api}) do
+
+    result = case can_i_post_content(self, course_name) do
+	       err = {:error, _reason} -> err
+	       {:ok, _aff} -> db_api.post_message(self, course_name, message |> pack_desc)
+	     end
+
+    {:reply, result, state}
+  end
+
+  @impl true
+  def handle_call({:post_reply, id, self, course_name, message}, _from,
+	state = %{db_content_api: db_api}) do
+
+    result = case can_i_post_content(self, course_name) do
+	       err = {:error, _reason} -> err
+	       {:ok, _aff} -> db_api.post_reply(id, self, course_name, message |> pack_desc)
+	     end
+
     {:reply, result, state}
   end
 
@@ -104,5 +142,16 @@ defmodule Schoolhub.CourseContentServer do
   defp do_pack_desc(desc) when is_list(desc), do: desc |> string() |> jason_decode_catch()
   defp do_pack_desc(desc = %{}), do: desc
   defp do_pack_desc(_desc), do: :invalid
+
+  defp can_i_post_content({:error, reason}), do: {:error, reason}
+  defp can_i_post_content(aff), do: {:ok, aff}
+
+  defp can_i_post_content(user, course_name) do
+    case Schoolhub.RegServer.get_user_privilege(user) do
+      "admin" -> :ok
+      _other -> Schoolhub.CourseAdminServer.get_affiliation(user, course_name)
+	|> can_i_post_content()
+    end
+  end
   
 end
