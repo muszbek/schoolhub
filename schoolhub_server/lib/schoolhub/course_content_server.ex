@@ -113,6 +113,9 @@ defmodule Schoolhub.CourseContentServer do
   defp parse_options([{:db_generic_api, db_api} | remaining_opts], state) do
     parse_options(remaining_opts, %{state | db_generic_api: db_api})
   end
+  defp parse_options([{:db_content_api, db_api} | remaining_opts], state) do
+    parse_options(remaining_opts, %{state | db_content_api: db_api})
+  end
   defp parse_options([{_key, _value} | remaining_opts] ,state) do
     parse_options(remaining_opts, state)
   end
@@ -148,7 +151,7 @@ defmodule Schoolhub.CourseContentServer do
 
   defp can_i_post_content(user, course_name) do
     case Schoolhub.RegServer.get_user_privilege(user) do
-      "admin" -> :ok
+      "admin" -> {:ok, "admin"}
       _other -> Schoolhub.CourseAdminServer.get_affiliation(user, course_name)
 	|> can_i_post_content()
     end
