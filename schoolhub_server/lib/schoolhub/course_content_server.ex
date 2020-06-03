@@ -67,7 +67,7 @@ defmodule Schoolhub.CourseContentServer do
 	state = %{db_generic_api: db_api}) do
     
     result = case Schoolhub.CourseAdminServer.can_i_admin_course(self, course_name) do
-	       :ok -> db_api.set_course_desc(course_name, desc |> pack_desc())
+	       :ok -> db_api.set_course_desc(course_name, desc |> pack_json())
 	       err = {:error, _reason} -> err
 	     end
     
@@ -80,7 +80,7 @@ defmodule Schoolhub.CourseContentServer do
 
     result = case can_i_post_content(self, course_name) do
 	       err = {:error, _reason} -> err
-	       {:ok, _aff} -> db_api.post_message(self, course_name, message |> pack_desc)
+	       {:ok, _aff} -> db_api.post_message(self, course_name, message |> pack_json)
 	     end
 
     {:reply, result, state}
@@ -92,7 +92,7 @@ defmodule Schoolhub.CourseContentServer do
 
     result = case can_i_post_content(self, course_name) do
 	       err = {:error, _reason} -> err
-	       {:ok, _aff} -> db_api.post_reply(id, self, course_name, message |> pack_desc)
+	       {:ok, _aff} -> db_api.post_reply(id, self, course_name, message |> pack_json)
 	     end
 
     {:reply, result, state}
@@ -122,26 +122,26 @@ defmodule Schoolhub.CourseContentServer do
   defp string(text), do: text |> to_string()
 
   
-  defp pack_desc(desc) do
-    case do_pack_desc(desc) do
-      :json_decode_error -> desc |> string()
+  defp pack_json(json) do
+    case do_pack_json(json) do
+      :json_decode_error -> json |> string()
       :invalid -> nil
       map -> map
     end
   end
 
-  defp jason_decode_catch(desc) do
+  defp jason_decode_catch(json) do
     try do
-      Jason.decode!(desc)
+      Jason.decode!(json)
     rescue
       Jason.DecodeError -> :json_decode_error
     end
   end
   
-  defp do_pack_desc(desc) when is_binary(desc), do: desc |> jason_decode_catch()
-  defp do_pack_desc(desc) when is_list(desc), do: desc |> string() |> jason_decode_catch()
-  defp do_pack_desc(desc = %{}), do: desc
-  defp do_pack_desc(_desc), do: :invalid
+  defp do_pack_json(json) when is_binary(json), do: json |> jason_decode_catch()
+  defp do_pack_json(json) when is_list(json), do: json |> string() |> jason_decode_catch()
+  defp do_pack_json(json = %{}), do: json
+  defp do_pack_json(_json), do: :invalid
 
   defp can_i_post_content({:error, reason}), do: {:error, reason}
   defp can_i_post_content(aff), do: {:ok, aff}
