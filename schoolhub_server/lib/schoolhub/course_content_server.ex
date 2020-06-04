@@ -47,6 +47,30 @@ defmodule Schoolhub.CourseContentServer do
     GenServer.call(__MODULE__, {:post_reply, id, self, course_name, message})
   end
 
+  @doc """
+  Retrieves the content of a single message as a json.
+  """
+  def get_single_message(id, self, course_name) do
+    GenServer.call(__MODULE__, {:get_single_message, id, self, course_name})
+  end
+
+  @doc """
+  Deletes a single message.
+  If it had descendants originally, an empty placeholder is left in place of the message.
+  Only author or course admins.
+  """
+  def delete_single_message(id, self, course_name) do
+    GenServer.call(__MODULE__, {:delete_single_message, id, self, course_name})
+  end
+
+  @doc """
+  Modifies a single message.
+  Only author or course admins.
+  """
+  def modify_single_message(id, self, course_name, message) do
+    GenServer.call(__MODULE__, {:modify_single_message, id, self, course_name, message})
+  end
+  
 
   ### Server callbacks ###
   @impl true
@@ -78,7 +102,7 @@ defmodule Schoolhub.CourseContentServer do
   def handle_call({:post_message, self, course_name, message}, _from,
 	state = %{db_content_api: db_api}) do
 
-    result = case can_i_post_content(self, course_name) do
+    result = case am_i_affiliated(self, course_name) do
 	       err = {:error, _reason} -> err
 	       {:ok, _aff} -> db_api.post_message(self, course_name, message |> pack_json)
 	     end
@@ -90,12 +114,36 @@ defmodule Schoolhub.CourseContentServer do
   def handle_call({:post_reply, id, self, course_name, message}, _from,
 	state = %{db_content_api: db_api}) do
 
-    result = case can_i_post_content(self, course_name) do
+    result = case am_i_affiliated(self, course_name) do
 	       err = {:error, _reason} -> err
 	       {:ok, _aff} -> db_api.post_reply(id, self, course_name, message |> pack_json)
 	     end
 
     {:reply, result, state}
+  end
+
+
+  @impl true
+  def handle_call({:get_single_message, id, self, course_name}, _from,
+	state = %{db_content_api: db_api}) do
+
+    result = case am_i_affiliated(self, course_name) do
+	       err = {:error, _reason} -> err
+	       {:ok, _aff} -> db_api.get_single_message(id, course_name)
+	     end
+    {:reply, result, state}
+  end
+
+  @impl true
+  def handle_call({:delete_single_message, id, self, course_name}, _from,
+	state = %{db_content_api: db_api}) do
+    {:reply, :ok, state}
+  end
+
+  @impl true
+  def handle_call({:modify_single_message, id, self, course_name, message}, _from,
+	state = %{db_content_api: db_api}) do
+    {:reply, :ok, state}
   end
 
 
@@ -146,14 +194,14 @@ defmodule Schoolhub.CourseContentServer do
   defp do_pack_json(json = %{}), do: json
   defp do_pack_json(_json), do: :invalid
 
-  defp can_i_post_content({:error, reason}), do: {:error, reason}
-  defp can_i_post_content(aff), do: {:ok, aff}
+  defp am_i_affiliated({:error, reason}), do: {:error, reason}
+  defp am_i_affiliated(aff), do: {:ok, aff}
 
-  defp can_i_post_content(user, course_name) do
+  defp am_i_affiliated(user, course_name) do
     case Schoolhub.RegServer.get_user_privilege(user) do
       "admin" -> {:ok, "admin"}
       _other -> Schoolhub.CourseAdminServer.get_affiliation(user, course_name)
-	|> can_i_post_content()
+	|> am_i_affiliated()
     end
   end
   
