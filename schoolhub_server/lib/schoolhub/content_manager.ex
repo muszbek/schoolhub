@@ -42,7 +42,7 @@ defmodule Schoolhub.ContentManager do
   
   @impl true
   def init(:ok) do
-    args = Application.get_env(:schoolhub, :postgres_address)
+    args = Application.get_env(:schoolhub, :postgres_address) ++ [types: Schoolhub.PostgrexTypes]
     
     {:ok, pid} = Postgrex.start_link(args)
     {:ok, %__MODULE__{pgsql_conn: pid}}
@@ -58,12 +58,14 @@ defmodule Schoolhub.ContentManager do
 	       course_id ->
 		 query_message = "INSERT INTO course_messages " <>
 		   "(course, author, message, pinned) VALUES " <>
-		   "($1, $2, $3, true) RETURNING id;"
+		   "($1, $2, $3, false) RETURNING id;"
 		 message_res = Postgrex.query(conn, query_message, [course_id, user, message])
 		 {:ok, %{columns: ["id"], command: :insert, rows: [[message_id]]}} = message_res
 		 
 		 query_path = "UPDATE course_messages SET path = $2 WHERE id = $1;"
-		 _path_res = Postgrex.query(conn, query_path, [message_id, message_id |> string()])
+		 path_res = Postgrex.query(conn, query_path, [message_id, message_id |> string()])
+		 {:ok, %{command: :update, num_rows: 1, rows: nil}} = path_res
+		 :ok
 	     end
     {:reply, result, state}
   end
