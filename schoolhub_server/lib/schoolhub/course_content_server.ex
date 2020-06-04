@@ -104,7 +104,7 @@ defmodule Schoolhub.CourseContentServer do
 
     result = case am_i_affiliated(self, course_name) do
 	       err = {:error, _reason} -> err
-	       {:ok, _aff} -> db_api.post_message(self, course_name, message |> pack_json)
+	       {:ok, _aff} -> db_api.post_message(self, course_name, message |> pack_json())
 	     end
 
     {:reply, result, state}
@@ -116,7 +116,7 @@ defmodule Schoolhub.CourseContentServer do
 
     result = case am_i_affiliated(self, course_name) do
 	       err = {:error, _reason} -> err
-	       {:ok, _aff} -> db_api.post_reply(id, self, course_name, message |> pack_json)
+	       {:ok, _aff} -> db_api.post_reply(id, self, course_name, message |> pack_json())
 	     end
 
     {:reply, result, state}
@@ -137,13 +137,24 @@ defmodule Schoolhub.CourseContentServer do
   @impl true
   def handle_call({:delete_single_message, id, self, course_name}, _from,
 	state = %{db_content_api: db_api}) do
-    {:reply, :ok, state}
+
+    result = case can_i_modify_message(id, self, course_name, db_api) do
+	       err = {:error, _reason} -> err
+	       :ok -> db_api.delete_single_message(id, course_name)
+	     end
+    {:reply, result, state}
   end
 
   @impl true
   def handle_call({:modify_single_message, id, self, course_name, message}, _from,
 	state = %{db_content_api: db_api}) do
-    {:reply, :ok, state}
+
+    result = case can_i_modify_message(id, self, course_name, db_api) do
+	       err = {:error, _reason} -> err
+	       :ok ->
+		 db_api.modify_single_message(id, course_name, self, message |> pack_json())
+	     end
+    {:reply, result, state}
   end
 
 
@@ -175,7 +186,7 @@ defmodule Schoolhub.CourseContentServer do
   
   defp pack_json(json) do
     case do_pack_json(json) do
-      :json_decode_error -> json |> string()
+      :json_decode_error -> %{text: json |> string()}
       :invalid -> nil
       map -> map
     end
@@ -202,6 +213,20 @@ defmodule Schoolhub.CourseContentServer do
       "admin" -> {:ok, "admin"}
       _other -> Schoolhub.CourseAdminServer.get_affiliation(user, course_name)
 	|> am_i_affiliated()
+    end
+  end
+
+  defp can_i_modify_message(id, user, course_name, db_api) do
+    case Schoolhub.CourseAdminServer.can_i_admin_course(user, course_name) do
+      :ok -> :ok
+      {:error, :no_permission} ->
+	case db_api.get_single_message(id, course_name) do
+	  err = {:error, _reason} -> err
+	  %{author: ^user} -> :ok
+	  %{author: _other} -> {:error, :no_permission}
+	end
+      
+      err = {:error, _other} -> err
     end
   end
   

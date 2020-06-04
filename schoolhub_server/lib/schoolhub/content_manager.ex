@@ -44,6 +44,22 @@ defmodule Schoolhub.ContentManager do
     GenServer.call(__MODULE__, {:get_single_message, id, course_name})
   end
 
+  @doc """
+  Removes a single message.
+  If the message has descendants (replies), it leaves an empty placeholder.
+  """
+  def delete_single_message(id, course_name) do
+    GenServer.call(__MODULE__, {:delete_single_message, id, course_name})
+  end
+
+  @doc """
+  Modifies a single message.
+  Leaves a trace of who modified it last.
+  """
+  def modify_single_message(id, course_name, user, message) do
+    GenServer.call(__MODULE__, {:modify_single_message, id, course_name, user, message})
+  end
+
 
   ### Server callbacks ###
   
@@ -115,6 +131,40 @@ defmodule Schoolhub.ContentManager do
     {:reply, result, state}
   end
 
+  @impl true
+  def handle_call({:delete_single_message, id, course_name}, _from,
+	state = %{pgsql_conn: conn}) do
+
+    result = case get_course_id(course_name, conn) do
+	       err = {:error, _reason} -> err
+	       course_id ->
+		 case has_descendants(conn, id, course_id) do
+		   false ->
+		     delete_query = "DELETE FROM course_messages WHERE id=$1 AND course=$2;"
+                     {:ok, %{command: :delete}} =
+		       Postgrex.query(conn, delete_query, [id, course_id])
+		     :ok
+		   
+		   true ->
+		     do_modify_message(conn, id, course_id, "<deleted>")
+		 end
+	     end
+    {:reply, result, state}
+  end
+
+  @impl true
+  def handle_call({:modify_single_message, id, course_name, user, message}, _from,
+	state = %{pgsql_conn: conn}) do
+
+    result = case get_course_id(course_name, conn) do
+	       err = {:error, _reason} -> err
+	       course_id ->
+		 signed_message = Map.put(message, :modified, user)
+		 do_modify_message(conn, id, course_id, signed_message)
+	     end
+    {:reply, result, state}
+  end
+
 
   ### Utility functions ###
   
@@ -165,6 +215,27 @@ defmodule Schoolhub.ContentManager do
       message: message,
       timestamp: timestamp |> get_timestamp(),
       pinned: is_pinned}
+  end
+
+  defp has_descendants(conn, id, course_id) do
+    subquery_text = "SELECT path FROM course_messages WHERE id=$1 AND course=$2"
+    descendants_query = "SELECT id FROM course_messages WHERE subpath(path, 0, -1) <@ (" <>
+      subquery_text <> ");"
+    descendants = Postgrex.query(conn, descendants_query, [id, course_id])
+
+    case descendants do
+      {:ok, %{command: :select, num_rows: 0, rows: []}} -> false
+      {:ok, %{command: :select, num_rows: _not_zero}} -> true
+    end
+  end
+
+  defp do_modify_message(conn, id, course_id, message) do
+    modify_query = "UPDATE course_messages SET message = $3 WHERE id=$1 AND course=$2;"
+    modify_result = Postgrex.query(conn, modify_query, [id, course_id, message])
+    case modify_result do
+      {:ok, %{command: :update, num_rows: 1, rows: nil}} -> :ok
+      {:ok, %{command: :update, num_rows: 0, rows: nil}} -> {:error, :message_not_exist}
+    end
   end
 
 end

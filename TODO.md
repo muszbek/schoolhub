@@ -3,8 +3,7 @@
 - check postgres connectivity privacy, SSL
 - check mam common test why database is not cleaned
 
-- add ltree compatibility to postgrex
-- course messageboard add reply implement
+- course messageboard exunit common test
 - course messageboard
 - implement more course functionality
 - check router if plug can be modularized
