@@ -3,6 +3,7 @@
 - check postgres connectivity privacy, SSL
 - check mam common test why database is not cleaned
 
+- data manager extract add owner from create course, use do_invite_student
 - course messageboard exunit common test
 - course messageboard
 - implement more course functionality

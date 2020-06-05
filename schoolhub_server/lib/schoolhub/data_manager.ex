@@ -375,19 +375,12 @@ defmodule Schoolhub.DataManager do
 
   @impl true
   def handle_call({:invite_student, user, course_name}, _from, state = %{pgsql_conn: conn}) do
-    query_username = "SELECT username FROM users WHERE username LIKE $1;"
-    username_result = Postgrex.query(conn, query_username, [string(user)])
 
-    result = case username_result do
-	       {:ok, %{columns: ["username"], num_rows: 1, rows: [[^user]]}} ->
-		 {conn, course_name}
-		   |> get_course_id()
-		   |> do_get_affiliation(user)
-	           |> do_invite_student(conn, course_name, user)
-
-	       {:ok, %{columns: ["username"], num_rows: 0, rows: []}} ->
-		 {:error, :user_not_exist}
-	     end
+    result = {conn, course_name}
+      |> check_user_exist(user)
+      |> get_course_id()
+      |> do_get_affiliation(user)
+      |> do_invite_student(conn, course_name, user)
     
     {:reply, result, state}
   end
@@ -430,7 +423,8 @@ defmodule Schoolhub.DataManager do
     {:ok, %{command: :delete}} = Postgrex.query(conn, query_delete_mam, [string(username)])
 
     query_delete_mam_user = "DELETE FROM mam_server_user WHERE user_name LIKE $1 ;"
-    {:ok, %{command: :delete}} = Postgrex.query(conn, query_delete_mam_user, [string(username)])
+    {:ok, %{command: :delete}} = Postgrex.query(conn, query_delete_mam_user,
+      [string(username)])
 
     query_delete_affs = "DELETE FROM course_affiliations WHERE username LIKE $1 ;"
     {:ok, %{command: :delete}} = Postgrex.query(conn, query_delete_affs, [string(username)])
@@ -500,6 +494,19 @@ defmodule Schoolhub.DataManager do
       Postgrex.query(conn, query_text, [string(user), id, string(new_aff)])
 
     :ok
+  end
+
+  defp check_user_exist({conn, course_name}, user) do
+    query_username = "SELECT username FROM users WHERE username LIKE $1;"
+    username_result = Postgrex.query(conn, query_username, [string(user)])
+
+    case username_result do
+      {:ok, %{columns: ["username"], num_rows: 1, rows: [[^user]]}} ->
+	{conn, course_name}
+      
+      {:ok, %{columns: ["username"], num_rows: 0, rows: []}} ->
+	{:error, :user_not_exist}
+    end
   end
 
   defp do_invite_student({:error, :no_affiliation}, conn, course_name, user) do
