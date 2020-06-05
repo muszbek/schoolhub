@@ -43,6 +43,8 @@ services:
   dist_tester_server:
     container_name: schoolhub_test_server
     image: elixir
+    build:
+      context: ./test
     hostname: schoolhub
     networks:
       schoolhub_network:
@@ -61,6 +63,8 @@ services:
   dist_tester_client:
     container_name: schoolhub_test_client
     image: elixir
+    build:
+      context: ./test
     hostname: schoolhub_client
     networks:
       schoolhub_network:
