@@ -76,11 +76,11 @@ defmodule Schoolhub.ContentManager do
   def handle_call({:post_message, user, course_name, message}, _from,
 	state = %{pgsql_conn: conn}) do
 
-    result = case get_course_id(course_name, conn) do
-	       err = {:error, _reason} -> err
-	       course_id ->
-		 do_insert_message(conn, course_id, user, message, nil)
-	     end
+    result = {conn, course_name}
+      |> get_course_id()
+      |> (&(Tuple.append(&1, nil))).()
+      |> do_insert_message(user, message)
+    
     {:reply, result, state}
   end
 
@@ -88,19 +88,11 @@ defmodule Schoolhub.ContentManager do
   def handle_call({:post_reply, id, user, course_name, message}, _from,
 	state = %{pgsql_conn: conn}) do
 
-    result = case get_course_id(course_name, conn) do
-	       err = {:error, _reason} -> err
-	       course_id ->
-		 origin_query = "SELECT path FROM course_messages WHERE id=$1 AND course=$2;"
-		 origin_res = Postgrex.query(conn, origin_query, [id, course_id])
-
-		 case origin_res do
-		   {:ok, %{columns: ["path"], num_rows: 0, rows: []}} ->
-		     {:error, :origin_not_exist}
-		   {:ok, %{columns: ["path"], num_rows: 1, rows: [[origin_path]]}} ->
-		     do_insert_message(conn, course_id, user, message, origin_path)
-		 end
-	     end
+    result = {conn, course_name}
+      |> get_course_id()
+      |> get_origin_path(id)
+      |> do_insert_message(user, message)
+    
     {:reply, result, state}
   end
 
@@ -108,60 +100,33 @@ defmodule Schoolhub.ContentManager do
   def handle_call({:get_single_message, id, course_name}, _from,
 	state = %{pgsql_conn: conn}) do
 
-    result = case get_course_id(course_name, conn) do
-	       err = {:error, _reason} -> err
-	       course_id ->
-		 message_query =
-		   "SELECT author, subpath(path, -2, -1), message, created_at, pinned " <>
-		   "FROM course_messages WHERE id=$1 AND course=$2;"
-		 message_res = Postgrex.query(conn, message_query, [id, course_id])
-
-		 case message_res do
-		   {:ok, %{columns: ["author", "subpath", "message", "created_at", "pinned"],
-			    command: :select, num_rows: 0, rows: []}} ->
-		     {:error, :message_not_exist}
-		     
-                   {:ok, %{columns: ["author", "subpath", "message", "created_at", "pinned"],
-			   command: :select, num_rows: 1,
-			    rows: [message_response]}} ->
-
-		     pack_message_json(id, course_name, message_response)
-		 end
-	     end
+    result = {conn, course_name}
+      |> get_course_id()
+      |> do_get_single_message(id, course_name)
+    
     {:reply, result, state}
   end
-
-  @impl true
-  def handle_call({:delete_single_message, id, course_name}, _from,
-	state = %{pgsql_conn: conn}) do
-
-    result = case get_course_id(course_name, conn) do
-	       err = {:error, _reason} -> err
-	       course_id ->
-		 case has_descendants(conn, id, course_id) do
-		   false ->
-		     delete_query = "DELETE FROM course_messages WHERE id=$1 AND course=$2;"
-                     {:ok, %{command: :delete}} =
-		       Postgrex.query(conn, delete_query, [id, course_id])
-		     :ok
-		   
-		   true ->
-		     do_modify_message(conn, id, course_id, "<deleted>")
-		 end
-	     end
-    {:reply, result, state}
-  end
-
+  
   @impl true
   def handle_call({:modify_single_message, id, course_name, user, message}, _from,
 	state = %{pgsql_conn: conn}) do
 
-    result = case get_course_id(course_name, conn) do
-	       err = {:error, _reason} -> err
-	       course_id ->
-		 signed_message = Map.put(message, :modified, user)
-		 do_modify_message(conn, id, course_id, signed_message)
-	     end
+    signed_message = Map.put(message, :modified, user)
+    result = {conn, course_name}
+      |> get_course_id()
+      |> do_modify_message(id, signed_message)
+    
+    {:reply, result, state}
+  end
+  
+  @impl true
+  def handle_call({:delete_single_message, id, course_name}, _from,
+	state = %{pgsql_conn: conn}) do
+
+    result = {conn, course_name}
+      |> get_course_id()
+      |> do_delete_single_message(id)
+    
     {:reply, result, state}
   end
 
@@ -170,20 +135,35 @@ defmodule Schoolhub.ContentManager do
   
   defp string(text), do: text |> to_string()
 
-  defp get_course_id(course_name, conn) do
+  defp get_course_id({conn, course_name}) do
     query_id = "SELECT id FROM courses WHERE name LIKE $1;"
     id_result = Postgrex.query(conn, query_id, [string(course_name)])
 
-    _result = case id_result do
-		{:ok, %{columns: ["id"], command: :select, num_rows: 1, rows: [[id]]}} ->
-		  id
-	       
-	        {:ok, %{columns: ["id"], command: :select, num_rows: 0, rows: []}} ->
-		  {:error, :course_not_exist}
-	      end
+    case id_result do
+      {:ok, %{columns: ["id"], command: :select, num_rows: 1, rows: [[id]]}} ->
+	{conn, id}
+      
+      {:ok, %{columns: ["id"], command: :select, num_rows: 0, rows: []}} ->
+	{:error, :course_not_exist}
+    end
   end
 
-  defp do_insert_message(conn, course_id, user, message, origin_path) do
+  defp get_origin_path({:error, reason}, _), do: {:error, reason}
+  defp get_origin_path({conn, course_id}, id) do
+    origin_query = "SELECT path FROM course_messages WHERE id=$1 AND course=$2;"
+    origin_res = Postgrex.query(conn, origin_query, [id, course_id])
+
+    case origin_res do
+      {:ok, %{columns: ["path"], num_rows: 0, rows: []}} ->
+	{:error, :origin_not_exist}
+      {:ok, %{columns: ["path"], num_rows: 1, rows: [[origin_path]]}} ->
+	{conn, course_id, origin_path}
+    end
+  end
+
+  defp do_insert_message({:error, reason}, _, _), do: {:error, reason}
+  defp do_insert_message({:error, reason, nil}, _, _), do: {:error, reason}
+  defp do_insert_message({conn, course_id, origin_path}, user, message) do
     query_message = "INSERT INTO course_messages " <>
       "(course, author, message, pinned) VALUES " <>
       "($1, $2, $3, false) RETURNING id;"
@@ -195,6 +175,26 @@ defmodule Schoolhub.ContentManager do
     path_res = Postgrex.query(conn, query_path, [message_id, path_data])
     {:ok, %{command: :update, num_rows: 1, rows: nil}} = path_res
     {:ok, message_id}
+  end
+
+  defp do_get_single_message({:error, reason}, _, _), do: {:error, reason}
+  defp do_get_single_message({conn, course_id}, id, course_name) do
+    message_query =
+      "SELECT author, subpath(path, -2, -1), message, created_at, pinned " <>
+      "FROM course_messages WHERE id=$1 AND course=$2;"
+    message_res = Postgrex.query(conn, message_query, [id, course_id])
+    
+    case message_res do
+      {:ok, %{columns: ["author", "subpath", "message", "created_at", "pinned"],
+	       command: :select, num_rows: 0, rows: []}} ->
+	
+	{:error, :message_not_exist}
+	
+      {:ok, %{columns: ["author", "subpath", "message", "created_at", "pinned"],
+	       command: :select, num_rows: 1, rows: [message_response]}} ->
+	
+	pack_message_json(id, course_name, message_response)
+    end
   end
 
   defp get_path(nil, id), do: id |> string()
@@ -217,6 +217,29 @@ defmodule Schoolhub.ContentManager do
       pinned: is_pinned}
   end
 
+  defp do_modify_message({:error, reason}, _, _), do: {:error, reason}
+  defp do_modify_message({conn, course_id}, id, message) do
+    modify_query = "UPDATE course_messages SET message = $3 WHERE id=$1 AND course=$2;"
+    modify_result = Postgrex.query(conn, modify_query, [id, course_id, message])
+    case modify_result do
+      {:ok, %{command: :update, num_rows: 1, rows: nil}} -> :ok
+      {:ok, %{command: :update, num_rows: 0, rows: nil}} -> {:error, :message_not_exist}
+    end
+  end
+
+  defp do_delete_single_message({:error, reason}, _), do: {:error, reason}
+  defp do_delete_single_message({conn, course_id}, id) do
+    case has_descendants(conn, id, course_id) do
+      false ->
+	delete_query = "DELETE FROM course_messages WHERE id=$1 AND course=$2;"
+        {:ok, %{command: :delete}} = Postgrex.query(conn, delete_query, [id, course_id])
+	:ok
+      
+      true ->
+	do_modify_message({conn, course_id}, id, "<deleted>")
+    end
+  end
+  
   defp has_descendants(conn, id, course_id) do
     subquery_text = "SELECT path FROM course_messages WHERE id=$1 AND course=$2"
     descendants_query = "SELECT id FROM course_messages WHERE subpath(path, 0, -1) <@ (" <>
@@ -226,15 +249,6 @@ defmodule Schoolhub.ContentManager do
     case descendants do
       {:ok, %{command: :select, num_rows: 0, rows: []}} -> false
       {:ok, %{command: :select, num_rows: _not_zero}} -> true
-    end
-  end
-
-  defp do_modify_message(conn, id, course_id, message) do
-    modify_query = "UPDATE course_messages SET message = $3 WHERE id=$1 AND course=$2;"
-    modify_result = Postgrex.query(conn, modify_query, [id, course_id, message])
-    case modify_result do
-      {:ok, %{command: :update, num_rows: 1, rows: nil}} -> :ok
-      {:ok, %{command: :update, num_rows: 0, rows: nil}} -> {:error, :message_not_exist}
     end
   end
 
