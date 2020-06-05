@@ -337,8 +337,16 @@ defmodule Schoolhub.DataManager do
   @impl true
   def handle_call({:get_affiliation, user, course_name}, _from,
 	state = %{pgsql_conn: conn}) do
+
+    aff_tuple = {conn, course_name}
+      |> get_course_id()
+      |> do_get_affiliation(user)
+
+    result = case aff_tuple do
+	       err = {:error, _reason} -> err
+	       {_conn, _id, aff} -> aff
+	     end
     
-    result = do_get_affiliation(user, course_name, conn)
     {:reply, result, state}
   end
 
@@ -346,27 +354,21 @@ defmodule Schoolhub.DataManager do
   def handle_call({:get_all_affiliation, course_name}, _from,
 	state = %{pgsql_conn: conn}) do
 
-    affs = do_get_all_affiliation(course_name, conn)
-    {:reply, affs, state}
+    result = {conn, course_name}
+      |> get_course_id()
+      |> do_get_all_affiliation()
+    
+    {:reply, result, state}
   end
 
   @impl true
   def handle_call({:set_affiliation, user, course_name, aff}, _from,
 	state = %{pgsql_conn: conn}) do
 
-    result = case do_get_affiliation(user, course_name, conn) do
-	       {:error, :no_affiliation} -> {:error, :user_not_affiliated}
-	       err = {:error, _reason} -> err
-	       _other ->
-		 subquery_id = "SELECT id FROM courses WHERE name LIKE $2"
-		 query_text = "UPDATE course_affiliations SET affiliation = $3 " <>
-		   "WHERE username LIKE $1 AND course = (" <> subquery_id <> ");"
-                 {:ok, %{command: :update, num_rows: 1, rows: nil}} =
-		   Postgrex.query(conn, query_text,
-		     [string(user), string(course_name), string(aff)])
-
-		 :ok
-	     end
+    result = {conn, course_name}
+      |> get_course_id()
+      |> do_get_affiliation(user)
+      |> do_set_affiliation(user, aff)
     
     {:reply, result, state}
   end
@@ -378,7 +380,10 @@ defmodule Schoolhub.DataManager do
 
     result = case username_result do
 	       {:ok, %{columns: ["username"], num_rows: 1, rows: [[^user]]}} ->
-		 do_invite_student(user, course_name, conn)
+		 {conn, course_name}
+		   |> get_course_id()
+		   |> do_get_affiliation(user)
+	           |> do_invite_student(conn, course_name, user)
 
 	       {:ok, %{columns: ["username"], num_rows: 0, rows: []}} ->
 		 {:error, :user_not_exist}
@@ -389,17 +394,11 @@ defmodule Schoolhub.DataManager do
 
   @impl true
   def handle_call({:remove_student, user, course_name}, _from, state = %{pgsql_conn: conn}) do
-    result = case do_get_affiliation(user, course_name, conn) do
-	       {:error, :no_affiliation} -> {:ok, :already_removed}
-	       err = {:error, _reason} -> err
-	       _affiliation ->
-		 subquery_id = "SELECT id FROM courses WHERE name LIKE $1"
-		 query_text = "DELETE FROM course_affiliations WHERE course = (" <>
-		   subquery_id <> ") AND username = $2;"
-		 {:ok, %{command: :delete}} = Postgrex.query(conn, query_text,
-		   [string(course_name), string(user)])
-		 :ok
-	     end
+
+    result = {conn, course_name}
+      |> get_course_id()
+      |> do_get_affiliation(user)
+      |> do_remove_student(user)
     
     {:reply, result, state}
   end
@@ -455,66 +454,73 @@ defmodule Schoolhub.DataManager do
     :ok
   end
 
-  defp do_get_affiliation(user, course_name, conn) do
+  defp get_course_id({conn, course_name}) do
     query_id = "SELECT id FROM courses WHERE name LIKE $1;"
     id_result = Postgrex.query(conn, query_id, [string(course_name)])
 
-    _result = case id_result do
-		{:ok, %{columns: ["id"], command: :select, num_rows: 1, rows: [[id]]}} ->
-		  
-		  query_affiliation = "SELECT affiliation FROM course_affiliations WHERE " <>
-		    "course = $1 AND username LIKE $2;"
-		  affiliation_result = Postgrex.query(conn, query_affiliation,
-		    [id, string(user)])
-
-		  case affiliation_result do
-		    {:ok, %{columns: ["affiliation"], command: :select,
-			     num_rows: 1, rows: [[aff]]}} -> aff
-		    {:ok, %{columns: ["affiliation"], command: :select,
-			     num_rows: 0, rows: []}} -> {:error, :no_affiliation}
-		  end
-	       
-	        {:ok, %{columns: ["id"], command: :select, num_rows: 0, rows: []}} ->
-		  {:error, :course_not_exist}
-	      end
-  end
-
-  defp do_get_all_affiliation(course_name, conn) do
-    query_id = "SELECT id FROM courses WHERE name LIKE $1;"
-    id_result = Postgrex.query(conn, query_id, [string(course_name)])
-
-    _result = case id_result do
-		{:ok, %{columns: ["id"], command: :select, num_rows: 1, rows: [[id]]}} ->
-		  query_text = "SELECT username, affiliation FROM course_affiliations " <>
-		    "WHERE course = $1 ORDER BY affiliation DESC;"
-		  affs_result = Postgrex.query(conn, query_text, [id])
-		  
-		  {:ok, %{columns: ["username", "affiliation"], command: :select, rows: affs}} =
-		    affs_result
-
-		  affs
-	       
-	        {:ok, %{columns: ["id"], command: :select, num_rows: 0, rows: []}} ->
-		  {:error, :course_not_exist}
-	      end
-  end
-
-  defp do_invite_student(user, course_name, conn) do
-    case do_get_affiliation(user, course_name, conn) do
-      {:error, :no_affiliation} ->
-	subquery_id = "SELECT id FROM courses WHERE name LIKE $1"
-	
-	query_affiliation = "INSERT INTO course_affiliations " <>
-	  "(username, course, affiliation) VALUES ($2, (" <> subquery_id <> "), 'student');"
-		 
-	{:ok, %{command: :insert, num_rows: 1, rows: nil}} =
-	  Postgrex.query(conn, query_affiliation, [string(course_name), string(user)])
-	
-	:ok
-
-      err = {:error, _reason} -> err
-      _affiliation -> {:ok, :already_invited}
+    case id_result do
+      {:ok, %{columns: ["id"], command: :select, num_rows: 1, rows: [[id]]}} ->
+	{conn, id}
+      
+      {:ok, %{columns: ["id"], command: :select, num_rows: 0, rows: []}} ->
+	{:error, :course_not_exist}
     end
   end
-  
+
+  defp do_get_affiliation({:error, reason}, _), do: {:error, reason}
+  defp do_get_affiliation({conn, id}, user) do
+    query_affiliation = "SELECT affiliation FROM course_affiliations WHERE " <>
+      "course = $1 AND username LIKE $2;"
+    affiliation_result = Postgrex.query(conn, query_affiliation, [id, string(user)])
+
+    case affiliation_result do
+      {:ok, %{columns: ["affiliation"], command: :select, num_rows: 1, rows: [[aff]]}} ->
+	{conn, id, aff}
+      {:ok, %{columns: ["affiliation"], command: :select, num_rows: 0, rows: []}} ->
+	{:error, :no_affiliation}
+    end
+  end
+
+  defp do_get_all_affiliation({:error, reason}), do: {:error, reason}
+  defp do_get_all_affiliation({conn, id}) do
+    query_text = "SELECT username, affiliation FROM course_affiliations " <>
+      "WHERE course = $1 ORDER BY affiliation DESC;"
+    affs_result = Postgrex.query(conn, query_text, [id])
+		  
+    {:ok, %{columns: ["username", "affiliation"], command: :select, rows: affs}} = affs_result
+    affs
+  end
+
+  defp do_set_affiliation({:error, :no_affiliation}, _, _), do: {:error, :user_not_affiliated}
+  defp do_set_affiliation({:error, reason}, _, _), do: {:error, reason}
+  defp do_set_affiliation({conn, id, _old_aff}, user, new_aff) do
+    query_text = "UPDATE course_affiliations SET affiliation = $3 " <>
+      "WHERE username LIKE $1 AND course = $2;"
+    {:ok, %{command: :update, num_rows: 1, rows: nil}} =
+      Postgrex.query(conn, query_text, [string(user), id, string(new_aff)])
+
+    :ok
+  end
+
+  defp do_invite_student({:error, :no_affiliation}, conn, course_name, user) do
+    subquery_id = "SELECT id FROM courses WHERE name LIKE $1"
+	
+    query_affiliation = "INSERT INTO course_affiliations " <>
+      "(username, course, affiliation) VALUES ($2, (" <> subquery_id <> "), 'student');"
+    
+    {:ok, %{command: :insert, num_rows: 1, rows: nil}} =
+      Postgrex.query(conn, query_affiliation, [string(course_name), string(user)])
+	
+    :ok
+  end
+  defp do_invite_student({:error, reason}, _, _, _), do: {:error, reason}
+  defp do_invite_student({_conn, _id, _aff}, _, _, _), do: {:ok, :already_invited}
+
+  defp do_remove_student({:error, :no_affiliation}, _), do: {:ok, :already_removed}
+  defp do_remove_student({:error, reason}, _), do: {:error, reason}
+  defp do_remove_student({conn, id, _aff}, user) do
+    query_text = "DELETE FROM course_affiliations WHERE course=$1 AND username=$2;"
+    {:ok, %{command: :delete}} = Postgrex.query(conn, query_text, [id, string(user)])
+    :ok
+  end
 end
