@@ -99,9 +99,9 @@ init_per_testcase(_TestCase, Config) ->
 %%--------------------------------------------------------------------
 end_per_testcase(_TestCase, _Config) ->
     'Elixir.Client.LoginServer':end_session(),
-    ok = 'Elixir.Schoolhub.CourseAdminServer':remove_student(?TEST_USER_OWNER,
-							     ?TEST_USER_STUDENT, 
-							     ?TEST_COURSE),
+    'Elixir.Schoolhub.CourseAdminServer':remove_student(?TEST_USER_OWNER,
+							?TEST_USER_STUDENT, 
+							?TEST_COURSE),
     ok.
 
 %%--------------------------------------------------------------------

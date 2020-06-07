@@ -298,26 +298,11 @@ defmodule Schoolhub.DataManager do
 
   @impl true
   def handle_call({:create_course, course_name, owner}, _from, state = %{pgsql_conn: conn}) do
-    query_course = "INSERT INTO courses (name, creator, active) VALUES ($1, $2, true);"
-    course_result = Postgrex.query(conn, query_course, [string(course_name), string(owner)])
 
-    result = case course_result do
-	       {:ok, %{command: :insert, num_rows: 1, rows: nil}} ->
-		 subquery_id = "SELECT id FROM courses WHERE name LIKE $1"
-		 query_affiliation = "INSERT INTO course_affiliations " <>
-		   "(username, course, affiliation) VALUES ($2, (" <> subquery_id <>
-		   "), 'owner');"
-		 
-		 {:ok, %{command: :insert, num_rows: 1, rows: nil}} =
-		   Postgrex.query(conn, query_affiliation, [string(course_name), string(owner)])
-		 :ok
-		 
-               {:error, %{postgres: %{code: :unique_violation,
-				      constraint: "courses_name_key",
-				      severity: "ERROR",
-				      table: "courses"}}} ->
-		 {:error, :name_already_used}
-	     end
+    result = {conn, course_name}
+      |> do_create_course(owner)
+      |> do_invite_student(conn, course_name, owner, "owner")
+    
     {:reply, result, state}
   end
 
@@ -380,7 +365,7 @@ defmodule Schoolhub.DataManager do
       |> check_user_exist(user)
       |> get_course_id()
       |> do_get_affiliation(user)
-      |> do_invite_student(conn, course_name, user)
+      |> do_invite_student(conn, course_name, user, "student")
     
     {:reply, result, state}
   end
@@ -448,6 +433,7 @@ defmodule Schoolhub.DataManager do
     :ok
   end
 
+  defp get_course_id({:error, reason}), do: {:error, reason}
   defp get_course_id({conn, course_name}) do
     query_id = "SELECT id FROM courses WHERE name LIKE $1;"
     id_result = Postgrex.query(conn, query_id, [string(course_name)])
@@ -458,6 +444,22 @@ defmodule Schoolhub.DataManager do
       
       {:ok, %{columns: ["id"], command: :select, num_rows: 0, rows: []}} ->
 	{:error, :course_not_exist}
+    end
+  end
+
+  defp do_create_course({conn, course_name}, owner) do
+    query_course = "INSERT INTO courses (name, creator, active) VALUES ($1, $2, true);"
+    course_result = Postgrex.query(conn, query_course, [string(course_name), string(owner)])
+
+    case course_result do
+      {:ok, %{command: :insert, num_rows: 1, rows: nil}} -> :ok
+      
+      {:error, %{postgres: %{code: :unique_violation,
+			     constraint: "courses_name_key",
+			     severity: "ERROR",
+			     table: "courses"}}} ->
+	  
+	{:error, :name_already_used}
     end
   end
 
@@ -509,19 +511,22 @@ defmodule Schoolhub.DataManager do
     end
   end
 
-  defp do_invite_student({:error, :no_affiliation}, conn, course_name, user) do
+  defp do_invite_student(:ok, conn, course_name, user, aff) do
+    do_invite_student({:error, :no_affiliation}, conn, course_name, user, aff)
+  end
+  defp do_invite_student({:error, :no_affiliation}, conn, course_name, user, aff) do
     subquery_id = "SELECT id FROM courses WHERE name LIKE $1"
 	
     query_affiliation = "INSERT INTO course_affiliations " <>
-      "(username, course, affiliation) VALUES ($2, (" <> subquery_id <> "), 'student');"
+      "(username, course, affiliation) VALUES ($2, (" <> subquery_id <> "), $3);"
     
     {:ok, %{command: :insert, num_rows: 1, rows: nil}} =
-      Postgrex.query(conn, query_affiliation, [string(course_name), string(user)])
+      Postgrex.query(conn, query_affiliation, [string(course_name), string(user), string(aff)])
 	
     :ok
   end
-  defp do_invite_student({:error, reason}, _, _, _), do: {:error, reason}
-  defp do_invite_student({_conn, _id, _aff}, _, _, _), do: {:ok, :already_invited}
+  defp do_invite_student({:error, reason}, _, _, _, _), do: {:error, reason}
+  defp do_invite_student({_conn, _id, _aff}, _, _, _, _), do: {:ok, :already_invited}
 
   defp do_remove_student({:error, :no_affiliation}, _), do: {:ok, :already_removed}
   defp do_remove_student({:error, reason}, _), do: {:error, reason}
