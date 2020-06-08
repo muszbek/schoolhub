@@ -3,6 +3,7 @@
 - check postgres connectivity privacy, SSL
 - check mam common test why database is not cleaned
 
+- check if breaking up db queries is a good idea
 - course messageboard exunit common test
 - course messageboard
 - implement more course functionality
