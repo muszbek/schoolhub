@@ -45,10 +45,28 @@ defmodule Schoolhub.ContentManagerMock do
     {:error, :message_not_exist}
   end
   def get_single_message(_id, @mock_course) do
-    @mock_message
+    mock_pack_message(@mock_message)
   end
   def get_single_message(id, @mock_course_string) do
     get_single_message(id, @mock_course)
+  end
+
+  def delete_single_message(id, @mock_course) do
+    :ok
+  end
+  def delete_single_message(id, @mock_course_string) do
+    delete_single_message(id, @mock_course_string)
+  end
+
+
+  defp mock_pack_message(message) do
+    %{id: 1,
+      course: @mock_course_string,
+      author: @mock_student_string,
+      ancestor: nil,
+      message: message,
+      timestamp: "now",
+      pinned: false}
   end
 
 end

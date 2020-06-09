@@ -21,6 +21,8 @@ defmodule Schoolhub.DataManagerMock do
   @mock_user_teacher_string "test_user_teacher"
   @mock_user_student 'test_user_student'
   @mock_user_student_string "test_user_student"
+  @mock_user_student2 'test_user_student2'
+  @mock_user_student2_string "test_user_student2"
   @mock_course 'test_course'
   @mock_course_string "test_course"
   @mock_course_desc %{"text" => "test"}
@@ -204,6 +206,12 @@ defmodule Schoolhub.DataManagerMock do
   def get_affiliation(@mock_user_student_string, @mock_course_string) do
     get_affiliation(@mock_user_student, @mock_course)
   end
+  def get_affiliation(@mock_user_student2, @mock_course) do
+    "student"
+  end
+  def get_affiliation(@mock_user_student2_string, @mock_course_string) do
+    get_affiliation(@mock_user_student, @mock_course)
+  end
   def get_affiliation(_other, @mock_course) do
     {:error, :no_affiliation}
   end
@@ -229,6 +237,12 @@ defmodule Schoolhub.DataManagerMock do
   end
   def invite_student(@mock_user_student_string, @mock_course_string) do
     invite_student(@mock_user_student, @mock_course)
+  end
+  def invite_student(@mock_user_student2, @mock_course) do
+    :ok
+  end
+  def invite_student(@mock_user_student2_string, @mock_course_string) do
+    invite_student(@mock_user_student2, @mock_course)
   end
   def invite_student(@mock_user_teacher, @mock_course) do
     {:ok, :already_invited}
