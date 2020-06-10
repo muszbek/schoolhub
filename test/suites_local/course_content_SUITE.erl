@@ -15,6 +15,7 @@
 -define(TEST_USER_OWNER, <<"test_user_teacher">>).
 -define(TEST_USER_STUDENT, <<"test_user_student">>).
 -define(TEST_USER_STUDENT2, <<"test_user_student2">>).
+-define(TEST_USER_NON_AFF, <<"test_user">>).
 -define(TEST_PW, <<"test_pw">>).
 -define(ADMIN, <<"admin">>).
 -define(ADMIN_PW, <<"admin">>).
@@ -44,6 +45,7 @@ init_per_suite(Config) ->
     'Elixir.Schoolhub.RegServer':register_user(?TEST_USER_OWNER, ?TEST_PW),
     'Elixir.Schoolhub.RegServer':register_user(?TEST_USER_STUDENT, ?TEST_PW),
     'Elixir.Schoolhub.RegServer':register_user(?TEST_USER_STUDENT2, ?TEST_PW),
+    'Elixir.Schoolhub.RegServer':register_user(?TEST_USER_NON_AFF, ?TEST_PW),
     'Elixir.Schoolhub.RegServer':set_user_privilege(?ADMIN, ?TEST_USER_OWNER, <<"teacher">>),
     ok = 'Elixir.Schoolhub.CourseAdminServer':create_course(?TEST_USER_OWNER, ?TEST_COURSE),
     timer:sleep(500),
@@ -133,7 +135,12 @@ groups() ->
        student_get_desc_succeeds,
        set_desc_on_wrong_course_fails]},
      {course_message_post, [shuffle],
-      [student_post_message_succeeds]}].
+      [student_post_message_succeeds,
+       not_affiliated_post_message_fails,
+       student_post_message_wrong_course_fails,
+       not_affiliated_get_single_message_fails,
+       student_get_single_message_wrong_course_fails,
+       student_get_single_message_wrong_id_fails]}].
 
 %%--------------------------------------------------------------------
 %% @spec all() -> GroupsAndTestCases | {skip,Reason}
@@ -215,6 +222,38 @@ student_post_message_succeeds(_Config) ->
 									 ?TEST_DESC),
     Result = 'Elixir.Client.CourseContentServer':get_single_message(Id, ?TEST_COURSE),
     #{<<"message">> := ?TEST_DESC_MATCH} = Result,
+    ok.
+
+not_affiliated_post_message_fails(_Config) ->
+    {ok, _OtherPid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_NON_AFF, ?TEST_PW),
+    Result = 'Elixir.Client.CourseContentServer':post_message(?TEST_COURSE,
+							      ?TEST_DESC),
+    <<"ERROR_no_affiliation">> = Result,
+    ok.
+
+student_post_message_wrong_course_fails(_Config) ->
+    {ok, _OtherPid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_STUDENT, ?TEST_PW),
+    Result = 'Elixir.Client.CourseContentServer':post_message(?TEST_COURSE_WRONG,
+							      ?TEST_DESC),
+    <<"ERROR_course_not_exist">> = Result,
+    ok.
+
+not_affiliated_get_single_message_fails(_Config) ->
+    {ok, _OtherPid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_NON_AFF, ?TEST_PW),
+    Result = 'Elixir.Client.CourseContentServer':get_single_message(1, ?TEST_COURSE),
+    <<"ERROR_no_affiliation">> = Result,
+    ok.
+
+student_get_single_message_wrong_course_fails(_Config) ->
+    {ok, _OtherPid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_STUDENT, ?TEST_PW),
+    Result = 'Elixir.Client.CourseContentServer':get_single_message(1, ?TEST_COURSE_WRONG),
+    <<"ERROR_course_not_exist">> = Result,
+    ok.
+
+student_get_single_message_wrong_id_fails(_Config) ->
+    {ok, _OtherPid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_STUDENT, ?TEST_PW),
+    Result = 'Elixir.Client.CourseContentServer':get_single_message(0, ?TEST_COURSE),
+    <<"ERROR_message_not_exist">> = Result,
     ok.
 
 
