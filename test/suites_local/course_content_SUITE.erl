@@ -14,6 +14,7 @@
 
 -define(TEST_USER_OWNER, <<"test_user_teacher">>).
 -define(TEST_USER_STUDENT, <<"test_user_student">>).
+-define(TEST_USER_STUDENT2, <<"test_user_student2">>).
 -define(TEST_PW, <<"test_pw">>).
 -define(ADMIN, <<"admin">>).
 -define(ADMIN_PW, <<"admin">>).
@@ -42,8 +43,16 @@ init_per_suite(Config) ->
     start_apps(),
     'Elixir.Schoolhub.RegServer':register_user(?TEST_USER_OWNER, ?TEST_PW),
     'Elixir.Schoolhub.RegServer':register_user(?TEST_USER_STUDENT, ?TEST_PW),
+    'Elixir.Schoolhub.RegServer':register_user(?TEST_USER_STUDENT2, ?TEST_PW),
     'Elixir.Schoolhub.RegServer':set_user_privilege(?ADMIN, ?TEST_USER_OWNER, <<"teacher">>),
     ok = 'Elixir.Schoolhub.CourseAdminServer':create_course(?TEST_USER_OWNER, ?TEST_COURSE),
+    timer:sleep(500),
+    ok = 'Elixir.Schoolhub.CourseAdminServer':invite_student(?TEST_USER_OWNER,
+							     ?TEST_USER_STUDENT, 
+							     ?TEST_COURSE),
+    ok = 'Elixir.Schoolhub.CourseAdminServer':invite_student(?TEST_USER_OWNER,
+							     ?TEST_USER_STUDENT2, 
+							     ?TEST_COURSE),
     Config.
 
 %%--------------------------------------------------------------------
@@ -54,6 +63,7 @@ init_per_suite(Config) ->
 end_per_suite(_Config) ->
     'Elixir.Schoolhub.CourseAdminServer':remove_course(?ADMIN, ?TEST_COURSE),
     {ok, _} = 'Elixir.Schoolhub.RegServer':remove_user(?TEST_USER_STUDENT),
+    {ok, _} = 'Elixir.Schoolhub.RegServer':remove_user(?TEST_USER_STUDENT2),
     {ok, _} = 'Elixir.Schoolhub.RegServer':remove_user(?TEST_USER_OWNER),
     ok.
 
@@ -99,9 +109,6 @@ init_per_testcase(_TestCase, Config) ->
 %%--------------------------------------------------------------------
 end_per_testcase(_TestCase, _Config) ->
     'Elixir.Client.LoginServer':end_session(),
-    'Elixir.Schoolhub.CourseAdminServer':remove_student(?TEST_USER_OWNER,
-							?TEST_USER_STUDENT, 
-							?TEST_COURSE),
     ok.
 
 %%--------------------------------------------------------------------
@@ -124,7 +131,9 @@ groups() ->
        admin_set_desc_succeeds,
        student_set_desc_fails,
        student_get_desc_succeeds,
-       set_desc_on_wrong_course_fails]}].
+       set_desc_on_wrong_course_fails]},
+     {course_message_post, [shuffle],
+      [student_post_message_succeeds]}].
 
 %%--------------------------------------------------------------------
 %% @spec all() -> GroupsAndTestCases | {skip,Reason}
@@ -135,7 +144,8 @@ groups() ->
 %% @end
 %%--------------------------------------------------------------------
 all() -> 
-    [{group, course_description}].
+    [{group, course_description},
+     {group, course_message_post}].
 
 %%--------------------------------------------------------------------
 %% @spec TestCase() -> Info
@@ -177,18 +187,12 @@ admin_set_desc_succeeds(_Config) ->
     ok.
 
 student_set_desc_fails(_Config) -> 
-    ok = 'Elixir.Schoolhub.CourseAdminServer':invite_student(?TEST_USER_OWNER,
-							     ?TEST_USER_STUDENT, 
-							     ?TEST_COURSE),
     {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_STUDENT, ?TEST_PW),
     Result = 'Elixir.Client.CourseContentServer':set_description(?TEST_COURSE, ?TEST_DESC),
     <<"ERROR_no_permission">> = Result,
     ok.
 
 student_get_desc_succeeds(_Config) ->
-    ok = 'Elixir.Schoolhub.CourseAdminServer':invite_student(?TEST_USER_OWNER,
-							     ?TEST_USER_STUDENT, 
-							     ?TEST_COURSE),
     {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_OWNER, ?TEST_PW),
     <<"ok">> = 'Elixir.Client.CourseContentServer':set_description(?TEST_COURSE, ?TEST_DESC),
     'Elixir.Client.LoginServer':end_session(),
@@ -200,10 +204,18 @@ student_get_desc_succeeds(_Config) ->
 set_desc_on_wrong_course_fails(_Config) -> 
     {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_OWNER, ?TEST_PW),
     Result = 'Elixir.Client.CourseContentServer':set_description(?TEST_COURSE_WRONG, 
-								   ?TEST_DESC),
+								 ?TEST_DESC),
     <<"ERROR_course_not_exist">> = Result,
     ok.
 
+
+student_post_message_succeeds(_Config) ->
+    {ok, _OtherPid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_STUDENT, ?TEST_PW),
+    #{<<"id">> := Id} = 'Elixir.Client.CourseContentServer':post_message(?TEST_COURSE,
+									 ?TEST_DESC),
+    Result = 'Elixir.Client.CourseContentServer':get_single_message(Id, ?TEST_COURSE),
+    #{<<"message">> := ?TEST_DESC_MATCH} = Result,
+    ok.
 
 
 %% Helper functions

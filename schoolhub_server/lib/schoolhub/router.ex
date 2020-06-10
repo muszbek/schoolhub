@@ -139,7 +139,7 @@ defmodule Schoolhub.Router do
       Jason.decode!(body)
     result = case id do
 	       nil -> Schoolhub.CourseContentServer.post_message(self, course_name, message)
-	       id -> post_reply(id, self, course_name, message)
+	       id -> Schoolhub.CourseContentServer.post_reply(id, self, course_name, message)
 	     end
     rest_json_reply(conn, result)
   end
@@ -193,6 +193,7 @@ defmodule Schoolhub.Router do
 
   defp encode_response(response) do
     {code, result} = case response do
+		       {:ok, id} when is_integer(id) -> {200, %{"id" => id}}
 		       {:ok, _reason} -> {200, "ok"}
 		       :ok -> {200, "ok"}
 		       {:error, :no_permission} -> {401, "ERROR_no_permission"}
