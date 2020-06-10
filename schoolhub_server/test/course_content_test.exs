@@ -216,4 +216,59 @@ defmodule CourseContentTest do
     assert result == {:error, :course_not_exist}
   end
 
+
+  test "teacher modify single message succeeds" do
+    {:ok, id} = Schoolhub.CourseContentServer.post_message(@test_user_student,
+      @test_course, @test_desc)
+    result = Schoolhub.CourseContentServer.modify_single_message(id, @test_user_teacher,
+      @test_course, @test_desc)
+    assert result == :ok
+  end
+
+  test "admin modify single message succeeds" do
+    {:ok, id} = Schoolhub.CourseContentServer.post_message(@test_user_student,
+      @test_course, @test_desc)
+    result = Schoolhub.CourseContentServer.modify_single_message(id, @admin,
+      @test_course, @test_desc)
+    assert result == :ok
+  end
+
+  test "student author modify single message succeeds" do
+    {:ok, id} = Schoolhub.CourseContentServer.post_message(@test_user_student,
+      @test_course, @test_desc)
+    result = Schoolhub.CourseContentServer.modify_single_message(id, @test_user_student,
+      @test_course, @test_desc)
+    assert result == :ok
+  end
+
+  test "student non author modify single message fails" do
+    {:ok, id} = Schoolhub.CourseContentServer.post_message(@test_user_student,
+      @test_course, @test_desc)
+    result = Schoolhub.CourseContentServer.modify_single_message(id, @test_user_student2,
+      @test_course, @test_desc)
+    assert result == {:error, :no_permission}
+  end
+
+  test "not affiliated modify single message fails" do
+    {:ok, id} = Schoolhub.CourseContentServer.post_message(@test_user_student,
+      @test_course, @test_desc)
+    result = Schoolhub.CourseContentServer.modify_single_message(id, @test_user_wrong,
+      @test_course, @test_desc)
+    assert result == {:error, :no_affiliation}
+  end
+
+  test "wrong course modify single message fails" do
+    {:ok, id} = Schoolhub.CourseContentServer.post_message(@test_user_student,
+      @test_course, @test_desc)
+    result = Schoolhub.CourseContentServer.modify_single_message(id, @test_user_teacher,
+      @test_course_wrong, @test_desc)
+    assert result == {:error, :course_not_exist}
+  end
+
+  test "wrong id modify single message succeeds" do
+    result = Schoolhub.CourseContentServer.modify_single_message(0, @test_user_teacher,
+      @test_course, @test_desc)
+    assert result == {:error, :message_not_exist}
+  end
+
 end

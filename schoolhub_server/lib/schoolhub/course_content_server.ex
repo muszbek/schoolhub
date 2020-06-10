@@ -149,7 +149,7 @@ defmodule Schoolhub.CourseContentServer do
   def handle_call({:modify_single_message, id, self, course_name, message}, _from,
 	state = %{db_content_api: db_api}) do
 
-    result = case can_i_modify_message(id, self, course_name, db_api) do
+    result = case can_i_modify_message(id, self |> string(), course_name |> string(), db_api) do
 	       err = {:error, _reason} -> err
 	       :ok ->
 		 db_api.modify_single_message(id, course_name, self, message |> pack_json())

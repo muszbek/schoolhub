@@ -51,11 +51,33 @@ defmodule Schoolhub.ContentManagerMock do
     get_single_message(id, @mock_course)
   end
 
-  def delete_single_message(id, @mock_course) do
+  def delete_single_message(_id, @mock_course) do
     :ok
   end
   def delete_single_message(id, @mock_course_string) do
     delete_single_message(id, @mock_course_string)
+  end
+
+  def modify_single_message(0, @mock_course, _any_user, _any_message) do
+    {:error, :message_not_exist}
+  end
+  def modify_single_message(_id, @mock_course, @mock_teacher, _any_message) do
+    :ok
+  end
+  def modify_single_message(id, @mock_course_string, @mock_teacher_string, any_message) do
+    modify_single_message(id, @mock_course, @mock_teacher, any_message)
+  end
+  def modify_single_message(_id, @mock_course, @mock_admin, _any_message) do
+    :ok
+  end
+  def modify_single_message(id, @mock_course_string, @mock_admin_string, any_message) do
+    modify_single_message(id, @mock_course, @mock_admin, any_message)
+  end
+  def modify_single_message(_id, @mock_course, @mock_student, _any_message) do
+    :ok
+  end
+  def modify_single_message(id, @mock_course_string, @mock_student_string, any_message) do
+    modify_single_message(id, @mock_course, @mock_student, any_message)
   end
 
 
