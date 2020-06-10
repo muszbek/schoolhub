@@ -40,6 +40,45 @@ defmodule Client.CourseContentServer do
   end
 
 
+  @doc """
+  Post a root level message on the course message board.
+  """
+  def post_message(course_name, message) do
+    GenServer.call(__MODULE__, {:post_message, course_name, message})
+  end
+
+  @doc """
+  Post an answer to an existing message.
+  """
+  def post_reply(id, course_name, message) do
+    GenServer.call(__MODULE__, {:post_reply, id, course_name, message})
+  end
+
+  @doc """
+  Retrieves the content of a single message as a json.
+  """
+  def get_single_message(id, course_name) do
+    GenServer.call(__MODULE__, {:get_single_message, id, course_name})
+  end
+
+  @doc """
+  Deletes a single message.
+  If it had descendants originally, an empty placeholder is left in place of the message.
+  Only author or course admins.
+  """
+  def delete_single_message(id, course_name) do
+    GenServer.call(__MODULE__, {:delete_single_message, id, course_name})
+  end
+
+  @doc """
+  Modifies a single message.
+  Only author or course admins.
+  """
+  def modify_single_message(id, course_name, message) do
+    GenServer.call(__MODULE__, {:modify_single_message, id, course_name, message})
+  end
+
+
   ### Server callbacks ###
   @impl true
   def init(options) do
@@ -55,8 +94,39 @@ defmodule Client.CourseContentServer do
 
   @impl true
   def handle_call({:set_desc, course_name, desc}, from, state) do
-    body = %{course_name: course_name, description: desc |> pack_desc()}
+    body = %{course_name: course_name, description: desc |> pack_json()}
     Rest.send_http_id(body, from, "PUT", "/courses/desc", state)
+  end
+
+  
+  @impl true
+  def handle_call({:post_message, course_name, message}, from, state) do
+    body = %{id: nil, course_name: course_name, message: message |> pack_json()}
+    Rest.send_http_id(body, from, "POST", "/courses/messages", state)
+  end
+
+  @impl true
+  def handle_call({:post_reply, id, course_name, message}, from, state) do
+    body = %{id: id, course_name: course_name, message: message |> pack_json()}
+    Rest.send_http_id(body, from, "POST", "/courses/messages", state)
+  end
+  
+  @impl true
+  def handle_call({:get_single_message, id, course_name}, from, state) do
+    body = %{id: id, course_name: course_name}
+    Rest.send_http_id(body, from, "GET", "/courses/messages", state)
+  end
+
+  @impl true
+  def handle_call({:delete_single_message, id, course_name}, from, state) do
+    body = %{id: id, course_name: course_name}
+    Rest.send_http_id(body, from, "DELETE", "/courses/messages", state)
+  end
+
+  @impl true
+  def handle_call({:modify_single_message, id, course_name, message}, from, state) do
+    body = %{id: id, course_name: course_name, message: message |> pack_json()}
+    Rest.send_http_id(body, from, "PUT", "/courses/messages", state)
   end
 
 
@@ -110,25 +180,25 @@ defmodule Client.CourseContentServer do
   
   defp string(text), do: text |> to_string()
 
-  defp pack_desc(desc) do
-    case do_pack_desc(desc) do
-      :json_decode_error -> %{text: desc |> string()}
+  defp pack_json(json) do
+    case do_pack_json(json) do
+      :json_decode_error -> %{text: json |> string()}
       :invalid -> nil
       map -> map
     end
   end
 
-  defp jason_decode_catch(desc) do
+  defp jason_decode_catch(json) do
     try do
-      Jason.decode!(desc)
+      Jason.decode!(json)
     rescue
       Jason.DecodeError -> :json_decode_error
     end
   end
   
-  defp do_pack_desc(desc) when is_binary(desc), do: desc |> jason_decode_catch()
-  defp do_pack_desc(desc) when is_list(desc), do: desc |> string() |> jason_decode_catch()
-  defp do_pack_desc(desc = %{}), do: desc
-  defp do_pack_desc(_desc), do: :invalid
+  defp do_pack_json(json) when is_binary(json), do: json |> jason_decode_catch()
+  defp do_pack_json(json) when is_list(json), do: json |> string() |> jason_decode_catch()
+  defp do_pack_json(json = %{}), do: json
+  defp do_pack_json(_json), do: :invalid
 
 end

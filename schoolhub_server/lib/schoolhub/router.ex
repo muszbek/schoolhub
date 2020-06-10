@@ -131,6 +131,43 @@ defmodule Schoolhub.Router do
     result = Schoolhub.CourseContentServer.set_description(self, course_name, desc)
     rest_json_reply(conn, result)
   end
+
+  post "/courses/messages" do
+    body = get_body(conn)
+
+    %{"self" => self, "id" => id, "course_name" => course_name, "message" => message} =
+      Jason.decode!(body)
+    result = case id do
+	       nil -> Schoolhub.CourseContentServer.post_message(self, course_name, message)
+	       id -> post_reply(id, self, course_name, message)
+	     end
+    rest_json_reply(conn, result)
+  end
+
+  get "/courses/messages" do
+    body = get_body(conn)
+
+    %{"self" => self, "id" => id, "course_name" => course_name} = Jason.decode!(body)
+    result = Schoolhub.CourseContentServer.get_single_message(id, self, course_name)
+    rest_json_reply(conn, result)
+  end
+
+  delete "/courses/messages" do
+    body = get_body(conn)
+
+    %{"self" => self, "id" => id, "course_name" => course_name} = Jason.decode!(body)
+    result = Schoolhub.CourseContentServer.delete_single_message(id, self, course_name)
+    rest_json_reply(conn, result)
+  end
+
+  put "/courses/messages" do
+    body = get_body(conn)
+
+    %{"self" => self, "id" => id, "course_name" => course_name, "message" => message} =
+      Jason.decode!(body)
+    result = Schoolhub.CourseContentServer.modify_single_message(id, self, course_name, message)
+    rest_json_reply(conn, result)
+  end
   
 
   match _ do
