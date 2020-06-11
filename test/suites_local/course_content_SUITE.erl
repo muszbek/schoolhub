@@ -156,7 +156,16 @@ groups() ->
        student_author_delete_single_message_succeeds,
        student_non_author_delete_single_message_fails,
        not_affiliated_delete_single_message_fails,
-       wrong_course_delete_single_message_fails]}].
+       wrong_course_delete_single_message_fails]},
+
+     {course_message_modify, [shuffle],
+      [teacher_modify_single_message_succeeds,
+       admin_modify_single_message_succeeds,
+       student_author_modify_single_message_succeeds,
+       student_non_author_modify_single_message_fails,
+       not_affiliated_modify_single_message_fails,
+       wrong_course_modify_single_message_fails,
+       wrong_id_modify_single_message_succeeds]}].
 
 %%--------------------------------------------------------------------
 %% @spec all() -> GroupsAndTestCases | {skip,Reason}
@@ -170,7 +179,8 @@ all() ->
     [{group, course_description},
      {group, course_message_post},
      {group, course_message_reply},
-     {group, course_message_delete}].
+     {group, course_message_delete},
+     {group, course_message_modify}].
 
 %%--------------------------------------------------------------------
 %% @spec TestCase() -> Info
@@ -382,6 +392,87 @@ wrong_course_delete_single_message_fails(_Config) ->
     Result = 'Elixir.Client.CourseContentServer':delete_single_message(Id, 
 								       ?TEST_COURSE_WRONG),
     <<"ERROR_course_not_exist">> = Result,
+    ok.
+
+
+teacher_modify_single_message_succeeds(_Config) ->
+    {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_STUDENT, ?TEST_PW),
+    #{<<"id">> := Id} = 'Elixir.Client.CourseContentServer':post_message(?TEST_COURSE,
+									 ?TEST_DESC),
+    'Elixir.Client.LoginServer':end_session(),
+    {ok, _OtherPid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_OWNER, ?TEST_PW),
+    Result = 'Elixir.Client.CourseContentServer':modify_single_message(Id,
+								       ?TEST_COURSE,
+								       ?TEST_DESC),
+    <<"ok">> = Result,
+    ok.
+
+admin_modify_single_message_succeeds(_Config) ->
+    {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_STUDENT, ?TEST_PW),
+    #{<<"id">> := Id} = 'Elixir.Client.CourseContentServer':post_message(?TEST_COURSE,
+									 ?TEST_DESC),
+    'Elixir.Client.LoginServer':end_session(),
+    {ok, _OtherPid} = 'Elixir.Client.LoginServer':start_session(?ADMIN, ?ADMIN_PW),
+    Result = 'Elixir.Client.CourseContentServer':modify_single_message(Id,
+								       ?TEST_COURSE,
+								       ?TEST_DESC),
+    <<"ok">> = Result,
+    ok.
+
+student_author_modify_single_message_succeeds(_Config) ->
+    {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_STUDENT, ?TEST_PW),
+    #{<<"id">> := Id} = 'Elixir.Client.CourseContentServer':post_message(?TEST_COURSE,
+									 ?TEST_DESC),
+    Result = 'Elixir.Client.CourseContentServer':modify_single_message(Id, 
+								       ?TEST_COURSE,
+								       ?TEST_DESC),
+    <<"ok">> = Result,
+    ok.
+
+student_non_author_modify_single_message_fails(_Config) ->
+    {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_STUDENT, ?TEST_PW),
+    #{<<"id">> := Id} = 'Elixir.Client.CourseContentServer':post_message(?TEST_COURSE,
+									 ?TEST_DESC),
+    'Elixir.Client.LoginServer':end_session(),
+    {ok, _OtherPid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_STUDENT2, 
+								?TEST_PW),
+    Result = 'Elixir.Client.CourseContentServer':modify_single_message(Id,
+								       ?TEST_COURSE,
+								       ?TEST_DESC),
+    <<"ERROR_no_permission">> = Result,
+    ok.
+
+not_affiliated_modify_single_message_fails(_Config) ->
+    {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_STUDENT, ?TEST_PW),
+    #{<<"id">> := Id} = 'Elixir.Client.CourseContentServer':post_message(?TEST_COURSE,
+									 ?TEST_DESC),
+    'Elixir.Client.LoginServer':end_session(),
+    {ok, _OtherPid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_NON_AFF, 
+								?TEST_PW),
+    Result = 'Elixir.Client.CourseContentServer':modify_single_message(Id,
+								       ?TEST_COURSE,
+								       ?TEST_DESC),
+    <<"ERROR_no_affiliation">> = Result,
+    ok.
+
+wrong_course_modify_single_message_fails(_Config) ->
+    {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_STUDENT, ?TEST_PW),
+    #{<<"id">> := Id} = 'Elixir.Client.CourseContentServer':post_message(?TEST_COURSE,
+									 ?TEST_DESC),
+    'Elixir.Client.LoginServer':end_session(),
+    {ok, _OtherPid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_OWNER, ?TEST_PW),
+    Result = 'Elixir.Client.CourseContentServer':modify_single_message(Id,
+								       ?TEST_COURSE_WRONG,
+								       ?TEST_DESC),
+    <<"ERROR_course_not_exist">> = Result,
+    ok.
+
+wrong_id_modify_single_message_succeeds(_Config) ->
+    {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_STUDENT, ?TEST_PW),
+    Result = 'Elixir.Client.CourseContentServer':modify_single_message(0,
+								       ?TEST_COURSE,
+								       ?TEST_DESC),
+    <<"ERROR_message_not_exist">> = Result,
     ok.
 
 
