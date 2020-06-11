@@ -147,7 +147,16 @@ groups() ->
       [student_post_reply_succeeds,
        not_affiliated_post_reply_fails,
        student_post_reply_wrong_course_fails,
-       student_post_reply_wrong_id_fails]}].
+       student_post_reply_wrong_id_fails]},
+
+     {course_message_delete, [shuffle],
+      [teacher_delete_single_message_succeeds,
+       teacher_delete_deleted_single_message_succeeds,
+       admin_delete_single_message_succeeds,
+       student_author_delete_single_message_succeeds,
+       student_non_author_delete_single_message_fails,
+       not_affiliated_delete_single_message_fails,
+       wrong_course_delete_single_message_fails]}].
 
 %%--------------------------------------------------------------------
 %% @spec all() -> GroupsAndTestCases | {skip,Reason}
@@ -160,7 +169,8 @@ groups() ->
 all() -> 
     [{group, course_description},
      {group, course_message_post},
-     {group, course_message_reply}].
+     {group, course_message_reply},
+     {group, course_message_delete}].
 
 %%--------------------------------------------------------------------
 %% @spec TestCase() -> Info
@@ -304,6 +314,74 @@ student_post_reply_wrong_id_fails(_Config) ->
 							    ?TEST_COURSE,
 							    ?TEST_DESC),
     <<"ERROR_origin_not_exist">> = Result,
+    ok.
+
+
+teacher_delete_single_message_succeeds(_Config) ->
+    {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_STUDENT, ?TEST_PW),
+    #{<<"id">> := Id} = 'Elixir.Client.CourseContentServer':post_message(?TEST_COURSE,
+									 ?TEST_DESC),
+    'Elixir.Client.LoginServer':end_session(),
+    {ok, _OtherPid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_OWNER, ?TEST_PW),
+    Result = 'Elixir.Client.CourseContentServer':delete_single_message(Id, ?TEST_COURSE),
+    <<"ok">> = Result,
+    ok.
+
+teacher_delete_deleted_single_message_succeeds(_Config) ->
+    {ok, _OtherPid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_OWNER, ?TEST_PW),
+    Result = 'Elixir.Client.CourseContentServer':delete_single_message(1, ?TEST_COURSE),
+    <<"ok">> = Result,
+    ok.
+
+admin_delete_single_message_succeeds(_Config) ->
+    {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_STUDENT, ?TEST_PW),
+    #{<<"id">> := Id} = 'Elixir.Client.CourseContentServer':post_message(?TEST_COURSE,
+									 ?TEST_DESC),
+    'Elixir.Client.LoginServer':end_session(),
+    {ok, _OtherPid} = 'Elixir.Client.LoginServer':start_session(?ADMIN, ?ADMIN_PW),
+    Result = 'Elixir.Client.CourseContentServer':delete_single_message(Id, ?TEST_COURSE),
+    <<"ok">> = Result,
+    ok.
+
+student_author_delete_single_message_succeeds(_Config) ->
+    {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_STUDENT, ?TEST_PW),
+    #{<<"id">> := Id} = 'Elixir.Client.CourseContentServer':post_message(?TEST_COURSE,
+									 ?TEST_DESC),
+    Result = 'Elixir.Client.CourseContentServer':delete_single_message(Id, ?TEST_COURSE),
+    <<"ok">> = Result,
+    ok.
+
+student_non_author_delete_single_message_fails(_Config) ->
+    {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_STUDENT, ?TEST_PW),
+    #{<<"id">> := Id} = 'Elixir.Client.CourseContentServer':post_message(?TEST_COURSE,
+									 ?TEST_DESC),
+    'Elixir.Client.LoginServer':end_session(),
+    {ok, _OtherPid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_STUDENT2, 
+								?TEST_PW),
+    Result = 'Elixir.Client.CourseContentServer':delete_single_message(Id, ?TEST_COURSE),
+    <<"ERROR_no_permission">> = Result,
+    ok.
+
+not_affiliated_delete_single_message_fails(_Config) ->
+    {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_STUDENT, ?TEST_PW),
+    #{<<"id">> := Id} = 'Elixir.Client.CourseContentServer':post_message(?TEST_COURSE,
+									 ?TEST_DESC),
+    'Elixir.Client.LoginServer':end_session(),
+    {ok, _OtherPid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_NON_AFF, 
+								?TEST_PW),
+    Result = 'Elixir.Client.CourseContentServer':delete_single_message(Id, ?TEST_COURSE),
+    <<"ERROR_no_affiliation">> = Result,
+    ok.
+
+wrong_course_delete_single_message_fails(_Config) ->
+    {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_STUDENT, ?TEST_PW),
+    #{<<"id">> := Id} = 'Elixir.Client.CourseContentServer':post_message(?TEST_COURSE,
+									 ?TEST_DESC),
+    'Elixir.Client.LoginServer':end_session(),
+    {ok, _OtherPid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_OWNER, ?TEST_PW),
+    Result = 'Elixir.Client.CourseContentServer':delete_single_message(Id, 
+								       ?TEST_COURSE_WRONG),
+    <<"ERROR_course_not_exist">> = Result,
     ok.
 
 

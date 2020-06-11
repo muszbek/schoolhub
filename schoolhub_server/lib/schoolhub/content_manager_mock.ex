@@ -55,7 +55,7 @@ defmodule Schoolhub.ContentManagerMock do
     :ok
   end
   def delete_single_message(id, @mock_course_string) do
-    delete_single_message(id, @mock_course_string)
+    delete_single_message(id, @mock_course)
   end
 
   def modify_single_message(0, @mock_course, _any_user, _any_message) do
