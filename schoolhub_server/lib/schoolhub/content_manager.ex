@@ -60,6 +60,14 @@ defmodule Schoolhub.ContentManager do
     GenServer.call(__MODULE__, {:modify_single_message, id, course_name, user, message})
   end
 
+  @doc """
+  Retrieves a specified number of root level messages.
+  Pinned ones are on the top.
+  """
+  def get_root_messages(course_name, number) do
+    GenServer.call(__MODULE__, {:get_root_messages, course_name, number})
+  end
+
 
   ### Server callbacks ###
   
@@ -126,6 +134,17 @@ defmodule Schoolhub.ContentManager do
     result = {conn, course_name}
       |> get_course_id()
       |> do_delete_single_message(id)
+    
+    {:reply, result, state}
+  end
+
+  @impl true
+  def handle_call({:get_root_messages, course_name, number}, _from,
+	state = %{pgsql_conn: conn}) do
+
+    result = {conn, course_name}
+      |> get_course_id()
+      |> do_get_root_messages(number)
     
     {:reply, result, state}
   end
@@ -250,6 +269,15 @@ defmodule Schoolhub.ContentManager do
       {:ok, %{command: :select, num_rows: 0, rows: []}} -> false
       {:ok, %{command: :select, num_rows: _not_zero}} -> true
     end
+  end
+
+  defp do_get_root_messages({:error, reason}, _), do: {:error, reason}
+  defp do_get_root_messages({conn, course_id}, number) do
+    query_text = "SELECT id, author, message, created_at, pinned, " <>
+      "(SELECT COUNT(*) FROM course_messages WHERE subpath(path, 0, -1) <@ 2::text::ltree) " <>
+      "AS replies FROM course_messages " <>
+      "WHERE course=$1 AND nlevel(path)=1 ORDER BY pinned DESC, created_at DESC LIMIT $2;"
+    _messages = Postgrex.query(conn, query_text, [course_id, number]);
   end
 
 end
