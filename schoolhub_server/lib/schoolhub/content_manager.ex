@@ -274,8 +274,8 @@ defmodule Schoolhub.ContentManager do
   defp do_get_root_messages({:error, reason}, _), do: {:error, reason}
   defp do_get_root_messages({conn, course_id}, number) do
     query_text = "SELECT id, author, message, created_at, pinned, " <>
-      "(SELECT COUNT(*) FROM course_messages WHERE subpath(path, 0, -1) <@ 2::text::ltree) " <>
-      "AS replies FROM course_messages " <>
+      "(SELECT COUNT(*) FROM course_messages WHERE subpath(path, 0, -1) <@ " <>
+      "\"outer\".id::text::ltree) AS replies FROM course_messages AS \"outer\"" <>
       "WHERE course=$1 AND nlevel(path)=1 ORDER BY pinned DESC, created_at DESC LIMIT $2;"
     _messages = Postgrex.query(conn, query_text, [course_id, number]);
   end
