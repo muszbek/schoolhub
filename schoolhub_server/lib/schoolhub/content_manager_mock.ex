@@ -82,13 +82,12 @@ defmodule Schoolhub.ContentManagerMock do
 
 
   defp mock_pack_message(message) do
-    %{id: 1,
-      course: @mock_course_string,
-      author: @mock_student_string,
-      ancestor: nil,
-      message: message,
-      timestamp: "now",
-      pinned: false}
+    %Schoolhub.Post{id: 1,
+		    course: @mock_course_string,
+		    author: @mock_student_string,
+		    message: message,
+		    timestamp: "now",
+		    pinned: false}
   end
 
 end

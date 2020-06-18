@@ -101,7 +101,7 @@ defmodule CourseContentTest do
       @test_course, @test_desc)
     result = Schoolhub.CourseContentServer.get_single_message(id, @test_user_student,
       @test_course)
-    assert %{message: @test_desc} = result
+    assert %Schoolhub.Post{message: @test_desc} = result
   end
 
   test "not affiliated post message fails" do
@@ -140,7 +140,7 @@ defmodule CourseContentTest do
       @test_course, @test_desc)
     result = Schoolhub.CourseContentServer.get_single_message(id, @test_user_student,
       @test_course)
-    assert %{message: @test_desc} = result
+    assert %Schoolhub.Post{message: @test_desc} = result
   end
 
   test "not affiliated post reply fails" do

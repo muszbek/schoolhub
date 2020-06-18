@@ -144,7 +144,7 @@ defmodule Schoolhub.ContentManager do
 
     result = {conn, course_name}
       |> get_course_id()
-      |> do_get_root_messages(number)
+      |> do_get_root_messages(course_name, number)
     
     {:reply, result, state}
   end
@@ -227,13 +227,13 @@ defmodule Schoolhub.ContentManager do
   defp pack_message_json(id, course_name,
 	_message_response = [author, ancestor, message, timestamp, is_pinned]) do
 
-    %{id: id,
-      course: course_name,
-      author: author,
-      ancestor: ancestor |> get_ancestor(),
-      message: message,
-      timestamp: timestamp |> get_timestamp(),
-      pinned: is_pinned}
+    %Schoolhub.Post{id: id,
+		    course: course_name,
+		    author: author,
+		    ancestor: ancestor |> get_ancestor(),
+		    message: message,
+		    timestamp: timestamp |> get_timestamp(),
+		    pinned: is_pinned}
   end
 
   defp do_modify_message({:error, reason}, _, _), do: {:error, reason}
@@ -271,13 +271,34 @@ defmodule Schoolhub.ContentManager do
     end
   end
 
-  defp do_get_root_messages({:error, reason}, _), do: {:error, reason}
-  defp do_get_root_messages({conn, course_id}, number) do
+  defp do_get_root_messages({:error, reason}, _, _), do: {:error, reason}
+  defp do_get_root_messages({conn, course_id}, course_name, number) do
     query_text = "SELECT id, author, message, created_at, pinned, " <>
       "(SELECT COUNT(*) FROM course_messages WHERE subpath(path, 0, -1) <@ " <>
       "\"outer\".id::text::ltree) AS replies FROM course_messages AS \"outer\"" <>
       "WHERE course=$1 AND nlevel(path)=1 ORDER BY pinned DESC, created_at DESC LIMIT $2;"
-    _messages = Postgrex.query(conn, query_text, [course_id, number]);
+    result = Postgrex.query(conn, query_text, [course_id, number]);
+
+    {:ok, %{columns: ["id", "author", "message", "created_at", "pinned", "replies"],
+	    command: :select, rows: messages}} = result
+    
+    pack_root_messages(course_name, messages)
+  end
+
+  defp pack_root_messages(course_name, messages) do
+    Enum.map(messages, &(pack_root_message_json(course_name, &1)))
+  end
+
+  defp pack_root_message_json(course_name,
+	_message = [id, author, content, timestamp, pinned, replies]) do
+
+    %Schoolhub.Post{id: id,
+		    course: course_name,
+		    author: author,
+		    message: content,
+		    timestamp: timestamp,
+		    pinned: pinned,
+		    replies: replies}
   end
 
 end
