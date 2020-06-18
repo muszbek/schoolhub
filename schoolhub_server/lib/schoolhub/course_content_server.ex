@@ -77,6 +77,13 @@ defmodule Schoolhub.CourseContentServer do
   def get_root_messages(self, course_name, number \\ 10) do
     GenServer.call(__MODULE__, {:get_root_messages, self, course_name, number})
   end
+
+  @doc """
+  Gets a number of replies for the specified root message.
+  """
+  def get_replies(id, self, course_name, number \\ 10) do
+    GenServer.call(__MODULE__, {:get_replies, id, self, course_name, number})
+  end
   
 
   ### Server callbacks ###
@@ -171,6 +178,17 @@ defmodule Schoolhub.CourseContentServer do
     result = case am_i_affiliated(self, course_name) do
 	       err = {:error, _reason} -> err
 	       {:ok, _aff} -> db_api.get_root_messages(course_name, number)
+	     end
+    {:reply, result, state}
+  end
+
+  @impl true
+  def handle_call({:get_replies, id, self, course_name, number}, _from,
+	state = %{db_content_api: db_api}) do
+
+    result = case am_i_affiliated(self, course_name) do
+	       err = {:error, _reason} -> err
+	       {:ok, _aff} -> db_api.get_replies(id, course_name, number)
 	     end
     {:reply, result, state}
   end

@@ -68,6 +68,13 @@ defmodule Schoolhub.ContentManager do
     GenServer.call(__MODULE__, {:get_root_messages, course_name, number})
   end
 
+  @doc """
+  Retrieves a specified number of replies for the specified root message.
+  """
+  def get_replies(id, course_name, number) do
+    GenServer.call(__MODULE__, {:get_replies, id, course_name, number})
+  end
+
 
   ### Server callbacks ###
   
@@ -149,6 +156,17 @@ defmodule Schoolhub.ContentManager do
     {:reply, result, state}
   end
 
+  @impl true
+  def handle_call({:get_replies, id, course_name, number}, _from,
+	state = %{pgsql_conn: conn}) do
+
+    result = {conn, course_name}
+      |> get_course_id()
+      |> do_get_replies(id, course_name, number)
+    
+    {:reply, result, state}
+  end
+
 
   ### Utility functions ###
   
@@ -199,7 +217,7 @@ defmodule Schoolhub.ContentManager do
   defp do_get_single_message({:error, reason}, _, _), do: {:error, reason}
   defp do_get_single_message({conn, course_id}, id, course_name) do
     message_query =
-      "SELECT author, subpath(path, -2, -1), message, created_at, pinned " <>
+      "SELECT author, subpath(path, -2, -1) AS \"ancestor\", message, created_at, pinned " <>
       "FROM course_messages WHERE id=$1 AND course=$2;"
     message_res = Postgrex.query(conn, message_query, [id, course_id])
     
@@ -209,7 +227,7 @@ defmodule Schoolhub.ContentManager do
 	
 	{:error, :message_not_exist}
 	
-      {:ok, %{columns: ["author", "subpath", "message", "created_at", "pinned"],
+      {:ok, %{columns: ["author", "ancestor", "message", "created_at", "pinned"],
 	       command: :select, num_rows: 1, rows: [message_response]}} ->
 	
 	pack_message_json(id, course_name, message_response)
@@ -271,13 +289,14 @@ defmodule Schoolhub.ContentManager do
     end
   end
 
+  
   defp do_get_root_messages({:error, reason}, _, _), do: {:error, reason}
   defp do_get_root_messages({conn, course_id}, course_name, number) do
     query_text = "SELECT id, author, message, created_at, pinned, " <>
       "(SELECT COUNT(*) FROM course_messages WHERE subpath(path, 0, -1) <@ " <>
       "\"outer\".id::text::ltree) AS replies FROM course_messages AS \"outer\"" <>
       "WHERE course=$1 AND nlevel(path)=1 ORDER BY pinned DESC, created_at DESC LIMIT $2;"
-    result = Postgrex.query(conn, query_text, [course_id, number]);
+    result = Postgrex.query(conn, query_text, [course_id, number])
 
     {:ok, %{columns: ["id", "author", "message", "created_at", "pinned", "replies"],
 	    command: :select, rows: messages}} = result
@@ -296,9 +315,39 @@ defmodule Schoolhub.ContentManager do
 		    course: course_name,
 		    author: author,
 		    message: content,
-		    timestamp: timestamp,
+		    timestamp: timestamp |> get_timestamp(),
 		    pinned: pinned,
 		    replies: replies}
+  end
+
+
+  defp do_get_replies({:error, reason}, _, _, _), do: {:error, reason}
+  defp do_get_replies({conn, course_id}, id, course_name, number) do
+    query_text = "SELECT id, author, subpath(path, -2, -1) AS \"ancestor\", " <>
+      "message, created_at, pinned FROM course_messages WHERE course=$2 AND " <>
+      "path <@ $1::ltree ORDER BY path, created_at LIMIT $3;"
+    result = Postgrex.query(conn, query_text, [id |> string(), course_id, number])
+
+    {:ok, %{columns: ["id", "author", "ancestor", "message", "created_at", "pinned"],
+	    command: :select, rows: replies}} = result
+
+    pack_replies(course_name, replies)
+  end
+
+  defp pack_replies(course_name, replies) do
+    Enum.map(replies, &(pack_reply_json(course_name, &1)))
+  end
+
+  defp pack_reply_json(course_name,
+	_reply = [id, author, ancestor, content, timestamp, pinned]) do
+
+    %Schoolhub.Post{id: id,
+		    course: course_name,
+		    author: author,
+		    ancestor: ancestor |> get_ancestor(),
+		    message: content,
+		    timestamp: timestamp |> get_timestamp(),
+		    pinned: pinned}
   end
 
 end
