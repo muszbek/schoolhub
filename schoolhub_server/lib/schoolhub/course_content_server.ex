@@ -84,6 +84,14 @@ defmodule Schoolhub.CourseContentServer do
   def get_replies(id, self, course_name, number \\ 10) do
     GenServer.call(__MODULE__, {:get_replies, id, self, course_name, number})
   end
+
+  @doc """
+  Sets the pinned flag of the root message.
+  Iff pinned is true, the message is pushed to top in order.
+  """
+  def pin_message(id, self, course_name, pinned \\ true) do
+    GenServer.call(__MODULE__, {:pin_message, id, self, course_name, pinned})
+  end
   
 
   ### Server callbacks ###
@@ -189,6 +197,18 @@ defmodule Schoolhub.CourseContentServer do
     result = case am_i_affiliated(self, course_name) do
 	       err = {:error, _reason} -> err
 	       {:ok, _aff} -> db_api.get_replies(id, course_name, number)
+	     end
+    {:reply, result, state}
+  end
+
+  @impl true
+  def handle_call({:pin_message, id, self, course_name, pinned}, _from,
+	state = %{db_content_api: db_api}) do
+
+    result = case can_i_modify_message(id, self |> string(), course_name |> string(), db_api) do
+	       err = {:error, _reason} -> err
+	       :ok ->
+		 db_api.pin_message(id, course_name, pinned)
 	     end
     {:reply, result, state}
   end

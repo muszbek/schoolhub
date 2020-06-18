@@ -75,6 +75,14 @@ defmodule Schoolhub.ContentManager do
     GenServer.call(__MODULE__, {:get_replies, id, course_name, number})
   end
 
+  @doc """
+  Sets the pinned flag of the root message.
+  Pinned messages are pushed to top in order.
+  """
+  def pin_message(id, course_name, pinned) do
+    GenServer.call(__MODULE__, {:pin_message, id, course_name, pinned})
+  end
+
 
   ### Server callbacks ###
   
@@ -163,6 +171,17 @@ defmodule Schoolhub.ContentManager do
     result = {conn, course_name}
       |> get_course_id()
       |> do_get_replies(id, course_name, number)
+    
+    {:reply, result, state}
+  end
+
+  @impl true
+  def handle_call({:pin_message, id, course_name, pinned}, _from,
+	state = %{pgsql_conn: conn}) do
+
+    result = {conn, course_name}
+      |> get_course_id()
+      |> do_set_pinned(id, pinned)
     
     {:reply, result, state}
   end
@@ -348,6 +367,19 @@ defmodule Schoolhub.ContentManager do
 		    message: content,
 		    timestamp: timestamp |> get_timestamp(),
 		    pinned: pinned}
+  end
+
+
+  defp do_set_pinned({:error, reason}, _, _), do: {:error, reason}
+  defp do_set_pinned({conn, course_id}, id, pinned) do
+    query_text = "UPDATE course_messages SET pinned = $3 WHERE id=$1 AND course=$2 " <>
+      "AND nlevel(path)=1;"
+    pin_result = Postgrex.query(conn, query_text, [id, course_id, pinned])
+
+    case pin_result do
+      {:ok, %{command: :update, num_rows: 1, rows: nil}} -> :ok
+      {:ok, %{command: :update, num_rows: 0, rows: nil}} -> {:error, :message_not_exist}
+    end
   end
 
 end
