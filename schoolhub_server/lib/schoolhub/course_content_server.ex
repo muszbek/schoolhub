@@ -92,6 +92,13 @@ defmodule Schoolhub.CourseContentServer do
   def pin_message(id, self, course_name, pinned \\ true) do
     GenServer.call(__MODULE__, {:pin_message, id, self, course_name, pinned})
   end
+
+  @doc """
+  Removes a root message together with all replies.
+  """
+  def delete_root_message(id, self, course_name) do
+    GenServer.call(__MODULE__, {:delete_root_message, id, self, course_name})
+  end
   
 
   ### Server callbacks ###
@@ -209,6 +216,18 @@ defmodule Schoolhub.CourseContentServer do
 	       err = {:error, _reason} -> err
 	       :ok ->
 		 db_api.pin_message(id, course_name, pinned)
+	     end
+    {:reply, result, state}
+  end
+
+  @impl true
+  def handle_call({:delete_root_message, id, self, course_name}, _from,
+	state = %{db_content_api: db_api}) do
+
+    result = case can_i_modify_message(id, self |> string(), course_name |> string(), db_api) do
+	       err = {:error, _reason} -> err
+	       :ok ->
+		 db_api.delete_root_message(id, course_name)
 	     end
     {:reply, result, state}
   end

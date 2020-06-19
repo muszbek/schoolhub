@@ -83,6 +83,13 @@ defmodule Schoolhub.ContentManager do
     GenServer.call(__MODULE__, {:pin_message, id, course_name, pinned})
   end
 
+  @doc """
+  Removes root message together with all replies.
+  """
+  def delete_root_message(id, course_name) do
+    GenServer.call(__MODULE__, {:delete_root_message, id, course_name})
+  end
+
 
   ### Server callbacks ###
   
@@ -182,6 +189,17 @@ defmodule Schoolhub.ContentManager do
     result = {conn, course_name}
       |> get_course_id()
       |> do_set_pinned(id, pinned)
+    
+    {:reply, result, state}
+  end
+
+  @impl true
+  def handle_call({:delete_root_message, id, course_name}, _from,
+	state = %{pgsql_conn: conn}) do
+
+    result = {conn, course_name}
+      |> get_course_id()
+      |> do_delete_root_message(id)
     
     {:reply, result, state}
   end
@@ -380,6 +398,14 @@ defmodule Schoolhub.ContentManager do
       {:ok, %{command: :update, num_rows: 1, rows: nil}} -> :ok
       {:ok, %{command: :update, num_rows: 0, rows: nil}} -> {:error, :message_not_exist}
     end
+  end
+
+
+  defp do_delete_root_message({:error, reason}, _), do: {:error, reason}
+  defp do_delete_root_message({conn, course_id}, id) do
+    query_text = "DELETE FROM course_messages WHERE course = $2 AND path <@ $1::ltree;"
+    {:ok, %{command: :delete}} = Postgrex.query(conn, query_text, [id |> string(), course_id])
+    :ok
   end
 
 end
