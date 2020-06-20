@@ -79,6 +79,36 @@ defmodule Client.CourseContentServer do
   end
 
 
+  @doc """
+  Gets a number of root level messages, starting with the pinned ones.
+  """
+  def get_root_messages(course_name, number \\ 10) do
+    GenServer.call(__MODULE__, {:get_root_messages, course_name, number})
+  end
+
+  @doc """
+  Gets a number of replies for the specified root message.
+  """
+  def get_replies(id, course_name, number \\ 10) do
+    GenServer.call(__MODULE__, {:get_replies, id, course_name, number})
+  end
+
+  @doc """
+  Removes a root message together with all replies.
+  """
+  def delete_root_message(id, course_name) do
+    GenServer.call(__MODULE__, {:delete_root_message, id, course_name})
+  end
+
+  @doc """
+  Sets the pinned flag of the root message.
+  Iff pinned is true, the message is pushed to top in order.
+  """
+  def pin_message(id, course_name, pinned \\ true) do
+    GenServer.call(__MODULE__, {:pin_message, id, course_name, pinned})
+  end
+
+
   ### Server callbacks ###
   @impl true
   def init(options) do
@@ -113,13 +143,13 @@ defmodule Client.CourseContentServer do
   
   @impl true
   def handle_call({:get_single_message, id, course_name}, from, state) do
-    body = %{id: id, course_name: course_name}
+    body = %{id: id, course_name: course_name, number: 1}
     Rest.send_http_id(body, from, "GET", "/courses/messages", state)
   end
 
   @impl true
   def handle_call({:delete_single_message, id, course_name}, from, state) do
-    body = %{id: id, course_name: course_name}
+    body = %{id: id, course_name: course_name, all: false}
     Rest.send_http_id(body, from, "DELETE", "/courses/messages", state)
   end
 
@@ -127,6 +157,30 @@ defmodule Client.CourseContentServer do
   def handle_call({:modify_single_message, id, course_name, message}, from, state) do
     body = %{id: id, course_name: course_name, message: message |> pack_json()}
     Rest.send_http_id(body, from, "PUT", "/courses/messages", state)
+  end
+
+  @impl true
+  def handle_call({:get_root_messages, course_name, number}, from, state) do
+    body = %{course_name: course_name, number: number}
+    Rest.send_http_id(body, from, "GET", "/courses/message_board", state)
+  end
+
+  @impl true
+  def handle_call({:get_replies, id, course_name, number}, from, state) do
+    body = %{id: id, course_name: course_name, number: number}
+    Rest.send_http_id(body, from, "GET", "/courses/messages", state)
+  end
+
+  @impl true
+  def handle_call({:delete_root_message, id, course_name}, from, state) do
+    body = %{id: id, course_name: course_name, all: true}
+    Rest.send_http_id(body, from, "DELETE", "/courses/messages", state)
+  end
+
+  @impl true
+  def handle_call({:pin_message, id, course_name, pinned}, from, state) do
+    body = %{id: id, course_name: course_name, pinned: pinned}
+    Rest.send_http_id(body, from, "PUT", "/courses/messages/pin", state)
   end
 
 

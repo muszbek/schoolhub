@@ -137,6 +137,7 @@ defmodule Schoolhub.Router do
 
     %{"self" => self, "id" => id, "course_name" => course_name, "message" => message} =
       Jason.decode!(body)
+    
     result = case id do
 	       nil -> Schoolhub.CourseContentServer.post_message(self, course_name, message)
 	       id -> Schoolhub.CourseContentServer.post_reply(id, self, course_name, message)
@@ -147,16 +148,24 @@ defmodule Schoolhub.Router do
   get "/courses/messages" do
     body = get_body(conn)
 
-    %{"self" => self, "id" => id, "course_name" => course_name} = Jason.decode!(body)
-    result = Schoolhub.CourseContentServer.get_single_message(id, self, course_name)
+    %{"self" => self, "id" => id, "course_name" => course_name, "number" => number} =
+      Jason.decode!(body)
+    
+    result = case number do
+	       1 -> Schoolhub.CourseContentServer.get_single_message(id, self, course_name)
+	       bigger -> Schoolhub.CourseContentServer.get_replies(id, self, course_name, bigger)
+	     end
     rest_json_reply(conn, result)
   end
 
   delete "/courses/messages" do
     body = get_body(conn)
 
-    %{"self" => self, "id" => id, "course_name" => course_name} = Jason.decode!(body)
-    result = Schoolhub.CourseContentServer.delete_single_message(id, self, course_name)
+    %{"self" => self, "id" => id, "course_name" => course_name, "all" => all} = Jason.decode!(body)
+    result = case all do
+	       false -> Schoolhub.CourseContentServer.delete_single_message(id, self, course_name)
+	       true -> Schoolhub.CourseContentServer.delete_root_message(id, self, course_name)
+	     end
     rest_json_reply(conn, result)
   end
 
@@ -166,6 +175,23 @@ defmodule Schoolhub.Router do
     %{"self" => self, "id" => id, "course_name" => course_name, "message" => message} =
       Jason.decode!(body)
     result = Schoolhub.CourseContentServer.modify_single_message(id, self, course_name, message)
+    rest_json_reply(conn, result)
+  end
+
+  get "/courses/message_board" do
+    body = get_body(conn)
+
+    %{"self" => self, "course_name" => course_name, "number" => number} = Jason.decode!(body)
+    result = Schoolhub.CourseContentServer.get_root_messages(self, course_name, number)
+    rest_json_reply(conn, result)
+  end
+
+  put "/courses/messages/pin" do
+    body = get_body(conn)
+
+    %{"self" => self, "id" => id, "course_name" => course_name, "pinned" => pinned} =
+      Jason.decode!(body)
+    result = Schoolhub.CourseContentServer.pin_message(id, self, course_name, pinned)
     rest_json_reply(conn, result)
   end
   
