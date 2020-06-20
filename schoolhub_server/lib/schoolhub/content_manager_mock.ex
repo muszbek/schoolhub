@@ -104,6 +104,33 @@ defmodule Schoolhub.ContentManagerMock do
     get_replies(id, @mock_course, number)
   end
 
+  def pin_message(0, @mock_course, _pinned) do
+    {:error, :message_not_exist}
+  end
+  def pin_message(0, @mock_course_string, pinned) do
+    pin_message(0, @mock_course, pinned)
+  end
+  def pin_message(2, @mock_course, _pinned) do
+    {:error, :message_not_exist}
+  end
+  def pin_message(2, @mock_course_string, pinned) do
+    pin_message(0, @mock_course, pinned)
+  end
+  def pin_message(_id, @mock_course, _pinned) do
+    :ok
+  end
+  def pin_message(id, @mock_course_string, pinned) do
+    pin_message(id, @mock_course, pinned)
+  end
+
+  def delete_root_message(_id, @mock_course) do
+    :ok
+  end
+  def delete_root_message(id, @mock_course_string) do
+    delete_root_message(id, @mock_course)
+  end
+  
+
   defp mock_pack_message(message) do
     %Schoolhub.Post{id: 1,
 		    course: @mock_course_string,

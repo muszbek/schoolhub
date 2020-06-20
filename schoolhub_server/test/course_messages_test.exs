@@ -82,5 +82,76 @@ defmodule CourseMessagesTest do
     result = Schoolhub.CourseContentServer.get_replies(0, @test_user_student, @test_course)
     assert result == []
   end
+
+
+  test "teacher pin message succeeds" do
+    result = Schoolhub.CourseContentServer.pin_message(1, @test_user_teacher, @test_course)
+    assert result == :ok
+  end
+
+  test "admin pin message succeeds" do
+    result = Schoolhub.CourseContentServer.pin_message(1, @admin, @test_course)
+    assert result == :ok
+  end
+
+  test "student pin message fails" do
+    result = Schoolhub.CourseContentServer.pin_message(1, @test_user_student, @test_course)
+    assert result == {:error, :no_permission}
+  end
+
+  test "pin message wrong course fails" do
+    result = Schoolhub.CourseContentServer.pin_message(1, @test_user_teacher, @test_course_wrong)
+    assert result == {:error, :course_not_exist}
+  end
+
+  test "pin message wrong id fails" do
+    result = Schoolhub.CourseContentServer.pin_message(0, @test_user_teacher, @test_course)
+    assert result == {:error, :message_not_exist}
+  end
+
+  test "pin reply fails" do
+    result = Schoolhub.CourseContentServer.get_replies(1, @test_user_teacher, @test_course)
+    [%Schoolhub.Post{}, %Schoolhub.Post{id: id}] = result
+    
+    result = Schoolhub.CourseContentServer.pin_message(id, @test_user_teacher, @test_course)
+    assert result == {:error, :message_not_exist}
+  end
+
+
+  test "teacher delete root message succeeds" do
+    result = Schoolhub.CourseContentServer.delete_root_message(1, @test_user_teacher, @test_course)
+    assert result == :ok
+  end
+
+  test "admin delete root message succeeds" do
+    result = Schoolhub.CourseContentServer.delete_root_message(1, @admin, @test_course)
+    assert result == :ok
+  end
+
+  test "student delete root message fails" do
+    result = Schoolhub.CourseContentServer.delete_root_message(1, @test_user_student, @test_course)
+    assert result == {:error, :no_permission}
+  end
+
+  test "delete root message wrong course fails" do
+    result = Schoolhub.CourseContentServer.delete_root_message(1, @test_user_teacher,
+      @test_course_wrong)
+    assert result == {:error, :course_not_exist}
+  end
+
+  test "delete non existing root message succeeds" do
+    result = Schoolhub.CourseContentServer.delete_root_message(0, @test_user_teacher, @test_course)
+    assert result == :ok
+  end
+
+  test "delete reply succeeds" do
+    # returns ok, but it is not deleted in fact
+    result = Schoolhub.CourseContentServer.get_replies(1, @test_user_teacher, @test_course)
+    [%Schoolhub.Post{}, %Schoolhub.Post{id: id}] = result
+    
+    result = Schoolhub.CourseContentServer.delete_root_message(id, @test_user_teacher,
+      @test_course)
+    assert result == :ok
+  end
   
 end
