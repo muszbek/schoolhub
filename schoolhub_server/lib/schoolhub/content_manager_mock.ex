@@ -80,6 +80,29 @@ defmodule Schoolhub.ContentManagerMock do
     modify_single_message(id, @mock_course, @mock_student, any_message)
   end
 
+  def get_root_messages(@mock_course, _number) do
+    mock_message_map = mock_pack_message(@mock_message)
+    [%{mock_message_map | replies: 1}]
+  end
+  def get_root_messages(@mock_course_string, number) do
+    get_root_messages(@mock_course, number)
+  end
+
+  def get_replies(0, @mock_course, _number) do
+    []
+  end
+  def get_replies(0, @mock_course_string, number) do
+    get_replies(0, @mock_course, number)
+  end
+  
+  def get_replies(id, @mock_course, _number) do
+    mock_message_map = mock_pack_message(@mock_message)
+    mock_reply_map = mock_pack_message(@mock_message)
+    [%{mock_message_map | id: id}, %{mock_reply_map | id: id+1, ancestor: id}]
+  end
+  def get_replies(id, @mock_course_string, number) do
+    get_replies(id, @mock_course, number)
+  end
 
   defp mock_pack_message(message) do
     %Schoolhub.Post{id: 1,

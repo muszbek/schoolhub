@@ -313,6 +313,10 @@ defmodule Schoolhub.DataManager do
       subquery_id <> ");"
     {:ok, %{command: :delete}} = Postgrex.query(conn, query_affiliation, [string(name)])
 
+    query_messages = "DELETE FROM course_messages WHERE course = (" <>
+      subquery_id <> ");"
+    {:ok, %{command: :delete}} = Postgrex.query(conn, query_messages, [string(name)])
+
     query_course = "DELETE FROM courses WHERE name LIKE $1;"
     {:ok, %{command: :delete}} = Postgrex.query(conn, query_course, [string(name)])
     
