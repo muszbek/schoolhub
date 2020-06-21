@@ -43,15 +43,7 @@ init_per_suite(Config) ->
     'Elixir.Schoolhub.RegServer':register_user(?TEST_USER_STUDENT, ?TEST_PW),
     'Elixir.Schoolhub.RegServer':register_user(?TEST_USER_NON_AFF, ?TEST_PW),
     'Elixir.Schoolhub.RegServer':set_user_privilege(?ADMIN, ?TEST_USER_OWNER, <<"teacher">>),
-    ok = 'Elixir.Schoolhub.CourseAdminServer':create_course(?TEST_USER_OWNER, ?TEST_COURSE),
-    timer:sleep(500),
-    ok = 'Elixir.Schoolhub.CourseAdminServer':invite_student(?TEST_USER_OWNER,
-							     ?TEST_USER_STUDENT, ?TEST_COURSE),
-    {ok, RootId} = 'Elixir.Schoolhub.CourseContentServer':post_message(?TEST_USER_STUDENT,
-								       ?TEST_COURSE, ?TEST_DESC),
-    {ok, ReplyId} = 'Elixir.Schoolhub.CourseContentServer':post_reply(RootId, ?TEST_USER_STUDENT,
-								      ?TEST_COURSE, ?TEST_DESC),
-    [{root_id, RootId} | [{reply_id, ReplyId} | Config]].
+    Config.
 
 %%--------------------------------------------------------------------
 %% @spec end_per_suite(Config0) -> term() | {save_config,Config1}
@@ -59,7 +51,6 @@ init_per_suite(Config) ->
 %% @end
 %%--------------------------------------------------------------------
 end_per_suite(_Config) ->
-    'Elixir.Schoolhub.CourseAdminServer':remove_course(?ADMIN, ?TEST_COURSE),
     {ok, _} = 'Elixir.Schoolhub.RegServer':remove_user(?TEST_USER_STUDENT),
     {ok, _} = 'Elixir.Schoolhub.RegServer':remove_user(?TEST_USER_OWNER),
     ok.
@@ -72,8 +63,16 @@ end_per_suite(_Config) ->
 %% Reason = term()
 %% @end
 %%--------------------------------------------------------------------
-init_per_group(_GroupName, Config) ->
-    Config.
+init_per_group(GroupName, Config) ->
+    ok = 'Elixir.Schoolhub.CourseAdminServer':create_course(?TEST_USER_OWNER, ?TEST_COURSE),
+    timer:sleep(500),
+    ok = 'Elixir.Schoolhub.CourseAdminServer':invite_student(?TEST_USER_OWNER,
+							     ?TEST_USER_STUDENT, ?TEST_COURSE),
+    {ok, RootId} = 'Elixir.Schoolhub.CourseContentServer':post_message(?TEST_USER_STUDENT,
+								       ?TEST_COURSE, ?TEST_DESC),
+    {ok, ReplyId} = 'Elixir.Schoolhub.CourseContentServer':post_reply(RootId, ?TEST_USER_STUDENT,
+								      ?TEST_COURSE, ?TEST_DESC),
+    Config ++ [{root_id, RootId}, {reply_id, ReplyId}, {group, GroupName}].
 
 %%--------------------------------------------------------------------
 %% @spec end_per_group(GroupName, Config0) ->
@@ -83,6 +82,7 @@ init_per_group(_GroupName, Config) ->
 %% @end
 %%--------------------------------------------------------------------
 end_per_group(_GroupName, _Config) ->
+    'Elixir.Schoolhub.CourseAdminServer':remove_course(?ADMIN, ?TEST_COURSE),
     ok.
 
 %%--------------------------------------------------------------------
@@ -94,7 +94,19 @@ end_per_group(_GroupName, _Config) ->
 %% @end
 %%--------------------------------------------------------------------
 init_per_testcase(_TestCase, Config) ->
-    Config.
+    Group = ?config(group, Config),
+    case Group of
+	delete_root_message ->
+	    {ok, RootId} = 
+		'Elixir.Schoolhub.CourseContentServer':post_message(?TEST_USER_STUDENT,
+								    ?TEST_COURSE, ?TEST_DESC),
+	    {ok, ReplyId} = 
+		'Elixir.Schoolhub.CourseContentServer':post_reply(RootId, ?TEST_USER_STUDENT,
+								  ?TEST_COURSE, ?TEST_DESC),
+	    Config ++ [{root_id, RootId}, {reply_id, ReplyId}];
+	_ ->
+	    Config
+    end.
 
 %%--------------------------------------------------------------------
 %% @spec end_per_testcase(TestCase, Config0) ->
@@ -104,8 +116,20 @@ init_per_testcase(_TestCase, Config) ->
 %% Reason = term()
 %% @end
 %%--------------------------------------------------------------------
-end_per_testcase(_TestCase, _Config) ->
+end_per_testcase(_TestCase, Config) ->
     'Elixir.Client.LoginServer':end_session(),
+
+    Group = ?config(group, Config),
+    case Group of
+	delete_root_message ->
+	    <<"ok">> = 
+		RootId = ?config(root_id, Config),
+		'Elixir.Schoolhub.CourseContentServer':delete_root_message(RootId,
+									   ?TEST_USER_OWNER,
+									   ?TEST_COURSE);
+	_ -> ok
+    end,
+
     ok.
 
 %%--------------------------------------------------------------------
@@ -139,7 +163,16 @@ groups() ->
        student_pin_message_fails,
        pin_message_wrong_course_fails,
        pin_message_wrong_id_fails,
-       pin_reply_fails]}].
+       pin_reply_fails]},
+
+     {delete_root_message, [shuffle],
+      [teacher_delete_root_message_succeeds,
+       admin_delete_root_message_succeeds,
+       student_delete_root_message_fails,
+       delete_root_message_wrong_course_fails,
+       delete_non_existing_root_message_succeeds,
+       delete_reply_succeeds]}].
+
 %%--------------------------------------------------------------------
 %% @spec all() -> GroupsAndTestCases | {skip,Reason}
 %% GroupsAndTestCases = [{group,GroupName} | TestCase]
@@ -151,7 +184,8 @@ groups() ->
 all() -> 
     [{group, root_messages},
      {group, message_replies},
-     {group, pin_message}].
+     {group, pin_message},
+     {group, delete_root_message}].
 
 %%--------------------------------------------------------------------
 %% @spec TestCase() -> Info
@@ -256,6 +290,49 @@ pin_reply_fails(Config) ->
     ReplyId = ?config(reply_id, Config),
     Result = 'Elixir.Client.CourseContentServer':pin_message(ReplyId, ?TEST_COURSE),
     <<"ERROR_message_not_exist">> = Result,
+    ok.
+
+
+teacher_delete_root_message_succeeds(Config) ->
+    {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_OWNER, ?TEST_PW),
+    RootId = ?config(root_id, Config),
+    Result = 'Elixir.Client.CourseContentServer':delete_root_message(RootId, ?TEST_COURSE),
+    <<"ok">> = Result,
+    ok.
+
+admin_delete_root_message_succeeds(Config) ->
+    {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?ADMIN, ?ADMIN_PW),
+    RootId = ?config(root_id, Config),
+    Result = 'Elixir.Client.CourseContentServer':delete_root_message(RootId, ?TEST_COURSE),
+    <<"ok">> = Result,
+    ok.
+
+student_delete_root_message_fails(Config) ->
+    {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_STUDENT, ?TEST_PW),
+    RootId = ?config(root_id, Config),
+    Result = 'Elixir.Client.CourseContentServer':delete_root_message(RootId, ?TEST_COURSE),
+    <<"ERROR_no_permission">> = Result,
+    ok.
+
+delete_root_message_wrong_course_fails(Config) ->
+    {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_OWNER, ?TEST_PW),
+    RootId = ?config(root_id, Config),
+    Result = 'Elixir.Client.CourseContentServer':delete_root_message(RootId, 
+								     ?TEST_COURSE_WRONG),
+    <<"ERROR_course_not_exist">> = Result,
+    ok.
+
+delete_non_existing_root_message_succeeds(_Config) ->
+    {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_OWNER, ?TEST_PW),
+    Result = 'Elixir.Client.CourseContentServer':delete_root_message(0, ?TEST_COURSE),
+    <<"ok">> = Result,
+    ok.
+
+delete_reply_succeeds(Config) ->
+    {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_OWNER, ?TEST_PW),
+    ReplyId = ?config(reply_id, Config),
+    Result = 'Elixir.Client.CourseContentServer':delete_root_message(ReplyId, ?TEST_COURSE),
+    <<"ok">> = Result,
     ok.
 
 
