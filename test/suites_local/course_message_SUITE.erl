@@ -126,12 +126,20 @@ groups() ->
       [student_get_root_messages_succeeds,
        not_affiliated_get_root_messages_fails,
        get_root_messages_wrong_course_fails]},
+
      {message_replies, [shuffle],
       [student_get_replies_succeeds,
        not_affiliated_get_replies_fails,
        get_replies_wrong_course_fails,
-       get_replies_wrong_id_returns_empty]}].
+       get_replies_wrong_id_returns_empty]},
 
+     {pin_message, [shuffle],
+      [teacher_pin_message_succeeds,
+       admin_pin_message_succeeds,
+       student_pin_message_fails,
+       pin_message_wrong_course_fails,
+       pin_message_wrong_id_fails,
+       pin_reply_fails]}].
 %%--------------------------------------------------------------------
 %% @spec all() -> GroupsAndTestCases | {skip,Reason}
 %% GroupsAndTestCases = [{group,GroupName} | TestCase]
@@ -142,7 +150,8 @@ groups() ->
 %%--------------------------------------------------------------------
 all() -> 
     [{group, root_messages},
-     {group, message_replies}].
+     {group, message_replies},
+     {group, pin_message}].
 
 %%--------------------------------------------------------------------
 %% @spec TestCase() -> Info
@@ -205,6 +214,48 @@ get_replies_wrong_id_returns_empty(_Config) ->
     {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_STUDENT, ?TEST_PW),
     Result = 'Elixir.Client.CourseContentServer':get_replies(0, ?TEST_COURSE),
     [] = Result,
+    ok.
+
+
+teacher_pin_message_succeeds(Config) ->
+    {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_OWNER, ?TEST_PW),
+    RootId = ?config(root_id, Config),
+    Result = 'Elixir.Client.CourseContentServer':pin_message(RootId, ?TEST_COURSE),
+    <<"ok">> = Result,
+    ok.
+
+admin_pin_message_succeeds(Config) ->
+    {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?ADMIN, ?ADMIN_PW),
+    RootId = ?config(root_id, Config),
+    Result = 'Elixir.Client.CourseContentServer':pin_message(RootId, ?TEST_COURSE),
+    <<"ok">> = Result,
+    ok.
+
+student_pin_message_fails(Config) ->
+    {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_STUDENT, ?TEST_PW),
+    RootId = ?config(root_id, Config),
+    Result = 'Elixir.Client.CourseContentServer':pin_message(RootId, ?TEST_COURSE),
+    <<"ERROR_no_permission">> = Result,
+    ok.
+
+pin_message_wrong_course_fails(Config) ->
+    {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_OWNER, ?TEST_PW),
+    RootId = ?config(root_id, Config),
+    Result = 'Elixir.Client.CourseContentServer':pin_message(RootId, ?TEST_COURSE_WRONG),
+    <<"ERROR_course_not_exist">> = Result,
+    ok.
+
+pin_message_wrong_id_fails(_Config) ->
+    {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_OWNER, ?TEST_PW),
+    Result = 'Elixir.Client.CourseContentServer':pin_message(0, ?TEST_COURSE),
+    <<"ERROR_message_not_exist">> = Result,
+    ok.
+
+pin_reply_fails(Config) ->
+    {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_OWNER, ?TEST_PW),
+    ReplyId = ?config(reply_id, Config),
+    Result = 'Elixir.Client.CourseContentServer':pin_message(ReplyId, ?TEST_COURSE),
+    <<"ERROR_message_not_exist">> = Result,
     ok.
 
 
