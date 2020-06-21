@@ -4,7 +4,7 @@
 - check mam common test why database is not cleaned
 
 - check if breaking up db queries is a good idea
-- course messageboard
+- course messageboard common test
 - implement more course functionality
 - check router if plug can be modularized
 - check romeo authentication fail PLAIN error so auth server does not crash
