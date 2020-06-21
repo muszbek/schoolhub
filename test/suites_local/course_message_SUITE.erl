@@ -47,11 +47,11 @@ init_per_suite(Config) ->
     timer:sleep(500),
     ok = 'Elixir.Schoolhub.CourseAdminServer':invite_student(?TEST_USER_OWNER,
 							     ?TEST_USER_STUDENT, ?TEST_COURSE),
-    {ok, Id} = 'Elixir.Schoolhub.CourseContentServer':post_message(?TEST_USER_STUDENT,
-								   ?TEST_COURSE, ?TEST_DESC),
-    {ok, _Id} = 'Elixir.Schoolhub.CourseContentServer':post_reply(Id, ?TEST_USER_STUDENT,
-								  ?TEST_COURSE, ?TEST_DESC),
-    Config.
+    {ok, RootId} = 'Elixir.Schoolhub.CourseContentServer':post_message(?TEST_USER_STUDENT,
+								       ?TEST_COURSE, ?TEST_DESC),
+    {ok, ReplyId} = 'Elixir.Schoolhub.CourseContentServer':post_reply(RootId, ?TEST_USER_STUDENT,
+								      ?TEST_COURSE, ?TEST_DESC),
+    [{root_id, RootId} | [{reply_id, ReplyId} | Config]].
 
 %%--------------------------------------------------------------------
 %% @spec end_per_suite(Config0) -> term() | {save_config,Config1}
@@ -125,7 +125,12 @@ groups() ->
     [{root_messages, [shuffle],
       [student_get_root_messages_succeeds,
        not_affiliated_get_root_messages_fails,
-       get_root_messages_wrong_course_fails]}].
+       get_root_messages_wrong_course_fails]},
+     {message_replies, [shuffle],
+      [student_get_replies_succeeds,
+       not_affiliated_get_replies_fails,
+       get_replies_wrong_course_fails,
+       get_replies_wrong_id_returns_empty]}].
 
 %%--------------------------------------------------------------------
 %% @spec all() -> GroupsAndTestCases | {skip,Reason}
@@ -136,7 +141,8 @@ groups() ->
 %% @end
 %%--------------------------------------------------------------------
 all() -> 
-    [{group, root_messages}].
+    [{group, root_messages},
+     {group, message_replies}].
 
 %%--------------------------------------------------------------------
 %% @spec TestCase() -> Info
@@ -171,6 +177,34 @@ get_root_messages_wrong_course_fails(_Config) ->
     {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_STUDENT, ?TEST_PW),
     Result = 'Elixir.Client.CourseContentServer':get_root_messages(?TEST_COURSE_WRONG),
     <<"ERROR_course_not_exist">> = Result,
+    ok.
+
+
+student_get_replies_succeeds(Config) ->
+    {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_STUDENT, ?TEST_PW),
+    RootId = ?config(root_id, Config),
+    Result = 'Elixir.Client.CourseContentServer':get_replies(RootId, ?TEST_COURSE),
+    [#{<<"id">> := RootId, <<"ancestor">> := nil}, #{<<"ancestor">> := RootId}] = Result,
+    ok.
+
+not_affiliated_get_replies_fails(Config) ->
+    {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_NON_AFF, ?TEST_PW),
+    RootId = ?config(root_id, Config),
+    Result = 'Elixir.Client.CourseContentServer':get_replies(RootId, ?TEST_COURSE),
+    <<"ERROR_no_affiliation">> = Result,
+    ok.
+
+get_replies_wrong_course_fails(Config) ->
+    {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_STUDENT, ?TEST_PW),
+    RootId = ?config(root_id, Config),
+    Result = 'Elixir.Client.CourseContentServer':get_replies(RootId, ?TEST_COURSE_WRONG),
+    <<"ERROR_course_not_exist">> = Result,
+    ok.
+
+get_replies_wrong_id_returns_empty(_Config) ->
+    {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_STUDENT, ?TEST_PW),
+    Result = 'Elixir.Client.CourseContentServer':get_replies(0, ?TEST_COURSE),
+    [] = Result,
     ok.
 
 
