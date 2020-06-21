@@ -4,7 +4,8 @@
 - check mam common test why database is not cleaned
 
 - check if breaking up db queries is a good idea
-- course messageboard common test
+- grades to db per student and XMPP
+- upload files
 - implement more course functionality
 - check router if plug can be modularized
 - check romeo authentication fail PLAIN error so auth server does not crash

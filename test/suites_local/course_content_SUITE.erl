@@ -165,7 +165,7 @@ groups() ->
        student_non_author_modify_single_message_fails,
        not_affiliated_modify_single_message_fails,
        wrong_course_modify_single_message_fails,
-       wrong_id_modify_single_message_succeeds]}].
+       wrong_id_modify_single_message_fails]}].
 
 %%--------------------------------------------------------------------
 %% @spec all() -> GroupsAndTestCases | {skip,Reason}
@@ -467,7 +467,7 @@ wrong_course_modify_single_message_fails(_Config) ->
     <<"ERROR_course_not_exist">> = Result,
     ok.
 
-wrong_id_modify_single_message_succeeds(_Config) ->
+wrong_id_modify_single_message_fails(_Config) ->
     {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_STUDENT, ?TEST_PW),
     Result = 'Elixir.Client.CourseContentServer':modify_single_message(0,
 								       ?TEST_COURSE,

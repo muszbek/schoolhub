@@ -259,7 +259,7 @@ defmodule Schoolhub.ContentManager do
     message_res = Postgrex.query(conn, message_query, [id, course_id])
     
     case message_res do
-      {:ok, %{columns: ["author", "subpath", "message", "created_at", "pinned"],
+      {:ok, %{columns: ["author", "ancestor", "message", "created_at", "pinned"],
 	       command: :select, num_rows: 0, rows: []}} ->
 	
 	{:error, :message_not_exist}
