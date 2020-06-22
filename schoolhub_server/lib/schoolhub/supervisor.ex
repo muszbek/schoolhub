@@ -28,6 +28,7 @@ defmodule Schoolhub.Supervisor do
       {Schoolhub.CourseAdminServer, db_api: db_backend()},
       {Schoolhub.CourseContentServer, db_generic_api: db_backend(),
        db_content_api: db_content_backend()},
+      {Schoolhub.CourseGradingServer, db_api: db_backend()},
       {Plug.Cowboy,
        scheme: server_scheme(), plug: Schoolhub.Router, options: [port: server_port()]}
     ]
