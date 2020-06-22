@@ -1,21 +1,37 @@
 # Schoolhub
 
-**TODO: Add description**
+A communication platform targeted for facilitating education courses.
+
+Contains a server and a client application both written in Elixir.
+For the moment there is no graphical front-end, coming later.
 
 ## Installation
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `schoolhub` to your list of dependencies in `mix.exs`:
+Both in the `./schoolhub_server` and `./schoolhub_client` folders:
 
-```elixir
-def deps do
-  [
-    {:schoolhub, "~> 0.1.0"}
-  ]
-end
+```
+mix deps.get
 ```
 
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at [https://hexdocs.pm/schoolhub](https://hexdocs.pm/schoolhub).
+## Running
+
+Launch the MongooseIM server, Postgres and images for integration tests:
+
+```
+docker-compose up
+```
+
+Launch the Schoolhub server:
+
+```
+cd schoolhub_server  
+iex -S mix
+```
+
+Launch the Schoolhub client:
+
+```
+cd schoolhub_client  
+iex -S mix
+```
 
