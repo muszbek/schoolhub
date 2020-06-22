@@ -166,6 +166,13 @@ defmodule Schoolhub.DataManager do
   def set_course_desc(course_name, desc) do
     GenServer.call(__MODULE__, {:set_desc, course_name, desc})
   end
+
+  @doc """
+  Reads out the grades field of the student affiliation to a course.
+  """
+  def get_grades(course_name, user) do
+    GenServer.call(__MODULE__, {:get_grades, course_name, user})
+  end
     
 
   ### Server callbacks ###
@@ -401,6 +408,16 @@ defmodule Schoolhub.DataManager do
     {:reply, :ok, state}
   end
 
+  @impl true
+  def handle_call({:get_grades, course_name, user}, _from, state = %{pgsql_conn: conn}) do
+  
+    result = {conn, course_name}
+      |> get_course_id()
+      |> do_get_grades(user)
+    
+    {:reply, result, state}
+  end
+
   
   ### Utility functions ###
   
@@ -538,5 +555,21 @@ defmodule Schoolhub.DataManager do
     query_text = "DELETE FROM course_affiliations WHERE course=$1 AND username=$2;"
     {:ok, %{command: :delete}} = Postgrex.query(conn, query_text, [id, string(user)])
     :ok
+  end
+
+  defp do_get_grades({:error, reason}, _), do: {:error, reason}
+  defp do_get_grades({conn, id}, user) do
+    query_affiliation = "SELECT grades FROM course_affiliations WHERE " <>
+      "course = $1 AND username LIKE $2;"
+    grades_result = Postgrex.query(conn, query_affiliation, [id, string(user)])
+
+    case grades_result do
+      {:ok, %{columns: ["grades"], command: :select, num_rows: 1, rows: [[nil]]}} ->
+	%{}
+      {:ok, %{columns: ["grades"], command: :select, num_rows: 1, rows: [[grades]]}} ->
+	grades
+      {:ok, %{columns: ["grades"], command: :select, num_rows: 0, rows: []}} ->
+	{:error, :no_affiliation}
+    end
   end
 end

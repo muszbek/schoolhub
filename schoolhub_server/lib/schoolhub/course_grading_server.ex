@@ -17,11 +17,38 @@ defmodule Schoolhub.CourseGradingServer do
     GenServer.start_link(__MODULE__, options, name: __MODULE__)
   end
 
+  @doc """
+  Reading out the grades of a student.
+  Other students not permitted.
+  """
+  def get_grades(self, course_name, target) do
+    GenServer.call(__MODULE__, {:get_grades, self, course_name, target})
+  end
+
   
   ### Server callbacks ###
   @impl true
   def init(options) do
     {:ok, parse_options(options)}
+  end
+
+  @impl true
+  def handle_call({:get_grades, self, course_name, self}, _from,
+	state = %{db_api: db_api}) do
+
+    result = db_api.get_grades(course_name, self)
+    {:reply, result, state}
+  end
+  
+  @impl true
+  def handle_call({:get_grades, self, course_name, target}, _from,
+	state = %{db_api: db_api}) do
+
+    result = case Schoolhub.CourseAdminServer.can_i_admin_course(self, course_name) do
+	       :ok -> db_api.get_grades(course_name, target)
+	       err = {:error, _reason} -> err
+	     end
+    {:reply, result, state}
   end
 
 
@@ -50,8 +77,7 @@ defmodule Schoolhub.CourseGradingServer do
   
   defp pack_json(json) do
     case do_pack_json(json) do
-      :json_decode_error -> %{text: json |> string()}
-      :invalid -> nil
+      :json_decode_error -> %{total: json |> string()}
       map -> map
     end
   end
@@ -67,6 +93,6 @@ defmodule Schoolhub.CourseGradingServer do
   defp do_pack_json(json) when is_binary(json), do: json |> jason_decode_catch()
   defp do_pack_json(json) when is_list(json), do: json |> string() |> jason_decode_catch()
   defp do_pack_json(json = %{}), do: json
-  defp do_pack_json(_json), do: :invalid
+  defp do_pack_json(other), do: %{total: other}
   
 end
