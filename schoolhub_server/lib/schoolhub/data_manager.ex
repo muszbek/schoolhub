@@ -173,6 +173,13 @@ defmodule Schoolhub.DataManager do
   def get_grades(course_name, user) do
     GenServer.call(__MODULE__, {:get_grades, course_name, user})
   end
+
+  @doc """
+  Sets the grades field of the student affiliation to a course.
+  """
+  def set_grades(course_name, user, grades) do
+    GenServer.call(__MODULE__, {:set_grades, course_name, user, grades})
+  end
     
 
   ### Server callbacks ###
@@ -418,6 +425,17 @@ defmodule Schoolhub.DataManager do
     {:reply, result, state}
   end
 
+  @impl true
+  def handle_call({:set_grades, course_name, user, grades}, _from,
+	state = %{pgsql_conn: conn}) do
+    
+    result = {conn, course_name}
+      |> get_course_id()
+      |> do_set_grades(user, grades)
+    
+    {:reply, result, state}
+  end
+
   
   ### Utility functions ###
   
@@ -570,6 +588,18 @@ defmodule Schoolhub.DataManager do
 	grades
       {:ok, %{columns: ["grades"], command: :select, num_rows: 0, rows: []}} ->
 	{:error, :no_affiliation}
+    end
+  end
+
+  defp do_set_grades({:error, reason}, _, _), do: {:error, reason}
+  defp do_set_grades({conn, id}, user, grades) do
+    query_affiliation = "UPDATE course_affiliations SET grades = $3 WHERE " <>
+      "course = $1 AND username LIKE $2;"
+    grades_result = Postgrex.query(conn, query_affiliation, [id, string(user), grades])
+
+    case grades_result do
+      {:ok, %{command: :update, num_rows: 1, rows: nil}} -> :ok
+      {:ok, %{command: :update, num_rows: 0, rows: nil}} -> {:error, :no_affiliation}
     end
   end
 end

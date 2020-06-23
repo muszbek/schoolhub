@@ -265,7 +265,7 @@ defmodule Schoolhub.CourseContentServer do
   
   defp pack_json(json) do
     case do_pack_json(json) do
-      :json_decode_error -> %{text: json |> string()}
+      :json_decode_error -> %{"text" => json |> string()}
       :invalid -> nil
       map -> map
     end

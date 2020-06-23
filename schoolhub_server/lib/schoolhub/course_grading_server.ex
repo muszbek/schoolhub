@@ -25,6 +25,20 @@ defmodule Schoolhub.CourseGradingServer do
     GenServer.call(__MODULE__, {:get_grades, self, course_name, target})
   end
 
+  @doc """
+  Setting the grades of a student in json format.
+  """
+  def set_grades(self, course_name, target, grades) do
+    GenServer.call(__MODULE__, {:set_grades, self, course_name, target, grades})
+  end
+
+  @doc """
+  Reads out the grades of a student as json, and merges that with the supplied grades.
+  """
+  def append_grades(self, course_name, target, grades) do
+    GenServer.call(__MODULE__, {:merge_grades, self, course_name, target, grades})
+  end
+  
   
   ### Server callbacks ###
   @impl true
@@ -48,6 +62,33 @@ defmodule Schoolhub.CourseGradingServer do
 	       :ok -> db_api.get_grades(course_name, target)
 	       err = {:error, _reason} -> err
 	     end
+    {:reply, result, state}
+  end
+
+  @impl true
+  def handle_call({:set_grades, self, course_name, target, grades}, _from,
+	state = %{db_api: db_api}) do
+
+    result = case Schoolhub.CourseAdminServer.can_i_admin_course(self, course_name) do
+	       :ok -> db_api.set_grades(course_name, target, grades |> pack_json())
+	       err = {:error, _reason} -> err
+	     end
+    {:reply, result, state}
+  end
+
+  @impl true
+  def handle_call({:merge_grades, self, course_name, target, grades}, _from,
+	state = %{db_api: db_api}) do
+
+    result = with :ok <- Schoolhub.CourseAdminServer.can_i_admin_course(self, course_name),
+                  old_grades <- db_api.get_grades(course_name, target)
+             do
+	       new_grades = Map.merge(old_grades, grades |> pack_json())
+	       Logger.debug("Updating grades of #{target}: #{inspect(new_grades)}")
+	       db_api.set_grades(course_name, target, new_grades)
+	     else
+	       err = {:error, _reason} -> err
+             end
     {:reply, result, state}
   end
 
@@ -77,7 +118,7 @@ defmodule Schoolhub.CourseGradingServer do
   
   defp pack_json(json) do
     case do_pack_json(json) do
-      :json_decode_error -> %{total: json |> string()}
+      :json_decode_error -> %{"total" => json |> string()}
       map -> map
     end
   end
@@ -93,6 +134,6 @@ defmodule Schoolhub.CourseGradingServer do
   defp do_pack_json(json) when is_binary(json), do: json |> jason_decode_catch()
   defp do_pack_json(json) when is_list(json), do: json |> string() |> jason_decode_catch()
   defp do_pack_json(json = %{}), do: json
-  defp do_pack_json(other), do: %{total: other}
+  defp do_pack_json(other), do: %{"total" => other}
   
 end
