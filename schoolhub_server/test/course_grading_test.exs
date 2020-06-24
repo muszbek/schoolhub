@@ -148,5 +148,101 @@ defmodule CourseGradingTest do
       @test_user_wrong, @test_grade_append)
     assert result == {:error, :no_affiliation}
   end
+
+
+  ### MASS GRADING ###
+
+  test "teacher mass set grade succeeds" do
+    grade_list = [{@test_user_student, @test_grade}, {@test_user_student2, @test_grade}]
+    :ok = Schoolhub.CourseGradingServer.mass_set_grades(@test_user_teacher, @test_course,
+      grade_list)
+    result = Schoolhub.CourseGradingServer.get_grades(@test_user_teacher, @test_course,
+      @test_user_student)
+    assert result == @test_grade
+  end
+
+  test "admin mass set grade succeeds" do
+    grade_list = [{@test_user_student, @test_grade}, {@test_user_student2, @test_grade}] 
+    :ok = Schoolhub.CourseGradingServer.mass_set_grades(@admin, @test_course, grade_list)
+    result = Schoolhub.CourseGradingServer.get_grades(@admin, @test_course, @test_user_student)
+    assert result == @test_grade
+  end
+
+  test "student mass set grade fails" do
+    grade_list = [{@test_user_student, @test_grade}, {@test_user_student2, @test_grade}] 
+    result = Schoolhub.CourseGradingServer.mass_set_grades(@test_user_student, @test_course,
+      grade_list)
+    assert result == {:error, :no_permission}
+  end
+
+  test "wrong course mass set grade fails" do
+    grade_list = [{@test_user_student, @test_grade}, {@test_user_student2, @test_grade}] 
+    result = Schoolhub.CourseGradingServer.mass_set_grades(@test_user_teacher, @test_course_wrong,
+      grade_list)
+    assert result == {:error, :course_not_exist}
+  end
+
+  test "containing wrong student mass set grade succeeds" do
+    ## Some might still succeed, if the list is wrong we don't care.
+    grade_list = [{@test_user_student, @test_grade}, {@test_user_wrong, @test_grade}] 
+    result = Schoolhub.CourseGradingServer.mass_set_grades(@test_user_teacher, @test_course,
+      grade_list)
+    assert result == :ok
+  end
+
+
+  test "teacher mass append grade succeeds" do
+    grade_list = [{@test_user_student, @test_grade}, {@test_user_student2, @test_grade}]
+    :ok = Schoolhub.CourseGradingServer.mass_append_grades(@test_user_teacher, @test_course,
+      grade_list)
+    result = Schoolhub.CourseGradingServer.get_grades(@test_user_teacher, @test_course,
+      @test_user_student)
+    ## Get student2 just to fire off the latching return in the mock database
+    _anything = Schoolhub.CourseGradingServer.get_grades(@test_user_teacher, @test_course,
+      @test_user_student2)
+    assert result == @test_grade
+  end
+
+  test "admin mass append grade succeeds" do
+    grade_list = [{@test_user_student, @test_grade}, {@test_user_student2, @test_grade}]
+    :ok = Schoolhub.CourseGradingServer.mass_append_grades(@admin, @test_course, grade_list)
+    result = Schoolhub.CourseGradingServer.get_grades(@admin, @test_course, @test_user_student)
+    ## Get student2 just to fire off the latching return in the mock database
+    _anything = Schoolhub.CourseGradingServer.get_grades(@admin, @test_course, @test_user_student2)
+    assert result == @test_grade
+  end
+
+  test "student mass append grade fails" do
+    grade_list = [{@test_user_student, @test_grade}, {@test_user_student2, @test_grade}]
+    result = Schoolhub.CourseGradingServer.mass_append_grades(@test_user_student, @test_course,
+      grade_list)
+    assert result == {:error, :no_permission}
+  end
+
+  test "mass append grade with key succeeds" do
+    grade_list = [{@test_user_student, 10}, {@test_user_student2, 10}]
+    :ok = Schoolhub.CourseGradingServer.mass_append_grades(@test_user_teacher, @test_course,
+      grade_list, "grade")
+    result = Schoolhub.CourseGradingServer.get_grades(@test_user_teacher, @test_course,
+      @test_user_student)
+    ## Get student2 just to fire off the latching return in the mock database
+    _anything = Schoolhub.CourseGradingServer.get_grades(@test_user_teacher, @test_course,
+      @test_user_student2)
+    assert result == @test_grade
+  end
+
+  test "wrong course mass append grade fails" do
+    grade_list = [{@test_user_student, @test_grade}, {@test_user_student2, @test_grade}]
+    result = Schoolhub.CourseGradingServer.mass_append_grades(@test_user_teacher,
+      @test_course_wrong, grade_list)
+    assert result == {:error, :course_not_exist}
+  end
+
+  test "containing wrong student mass append grade succeeds" do
+    grade_list = [{@test_user_student, @test_grade}, {@test_user_wrong, @test_grade}]
+    result = Schoolhub.CourseGradingServer.mass_append_grades(@test_user_teacher, @test_course,
+      grade_list)
+    assert result == :ok
+  end
   
 end
