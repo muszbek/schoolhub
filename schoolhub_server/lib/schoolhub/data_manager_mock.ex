@@ -324,6 +324,15 @@ defmodule Schoolhub.DataManagerMock do
   def get_grades(@mock_course_string, @mock_user_student_string) do
     get_grades(@mock_course, @mock_user_student)
   end
+  def get_grades(@mock_course, @mock_user_student2) do
+    case flag() do
+      :set -> %{"old_grade" => 8, "grade" => 9}
+      :reset -> %{"old_grade" => 8, "grade" => 10, "total" => 18}
+    end
+  end
+  def get_grades(@mock_course_string, @mock_user_student2_string) do
+    get_grades(@mock_course, @mock_user_student)
+  end
   def get_grades(@mock_course, _other_student) do
     {:error, :no_affiliation}
   end
@@ -335,6 +344,12 @@ defmodule Schoolhub.DataManagerMock do
     :ok
   end
   def set_grades(@mock_course_string, @mock_user_student_string, any_grades) do
+    set_grades(@mock_course, @mock_user_student, any_grades)
+  end
+  def set_grades(@mock_course, @mock_user_student2, _any_grades) do
+    :ok
+  end
+  def set_grades(@mock_course_string, @mock_user_student2_string, any_grades) do
     set_grades(@mock_course, @mock_user_student, any_grades)
   end
   def set_grades(@mock_course, _other_student, _any_grades) do
