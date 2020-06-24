@@ -318,7 +318,33 @@ defmodule Schoolhub.DataManagerMock do
     {:error, :course_not_exist}
   end
 
+  def get_grades(@mock_course, @mock_user_student) do
+    %{"grade" => 10}
+  end
+  def get_grades(@mock_course_string, @mock_user_student_string) do
+    get_grades(@mock_course, @mock_user_student)
+  end
+  def get_grades(@mock_course, _other_student) do
+    {:error, :no_affiliation}
+  end
+  def get_grades(@mock_course_string, other_student) do
+    get_grades(@mock_course, other_student)
+  end
 
+  def set_grades(@mock_course, @mock_user_student, _any_grades) do
+    :ok
+  end
+  def set_grades(@mock_course_string, @mock_user_student_string, any_grades) do
+    set_grades(@mock_course, @mock_user_student, any_grades)
+  end
+  def set_grades(@mock_course, _other_student, _any_grades) do
+    {:error, :no_affiliation}
+  end
+  def set_grades(@mock_course_string, other_student, any_grades) do
+    set_grades(@mock_course, other_student, any_grades)
+  end
+    
+    
   defp flag() do
     spawn_flag = fn() ->
       receive do
