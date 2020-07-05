@@ -194,6 +194,57 @@ defmodule Schoolhub.Router do
     result = Schoolhub.CourseContentServer.pin_message(id, self, course_name, pinned)
     rest_json_reply(conn, result)
   end
+
+  get "/courses/students/grades" do
+    body = get_body(conn)
+
+    %{"self" => self, "course_name" => course_name, "target" => target} =
+      Jason.decode!(body)
+    result = Schoolhub.CourseGradingServer.get_grades(self, course_name, target)
+    rest_json_reply(conn, result)
+  end
+
+  post "/courses/students/grades" do
+    body = get_body(conn)
+
+    %{"self" => self, "course_name" => course_name, "target" => target, "grades" => grades} =
+      Jason.decode!(body)
+    result = Schoolhub.CourseGradingServer.set_grades(self, course_name, target, grades)
+    rest_json_reply(conn, result)
+  end
+
+  put "/courses/students/grades" do
+    body = get_body(conn)
+
+    %{"self" => self, "course_name" => course_name, "target" => target, "grades" => grades} =
+      Jason.decode!(body)
+    result = Schoolhub.CourseGradingServer.append_grades(self, course_name, target, grades)
+    rest_json_reply(conn, result)
+  end
+
+  post "/courses/students/grades/mass" do
+    body = get_body(conn)
+
+    %{"self" => self, "course_name" => course_name, "grade_list" => grade_list} =
+      Jason.decode!(body)
+    result = Schoolhub.CourseGradingServer.mass_set_grades(self, course_name, grade_list)
+    rest_json_reply(conn, result)
+  end
+
+  put "/courses/students/grades/mass" do
+    body = get_body(conn)
+
+    %{"self" => self, "course_name" => course_name, "grade_list" => grade_list, "key" => key} =
+      Jason.decode!(body)
+    result = case key do
+	       nil ->
+		 Schoolhub.CourseGradingServer.mass_append_grades(self, course_name, grade_list)
+	       some_key ->
+		 Schoolhub.CourseGradingServer.mass_append_grades(self,
+		   course_name, grade_list, some_key)
+	     end
+    rest_json_reply(conn, result)
+  end
   
 
   match _ do

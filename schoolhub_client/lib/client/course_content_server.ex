@@ -109,6 +109,49 @@ defmodule Client.CourseContentServer do
   end
 
 
+  @doc """
+  Reading out the grades of a student.
+  Other students not permitted.
+  """
+  def get_grades(course_name, target) do
+    GenServer.call(__MODULE__, {:get_grades, course_name, target})
+  end
+
+  @doc """
+  Setting the grades of a student in json format.
+  """
+  def set_grades(course_name, target, grades) do
+    GenServer.call(__MODULE__, {:set_grades, course_name, target, grades})
+  end
+
+  @doc """
+  Reads out the grades of a student as json, and merges that with the supplied grades.
+  """
+  def append_grades(course_name, target, grades) do
+    GenServer.call(__MODULE__, {:append_grades, course_name, target, grades})
+  end
+
+  @doc """
+  Setting the grades of many students at once from a list.
+  List elements have to be: {student, grades}
+  """
+  def mass_set_grades(course_name, grade_list) do
+    GenServer.call(__MODULE__, {:mass_set_grades, course_name, grade_list})
+  end
+
+  @doc """
+  Appending to the grades of many students at once from a list.
+  List elements have to be: {student, grades}
+  Appending under a common key, if given.
+  """
+  def mass_append_grades(course_name, grade_list) do
+    GenServer.call(__MODULE__, {:mass_append_grades, course_name, grade_list})
+  end
+  def mass_append_grades(course_name, grade_list, key) do
+    GenServer.call(__MODULE__, {:mass_append_grades, course_name, grade_list, key})
+  end
+
+
   ### Server callbacks ###
   @impl true
   def init(options) do
@@ -181,6 +224,42 @@ defmodule Client.CourseContentServer do
   def handle_call({:pin_message, id, course_name, pinned}, from, state) do
     body = %{id: id, course_name: course_name, pinned: pinned}
     Rest.send_http_id(body, from, "PUT", "/courses/messages/pin", state)
+  end
+
+  @impl true
+  def handle_call({:get_grades, course_name, target}, from, state) do
+    body = %{course_name: course_name, target: target}
+    Rest.send_http_id(body, from, "GET", "/courses/students/grades", state)
+  end
+
+  @impl true
+  def handle_call({:set_grades, course_name, target, grades}, from, state) do
+    body = %{course_name: course_name, target: target, grades: grades}
+    Rest.send_http_id(body, from, "POST", "/courses/students/grades", state)
+  end
+
+  @impl true
+  def handle_call({:append_grades, course_name, target, grades}, from, state) do
+    body = %{course_name: course_name, target: target, grades: grades}
+    Rest.send_http_id(body, from, "PUT", "/courses/students/grades", state)
+  end
+
+  @impl true
+  def handle_call({:mass_set_grades, course_name, grade_list}, from, state) do
+    body = %{course_name: course_name, grade_list: grade_list}
+    Rest.send_http_id(body, from, "POST", "/courses/students/grades/mass", state)
+  end
+
+  @impl true
+  def handle_call({:mass_append_grades, course_name, grade_list}, from, state) do
+    body = %{course_name: course_name, grade_list: grade_list, key: nil}
+    Rest.send_http_id(body, from, "PUT", "/courses/students/grades/mass", state)
+  end
+
+  @impl true
+  def handle_call({:mass_append_grades, course_name, grade_list, key}, from, state) do
+    body = %{course_name: course_name, grade_list: grade_list, key: key}
+    Rest.send_http_id(body, from, "PUT", "/courses/students/grades/mass", state)
   end
 
 
