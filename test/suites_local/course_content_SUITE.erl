@@ -67,6 +67,7 @@ end_per_suite(_Config) ->
     {ok, _} = 'Elixir.Schoolhub.RegServer':remove_user(?TEST_USER_STUDENT),
     {ok, _} = 'Elixir.Schoolhub.RegServer':remove_user(?TEST_USER_STUDENT2),
     {ok, _} = 'Elixir.Schoolhub.RegServer':remove_user(?TEST_USER_OWNER),
+    {ok, _} = 'Elixir.Schoolhub.RegServer':remove_user(?TEST_USER_NON_AFF),
     ok.
 
 %%--------------------------------------------------------------------
