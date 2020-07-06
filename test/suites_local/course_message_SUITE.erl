@@ -122,11 +122,10 @@ end_per_testcase(_TestCase, Config) ->
     Group = ?config(group, Config),
     case Group of
 	delete_root_message ->
-	    <<"ok">> = 
-		RootId = ?config(root_id, Config),
-		'Elixir.Schoolhub.CourseContentServer':delete_root_message(RootId,
-									   ?TEST_USER_OWNER,
-									   ?TEST_COURSE);
+	    RootId = ?config(root_id, Config),
+	    ok = 'Elixir.Schoolhub.CourseContentServer':delete_root_message(RootId,
+										  ?TEST_USER_OWNER,
+										  ?TEST_COURSE);
 	_ -> ok
     end,
 

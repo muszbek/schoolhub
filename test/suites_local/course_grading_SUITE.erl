@@ -132,7 +132,21 @@ end_per_testcase(_TestCase, _Config) ->
 groups() ->
     [{course_grading_singular, [shuffle],
       [owner_set_grade_succeeds,
-       admin_set_grade_succeeds]}].
+       admin_set_grade_succeeds,
+       student_set_grade_fails,
+       student_get_own_grade_succeeds,
+       student_get_other_student_grade_fails,
+       wrong_course_set_grade_fails,
+       wrong_course_get_grade_fails,
+       wrong_target_student_set_grade_fails,
+       wrong_target_student_get_grade_fails]},
+
+     {course_grading_singular_append, [shuffle],
+      [teacher_append_grade_succeeds,
+       admin_append_grade_succeeds,
+       student_append_grade_fails,
+       wrong_course_append_grade_fails,
+       wrong_target_student_append_grade_fails]}].
 
 %%--------------------------------------------------------------------
 %% @spec all() -> GroupsAndTestCases | {skip,Reason}
@@ -143,7 +157,8 @@ groups() ->
 %% @end
 %%--------------------------------------------------------------------
 all() -> 
-    [{group, course_grading_singular}].
+    [{group, course_grading_singular},
+     {group, course_grading_singular_append}].
 
 %%--------------------------------------------------------------------
 %% @spec TestCase() -> Info
@@ -178,6 +193,107 @@ admin_set_grade_succeeds(_Config) ->
     ?TEST_GRADE_MATCH = Result,
     ok.
 
+student_set_grade_fails(_Config) ->
+    {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_STUDENT, ?TEST_PW),
+    Result = 'Elixir.Client.CourseContentServer':set_grades(?TEST_COURSE, ?TEST_USER_STUDENT,
+							    ?TEST_GRADE),
+    <<"ERROR_no_permission">> = Result,
+    ok.
+
+student_get_own_grade_succeeds(_Config) ->
+    {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_OWNER, ?TEST_PW),
+    <<"ok">> = 'Elixir.Client.CourseContentServer':set_grades(?TEST_COURSE, ?TEST_USER_STUDENT,
+							      ?TEST_GRADE),
+    'Elixir.Client.LoginServer':end_session(),
+    {ok, _OtherPid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_STUDENT, ?TEST_PW),
+    Result = 'Elixir.Client.CourseContentServer':get_grades(?TEST_COURSE, ?TEST_USER_STUDENT),
+    ?TEST_GRADE_MATCH = Result,
+    ok.
+
+student_get_other_student_grade_fails(_Config) ->
+    {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_STUDENT2, ?TEST_PW),
+    Result = 'Elixir.Client.CourseContentServer':get_grades(?TEST_COURSE, ?TEST_USER_STUDENT),
+    <<"ERROR_no_permission">> = Result,
+    ok.
+
+wrong_course_set_grade_fails(_Config) ->
+    {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_OWNER, ?TEST_PW),
+    Result = 'Elixir.Client.CourseContentServer':set_grades(?TEST_COURSE_WRONG,
+							    ?TEST_USER_STUDENT, ?TEST_GRADE),
+    <<"ERROR_course_not_exist">> = Result,
+    ok.
+
+wrong_course_get_grade_fails(_Config) ->
+    {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_OWNER, ?TEST_PW),
+    Result = 'Elixir.Client.CourseContentServer':get_grades(?TEST_COURSE_WRONG, 
+							    ?TEST_USER_STUDENT),
+    <<"ERROR_course_not_exist">> = Result,
+    ok.
+
+wrong_target_student_set_grade_fails(_Config) ->
+    {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_OWNER, ?TEST_PW),
+    Result = 'Elixir.Client.CourseContentServer':set_grades(?TEST_COURSE, ?TEST_USER_NON_AFF, 
+							    ?TEST_GRADE),
+    <<"ERROR_no_affiliation">> = Result,
+    ok.
+
+wrong_target_student_get_grade_fails(_Config) ->
+    {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_OWNER, ?TEST_PW),
+    Result = 'Elixir.Client.CourseContentServer':get_grades(?TEST_COURSE, ?TEST_USER_NON_AFF),
+    <<"ERROR_no_affiliation">> = Result,
+    ok.
+
+
+teacher_append_grade_succeeds(_Config) ->
+    {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_OWNER, ?TEST_PW),
+    <<"ok">> = 'Elixir.Client.CourseContentServer':set_grades(?TEST_COURSE, ?TEST_USER_STUDENT2,
+							      ?TEST_GRADE_APPEND_BASE),
+    <<"ok">> = 'Elixir.Client.CourseContentServer':append_grades(?TEST_COURSE, ?TEST_USER_STUDENT2,
+								 ?TEST_GRADE_APPEND),
+    Result = 'Elixir.Client.CourseContentServer':get_grades(?TEST_COURSE, ?TEST_USER_STUDENT2),
+    ?TEST_GRADE_APPEND_MATCH = Result,
+    ok.
+
+admin_append_grade_succeeds(_Config) ->
+    {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?ADMIN, ?ADMIN_PW),
+    <<"ok">> = 'Elixir.Client.CourseContentServer':set_grades(?TEST_COURSE, ?TEST_USER_STUDENT2,
+							      ?TEST_GRADE_APPEND_BASE),
+    <<"ok">> = 'Elixir.Client.CourseContentServer':append_grades(?TEST_COURSE, ?TEST_USER_STUDENT2,
+								 ?TEST_GRADE_APPEND),
+    Result = 'Elixir.Client.CourseContentServer':get_grades(?TEST_COURSE, ?TEST_USER_STUDENT2),
+    ?TEST_GRADE_APPEND_MATCH = Result,
+    ok.
+
+student_append_grade_fails(_Config) ->
+    {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_OWNER, ?TEST_PW),
+    <<"ok">> = 'Elixir.Client.CourseContentServer':set_grades(?TEST_COURSE, ?TEST_USER_STUDENT2,
+							      ?TEST_GRADE_APPEND_BASE),
+    'Elixir.Client.LoginServer':end_session(),
+    {ok, _OtherPid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_STUDENT, ?TEST_PW),
+    Result = 'Elixir.Client.CourseContentServer':append_grades(?TEST_COURSE, ?TEST_USER_STUDENT2,
+							       ?TEST_GRADE_APPEND),
+    <<"ERROR_no_permission">> = Result,
+    ok.
+
+wrong_course_append_grade_fails(_Config) ->
+    {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_OWNER, ?TEST_PW),
+    <<"ok">> = 'Elixir.Client.CourseContentServer':set_grades(?TEST_COURSE, ?TEST_USER_STUDENT2,
+							      ?TEST_GRADE_APPEND_BASE),
+    Result = 'Elixir.Client.CourseContentServer':append_grades(?TEST_COURSE_WRONG, 
+							       ?TEST_USER_STUDENT2,
+							       ?TEST_GRADE_APPEND),
+    <<"ERROR_course_not_exist">> = Result,
+    ok.
+
+wrong_target_student_append_grade_fails(_Config) ->
+    {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_OWNER, ?TEST_PW),
+    <<"ok">> = 'Elixir.Client.CourseContentServer':set_grades(?TEST_COURSE, ?TEST_USER_STUDENT2,
+							      ?TEST_GRADE_APPEND_BASE),
+    Result = 'Elixir.Client.CourseContentServer':append_grades(?TEST_COURSE, ?TEST_USER_NON_AFF,
+							       ?TEST_GRADE_APPEND),
+    <<"ERROR_no_affiliation">> = Result,
+    ok.
+    
 
 %% Helper functions
 %% Closures

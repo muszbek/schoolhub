@@ -331,7 +331,7 @@ defmodule Schoolhub.DataManagerMock do
     end
   end
   def get_grades(@mock_course_string, @mock_user_student2_string) do
-    get_grades(@mock_course, @mock_user_student)
+    get_grades(@mock_course, @mock_user_student2)
   end
   def get_grades(@mock_course, _other_student) do
     {:error, :no_affiliation}
