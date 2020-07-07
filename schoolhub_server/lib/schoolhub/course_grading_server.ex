@@ -115,7 +115,7 @@ defmodule Schoolhub.CourseGradingServer do
     result = case Schoolhub.CourseAdminServer.can_i_admin_course(self, course_name) do
 	       :ok ->
 		 Enum.map(grade_list,
-		   fn ({target, grades}) ->
+		   fn ([target, grades]) ->
 		     do_set_grades(db_api, course_name, target, grades)
 		   end)
 		 :ok
@@ -131,7 +131,7 @@ defmodule Schoolhub.CourseGradingServer do
     result = case Schoolhub.CourseAdminServer.can_i_admin_course(self, course_name) do
 	       :ok ->
 		 Enum.map(grade_list,
-		   fn ({target, grades}) ->
+		   fn ([target, grades]) ->
 		     do_append_grades(db_api, course_name, target, grades)
 		   end)
 		 :ok
@@ -147,7 +147,7 @@ defmodule Schoolhub.CourseGradingServer do
     result = case Schoolhub.CourseAdminServer.can_i_admin_course(self, course_name) do
 	       :ok ->
 		 Enum.map(grade_list,
-		   fn ({target, grades}) ->
+		   fn ([target, grades]) ->
 		     grades_to_append = %{key => grades}
 		     do_append_grades(db_api, course_name, target, grades_to_append)
 		   end)
