@@ -155,7 +155,15 @@ groups() ->
        admin_mass_set_grade_succeeds,
        student_mass_set_grade_fails,
        wrong_course_mass_set_grade_fails,
-       containing_wrong_student_mass_set_grade_succeeds]}].
+       containing_wrong_student_mass_set_grade_succeeds]},
+
+     {course_grading_mass_append, [shuffle],
+      [teacher_mass_append_grade_succeeds,
+       admin_mass_append_grade_succeeds,
+       student_mass_append_grade_fails,
+       mass_append_grade_with_key_succeeds,
+       wrong_course_mass_append_grade_fails,
+       containing_wrong_student_mass_append_grade_succeeds]}].
 
 %%--------------------------------------------------------------------
 %% @spec all() -> GroupsAndTestCases | {skip,Reason}
@@ -168,7 +176,8 @@ groups() ->
 all() -> 
     [{group, course_grading_singular},
      {group, course_grading_singular_append},
-     {group, course_grading_mass}].
+     {group, course_grading_mass},
+     {group, course_grading_mass_append}].
 
 %%--------------------------------------------------------------------
 %% @spec TestCase() -> Info
@@ -340,6 +349,59 @@ containing_wrong_student_mass_set_grade_succeeds(_Config) ->
     GradeList = [[?TEST_USER_STUDENT, ?TEST_GRADE], [?TEST_USER_NON_AFF, ?TEST_GRADE]],
     {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_OWNER, ?TEST_PW),
     Result = 'Elixir.Client.CourseContentServer':mass_set_grades(?TEST_COURSE, GradeList),
+    <<"ok">> = Result,
+    ok.
+
+
+teacher_mass_append_grade_succeeds(_Config) ->
+    GradeList = [[?TEST_USER_STUDENT, ?TEST_GRADE], [?TEST_USER_STUDENT2, ?TEST_GRADE]],
+    {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_OWNER, ?TEST_PW),
+    <<"ok">> = 'Elixir.Client.CourseContentServer':mass_append_grades(?TEST_COURSE, GradeList),
+    Result = 'Elixir.Client.CourseContentServer':get_grades(?TEST_COURSE, ?TEST_USER_STUDENT),
+    %% Get student2 just to fire off the latching return in the mock database
+    _Anything = 'Elixir.Client.CourseContentServer':get_grades(?TEST_COURSE, ?TEST_USER_STUDENT2),
+    ?TEST_GRADE_MATCH = Result,
+    ok.
+
+admin_mass_append_grade_succeeds(_Config) ->
+    GradeList = [[?TEST_USER_STUDENT, ?TEST_GRADE], [?TEST_USER_STUDENT2, ?TEST_GRADE]],
+    {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?ADMIN, ?ADMIN_PW),
+    <<"ok">> = 'Elixir.Client.CourseContentServer':mass_append_grades(?TEST_COURSE, GradeList),
+    Result = 'Elixir.Client.CourseContentServer':get_grades(?TEST_COURSE, ?TEST_USER_STUDENT),
+    %% Get student2 just to fire off the latching return in the mock database
+    _Anything = 'Elixir.Client.CourseContentServer':get_grades(?TEST_COURSE, ?TEST_USER_STUDENT2),
+    ?TEST_GRADE_MATCH = Result,
+    ok.
+
+student_mass_append_grade_fails(_Config) ->
+    GradeList = [[?TEST_USER_STUDENT, ?TEST_GRADE], [?TEST_USER_STUDENT2, ?TEST_GRADE]],
+    {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_STUDENT, ?TEST_PW),
+    Result = 'Elixir.Client.CourseContentServer':mass_append_grades(?TEST_COURSE, GradeList),
+    <<"ERROR_no_permission">> = Result,
+    ok.
+
+mass_append_grade_with_key_succeeds(_Config) ->
+    GradeList = [[?TEST_USER_STUDENT, 10], [?TEST_USER_STUDENT2, 10]],
+    {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_OWNER, ?TEST_PW),
+    <<"ok">> = 'Elixir.Client.CourseContentServer':mass_append_grades(?TEST_COURSE, 
+								      GradeList, <<"grade">>),
+    Result = 'Elixir.Client.CourseContentServer':get_grades(?TEST_COURSE, ?TEST_USER_STUDENT),
+    %% Get student2 just to fire off the latching return in the mock database
+    _Anything = 'Elixir.Client.CourseContentServer':get_grades(?TEST_COURSE, ?TEST_USER_STUDENT2),
+    ?TEST_GRADE_MATCH = Result,
+    ok.
+
+wrong_course_mass_append_grade_fails(_Config) ->
+    GradeList = [[?TEST_USER_STUDENT, ?TEST_GRADE], [?TEST_USER_STUDENT2, ?TEST_GRADE]],
+    {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_OWNER, ?TEST_PW),
+    Result = 'Elixir.Client.CourseContentServer':mass_append_grades(?TEST_COURSE_WRONG, GradeList),
+    <<"ERROR_course_not_exist">> = Result,
+    ok.
+
+containing_wrong_student_mass_append_grade_succeeds(_Config) ->
+    GradeList = [[?TEST_USER_STUDENT, ?TEST_GRADE], [?TEST_USER_NON_AFF, ?TEST_GRADE]],
+    {ok, _Pid} = 'Elixir.Client.LoginServer':start_session(?TEST_USER_OWNER, ?TEST_PW),
+    Result = 'Elixir.Client.CourseContentServer':mass_append_grades(?TEST_COURSE, GradeList),
     <<"ok">> = Result,
     ok.
 

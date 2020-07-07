@@ -2,9 +2,11 @@
 - handle persistent data in postgres volume
 - check postgres connectivity privacy, SSL
 - check mam common test why database is not cleaned
+- clusterize servers
+- react front-end?
 
 - check if breaking up db queries is a good idea
-- grades to db per student and XMPP
+- grades to XMPP
 - upload files
 - implement more course functionality
 - check router if plug can be modularized
