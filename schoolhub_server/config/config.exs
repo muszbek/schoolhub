@@ -13,6 +13,7 @@ config :schoolhub,
 		  ssl_opts: [verify: :verify_none,
 			     cacertfile: "../ssl/schoolhub_cacert.crt"]],
   xmpp_backend: Romeo,
+  xmpp_opts: [require_tls: true],
   mongooseim_hostname: "10.3.0.2",
 
   auth_session_timeout: 1000

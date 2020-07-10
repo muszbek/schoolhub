@@ -227,7 +227,8 @@ defmodule Schoolhub.RegServer do
   end
 
   defp regger_conn_opts({regger_name, regger_host, regger_pw}) do
-    [jid: regger_name <> "@" <> regger_host, password: regger_pw]
+    opts = Application.get_env(:schoolhub, :xmpp_opts, [])
+    [jid: regger_name <> "@" <> regger_host, password: regger_pw] ++ opts
   end
 
   defp register_user(username, password, _state = %{db_api: db_api,

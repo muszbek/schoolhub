@@ -70,8 +70,8 @@ defmodule Client.ChatServer do
     xmpp_api = xmpp_backend()
     xmpp_conn = Module.concat(xmpp_api, Connection)
     
-    creds = get_conn_opts(username, password, host)
-    {:ok, conn} = xmpp_conn.start_link(creds)
+    opts = get_conn_opts(username, password, host)
+    {:ok, conn} = xmpp_conn.start_link(opts)
     :ok = xmpp_conn.send(conn, Stanza.presence)
     
     {:ok, %{state | xmpp_api: xmpp_api, xmpp_hostname: host, username: username, conn: conn}}
@@ -264,7 +264,8 @@ defmodule Client.ChatServer do
   end
   
   defp get_conn_opts(username, password, host) do
-    [jid: string(username) <> "@" <> host, password: string(password)]
+    opts = Application.get_env(:schoolhub_client, :xmpp_opts, [])
+    [jid: string(username) <> "@" <> host, password: string(password)] ++ opts
   end
 
   defp xmpp_backend() do
