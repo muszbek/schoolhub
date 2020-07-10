@@ -16,14 +16,17 @@ services:
     volumes:
       - ./mongooseim/member:/member
       - ./mongooseim/mnesia:/var/lib/mongooseim
-      - ./mongooseim/cacert.pem:/usr/lib/mongooseim/priv/ssl/cacert.pem
+      - ./ssl/schoolhub_cacert.crt:/usr/lib/mongooseim/priv/ssl/schoolhub_cacert.crt
+      - ./ssl/schoolhub.crt:/usr/lib/mongooseim/priv/ssl/schoolhub.crt
+      - ./ssl/schoolhub.key:/usr/lib/mongooseim/priv/ssl/schoolhub.key
+      - ./ssl/schoolhub.pem:/usr/lib/mongooseim/priv/ssl/schoolhub.pem
 
 
   postgres:
     container_name: schoolhub_postgres
     image: postgres
     hostname: schoolhub
-    command: -c ssl=off -c ssl_cert_file=/var/lib/postgresql/schoolhub.crt -c ssl_key_file=/var/lib/postgresql/schoolhub.key
+    command: -c ssl=on -c ssl_cert_file=/var/lib/postgresql/schoolhub.crt -c ssl_key_file=/var/lib/postgresql/schoolhub.key
     expose:
       - "5432"
     networks:
@@ -33,8 +36,8 @@ services:
     shm_size: 256M
     volumes:
       - ./postgres/schema:/docker-entrypoint-initdb.d
-      - ./postgres/ssl/schoolhub.crt:/var/lib/postgresql/schoolhub.crt
-      - ./postgres/ssl/schoolhub.key:/var/lib/postgresql/schoolhub.key
+      - ./ssl/schoolhub.crt:/var/lib/postgresql/schoolhub.crt
+      - ./ssl/schoolhub.key:/var/lib/postgresql/schoolhub.key
     environment:
       - POSTGRES_PASSWORD=schoolhub
       - POSTGRES_USER=schoolhub
