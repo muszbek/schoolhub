@@ -186,7 +186,7 @@ defmodule Schoolhub.DataManager do
   
   @impl true
   def init(:ok) do
-    args = Application.get_env(:schoolhub, :postgres_address)
+    args = Application.get_env(:schoolhub, :postgres_opts)
     
     {:ok, pid} = Postgrex.start_link(args)
     {:ok, %__MODULE__{pgsql_conn: pid}}

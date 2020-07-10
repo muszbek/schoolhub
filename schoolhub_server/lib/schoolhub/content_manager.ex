@@ -95,7 +95,7 @@ defmodule Schoolhub.ContentManager do
   
   @impl true
   def init(:ok) do
-    args = Application.get_env(:schoolhub, :postgres_address) ++ [types: Schoolhub.PostgrexTypes]
+    args = Application.get_env(:schoolhub, :postgres_opts) ++ [types: Schoolhub.PostgrexTypes]
     
     {:ok, pid} = Postgrex.start_link(args)
     {:ok, %__MODULE__{pgsql_conn: pid}}

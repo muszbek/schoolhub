@@ -58,6 +58,7 @@ services:
       - ./schoolhub_server:/root/schoolhub_server
       - ./schoolhub_client:/root/schoolhub_client
       - ./test:/root/test
+      - ./ssl:/root/ssl
     environment:
       - ERLANG_COOKIE=test_cookie
     entrypoint: /root/test/dist_server_entrypoint.sh
