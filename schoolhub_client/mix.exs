@@ -22,7 +22,6 @@ defmodule SchoolhubClient.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:castore, "~> 0.1.0"},
       {:mint, "~> 1.0"},
       {:jason, "~> 1.0"},
       {:scramerl, git: "https://github.com/erdemaksu/scramerl"},
