@@ -13,6 +13,7 @@ defmodule Client.ChatArchiveServer do
     scheme: :http,
     ip: "localhost",
     port: 8080,
+    server_opts: [],
     conn: :nil,
     socket: :nil,
     reg_caller: :nil,
@@ -165,18 +166,13 @@ defmodule Client.ChatArchiveServer do
   end
 
   @impl true
-  def handle_info({:tcp_closed, socket}, state = %{socket: socket}) do
-    Logger.debug("TCP closed for socket #{inspect(socket)}")
-    {:noreply, %{state |
-		 conn: :nil,
-		 socket: :nil}}
+  def handle_info({:tcp_closed, socket}, state) do
+    Rest.tcp_closed(socket, state)
   end
 
   @impl true
-  def handle_info({:tcp_closed, socket}, state = %{socket: _other_socket}) do
-    ## This message does not affect the current registration session.
-    Logger.debug("TCP closed for socket #{inspect(socket)}")
-    {:noreply, state}
+  def handle_info({:ssl_closed, socket}, state) do
+    Rest.ssl_closed(socket, state)
   end
 
 
@@ -202,6 +198,9 @@ defmodule Client.ChatArchiveServer do
   end
   defp parse_options([{:port, port} | remaining_opts], state) do
     parse_options(remaining_opts, %{state | port: port})
+  end
+  defp parse_options([{:opts, server_opts} | remaining_opts], state) do
+    parse_options(remaining_opts, %{state | server_opts: server_opts})
   end
   defp parse_options([{_key, _value} | remaining_opts] ,state) do
     parse_options(remaining_opts, state)

@@ -18,7 +18,10 @@ defmodule Client.RomeoMock.Connection do
 
   @mock_conn :connection_stub
   @mock_resource "51D7588DEFD5CA6C1587-494607-823546"
-  
+
+  def start_link([jid: mock_jid, password: mock_pw, require_tls: _require]) do
+    start_link([jid: mock_jid, password: mock_pw])
+  end
   def start_link([jid: @mock_user <> "@" <> @mock_host <> "", password: @mock_pw]) do
     start_mock()
   end

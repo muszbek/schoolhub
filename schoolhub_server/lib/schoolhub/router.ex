@@ -11,6 +11,10 @@ defmodule Schoolhub.Router do
   plug :match
   plug :dispatch
 
+  get "/" do
+    send_resp(conn, 200, "Hello")
+  end
+  
   get "/auth" do
     body = get_body(conn)
 

@@ -1,6 +1,5 @@
 
 - handle persistent data in postgres volume
-- check postgres connectivity privacy, SSL
 - check mam common test why database is not cleaned
 - clusterize servers
 - react front-end?
@@ -13,3 +12,5 @@
 - check romeo authentication fail PLAIN error so auth server does not crash
 
 - disable course operations on deactivated courses
+
+- in test change data manager gen server in supervisor to mock

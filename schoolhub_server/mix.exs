@@ -26,7 +26,8 @@ defmodule Schoolhub.MixProject do
       {:plug_cowboy, "~> 2.0"},
       {:jason, "~> 1.0"},
       {:ecto_ltree, "~> 0.2.0"},
-      {:scramerl, git: "https://github.com/erdemaksu/scramerl"}
+      {:scramerl, git: "https://github.com/erdemaksu/scramerl"},
+      {:x509, "~> 0.8.1"}
       # {:dep_from_hexpm, "~> 0.3.0"},
       # {:dep_from_git, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"}
     ]

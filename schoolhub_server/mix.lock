@@ -18,4 +18,5 @@
   "romeo": {:git, "https://github.com/scrogson/romeo", "9a94c933598696ecb0c2e9dca7bf2b04dc6651d9", []},
   "scramerl": {:git, "https://github.com/erdemaksu/scramerl", "d0f19de3a3d738659345bb448447353235a5da32", []},
   "telemetry": {:hex, :telemetry, "0.4.1", "ae2718484892448a24470e6aa341bc847c3277bfb8d4e9289f7474d752c09c7f", [:rebar3], [], "hexpm", "4738382e36a0a9a2b6e25d67c960e40e1a2c95560b9f936d8e29de8cd858480f"},
+  "x509": {:hex, :x509, "0.8.1", "901a72cb715aeb2f21739425cc0cff97ce975b6267811acb1fcee4ff10e7799c", [:mix], [], "hexpm", "30c6d9376c90c74490c80befea53cc0d07f05d48bb4ce9e472573a06b0aae008"},
 }

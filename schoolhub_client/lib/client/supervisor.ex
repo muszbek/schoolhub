@@ -36,7 +36,7 @@ defmodule Client.Supervisor do
   end
 
   defp server_address() do
-    Application.get_env(:schoolhub_client, :server_address)
+    Application.get_env(:schoolhub_client, :server_opts)
   end
   
 end

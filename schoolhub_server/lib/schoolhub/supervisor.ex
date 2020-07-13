@@ -30,7 +30,7 @@ defmodule Schoolhub.Supervisor do
        db_content_api: db_content_backend()},
       {Schoolhub.CourseGradingServer, db_api: db_backend()},
       {Plug.Cowboy,
-       scheme: server_scheme(), plug: Schoolhub.Router, options: [port: server_port()]}
+       scheme: server_scheme(), plug: Schoolhub.Router, options: server_opts()}
     ]
 
     opts = [strategy: :one_for_one]
@@ -54,8 +54,8 @@ defmodule Schoolhub.Supervisor do
     Application.get_env(:schoolhub, :server_scheme, :http)
   end
 
-  defp server_port() do
-    Application.get_env(:schoolhub, :server_port, 8080)
+  defp server_opts() do
+    Application.get_env(:schoolhub, :server_opts, [port: 8080])
   end
   
 end

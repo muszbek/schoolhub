@@ -3,17 +3,19 @@ defmodule Client.RestLib do
   A library module to separate the frequently reoccuring HTTP routing 
   in the client code.
   """
+  require Logger
 
   @doc """
   Intended to call from a handle_call callback.
   Does not return immediately, but waits for response info.
   """
   def send_http(dataMap, from, method, path, state = %{scheme: scheme,
-						      ip: ip,
-						      port: port}) do
+						       ip: ip,
+						       port: port,
+						       server_opts: opts}) do
     msg = Jason.encode!(dataMap)
-    {:ok, conn} = Mint.HTTP.connect(scheme, ip, port)
-    {:ok, conn, _request_ref} = Mint.HTTP.request(conn, method, path, [], msg)
+    {:ok, conn} = Mint.HTTP1.connect(scheme, ip, port, opts)
+    {:ok, conn, _request_ref} = Mint.HTTP1.request(conn, method, path, [], msg)
     
     {:noreply, %{state |
 		 conn: conn,
@@ -32,11 +34,11 @@ defmodule Client.RestLib do
   @doc """
   Handling the http response and replying to the original call.
   """
-  def receive_http({transport, socket, http_response}, state = %{conn: conn,
-								socket: socket,
-								reg_caller: from}) do
+  def receive_http(message = {_transport, socket, _http_response}, state = %{conn: conn,
+									     socket: socket,
+									     reg_caller: from}) do
     
-    {:ok, _conn, response} = Mint.HTTP.stream(conn, {transport, socket, http_response})
+    {:ok, _conn, response} = Mint.HTTP1.stream(conn, message)
     {:status, _ref, status_code} = :lists.keyfind(:status, 1, response)
     {:data, _ref, data_json}  = :lists.keyfind(:data, 1, response)
 
@@ -46,6 +48,36 @@ defmodule Client.RestLib do
 	   end
     
     GenServer.reply(from, data)
+    {:noreply, state}
+  end
+
+  @doc """
+  Handling the http response gen_server info tcp closed.
+  """
+  def tcp_closed(socket, state = %{socket: socket}) do
+    Logger.debug("TCP closed for socket #{inspect(socket)}")
+    {:noreply, %{state |
+		 conn: :nil,
+		 socket: :nil}}
+  end
+  def tcp_closed(socket, state = %{socket: _other_socket}) do
+    ## This message does not affect the current registration session.
+    Logger.debug("TCP closed for socket #{inspect(socket)}")
+    {:noreply, state}
+  end
+
+  @doc """
+  Handling the http response gen_server info tcp closed.
+  """
+  def ssl_closed(socket, state = %{socket: socket}) do
+    Logger.debug("SSL closed for socket #{inspect(socket)}")
+    {:noreply, %{state |
+		 conn: :nil,
+		 socket: :nil}}
+  end
+  def ssl_closed(socket, state = %{socket: _other_socket}) do
+    ## This message does not affect the current registration session.
+    Logger.debug("SSL closed for socket #{inspect(socket)}")
     {:noreply, state}
   end
   

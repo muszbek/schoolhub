@@ -4,6 +4,7 @@ defmodule Client.Auth do
   Triggers session start.
   """
   require Logger
+  alias Client.RestLib, as: Rest
 
   use GenServer
 
@@ -12,6 +13,7 @@ defmodule Client.Auth do
     scheme: :http,
     ip: "localhost",
     port: 8080,
+    server_opts: [],
     conn: :nil,
     socket: :nil,
     username: "",
@@ -43,8 +45,9 @@ defmodule Client.Auth do
   @impl true
   def handle_call({:auth, username, password}, from, state = %{scheme: scheme,
 							       ip: ip,
-							       port: port}) do
-    {:ok, conn} = Mint.HTTP.connect(scheme, ip, port)
+							       port: port,
+							       server_opts: opts}) do
+    {:ok, conn} = Mint.HTTP1.connect(scheme, ip, port, opts)
     :ok = GenServer.cast(__MODULE__, :client_first)
     {:noreply, %{state |
 		 conn: conn,
@@ -60,7 +63,7 @@ defmodule Client.Auth do
     
     msg = :scramerl.client_first_message(username)
     msg_bare = :scramerl_lib.prune(:"gs2-header", msg)
-    {:ok, conn, _request_ref} = Mint.HTTP.request(conn, "GET", "/auth", [], msg)
+    {:ok, conn, _request_ref} = Mint.HTTP1.request(conn, "GET", "/auth", [], msg)
     
     {:noreply, %{state |
 		 conn: conn,
@@ -83,7 +86,7 @@ defmodule Client.Auth do
     auth_msg = client_first_bare ++ ',' ++ server_first
     
     msg = :scramerl.client_final_message(nonce, salted_pw, auth_msg)
-    {:ok, conn, _request_ref} = Mint.HTTP.request(conn, "GET", "/auth", [], msg)
+    {:ok, conn, _request_ref} = Mint.HTTP1.request(conn, "GET", "/auth", [], msg)
     
     {:noreply, %{state |
 		 conn: conn,
@@ -128,7 +131,7 @@ defmodule Client.Auth do
   def handle_info({transport, socket, http_response}, state = %{conn: conn,
 								socket: socket}) do
     
-    {:ok, conn, response} = Mint.HTTP.stream(conn, {transport, socket, http_response})
+    {:ok, conn, response} = Mint.HTTP1.stream(conn, {transport, socket, http_response})
     {:data, _ref, data}  = :lists.keyfind(:data, 1, response)
 
     case data do
@@ -147,18 +150,13 @@ defmodule Client.Auth do
   end
 
   @impl true
-  def handle_info({:tcp_closed, socket}, state = %{socket: socket}) do
-    Logger.debug("TCP closed for socket #{inspect(socket)}")
-    {:noreply, %{state |
-		 conn: :nil,
-		 socket: :nil} |> reset_state()}
+  def handle_info({:tcp_closed, socket}, state) do
+    Rest.tcp_closed(socket, state)
   end
 
   @impl true
-  def handle_info({:tcp_closed, socket}, state = %{socket: _other_socket}) do
-    ## This message does not affect the current authentication session.
-    Logger.debug("TCP closed for socket #{inspect(socket)}")
-    {:noreply, state}
+  def handle_info({:ssl_closed, socket}, state) do
+    Rest.ssl_closed(socket, state)
   end
   
 
@@ -182,6 +180,9 @@ defmodule Client.Auth do
   end
   defp parse_options([{:port, port} | remaining_opts], state) do
     parse_options(remaining_opts, %{state | port: port})
+  end
+  defp parse_options([{:opts, server_opts} | remaining_opts], state) do
+    parse_options(remaining_opts, %{state | server_opts: server_opts})
   end
   defp parse_options([{_key, _value} | remaining_opts] ,state) do
     parse_options(remaining_opts, state)
