@@ -20,8 +20,8 @@ defmodule Schoolhub.Supervisor do
 #			       port: 8081,
 #			       loop: {Schoolhub.Router_mochiweb, :init_mochiweb, [[]]}]]}
 #      },
-      Schoolhub.DataManager,
-      Schoolhub.ContentManager,
+      db_backend(),
+      db_content_backend(),
       {Schoolhub.AuthServer, db_api: db_backend()},
       {Schoolhub.RegServer, db_api: db_backend(), xmpp_api: xmpp_backend()},
       {Schoolhub.ChatServer, db_api: db_backend()},

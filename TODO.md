@@ -12,5 +12,3 @@
 - check romeo authentication fail PLAIN error so auth server does not crash
 
 - disable course operations on deactivated courses
-
-- in test change data manager gen server in supervisor to mock

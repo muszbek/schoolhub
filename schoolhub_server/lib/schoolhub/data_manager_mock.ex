@@ -3,6 +3,7 @@ defmodule Schoolhub.DataManagerMock do
   API for accessing a mock database with mock data.
   Use for testing.
   """
+  use GenServer
 
   @mock_user 'test_user'
   @mock_user_string "test_user"
@@ -37,7 +38,12 @@ defmodule Schoolhub.DataManagerMock do
   ### API functions ###
   
   def start_link([]) do
-    :ok
+    GenServer.start_link(__MODULE__, :ok, name: __MODULE__)
+  end
+
+  @impl true
+  def init(:ok) do
+    {:ok, %{}}
   end
 
   
