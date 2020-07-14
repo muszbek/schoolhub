@@ -1,7 +1,7 @@
 
 - handle persistent data in postgres volume
 - check mam common test why database is not cleaned
-- clusterize servers
+- clusterize servers, HA-proxy
 - react front-end?
 
 - check if breaking up db queries is a good idea
