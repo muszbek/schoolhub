@@ -12,3 +12,7 @@
 - check romeo authentication fail PLAIN error so auth server does not crash
 
 - disable course operations on deactivated courses
+
+- multiple server containers
+- join them in a cluster
+- HA-proxy

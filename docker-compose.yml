@@ -26,7 +26,6 @@ services:
     container_name: schoolhub_postgres
     image: postgres
     hostname: schoolhub
-    command: -c ssl=on -c ssl_cert_file=/var/lib/postgresql/schoolhub.crt -c ssl_key_file=/var/lib/postgresql/schoolhub.key
     expose:
       - "5432"
     networks:
@@ -41,7 +40,36 @@ services:
     environment:
       - POSTGRES_PASSWORD=schoolhub
       - POSTGRES_USER=schoolhub
+    command: -c ssl=on
+             -c ssl_cert_file=/var/lib/postgresql/schoolhub.crt
+             -c ssl_key_file=/var/lib/postgresql/schoolhub.key
 
+
+  schoolhub_server:
+    container_name: schoolhub_server
+    image: elixir
+    build:
+      context: ./schoolhub_server
+    hostname: schoolhub
+    expose:
+      - "8080"
+    networks:
+      schoolhub_network:
+        ipv4_address: 10.3.1.1
+    restart: always
+    depends_on:
+      - postgres
+      - mongooseim
+    tty: true
+    volumes:
+      - ./schoolhub_server:/root/schoolhub_server
+    environment:
+      - ERLANG_COOKIE=test_cookie
+    working_dir: /root/schoolhub_server
+    command: bash -c "mix local.hex --force
+             && mix do deps.get, compile
+             && iex -S mix"
+    
 
   dist_tester_server:
     container_name: schoolhub_test_server
