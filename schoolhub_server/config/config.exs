@@ -22,3 +22,16 @@ config :schoolhub,
   auth_session_timeout: 1000
 
 import_config "secret.exs"
+
+
+config :libcluster,
+  topologies: [
+    schoolhub: [
+      strategy: Cluster.Strategy.Epmd,
+      config: [
+	hosts: [:"server@10.3.1.1",
+		:"server@10.3.1.2",
+		:"server@10.3.1.3"]
+      ]
+    ]
+  ]

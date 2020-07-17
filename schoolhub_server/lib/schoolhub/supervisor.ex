@@ -20,6 +20,7 @@ defmodule Schoolhub.Supervisor do
 #			       port: 8081,
 #			       loop: {Schoolhub.Router_mochiweb, :init_mochiweb, [[]]}]]}
 #      },
+      {Cluster.Supervisor, [topologies(), [name: Schoolhub.ClusterSupervisor]]},
       db_backend(),
       db_content_backend(),
       {Schoolhub.AuthServer, db_api: db_backend()},
@@ -56,6 +57,10 @@ defmodule Schoolhub.Supervisor do
 
   defp server_opts() do
     Application.get_env(:schoolhub, :server_opts, [port: 8080])
+  end
+
+  defp topologies() do
+    Application.get_env(:libcluster, :topologies, [])
   end
   
 end

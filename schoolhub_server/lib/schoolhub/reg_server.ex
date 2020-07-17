@@ -109,7 +109,7 @@ defmodule Schoolhub.RegServer do
     regger_creds = {regger_name, _regger_host, regger_pw} = get_regger_credentials()
     
     {:ok, _reason} = remove_user(regger_name, state.db_api)
-    :ok = register_user_db(regger_name, regger_pw, state.db_api)
+    register_user_db(regger_name, regger_pw, state.db_api)
     
     xmpp_conn = Module.concat(state.xmpp_api, Connection)
     {:ok, regger_conn} =

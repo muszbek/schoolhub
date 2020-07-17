@@ -13,6 +13,4 @@
 
 - disable course operations on deactivated courses
 
-- multiple server containers
-- join them in a cluster
 - HA-proxy

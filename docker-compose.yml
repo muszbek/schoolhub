@@ -45,8 +45,8 @@ services:
              -c ssl_key_file=/var/lib/postgresql/schoolhub.key
 
 
-  schoolhub_server:
-    container_name: schoolhub_server
+  schoolhub_server1:
+    container_name: schoolhub_server1
     image: elixir
     build:
       context: ./schoolhub_server
@@ -63,12 +63,59 @@ services:
     tty: true
     volumes:
       - ./schoolhub_server:/root/schoolhub_server
-    environment:
-      - ERLANG_COOKIE=test_cookie
+    env_file: erlang_cookie.env
     working_dir: /root/schoolhub_server
     command: bash -c "mix local.hex --force
              && mix do deps.get, compile
-             && iex -S mix"
+             && iex --name server@10.3.1.1 --cookie $${ERLANG_COOKIE} -S mix"
+
+  schoolhub_server2:
+    container_name: schoolhub_server2
+    image: elixir
+    build:
+      context: ./schoolhub_server
+    hostname: schoolhub
+    expose:
+      - "8080"
+    networks:
+      schoolhub_network:
+        ipv4_address: 10.3.1.2
+    restart: always
+    depends_on:
+      - postgres
+      - mongooseim
+    tty: true
+    volumes:
+      - ./schoolhub_server:/root/schoolhub_server
+    env_file: erlang_cookie.env
+    working_dir: /root/schoolhub_server
+    command: bash -c "mix local.hex --force
+             && mix do deps.get, compile
+             && iex --name server@10.3.1.2 --cookie $${ERLANG_COOKIE} -S mix"
+
+  schoolhub_server3:
+    container_name: schoolhub_server3
+    image: elixir
+    build:
+      context: ./schoolhub_server
+    hostname: schoolhub
+    expose:
+      - "8080"
+    networks:
+      schoolhub_network:
+        ipv4_address: 10.3.1.3
+    restart: always
+    depends_on:
+      - postgres
+      - mongooseim
+    tty: true
+    volumes:
+      - ./schoolhub_server:/root/schoolhub_server
+    env_file: erlang_cookie.env
+    working_dir: /root/schoolhub_server
+    command: bash -c "mix local.hex --force
+             && mix do deps.get, compile
+             && iex --name server@10.3.1.3 --cookie $${ERLANG_COOKIE} -S mix"
     
 
   dist_tester_server:
