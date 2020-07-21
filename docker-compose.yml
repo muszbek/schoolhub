@@ -45,6 +45,22 @@ services:
              -c ssl_key_file=/var/lib/postgresql/schoolhub.key
 
 
+  haproxy:
+    container_name: schoolhub_haproxy
+    image: haproxy
+    hostname: schoolhub
+    expose:
+      - "8080"
+    networks:
+      schoolhub_network:
+        ipv4_address: 10.3.0.4
+    restart: always
+    volumes:
+      - ./haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg
+      - ./ssl/schoolhub.pem:/etc/cert/schoolhub.pem
+      - ./ssl/schoolhub_cacert.crt:/etc/cert/schoolhub_cacert.pem
+
+
   schoolhub_server1:
     container_name: schoolhub_server1
     image: elixir
