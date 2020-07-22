@@ -8,4 +8,4 @@ config :schoolhub_client,
 					cacertfile: "priv/cert/schoolhub_cacert.crt"]]],
   xmpp_backend: Romeo,
   xmpp_opts: [require_tls: true],
-  mongooseim_hostname: "10.3.0.2"
+  mongooseim_hostname: "10.3.2.2"

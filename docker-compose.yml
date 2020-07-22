@@ -2,14 +2,14 @@ version: '3.4'
 services:
 
   mongooseim:
-    container_name: schoolhub_mongooseim-1
+    container_name: mongooseim-1
     image: mongooseim/mongooseim
     hostname: mongooseim-1
     ports:
       - "5222:5222"
     networks:
       schoolhub_network:
-        ipv4_address: 10.3.0.2
+        ipv4_address: 10.3.2.2
     restart: always
     depends_on:
       - postgres

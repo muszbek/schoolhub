@@ -8,7 +8,7 @@ end
 defmodule Schoolhub.RomeoMock.Connection do
 
   @mock_regger "reg_agent"
-  @mock_host "10.3.0.2"
+  @mock_host "10.3.2.2"
 
   @mock_user "new_user"
   @mock_pw "new_pw"

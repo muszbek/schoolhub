@@ -6,4 +6,4 @@ config :schoolhub_client,
 		port: 8080,
 		opts: [transport_opts: [verify: :verify_none]]],
   xmpp_backend: Romeo,
-  mongooseim_hostname: "10.3.0.2"
+  mongooseim_hostname: "10.3.2.2"
