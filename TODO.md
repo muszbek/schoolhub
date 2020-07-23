@@ -14,7 +14,5 @@
 
 - disable course operations on deactivated courses
 
-- distributed server ssl
-
 - cluster mongooseim (change address in configs, mongooseim.cfg and romeo_mock in server client)
 - servers whitelist access from HAProxy
