@@ -177,7 +177,7 @@ defmodule Schoolhub.CourseGradingServer do
   end
 
 
-  defp charlist(text), do: text |> to_charlist()
+  #defp charlist(text), do: text |> to_charlist()
   defp string(text), do: text |> to_string()
 
   
