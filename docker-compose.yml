@@ -1,25 +1,22 @@
 version: '3.4'
 services:
 
-  mongooseim:
+  mongooseim-1:
     container_name: mongooseim-1
     image: mongooseim/mongooseim
     hostname: mongooseim-1
-    ports:
-      - "5222:5222"
+    expose:
+      - "5222"
     networks:
       schoolhub_network:
-        ipv4_address: 10.3.2.2
+        ipv4_address: 10.3.2.1
     restart: always
     depends_on:
       - postgres
     volumes:
       - ./mongooseim/member:/member
       - ./mongooseim/mnesia:/var/lib/mongooseim
-      - ./ssl/schoolhub_cacert.crt:/usr/lib/mongooseim/priv/ssl/schoolhub_cacert.crt
-      - ./ssl/schoolhub.crt:/usr/lib/mongooseim/priv/ssl/schoolhub.crt
-      - ./ssl/schoolhub.key:/usr/lib/mongooseim/priv/ssl/schoolhub.key
-      - ./ssl/schoolhub.pem:/usr/lib/mongooseim/priv/ssl/schoolhub.pem
+      - ./ssl:/usr/lib/mongooseim/priv/ssl
 
 
   postgres:
@@ -75,7 +72,6 @@ services:
     restart: always
     depends_on:
       - postgres
-      - mongooseim
     tty: true
     volumes:
       - ./schoolhub_server:/root/schoolhub_server
@@ -101,7 +97,6 @@ services:
     restart: always
     depends_on:
       - postgres
-      - mongooseim
     tty: true
     volumes:
       - ./schoolhub_server:/root/schoolhub_server
@@ -127,7 +122,6 @@ services:
     restart: always
     depends_on:
       - postgres
-      - mongooseim
     tty: true
     volumes:
       - ./schoolhub_server:/root/schoolhub_server

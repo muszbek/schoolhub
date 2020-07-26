@@ -7,5 +7,5 @@ config :schoolhub_client,
 		opts: [transport_opts: [verify: :verify_peer,
 					cacertfile: "priv/cert/schoolhub_cacert.crt"]]],
   xmpp_backend: Romeo,
-  xmpp_opts: [require_tls: true],
-  mongooseim_hostname: "10.3.2.2"
+  xmpp_opts: [require_tls: true, legacy_tls: true, host: "10.3.0.4"],
+  mongooseim_hostname: "10.3.2.1"

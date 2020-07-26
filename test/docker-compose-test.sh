@@ -13,4 +13,4 @@ echo $SUDO_PW | sudo -S chown -R $USER:$USER ./_build
 mix compile
 
 cd ..
-docker-compose up postgres mongooseim dist_tester_server dist_tester_client
+docker-compose up postgres mongooseim-1 haproxy dist_tester_server dist_tester_client

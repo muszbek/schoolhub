@@ -16,8 +16,8 @@ config :schoolhub,
 		  ssl: true,
 		  ssl_opts: [verify: :verify_none]],
   xmpp_backend: Romeo,
-  xmpp_opts: [require_tls: true],
-  mongooseim_hostname: "10.3.2.2",
+  xmpp_opts: [require_tls: true, legacy_tls: true, host: "10.3.0.4"],
+  mongooseim_hostname: "10.3.2.1",
 
   auth_session_timeout: 1000
 

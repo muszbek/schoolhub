@@ -5,4 +5,5 @@ config :schoolhub_client,
 		ip: "10.0.2.15",
 		port: 8080,
 		opts: [transport_opts: [verify: :verify_none]]],
-  xmpp_backend: Client.RomeoMock
+  xmpp_backend: Client.RomeoMock,
+  xmpp_opts: []
