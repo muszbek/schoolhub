@@ -270,8 +270,15 @@ defmodule Schoolhub.DataManager do
   def handle_call({:add_privilege, username}, _from, state = %{pgsql_conn: conn}) do
     query_text = "INSERT INTO user_privileges (username, permission) VALUES ($1, 'student');"
     result = Postgrex.query(conn, query_text, [string(username)])
-    {:ok, %{columns: nil, command: :insert, messages: [], num_rows: 1, rows: nil}} = result
-    {:reply, :ok, state}
+
+    reply = case result do
+	      {:ok, %{columns: nil, command: :insert, messages: [], num_rows: 1, rows: nil}} ->
+		:ok
+	      {:error, %{postgres: %{code: :unique_violation, table: "user_privileges"}}} ->
+		{:error, :privilege_already_exists}
+	    end
+    
+    {:reply, reply, state}
   end
 
   @impl true

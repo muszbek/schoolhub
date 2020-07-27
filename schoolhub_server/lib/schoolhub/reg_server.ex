@@ -313,7 +313,7 @@ defmodule Schoolhub.RegServer do
   defp add_privilege(%{db_api: db_api,
 		       username: username}) do
     
-    :ok = db_api.add_user_privilege(username)
+    db_api.add_user_privilege(username)
   end
 
   defp check_privilege("admin"), do: {:ok, "admin"}
