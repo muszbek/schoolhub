@@ -10,10 +10,10 @@ defmodule Schoolhub.RegServer do
   use GenServer
   
   @scram_default_iteration_count 4096
-  @salt_length 16
   @scram_serial_prefix "==SCRAM==,"
   @reg_agent_name "reg_agent"
   @admin_name "admin"
+  @salt_length 16
 
   @derive {Inspect, expect: :admin_pw}
   defstruct(
@@ -110,12 +110,7 @@ defmodule Schoolhub.RegServer do
     
     {:ok, _reason} = remove_user(regger_name, state.db_api)
     register_user_db(regger_name, regger_pw, state.db_api)
-    
-    xmpp_conn = Module.concat(state.xmpp_api, Connection)
-    {:ok, regger_conn} =
-      regger_creds
-      |> regger_conn_opts()
-      |> xmpp_conn.start_link()
+    {:ok, regger_conn} = connect_regger(state.xmpp_api, regger_creds)
 
     {:ok, %{state | regger_conn: regger_conn}}
   end
@@ -216,14 +211,17 @@ defmodule Schoolhub.RegServer do
   defp get_regger_credentials() do
     regger_name = @reg_agent_name
     regger_host = Application.get_env(:schoolhub, :mongooseim_hostname, "localhost")
-    random_pw = random_string(@salt_length)
+    regger_pw = Application.get_env(:schoolhub, :regger_password, "6z7r8h9i23l0ocgn")
     
-    {regger_name, regger_host, random_pw}
+    {regger_name, regger_host, regger_pw}
   end
 
-  defp random_string(length) do
-    alphabet = Enum.to_list(?a..?z) ++ Enum.to_list(?0..?9)
-    Enum.take_random(alphabet, length) |> to_string()
+  defp connect_regger(xmpp_api, regger_creds) do
+    xmpp_conn = Module.concat(xmpp_api, Connection)
+    _reg_result =
+      regger_creds
+      |> regger_conn_opts()
+      |> xmpp_conn.start_link()
   end
 
   defp regger_conn_opts({regger_name, regger_host, regger_pw}) do

@@ -9,10 +9,11 @@
 - implement more course functionality
 - check router if plug can be modularized
 
-- check romeo authentication fail PLAIN error so auth server does not crash
 - handle HAproxy return when 503 server not available
 
 - disable course operations on deactivated courses
 
 - cluster mongooseim (change address in configs, mongooseim.cfg and romeo_mock in server client)
 - servers whitelist access from HAProxy
+
+- externalize passwords as env vars to docker (with defaults)
