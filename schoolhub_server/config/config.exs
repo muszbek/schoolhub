@@ -19,9 +19,10 @@ config :schoolhub,
   xmpp_opts: [require_tls: true, legacy_tls: true, host: "10.3.0.4"],
   mongooseim_hostname: "10.3.2.1",
 
-  auth_session_timeout: 1000
+  auth_session_timeout: 1000,
 
-import_config "secret.exs"
+  admin_password: System.get_env("ADMIN_PASSWORD", "admin"),
+  regger_password: System.get_env("REGGER_PASSWORD", "6z7r8h9i23l0ocgn")
 
 
 config :libcluster,

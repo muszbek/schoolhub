@@ -4,5 +4,4 @@ config :schoolhub,
   db_backend: Schoolhub.DataManagerMock,
   db_content_backend: Schoolhub.ContentManagerMock,
   xmpp_backend: Schoolhub.RomeoMock,
-  xmpp_opts: [],
-  admin_password: "admin"
+  xmpp_opts: []

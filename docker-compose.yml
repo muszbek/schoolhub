@@ -76,7 +76,7 @@ services:
     volumes:
       - ./schoolhub_server:/root/schoolhub_server
     env_file:
-      - erlang_cookie.env
+      - secret.env
     environment:
       - SSL_DIST_OPTFILE=priv/ssl_dist_optfile.conf
       - NAME=server@10.3.1.1
@@ -101,7 +101,7 @@ services:
     volumes:
       - ./schoolhub_server:/root/schoolhub_server
     env_file:
-      - erlang_cookie.env
+      - secret.env
     environment:
       - SSL_DIST_OPTFILE=priv/ssl_dist_optfile.conf
       - NAME=server@10.3.1.2
@@ -126,7 +126,7 @@ services:
     volumes:
       - ./schoolhub_server:/root/schoolhub_server
     env_file:
-      - erlang_cookie.env
+      - secret.env
     environment:
       - SSL_DIST_OPTFILE=priv/ssl_dist_optfile.conf
       - NAME=server@10.3.1.3

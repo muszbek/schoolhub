@@ -11,9 +11,11 @@ defmodule Schoolhub.RegServer do
   
   @scram_default_iteration_count 4096
   @scram_serial_prefix "==SCRAM==,"
-  @reg_agent_name "reg_agent"
-  @admin_name "admin"
   @salt_length 16
+  @reg_agent_name "reg_agent"
+  @regger_default_pw "6z7r8h9i23l0ocgn"
+  @admin_name "admin"
+  
 
   @derive {Inspect, expect: :admin_pw}
   defstruct(
@@ -211,7 +213,7 @@ defmodule Schoolhub.RegServer do
   defp get_regger_credentials() do
     regger_name = @reg_agent_name
     regger_host = Application.get_env(:schoolhub, :mongooseim_hostname, "localhost")
-    regger_pw = Application.get_env(:schoolhub, :regger_password, "6z7r8h9i23l0ocgn")
+    regger_pw = Application.get_env(:schoolhub, :regger_password, @regger_default_pw)
     
     {regger_name, regger_host, regger_pw}
   end
