@@ -28,7 +28,8 @@ defmodule Schoolhub.MixProject do
       {:ecto_ltree, "~> 0.2.0"},
       {:scramerl, git: "https://github.com/erdemaksu/scramerl"},
       {:distillery, "~> 2.0"},
-      {:libcluster, "~> 3.2"}
+      {:libcluster, "~> 3.2"},
+      {:plug_ip_whitelist, "~> 1.0.0"}
       # {:dep_from_hexpm, "~> 0.3.0"},
       # {:dep_from_git, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"}
     ]

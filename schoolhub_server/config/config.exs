@@ -7,6 +7,7 @@ config :schoolhub,
 		cipher_suite: :strong,
 		certfile: "priv/cert/schoolhub.crt",
 		keyfile: "priv/cert/schoolhub.key"],
+  cowboy_whitelist: [{{10,3,0,4},{10,3,0,4}}],  ##proxy ip
   db_backend: Schoolhub.DataManager,
   db_content_backend: Schoolhub.ContentManager,
   postgres_opts: [hostname: "10.3.0.3",
@@ -16,7 +17,7 @@ config :schoolhub,
 		  ssl: true,
 		  ssl_opts: [verify: :verify_none]],
   xmpp_backend: Romeo,
-  xmpp_opts: [require_tls: true, legacy_tls: true, host: "10.3.0.4"],
+  xmpp_opts: [require_tls: true, legacy_tls: true, host: "10.3.0.4"],  ##host: proxy ip
   mongooseim_hostname: "10.3.2.1",
 
   auth_session_timeout: 1000,

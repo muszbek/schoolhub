@@ -12,4 +12,4 @@
 - disable course operations on deactivated courses
 
 - cluster mongooseim (change address in configs, mongooseim.cfg and romeo_mock in server client)
-- servers whitelist access from HAProxy
+- mongooseim whitelist access from HAProxy

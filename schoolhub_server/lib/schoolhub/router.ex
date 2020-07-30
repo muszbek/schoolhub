@@ -7,7 +7,13 @@ defmodule Schoolhub.Router do
   use Plug.Router
 
   @http_response_timeout 1_000
-
+  
+  plug Plug.IpWhitelist.IpWhitelistEnforcer, [
+    ip_whitelist: Application.get_env(:schoolhub, :cowboy_whitelist,
+      {{127,0,0,1},{127,0,0,1}}),
+    response_code_when_blacklisted: 401,
+    response_body_when_blacklisted: "Not Authenticated"
+  ]
   plug :match
   plug :dispatch
 

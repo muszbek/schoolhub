@@ -43,7 +43,9 @@ defmodule Client.RestLib do
     {:data, _ref, data_json}  = :lists.keyfind(:data, 1, response)
 
     data = case status_code do
-	     400 -> "ERROR_404"
+	     400 -> "400_bad_request"
+	     401 -> "401_not_authorized"
+	     404 -> "404_not_found"
 	     503 ->
 	       Logger.warn("503 Service Unavailable")
 	       "503_service_unavailable"
