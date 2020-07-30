@@ -9,8 +9,6 @@
 - implement more course functionality
 - check router if plug can be modularized
 
-- handle HAproxy return when 503 server not available
-
 - disable course operations on deactivated courses
 
 - cluster mongooseim (change address in configs, mongooseim.cfg and romeo_mock in server client)

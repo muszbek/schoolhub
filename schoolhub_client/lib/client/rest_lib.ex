@@ -44,10 +44,20 @@ defmodule Client.RestLib do
 
     data = case status_code do
 	     400 -> "ERROR_404"
+	     503 ->
+	       Logger.warn("503 Service Unavailable")
+	       "503_service_unavailable"
 	     _ -> Jason.decode!(data_json)
 	   end
     
     GenServer.reply(from, data)
+    {:noreply, state}
+  end
+  
+  def receive_http(_message = {_transport, _socket, _http_response},
+	state = %{socket: _other_socket}) do
+
+    Logger.warn("HTTP response to timed out request received")
     {:noreply, state}
   end
 
