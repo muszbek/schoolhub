@@ -7,6 +7,7 @@ services:
     hostname: mongooseim-1
     expose:
       - "5222"
+      - "5269"
     networks:
       schoolhub_network:
         ipv4_address: 10.3.2.1
@@ -18,7 +19,7 @@ services:
       - ./mongooseim/mnesia:/var/lib/mongooseim
       - ./ssl:/usr/lib/mongooseim/priv/ssl
 
-
+  
   postgres:
     container_name: schoolhub_postgres
     image: postgres

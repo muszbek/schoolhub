@@ -7,7 +7,9 @@ config :schoolhub,
 		cipher_suite: :strong,
 		certfile: "priv/cert/schoolhub.crt",
 		keyfile: "priv/cert/schoolhub.key"],
-  cowboy_whitelist: [{{10,3,0,4},{10,3,0,4}}],  ##proxy ip
+  cowboy_whitelist: [{{10,3,0,4},{10,3,0,4}},
+		     {{10,0,2,15},{10,0,2,15}},
+		     {{10,3,0,9},{10,3,0,10}}],  ##proxy ip
   db_backend: Schoolhub.DataManager,
   db_content_backend: Schoolhub.ContentManager,
   postgres_opts: [hostname: "10.3.0.3",
