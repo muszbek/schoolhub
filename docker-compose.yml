@@ -49,6 +49,7 @@ services:
     hostname: schoolhub
     expose:
       - "8080"
+      - "8404"
     networks:
       schoolhub_network:
         ipv4_address: 10.3.0.4

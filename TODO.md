@@ -14,5 +14,4 @@
 - cluster mongooseim (change address in configs, mongooseim.cfg and romeo_mock in server client)
 - mongooseim whitelist access from HAProxy
 
-- haproxy metrics
 - fix docker volume sharing, no rebuild for the code every time
