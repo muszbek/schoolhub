@@ -44,7 +44,6 @@ defmodule Client.RestLib do
 
     data = case status_code do
 	     400 -> "400_bad_request"
-	     401 -> "401_not_authorized"
 	     404 -> "404_not_found"
 	     503 ->
 	       Logger.warn("503 Service Unavailable")
