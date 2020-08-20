@@ -15,17 +15,10 @@ mix deps.get
 
 ## Running
 
-Launch the MongooseIM server, Postgres and images for integration tests:
+Launch the MongooseIM server, Postgres, HAProxy and container instances for Schoolhub server:
 
 ```
 docker-compose up
-```
-
-Launch the Schoolhub server:
-
-```
-cd schoolhub_server  
-iex -S mix
 ```
 
 Launch the Schoolhub client:
@@ -34,4 +27,3 @@ Launch the Schoolhub client:
 cd schoolhub_client  
 iex -S mix
 ```
-
