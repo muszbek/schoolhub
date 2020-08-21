@@ -18,6 +18,23 @@ services:
       - ./mongooseim/member:/member
       - ./ssl:/usr/lib/mongooseim/priv/ssl
 
+  mongooseim-2:
+    container_name: mongooseim-2
+    image: mongooseim/mongooseim
+    hostname: mongooseim-2
+    expose:
+      - "5222"
+      - "5269"
+    networks:
+      schoolhub_network:
+        ipv4_address: 10.3.2.2
+    restart: always
+    depends_on:
+      - postgres
+    volumes:
+      - ./mongooseim/member:/member
+      - ./ssl:/usr/lib/mongooseim/priv/ssl
+
   
   postgres:
     container_name: schoolhub_postgres

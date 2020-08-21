@@ -11,9 +11,6 @@
 
 - disable course operations on deactivated courses
 
-- cluster mongooseim (change address in configs, mongooseim.cfg and romeo_mock in server client)
-- mongooseim whitelist access from HAProxy
-
 - fix docker volume sharing, no rebuild for the code every time
 -- production build with docker servers
 -- local ct with local servers
@@ -21,3 +18,5 @@
 -- server exunit
 
 - whitelist plug macro make it read the test config
+- mongooseim whitelist access from HAProxy
+- romeo catch error when server is down
