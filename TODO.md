@@ -15,3 +15,9 @@
 - mongooseim whitelist access from HAProxy
 
 - fix docker volume sharing, no rebuild for the code every time
+-- production build with docker servers
+-- local ct with local servers
+-- distributed ct with docker servers, preceded by local rebuild
+-- server exunit
+
+- whitelist plug macro make it read the test config

@@ -16,7 +16,6 @@ services:
       - postgres
     volumes:
       - ./mongooseim/member:/member
-      - ./mongooseim/mnesia:/var/lib/mongooseim
       - ./ssl:/usr/lib/mongooseim/priv/ssl
 
   
