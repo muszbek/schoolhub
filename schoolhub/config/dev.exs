@@ -2,10 +2,10 @@ use Mix.Config
 
 # Configure your database
 config :schoolhub, Schoolhub.Repo,
-  username: "postgres",
-  password: "postgres",
-  database: "schoolhub_dev",
-  hostname: "localhost",
+  username: "schoolhub",
+  password: "schoolhub",
+  database: "schoolhub",
+  hostname: "172.17.0.2",
   show_sensitive_data_on_connection_error: true,
   pool_size: 10
 

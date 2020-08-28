@@ -3,11 +3,9 @@
 - check mam common test why database is not cleaned
 - react front-end?
 
-- check if breaking up db queries is a good idea
 - grades to XMPP
 - upload files
 - implement more course functionality
-- check router if plug can be modularized
 
 - disable course operations on deactivated courses
 
@@ -20,3 +18,18 @@
 - whitelist plug macro make it read the test config
 - mongooseim whitelist access from HAProxy
 - romeo catch error when server is down
+
+
+# Phoenix
+
+- JWT later, it is for sessioning (guardian)
+- scram necessary, users table as from mongoose
+- user_profile - email fullname
+-- user
+-- user_privilege
+-- (user_data)
+
+- try if mongoose still works with adding id to the user table
+
+postgres for now:
+docker run --name postgres -e POSTGRES_PASSWORD=schoolhub POSTGRES_USER=schoolhub
