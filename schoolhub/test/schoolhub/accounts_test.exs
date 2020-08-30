@@ -84,6 +84,7 @@ defmodule Schoolhub.AccountsTest do
 		    password: "some updated password",
 		    username: "some updated username"}
     @invalid_attrs %{pass_details: nil, password: nil, username: nil, user_id: nil}
+    @scram_prefix "==SCRAM=="
 
     def credential_fixture(attrs \\ %{}) do
       {:ok, user} =
@@ -111,8 +112,8 @@ defmodule Schoolhub.AccountsTest do
       valid_attrs = Enum.into(%{user_id: user_id}, @valid_attrs)
       
       assert {:ok, %Credential{} = credential} = Accounts.create_credential(valid_attrs)
-      assert credential.pass_details == "some pass_details"
-      assert credential.password == "some password"
+      assert credential.pass_details |> String.starts_with?(@scram_prefix)
+      assert credential.password == ""
       assert credential.username == "some username"
     end
 
@@ -123,8 +124,8 @@ defmodule Schoolhub.AccountsTest do
     test "update_credential/2 with valid data updates the credential" do
       credential = credential_fixture()
       assert {:ok, %Credential{} = credential} = Accounts.update_credential(credential, @update_attrs)
-      assert credential.pass_details == "some updated pass_details"
-      assert credential.password == "some updated password"
+      assert credential.pass_details |> String.starts_with?(@scram_prefix)
+      assert credential.password == ""
       assert credential.username == "some updated username"
     end
 
