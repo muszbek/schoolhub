@@ -32,4 +32,4 @@
 - try if mongoose still works with adding id to the user table
 
 postgres for now:
-docker run --name postgres -e POSTGRES_PASSWORD=schoolhub POSTGRES_USER=schoolhub
+docker run --name postgres -e POSTGRES_PASSWORD=schoolhub -e POSTGRES_USER=schoolhub postgres

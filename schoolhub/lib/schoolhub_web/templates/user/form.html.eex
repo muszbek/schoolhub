@@ -1,0 +1,31 @@
+<%= form_for @changeset, @action, fn f -> %>
+  <%= if @changeset.action do %>
+    <div class="alert alert-danger">
+      <p>Oops, something went wrong! Please check the errors below.</p>
+    </div>
+  <% end %>
+
+  <%= label f, :name %>
+  <%= text_input f, :name %>
+  <%= error_tag f, :name %>
+
+  <%= label f, :email %>
+  <%= text_input f, :email %>
+  <%= error_tag f, :email %>
+
+  <div class="form-group">
+    <%= inputs_for f, :credential, fn cf -> %>
+      <%= label cf, :username %>
+      <%= text_input cf, :username %>
+      <%= error_tag cf, :username %>
+
+      <%= label cf, :password %>
+      <%= text_input cf, :password %>
+      <%= error_tag cf, :password %>
+    <% end %>
+  </div>
+  
+  <div>
+    <%= submit "Save" %>
+  </div>
+<% end %>
