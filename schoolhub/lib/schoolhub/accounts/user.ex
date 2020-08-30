@@ -7,7 +7,7 @@ defmodule Schoolhub.Accounts.User do
   schema "user_profiles" do
     field :email, :string
     field :name, :string
-    has_one :credential, Credential
+    has_one :credential, Credential, on_replace: :update
 
     timestamps()
   end

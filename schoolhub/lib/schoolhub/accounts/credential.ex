@@ -16,8 +16,9 @@ defmodule Schoolhub.Accounts.Credential do
   @doc false
   def changeset(credential, attrs) do
     credential
-    |> cast(attrs, [:username, :password, :pass_details])
+    |> cast(attrs, [:username, :password, :pass_details, :user_id])
     |> validate_required([:username, :password])
     |> unique_constraint(:username)
+    |> foreign_key_constraint(:user_id)
   end
 end

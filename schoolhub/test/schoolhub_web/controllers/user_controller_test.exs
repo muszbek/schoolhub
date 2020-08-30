@@ -3,8 +3,14 @@ defmodule SchoolhubWeb.UserControllerTest do
 
   alias Schoolhub.Accounts
 
-  @create_attrs %{email: "some email", name: "some name"}
-  @update_attrs %{email: "some updated email", name: "some updated name"}
+  @create_attrs %{email: "some email",
+		  name: "some name",
+		  credential: %{username: "some username",
+				password: "some password"}}
+  @update_attrs %{email: "some updated email",
+		  name: "some updated name",
+		  credential: %{username: "some updated username",
+				password: "some updated password"}}
   @invalid_attrs %{email: nil, name: nil}
 
   def fixture(:user) do

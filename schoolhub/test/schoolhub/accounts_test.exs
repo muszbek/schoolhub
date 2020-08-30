@@ -6,8 +6,14 @@ defmodule Schoolhub.AccountsTest do
   describe "users" do
     alias Schoolhub.Accounts.User
 
-    @valid_attrs %{email: "some email", name: "some name"}
-    @update_attrs %{email: "some updated email", name: "some updated name"}
+    @valid_attrs %{email: "some email",
+		   name: "some name",
+		   credential: %{username: "some username",
+				 password: "some password"}}
+    @update_attrs %{email: "some updated email",
+		    name: "some updated name",
+		    credential: %{username: "some updated username",
+				  password: "some updated password"}}
     @invalid_attrs %{email: nil, name: nil}
 
     def user_fixture(attrs \\ %{}) do
@@ -67,16 +73,25 @@ defmodule Schoolhub.AccountsTest do
   describe "credentials" do
     alias Schoolhub.Accounts.Credential
 
-    @valid_attrs %{pass_details: "some pass_details", password: "some password", username: "some username"}
-    @update_attrs %{pass_details: "some updated pass_details", password: "some updated password", username: "some updated username"}
-    @invalid_attrs %{pass_details: nil, password: nil, username: nil}
+    @valid_user_attrs %{email: "some email",
+			name: "some name",
+			credential: %{username: "some username",
+				      password: "some password"}}
+    @valid_attrs %{pass_details: "some pass_details",
+		   password: "some password",
+		   username: "some username"}
+    @update_attrs %{pass_details: "some updated pass_details",
+		    password: "some updated password",
+		    username: "some updated username"}
+    @invalid_attrs %{pass_details: nil, password: nil, username: nil, user_id: nil}
 
     def credential_fixture(attrs \\ %{}) do
-      {:ok, credential} =
+      {:ok, user} =
         attrs
-        |> Enum.into(@valid_attrs)
-        |> Accounts.create_credential()
+        |> Enum.into(@valid_user_attrs)
+        |> Accounts.create_user()
 
+      %{credential: credential} = user
       credential
     end
 
@@ -90,11 +105,16 @@ defmodule Schoolhub.AccountsTest do
       assert Accounts.get_credential!(credential.id) == credential
     end
 
-    test "create_credential/1 with valid data creates a credential" do
-      assert {:ok, %Credential{} = credential} = Accounts.create_credential(@valid_attrs)
-      assert credential.pass_details == "some pass_details"
-      assert credential.password == "some password"
-      assert credential.username == "some username"
+    test "create_credential/1 with valid data returns error already taken" do
+      some_credential = credential_fixture()
+      %{user_id: user_id} = some_credential
+      valid_attrs = Enum.into(%{user_id: user_id}, @valid_attrs)
+      
+      #assert {:ok, %Credential{} = credential} = Accounts.create_credential(valid_attrs)
+      #assert credential.pass_details == "some pass_details"
+      #assert credential.password == "some password"
+      #assert credential.username == "some username"
+      assert {:error, _} = Accounts.create_credential(valid_attrs)
     end
 
     test "create_credential/1 with invalid data returns error changeset" do
