@@ -17,11 +17,6 @@
     <%= @user.credential.username %>
   </li>
 
-  <li>
-    <strong>Password:</strong>
-    <%= @user.credential.password %>
-  </li>
-
 </ul>
 
 <span><%= link "Edit", to: Routes.user_path(@conn, :edit, @user) %></span>

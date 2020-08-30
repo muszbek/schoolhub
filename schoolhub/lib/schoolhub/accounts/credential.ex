@@ -3,6 +3,7 @@ defmodule Schoolhub.Accounts.Credential do
   import Ecto.Changeset
 
   alias Schoolhub.Accounts.User
+  alias Schoolhub.Accounts.ScramLib, as: CredLib
 
   @primary_key {:username, :string, []}
   @derive {Phoenix.Param, key: :username}
@@ -21,5 +22,6 @@ defmodule Schoolhub.Accounts.Credential do
     |> validate_required([:username, :password])
     |> unique_constraint(:username)
     |> foreign_key_constraint(:user_id)
+    |> CredLib.encode_password_in_changeset()
   end
 end
