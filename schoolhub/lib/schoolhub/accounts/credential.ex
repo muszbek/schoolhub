@@ -4,10 +4,11 @@ defmodule Schoolhub.Accounts.Credential do
 
   alias Schoolhub.Accounts.User
 
+  @primary_key {:username, :string, []}
+  @derive {Phoenix.Param, key: :username}
   schema "users" do
     field :pass_details, :string
     field :password, :string
-    field :username, :string
     belongs_to :user, User
 
     timestamps()

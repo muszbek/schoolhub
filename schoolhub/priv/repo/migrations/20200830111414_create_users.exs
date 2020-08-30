@@ -2,9 +2,9 @@ defmodule Schoolhub.Repo.Migrations.CreateUsers do
   use Ecto.Migration
 
   def change do
-    create table(:users) do
+    create table(:users, primary_key: false) do
       add :username, :string,
-	null: false
+	primary_key: true
       add :password, :text
       add :pass_details, :text
       add :user_id, references(:user_profiles, on_delete: :delete_all),

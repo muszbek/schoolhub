@@ -75,8 +75,8 @@ defmodule Schoolhub.AccountsTest do
 
     @valid_user_attrs %{email: "some email",
 			name: "some name",
-			credential: %{username: "some username",
-				      password: "some password"}}
+			credential: %{username: "some other username",
+				      password: "some other password"}}
     @valid_attrs %{pass_details: "some pass_details",
 		   password: "some password",
 		   username: "some username"}
@@ -102,19 +102,18 @@ defmodule Schoolhub.AccountsTest do
 
     test "get_credential!/1 returns the credential with given id" do
       credential = credential_fixture()
-      assert Accounts.get_credential!(credential.id) == credential
+      assert Accounts.get_credential!(credential.username) == credential
     end
 
-    test "create_credential/1 with valid data returns error already taken" do
+    test "create_credential/1 with valid data returns inserted credential" do
       some_credential = credential_fixture()
       %{user_id: user_id} = some_credential
       valid_attrs = Enum.into(%{user_id: user_id}, @valid_attrs)
       
-      #assert {:ok, %Credential{} = credential} = Accounts.create_credential(valid_attrs)
-      #assert credential.pass_details == "some pass_details"
-      #assert credential.password == "some password"
-      #assert credential.username == "some username"
-      assert {:error, _} = Accounts.create_credential(valid_attrs)
+      assert {:ok, %Credential{} = credential} = Accounts.create_credential(valid_attrs)
+      assert credential.pass_details == "some pass_details"
+      assert credential.password == "some password"
+      assert credential.username == "some username"
     end
 
     test "create_credential/1 with invalid data returns error changeset" do
@@ -132,13 +131,13 @@ defmodule Schoolhub.AccountsTest do
     test "update_credential/2 with invalid data returns error changeset" do
       credential = credential_fixture()
       assert {:error, %Ecto.Changeset{}} = Accounts.update_credential(credential, @invalid_attrs)
-      assert credential == Accounts.get_credential!(credential.id)
+      assert credential == Accounts.get_credential!(credential.username)
     end
 
     test "delete_credential/1 deletes the credential" do
       credential = credential_fixture()
       assert {:ok, %Credential{}} = Accounts.delete_credential(credential)
-      assert_raise Ecto.NoResultsError, fn -> Accounts.get_credential!(credential.id) end
+      assert_raise Ecto.NoResultsError, fn -> Accounts.get_credential!(credential.username) end
     end
 
     test "change_credential/1 returns a credential changeset" do
