@@ -5,7 +5,9 @@ config :schoolhub, Schoolhub.Repo,
   username: "schoolhub",
   password: "schoolhub",
   database: "schoolhub",
-  hostname: "172.17.0.2",
+  hostname: "10.3.0.3",
+  ssl: true,
+  ssl_opts: [verify: :verify_none],
   show_sensitive_data_on_connection_error: true,
   pool_size: 10
 

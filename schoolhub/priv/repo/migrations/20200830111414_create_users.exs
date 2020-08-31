@@ -2,18 +2,16 @@ defmodule Schoolhub.Repo.Migrations.CreateUsers do
   use Ecto.Migration
 
   def change do
-    create table(:users, primary_key: false) do
-      add :username, :string,
-	primary_key: true
-      add :password, :text
-      add :pass_details, :text
+    alter table(:users) do
       add :user_id, references(:user_profiles, on_delete: :delete_all),
 	null: false
-
+      remove :created_at, :naive_datetime_usec,
+	default: fragment("now()"),
+	null: false
+      
       timestamps()
     end
-
-    create unique_index(:users, [:username])
+    
     create index(:users, [:user_id])
   end
 end

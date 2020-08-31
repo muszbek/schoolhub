@@ -1,0 +1,200 @@
+version: '3.4'
+services:
+
+  mongooseim-1:
+    container_name: mongooseim-1
+    image: mongooseim/mongooseim
+    hostname: mongooseim-1
+    expose:
+      - "5222"
+      - "5269"
+    networks:
+      schoolhub_network:
+        ipv4_address: 10.3.2.1
+    restart: always
+    depends_on:
+      - postgres
+    volumes:
+      - ./mongooseim/member:/member
+      - ./ssl:/usr/lib/mongooseim/priv/ssl
+
+  mongooseim-2:
+    container_name: mongooseim-2
+    image: mongooseim/mongooseim
+    hostname: mongooseim-2
+    expose:
+      - "5222"
+      - "5269"
+    networks:
+      schoolhub_network:
+        ipv4_address: 10.3.2.2
+    restart: always
+    depends_on:
+      - postgres
+    volumes:
+      - ./mongooseim/member:/member
+      - ./ssl:/usr/lib/mongooseim/priv/ssl
+
+  
+  postgres:
+    container_name: schoolhub_postgres
+    image: postgres
+    hostname: schoolhub
+    expose:
+      - "5432"
+    networks:
+      schoolhub_network:
+        ipv4_address: 10.3.0.3
+    restart: always
+    shm_size: 256M
+    volumes:
+      - ./postgres/schema:/docker-entrypoint-initdb.d
+      - ./ssl/schoolhub.crt:/var/lib/postgresql/schoolhub.crt
+      - ./ssl/schoolhub.key:/var/lib/postgresql/schoolhub.key
+    environment:
+      - POSTGRES_PASSWORD=schoolhub
+      - POSTGRES_USER=schoolhub
+    command: -c ssl=on
+             -c ssl_cert_file=/var/lib/postgresql/schoolhub.crt
+             -c ssl_key_file=/var/lib/postgresql/schoolhub.key
+
+
+  haproxy:
+    container_name: schoolhub_haproxy
+    image: haproxy
+    hostname: schoolhub
+    expose:
+      - "8080"
+      - "8404"
+    networks:
+      schoolhub_network:
+        ipv4_address: 10.3.0.4
+    restart: always
+    volumes:
+      - ./haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg
+      - ./ssl/schoolhub.pem:/etc/cert/schoolhub.pem
+      - ./ssl/schoolhub_cacert.crt:/etc/cert/schoolhub_cacert.pem
+
+
+  schoolhub_server1:
+    container_name: schoolhub_server1
+    image: elixir
+    build:
+      context: ./schoolhub_server
+    hostname: schoolhub
+    expose:
+      - "8080"
+    networks:
+      schoolhub_network:
+        ipv4_address: 10.3.1.1
+    restart: always
+    depends_on:
+      - postgres
+    tty: true
+    volumes:
+      - ./schoolhub_server:/root/schoolhub_server
+    env_file:
+      - secret.env
+    environment:
+      - SSL_DIST_OPTFILE=priv/ssl_dist_optfile.conf
+      - NAME=server@10.3.1.1
+    working_dir: /root/schoolhub_server
+    command: ./launch.sh
+
+  schoolhub_server2:
+    container_name: schoolhub_server2
+    image: elixir
+    build:
+      context: ./schoolhub_server
+    hostname: schoolhub
+    expose:
+      - "8080"
+    networks:
+      schoolhub_network:
+        ipv4_address: 10.3.1.2
+    restart: always
+    depends_on:
+      - postgres
+    tty: true
+    volumes:
+      - ./schoolhub_server:/root/schoolhub_server
+    env_file:
+      - secret.env
+    environment:
+      - SSL_DIST_OPTFILE=priv/ssl_dist_optfile.conf
+      - NAME=server@10.3.1.2
+    working_dir: /root/schoolhub_server
+    command: ./launch.sh
+
+  schoolhub_server3:
+    container_name: schoolhub_server3
+    image: elixir
+    build:
+      context: ./schoolhub_server
+    hostname: schoolhub
+    expose:
+      - "8080"
+    networks:
+      schoolhub_network:
+        ipv4_address: 10.3.1.3
+    restart: always
+    depends_on:
+      - postgres
+    tty: true
+    volumes:
+      - ./schoolhub_server:/root/schoolhub_server
+    env_file:
+      - secret.env
+    environment:
+      - SSL_DIST_OPTFILE=priv/ssl_dist_optfile.conf
+      - NAME=server@10.3.1.3
+    working_dir: /root/schoolhub_server
+    command: ./launch.sh
+    
+
+  dist_tester_server:
+    container_name: schoolhub_test_server
+    image: elixir
+    build:
+      context: ./test
+    hostname: schoolhub
+    networks:
+      schoolhub_network:
+        ipv4_address: 10.3.0.9
+    restart: always
+    tty: true
+    volumes:
+      - ./schoolhub_server:/root/schoolhub_server
+      - ./schoolhub_client:/root/schoolhub_client
+      - ./test:/root/test
+    environment:
+      - ERLANG_COOKIE=test_cookie
+    entrypoint: /root/test/dist_server_entrypoint.sh
+
+    
+  dist_tester_client:
+    container_name: schoolhub_test_client
+    image: elixir
+    build:
+      context: ./test
+    hostname: schoolhub_client
+    networks:
+      schoolhub_network:
+        ipv4_address: 10.3.0.10
+    restart: always
+    tty: true
+    volumes:
+      - ./schoolhub_client:/root/schoolhub_client
+      - ./test:/root/test
+    environment:
+      - ERLANG_COOKIE=test_cookie
+      - NODES_AMOUNT=5
+    entrypoint: /root/test/dist_client_entrypoint.sh
+      
+    
+networks:
+  schoolhub_network:
+    ipam:
+      config:
+        - subnet: 10.3.0.0/16
+        

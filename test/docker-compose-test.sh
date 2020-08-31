@@ -3,4 +3,4 @@
 # (which is a subset of the complete environment).
 
 cd ..
-docker-compose up postgres mongooseim-1 haproxy dist_tester_server dist_tester_client
+docker-compose -f docker-compose-legacy.yml up postgres mongooseim-1 haproxy dist_tester_server dist_tester_client
