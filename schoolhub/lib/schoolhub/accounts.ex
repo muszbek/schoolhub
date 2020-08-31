@@ -203,4 +203,18 @@ defmodule Schoolhub.Accounts do
   def change_credential(%Credential{} = credential, attrs \\ %{}) do
     Credential.changeset(credential, attrs)
   end
+
+
+  def authenticate(username, _password) do
+    query =
+      from u in User,
+        inner_join: c in assoc(u, :credential),
+        where: c.username == ^username
+
+    case Repo.one(query) do
+      %User{} = user -> {:ok, user}
+      nil -> {:error, :unauthorized}
+    end
+  end
+  
 end
