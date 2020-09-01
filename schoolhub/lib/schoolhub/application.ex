@@ -14,9 +14,10 @@ defmodule Schoolhub.Application do
       # Start the PubSub system
       {Phoenix.PubSub, name: Schoolhub.PubSub},
       # Start the Endpoint (http/https)
-      SchoolhubWeb.Endpoint
+      SchoolhubWeb.Endpoint,
       # Start a worker by calling: Schoolhub.Worker.start_link(arg)
       # {Schoolhub.Worker, arg}
+      Schoolhub.AuthServer
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

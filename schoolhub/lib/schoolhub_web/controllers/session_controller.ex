@@ -2,6 +2,10 @@ defmodule SchoolhubWeb.SessionController do
   use SchoolhubWeb, :controller
 
   alias Schoolhub.Accounts
+  alias Schoolhub.AuthServer
+
+  @http_response_timeout 1_000
+  
 
   def new(conn, _) do
     render(conn, "new.html")
@@ -27,4 +31,29 @@ defmodule SchoolhubWeb.SessionController do
     |> configure_session(drop: true)
     |> redirect(to: "/")
   end
+
+  
+  def authenticate(conn, _params) do
+    conn
+    |> read_body()
+    |> authenticate()
+    |> http_respond()
+  end
+
+
+  defp authenticate({:ok, body, conn}) do
+    AuthServer.authenticate(body)
+    conn
+  end
+  
+  defp http_respond(conn) do
+    receive do
+      {:reply, response_body} ->
+	send_resp(conn, 200, response_body)
+    after
+      @http_response_timeout ->
+	raise "http_timeout"
+    end	
+  end
+  
 end

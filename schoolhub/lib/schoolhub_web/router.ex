@@ -22,6 +22,12 @@ defmodule SchoolhubWeb.Router do
       singleton: true
   end
 
+  scope "/", SchoolhubWeb do
+    pipe_through :api
+
+    get "/auth", SessionController, :authenticate
+  end
+
   # Other scopes may use custom stacks.
   # scope "/api", SchoolhubWeb do
   #   pipe_through :api
