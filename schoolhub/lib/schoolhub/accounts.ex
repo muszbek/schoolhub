@@ -137,7 +137,10 @@ defmodule Schoolhub.Accounts do
       ** (Ecto.NoResultsError)
 
   """
-  def get_credential!(id), do: Repo.get!(Credential, id)
+  def get_credential!(id) do
+    username = to_string(id)
+    Repo.get!(Credential, username)
+  end
 
   @doc """
   Creates a credential.
