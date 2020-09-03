@@ -74,7 +74,7 @@ defmodule Schoolhub.AuthStateMachine do
 	
 	msg = :scramerl.server_first_message(charlist(nonce), charlist(salt), integer(iter_count))
 
-	session_timeout = Application.get_env(:schoolhub, :auth_session_timeout)
+	session_timeout = Application.get_env(:schoolhub, :auth_session_timeout, 1000)
 	send(from, {:reply, msg})
 	{:next_state, :server_first, %{state |
 				       client_first_bare: client_first_bare,
@@ -111,7 +111,7 @@ defmodule Schoolhub.AuthStateMachine do
 		   requester: from}) do
 
     ## Nonce already verified via pattern matching! No need to explicitely do so.
-  
+    
     proof = :base64.decode(proof)
     auth_msg = client_first_bare ++ ',' ++ server_first
   

@@ -8,7 +8,8 @@
 use Mix.Config
 
 config :schoolhub,
-  ecto_repos: [Schoolhub.Repo]
+  ecto_repos: [Schoolhub.Repo],
+  auth_session_timeout: 1000
 
 # Configures the endpoint
 config :schoolhub, SchoolhubWeb.Endpoint,
