@@ -11,7 +11,7 @@ defmodule SchoolhubWeb.SessionController do
     render(conn, "new.html")
   end
 
-  def create(conn, %{"user" => %{"username" => username, "password" => password}}) do
+  def create(conn, %{"credential" => %{"username" => username, "password" => password}}) do
     case Accounts.authenticate(username, password) do
       {:ok, user} ->
         conn

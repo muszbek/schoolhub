@@ -1,6 +1,6 @@
 <h1>Sign in</h1>
 
-<%= form_for @conn, Routes.session_path(@conn, :create), [method: :post, as: :user], fn f -> %>
+<%= form_for @conn, Routes.session_path(@conn, :create), [method: :post, as: :credential], fn f -> %>
   <div class="form-group">
     <%= text_input f, :username, placeholder: "Username" %>
   </div>
@@ -16,7 +16,7 @@
 
 <button onclick="login()">Login JS</button>  
 
-<%= form_for @conn, Routes.session_path(@conn, :delete), [method: :delete, as: :user], fn _ -> %>
+<%= form_for @conn, Routes.session_path(@conn, :delete), [method: :delete, as: :credential], fn _ -> %>
   <div class="form-group">
     <%= submit "logout" %>
   </div>
