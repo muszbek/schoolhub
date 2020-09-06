@@ -9,7 +9,7 @@ defmodule Schoolhub.AuthServer do
 
   @auth_worker Schoolhub.AuthStateMachine
   
-  @nonce_length 15
+  @nonce_length 32
 
   ### API functions ###
   
