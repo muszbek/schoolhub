@@ -89,7 +89,7 @@ defmodule Schoolhub.AuthStateMachine do
 
   def server_first(:cast, {:auth, scram_data = %{message: 'client-final-message'}, from},
 	state) do
-
+    
     {:next_state, :client_final, %{state | requester: from},
      [{:next_event, :internal, scram_data}]}
   end

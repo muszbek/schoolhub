@@ -41,7 +41,8 @@ defmodule SchoolhubWeb.SessionController do
   
   defp http_respond(conn) do
     receive do
-      {:reply, response_body} ->
+      {:reply, response} ->
+	response_body = to_string(response)
 	send_resp(conn, 200, response_body)
     after
       @http_response_timeout ->
