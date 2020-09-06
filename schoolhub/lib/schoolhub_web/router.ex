@@ -13,6 +13,12 @@ defmodule SchoolhubWeb.Router do
     plug :accepts, ["json"]
   end
 
+  pipeline :auth do
+    plug :accepts, ["html"]
+    plug :fetch_session
+    plug :protect_from_forgery
+  end
+
   scope "/", SchoolhubWeb do
     pipe_through :browser
 
@@ -23,9 +29,9 @@ defmodule SchoolhubWeb.Router do
   end
 
   scope "/", SchoolhubWeb do
-    pipe_through :api
+    pipe_through :auth
 
-    get "/auth", SessionController, :authenticate
+    post "/auth", SessionController, :authenticate
   end
 
   # Other scopes may use custom stacks.

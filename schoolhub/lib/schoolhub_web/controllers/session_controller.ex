@@ -3,7 +3,7 @@ defmodule SchoolhubWeb.SessionController do
 
   alias Schoolhub.Accounts
   alias Schoolhub.AuthServer
-
+  
   @http_response_timeout 1_000
   
 
@@ -33,18 +33,11 @@ defmodule SchoolhubWeb.SessionController do
   end
 
   
-  def authenticate(conn, _params) do
-    conn
-    |> read_body()
-    |> authenticate()
-    |> http_respond()
+  def authenticate(conn, %{"data" => auth_data}) do
+    AuthServer.authenticate(auth_data)
+    http_respond(conn)
   end
-
-
-  defp authenticate({:ok, body, conn}) do
-    AuthServer.authenticate(body)
-    conn
-  end
+  
   
   defp http_respond(conn) do
     receive do
