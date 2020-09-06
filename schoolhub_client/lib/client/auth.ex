@@ -84,6 +84,8 @@ defmodule Client.Auth do
     normalized_pw = :stringprep.prepare(password)
     salted_pw = :scramerl_lib.hi(normalized_pw, salt, ic)
     auth_msg = client_first_bare ++ ',' ++ server_first
+    ## TODO: client final message without proof is missing here
+    ## (in server too, so it is in synchrone but violates standard)
     
     msg = :scramerl.client_final_message(nonce, salted_pw, auth_msg)
     {:ok, conn, _request_ref} = Mint.HTTP1.request(conn, "GET", "/auth", [], msg)

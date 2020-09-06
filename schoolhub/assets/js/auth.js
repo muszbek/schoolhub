@@ -20,7 +20,6 @@ login = function() {
 	.then(serverFirst => {
 	    var clientFinal = mech.challenge(serverFirst).response(creds);
 	    var clientFinalData = JSON.stringify({"data": clientFinal});
-	    console.log(clientFinalData);
 	    return sendHttp(clientFinalData);
 	})
 	.then(httpResponse => httpResponse.text())

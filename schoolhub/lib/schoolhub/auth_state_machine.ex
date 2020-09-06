@@ -101,6 +101,7 @@ defmodule Schoolhub.AuthStateMachine do
 
   
   def client_final(:internal, %{message: 'client-final-message',
+				"channel-binding": channel_binding,
 				nonce: nonce,
 				proof: proof},
 	_state = %{client_first_bare: client_first_bare,
@@ -113,7 +114,8 @@ defmodule Schoolhub.AuthStateMachine do
     ## Nonce already verified via pattern matching! No need to explicitely do so.
     
     proof = :base64.decode(proof)
-    auth_msg = client_first_bare ++ ',' ++ server_first
+    client_final_without_proof = 'c=' ++ channel_binding ++ ',r=' ++ nonce
+    auth_msg = client_first_bare ++ ',' ++ server_first ++ ',' ++ client_final_without_proof
   
     stored_key_from_client =
       {stored_key |> :base64.decode(), auth_msg, proof}
@@ -124,7 +126,7 @@ defmodule Schoolhub.AuthStateMachine do
       {stored_key_from_client, stored_key, server_key}
       |> verify_credentials()
       |> :scramerl.server_final_message()
-
+    
     finish_authentication(msg, from, :normal)
   end
 
