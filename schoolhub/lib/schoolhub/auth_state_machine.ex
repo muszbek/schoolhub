@@ -214,6 +214,7 @@ defmodule Schoolhub.AuthStateMachine do
   end
 
   defp create_server_signature(:ok, server_key, auth_msg) do
+    server_key = :base64.decode(server_key)
     :crypto.hmac(:sha, server_key, auth_msg)
     |> :base64.encode()
     |> charlist()

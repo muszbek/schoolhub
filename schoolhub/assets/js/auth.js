@@ -8,8 +8,9 @@ login = function() {
 		 "password": "super_secret"};
 
     var sasl = require('saslmechanisms');
+    var sasl_scram = require('sasl-scram-sha-1');
     var factory = new sasl.Factory();
-    factory.use(require('sasl-scram-sha-1'));
+    factory.use(sasl_scram);
     var mech = factory.create(['SCRAM-SHA-1']);
     
     var clientFirst = mech.response(creds);
@@ -24,7 +25,8 @@ login = function() {
 	})
 	.then(httpResponse => httpResponse.text())
 	.then(serverFinal => {
-	    console.log(serverFinal);
+	    var authResult = mech.challenge(serverFinal).response(creds);
+	    console.log(authResult);
 	})
 };
 
