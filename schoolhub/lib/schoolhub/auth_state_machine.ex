@@ -123,8 +123,9 @@ defmodule Schoolhub.AuthStateMachine do
       |> reproduce_stored_key()
     
     msg =
-      {stored_key_from_client, stored_key, server_key}
+      {stored_key_from_client, stored_key}
       |> verify_credentials()
+      |> create_server_signature(server_key, auth_msg)
       |> :scramerl.server_final_message()
     
     finish_authentication(msg, from, :normal)
@@ -202,13 +203,23 @@ defmodule Schoolhub.AuthStateMachine do
       |> :base64.encode()
   end
   
-  defp verify_credentials({ckey, skey, server_key}) do
+  defp verify_credentials({ckey, skey}) do
     if ckey == skey do
-      server_key |> charlist()
+      #server_key |> charlist()
+      :ok
     else
       {:error, 'stored_key_mismatch'}
       ## Meaning: wrong password
     end
+  end
+
+  defp create_server_signature(:ok, server_key, auth_msg) do
+    :crypto.hmac(:sha, server_key, auth_msg)
+    |> :base64.encode()
+    |> charlist()
+  end
+  defp create_server_signature({:error, reason}, _server_key, _auth_msg) do
+    {:error, reason}
   end
   
   defp finish_authentication(msg, from, reason) do

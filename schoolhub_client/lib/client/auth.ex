@@ -119,6 +119,8 @@ defmodule Client.Auth do
     result =
       {server_key_from_client, server_key}
       |> verify_server_credentials()
+    # Server should send server_key hashed with auth_msg, and client encode the same
+    # Symmetrical for now, but violates standard
     
     finish_auth(result, state)
   end
