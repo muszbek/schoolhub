@@ -1,4 +1,5 @@
-const targetUrl = window.location.origin.concat("/auth");
+const authUrl = window.location.origin.concat("/auth");
+const resultUrl = window.location.origin.concat("/sessions");
 const csrfToken = document.head.querySelector("[name~=csrf-token][content]").content;
 
 login = function() {
@@ -17,6 +18,8 @@ login = function() {
 
     authenticate(mech, creds)
 	.then(authResult => {
+	    var result = JSON.stringify({"credential": creds});
+	    sendResult(result);
 	    console.log(authResult);
 	})
     
@@ -26,12 +29,12 @@ function authenticate(mech, creds) {
     var clientFirst = mech.response(creds);
     var clientFirstData = JSON.stringify({"data": clientFirst});
     
-    var authPromise = sendHttp(clientFirstData)
+    var authPromise = sendAuth(clientFirstData)
 	.then(httpResponse => httpResponse.text())
 	.then(serverFirst => {
 	    var clientFinal = mech.challenge(serverFirst).response(creds);
 	    var clientFinalData = JSON.stringify({"data": clientFinal});
-	    return sendHttp(clientFinalData);
+	    return sendAuth(clientFinalData);
 	})
 	.then(httpResponse => httpResponse.text())
 	.then(serverFinal => {
@@ -44,7 +47,16 @@ function authenticate(mech, creds) {
     return authPromise;
 };
 
-function sendHttp(body_data) {
+function sendAuth(body_data) {
+    return sendHttp(authUrl, body_data);
+}
+
+function sendResult(body_data) {
+    return sendHttp(resultUrl, body_data);
+}
+
+
+function sendHttp(targetUrl, body_data) {
     return fetch(targetUrl, {
 	method: "POST",
 	headers: {
