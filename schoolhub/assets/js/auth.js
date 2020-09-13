@@ -22,10 +22,6 @@ login = function() {
 	    addResult(form, 'username', creds.username);
 	    form.submit();
 	})
-	.then(serverResponse => {
-	    console.log(serverResponse);
-	})
-    
 };
 
 function authenticate(mech, creds) {
