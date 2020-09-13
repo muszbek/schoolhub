@@ -3,9 +3,11 @@ const csrfToken = document.head.querySelector("[name~=csrf-token][content]").con
 
 login = function() {
     console.log("Logging in");
-    
-    var creds = {"username": "tmuszbek",
-		 "password": "super_secret"};
+
+    var username = document.getElementById("username").value;
+    var password = document.getElementById("password").value;
+    var creds = {"username": username,
+		 "password": password};
 
     var sasl = require('saslmechanisms');
     var sasl_scram = require('sasl-scram-sha-1');
