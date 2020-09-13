@@ -1,24 +1,19 @@
 <h1>Sign in</h1>
 
-<%= form_for @conn, Routes.session_path(@conn, :create), [method: :post, as: :credential], fn f -> %>
-  <div class="form-group">
-    <%= text_input f, :username, placeholder: "Username" %>
-  </div>
+<input type="text" id="username" name="username" placeholder="Username">
+<input type="password" id="password" name="password" placeholder="Password">
 
-  <div class="form-group">
-    <%= password_input f, :password, placeholder: "Password" %>
-  </div>
-
+<%= form_for @conn, Routes.session_path(@conn, :create), [method: :post], fn _ -> %>
   <div class="form-group">
     <%= submit "Login" %>
   </div>
+
+  <div class="form-group">
+    <input type="button" onclick="login()" value="Login JS">  
+  </div>
 <% end %>
 
-<input type="text" id="username" name="username" placeholder="Username">
-<input type="password" id="password" name="password" placeholder="Password">
-<button onclick="login()">Login JS</button>  
-
-<%= form_for @conn, Routes.session_path(@conn, :delete), [method: :delete, as: :credential], fn _ -> %>
+<%= form_for @conn, Routes.session_path(@conn, :delete), [method: :delete], fn _ -> %>
   <div class="form-group">
     <%= submit "logout" %>
   </div>

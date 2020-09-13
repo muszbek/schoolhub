@@ -1,5 +1,4 @@
 const authUrl = window.location.origin.concat("/auth");
-const resultUrl = window.location.origin.concat("/sessions");
 const csrfToken = document.head.querySelector("[name~=csrf-token][content]").content;
 
 login = function() {
@@ -18,9 +17,13 @@ login = function() {
 
     authenticate(mech, creds)
 	.then(authResult => {
-	    var result = JSON.stringify({"credential": creds});
-	    sendResult(result);
-	    console.log(authResult);
+	    const form = document.forms[0];
+	    addResult(form, 'result', authResult);
+	    addResult(form, 'username', creds.username);
+	    form.submit();
+	})
+	.then(serverResponse => {
+	    console.log(serverResponse);
 	})
     
 };
@@ -51,11 +54,6 @@ function sendAuth(body_data) {
     return sendHttp(authUrl, body_data);
 }
 
-function sendResult(body_data) {
-    return sendHttp(resultUrl, body_data);
-}
-
-
 function sendHttp(targetUrl, body_data) {
     return fetch(targetUrl, {
 	method: "POST",
@@ -65,4 +63,13 @@ function sendHttp(targetUrl, body_data) {
 	},
 	body: body_data
     })
+};
+
+function addResult(form, key, authResult) {
+    const hiddenField = document.createElement('input');
+    hiddenField.type = 'hidden';
+    hiddenField.name = key;
+    hiddenField.value = authResult;
+
+    form.appendChild(hiddenField);
 };

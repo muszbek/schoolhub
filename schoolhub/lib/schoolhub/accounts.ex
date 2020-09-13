@@ -208,7 +208,7 @@ defmodule Schoolhub.Accounts do
   end
 
 
-  def authenticate(username, _password) do
+  def authenticate("authenticated", username) do
     query =
       from u in User,
         inner_join: c in assoc(u, :credential),
@@ -218,6 +218,9 @@ defmodule Schoolhub.Accounts do
       %User{} = user -> {:ok, user}
       nil -> {:error, :unauthorized}
     end
+  end
+  def authenticate(error, _username) do
+    {:error, :unauthorized}
   end
   
 end
