@@ -5,10 +5,6 @@
 
 <%= form_for @conn, Routes.session_path(@conn, :create), [method: :post], fn _ -> %>
   <div class="form-group">
-    <%= submit "Login" %>
-  </div>
-
-  <div class="form-group">
     <input type="button" onclick="login()" value="Login JS">  
   </div>
 <% end %>
