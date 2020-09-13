@@ -12,11 +12,19 @@ login = function() {
     var factory = new sasl.Factory();
     factory.use(sasl_scram);
     var mech = factory.create(['SCRAM-SHA-1']);
+
+    authenticate(mech, creds)
+	.then(authResult => {
+	    console.log(authResult);
+	})
     
+};
+
+function authenticate(mech, creds) {
     var clientFirst = mech.response(creds);
     var clientFirstData = JSON.stringify({"data": clientFirst});
     
-    sendHttp(clientFirstData)
+    var authPromise = sendHttp(clientFirstData)
 	.then(httpResponse => httpResponse.text())
 	.then(serverFirst => {
 	    var clientFinal = mech.challenge(serverFirst).response(creds);
@@ -25,12 +33,13 @@ login = function() {
 	})
 	.then(httpResponse => httpResponse.text())
 	.then(serverFinal => {
-	    var authResult = mech.challenge(serverFinal).response(creds);
-	    console.log(authResult);
+	    return mech.challenge(serverFinal).response(creds);
 	})
 	.catch(error => {
-	    console.log(error);
+	    return error;
 	})
+
+    return authPromise;
 };
 
 function sendHttp(body_data) {
