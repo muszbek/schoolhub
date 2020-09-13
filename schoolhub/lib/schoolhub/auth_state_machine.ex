@@ -59,9 +59,9 @@ defmodule Schoolhub.AuthStateMachine do
     client_first_bare = :scramerl_lib.prune(:"gs2-header", client_first)
     
     case get_scram_pw(username) do
-      :nil ->
-	msg = 'unknown_user'
-
+      nil ->
+	msg = 'e=unknown_user'
+	
 	send(from, {:reply, msg})
         {:stop, :unknown_user_error}
       
@@ -189,8 +189,10 @@ defmodule Schoolhub.AuthStateMachine do
 
 
   defp get_scram_pw(username) do
-    %{pass_details: scram} = Accounts.get_credential!(username)
-    scram
+    case Accounts.get_credential!(username) do
+      %{pass_details: scram} -> scram
+      nil -> nil
+    end
   end
   
   defp reproduce_client_key({stored_key, auth_msg, proof}) do
@@ -205,7 +207,6 @@ defmodule Schoolhub.AuthStateMachine do
   
   defp verify_credentials({ckey, skey}) do
     if ckey == skey do
-      #server_key |> charlist()
       :ok
     else
       {:error, 'stored_key_mismatch'}

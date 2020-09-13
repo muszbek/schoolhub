@@ -1,6 +1,6 @@
 defmodule SchoolhubWeb.SessionController do
   use SchoolhubWeb, :controller
-
+  
   alias Schoolhub.Accounts
   alias Schoolhub.AuthServer
   

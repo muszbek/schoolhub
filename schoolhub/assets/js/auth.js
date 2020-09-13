@@ -28,6 +28,9 @@ login = function() {
 	    var authResult = mech.challenge(serverFinal).response(creds);
 	    console.log(authResult);
 	})
+	.catch(error => {
+	    console.log(error);
+	})
 };
 
 function sendHttp(body_data) {

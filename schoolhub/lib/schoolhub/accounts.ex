@@ -2,7 +2,7 @@ defmodule Schoolhub.Accounts do
   @moduledoc """
   The Accounts context.
   """
-
+  
   import Ecto.Query, warn: false
   alias Schoolhub.Repo
 
@@ -139,7 +139,7 @@ defmodule Schoolhub.Accounts do
   """
   def get_credential!(id) do
     username = to_string(id)
-    Repo.get!(Credential, username)
+    Repo.get(Credential, username)
   end
 
   @doc """
