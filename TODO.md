@@ -23,10 +23,11 @@
 # Phoenix
 
 - JWT later, it is for sessioning (guardian)
-- scram necessary, users table as from mongoose
 - user_profile - email fullname
 -- user
 -- user_privilege
 -- (user_data)
 
-- client return the form after auth result
+scram tests
+privilege forms
+more content (courses) to get clear on responsibilites and session plugs
