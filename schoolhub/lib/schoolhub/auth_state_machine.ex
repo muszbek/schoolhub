@@ -59,7 +59,7 @@ defmodule Schoolhub.AuthStateMachine do
     client_first_bare = :scramerl_lib.prune(:"gs2-header", client_first)
     
     case get_scram_pw(username) do
-      nil ->
+      :user_not_exist ->
 	msg = 'e=unknown_user'
 	
 	send(from, {:reply, msg})
@@ -189,9 +189,11 @@ defmodule Schoolhub.AuthStateMachine do
 
 
   defp get_scram_pw(username) do
-    case Accounts.get_credential!(username) do
-      %{pass_details: scram} -> scram
-      nil -> nil
+    try do
+      %{pass_details: scram} = Accounts.get_credential!(username)
+      scram
+    rescue
+      Ecto.NoResultsError -> :user_not_exist
     end
   end
   

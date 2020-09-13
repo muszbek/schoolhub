@@ -139,7 +139,7 @@ defmodule Schoolhub.Accounts do
   """
   def get_credential!(id) do
     username = to_string(id)
-    Repo.get(Credential, username)
+    Repo.get!(Credential, username)
   end
 
   @doc """
@@ -219,7 +219,7 @@ defmodule Schoolhub.Accounts do
       nil -> {:error, :unauthorized}
     end
   end
-  def authenticate(error, _username) do
+  def authenticate(_error, _username) do
     {:error, :unauthorized}
   end
   
