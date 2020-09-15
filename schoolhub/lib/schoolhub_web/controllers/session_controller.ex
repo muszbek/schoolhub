@@ -35,14 +35,16 @@ defmodule SchoolhubWeb.SessionController do
   
   def authenticate(conn, %{"data" => auth_data}) do
     AuthServer.authenticate(auth_data)
-    http_respond(conn)
+    conn
+    |> put_resp_content_type("application/json")
+    |> http_respond()
   end
   
   
   defp http_respond(conn) do
     receive do
       {:reply, response} ->
-	response_body = to_string(response)
+	{:ok, response_body} = Jason.encode(%{data: to_string(response)})
 	send_resp(conn, 200, response_body)
     after
       @http_response_timeout ->

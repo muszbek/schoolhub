@@ -11,6 +11,7 @@ defmodule SchoolhubWeb.SessionControllerTest do
 		  result: "authenticated"}
   @auth_fail %{username: "some username",
 	       result: "some error"}
+  @auth_client_first %{data: "n,,n=some username,r=80151d1f366758f3a5ea00191a565575"}
 
   def fixture(:user) do
     {:ok, user} = Accounts.create_user(@user_attrs)
@@ -44,6 +45,15 @@ defmodule SchoolhubWeb.SessionControllerTest do
     test "deletes session", %{conn: conn} do
       conn = delete(conn, Routes.session_path(conn, :delete))
       assert redirected_to(conn) == Routes.page_path(conn, :index)
+    end
+  end
+
+  describe "authenticate" do
+    setup [:create_user]
+
+    test "authenticate first message ok", %{conn: conn} do
+      conn = post(conn, Routes.session_path(conn, :authenticate), @auth_client_first)
+      assert json_response(conn, 200)
     end
   end
 

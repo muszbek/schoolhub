@@ -30,12 +30,14 @@ function authenticate(mech, creds) {
     
     var authPromise = sendAuth(clientFirstData)
 	.then(httpResponse => httpResponse.text())
+	.then(responseJson => JSON.parse(responseJson).data)
 	.then(serverFirst => {
 	    var clientFinal = mech.challenge(serverFirst).response(creds);
 	    var clientFinalData = JSON.stringify({"data": clientFinal});
 	    return sendAuth(clientFinalData);
 	})
 	.then(httpResponse => httpResponse.text())
+	.then(responseJson => JSON.parse(responseJson).data)
 	.then(serverFinal => {
 	    return mech.challenge(serverFinal).response(creds);
 	})
