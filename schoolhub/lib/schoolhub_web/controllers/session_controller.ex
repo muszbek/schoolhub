@@ -28,8 +28,9 @@ defmodule SchoolhubWeb.SessionController do
 
   def delete(conn, _) do
     conn
+    |> put_flash(:info, "Logged out")
     |> configure_session(drop: true)
-    |> redirect(to: "/")
+    |> redirect(to: Routes.session_path(conn, :new))
   end
 
   

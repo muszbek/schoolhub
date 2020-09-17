@@ -44,7 +44,7 @@ defmodule SchoolhubWeb.SessionControllerTest do
 
     test "deletes session", %{conn: conn} do
       conn = delete(conn, Routes.session_path(conn, :delete))
-      assert redirected_to(conn) == Routes.page_path(conn, :index)
+      assert redirected_to(conn) == Routes.session_path(conn, :new)
     end
   end
 

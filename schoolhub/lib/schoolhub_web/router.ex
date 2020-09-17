@@ -13,13 +13,21 @@ defmodule SchoolhubWeb.Router do
     plug :accepts, ["json"]
   end
 
+  pipeline :session do
+    plug :authenticate_user
+  end
+
   scope "/", SchoolhubWeb do
     pipe_through :browser
 
     get "/", PageController, :index
-    resources "/users", UserController
+    resources "/users", UserController, only: [:new, :create]
     resources "/sessions", SessionController, only: [:new, :create, :delete],
       singleton: true
+
+    pipe_through :session
+    resources "/users", UserController, except: [:new, :create]
+    
   end
 
   scope "/auth", SchoolhubWeb do
@@ -55,7 +63,7 @@ defmodule SchoolhubWeb.Router do
       nil ->
         conn
         |> Phoenix.Controller.put_flash(:error, "Login required")
-        |> Phoenix.Controller.redirect(to: "/")
+        |> Phoenix.Controller.redirect(to: "/sessions/new")
         |> halt()
       user_id ->
         assign(conn, :current_user, Schoolhub.Accounts.get_user!(user_id))

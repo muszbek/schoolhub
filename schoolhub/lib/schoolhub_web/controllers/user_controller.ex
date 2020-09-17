@@ -16,10 +16,10 @@ defmodule SchoolhubWeb.UserController do
 
   def create(conn, %{"user" => user_params}) do
     case Accounts.create_user(user_params) do
-      {:ok, user} ->
+      {:ok, _user} ->
         conn
         |> put_flash(:info, "User created successfully.")
-        |> redirect(to: Routes.user_path(conn, :show, user))
+        |> redirect(to: Routes.session_path(conn, :new))
 
       {:error, %Ecto.Changeset{} = changeset} ->
         render(conn, "new.html", changeset: changeset)
@@ -57,6 +57,7 @@ defmodule SchoolhubWeb.UserController do
 
     conn
     |> put_flash(:info, "User deleted successfully.")
-    |> redirect(to: Routes.user_path(conn, :index))
+    |> configure_session(drop: true)
+    |> redirect(to: Routes.session_path(conn, :new))
   end
 end
