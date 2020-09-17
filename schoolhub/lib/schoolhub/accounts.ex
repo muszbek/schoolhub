@@ -7,6 +7,9 @@ defmodule Schoolhub.Accounts do
   alias Schoolhub.Repo
 
   alias Schoolhub.Accounts.{User, Credential}
+  alias Schoolhub.Privileges.Privilege
+
+  @default_privilege "student"
 
   @doc """
   Returns the list of users.
@@ -21,6 +24,7 @@ defmodule Schoolhub.Accounts do
     User
     |> Repo.all()
     |> Repo.preload(:credential)
+    |> Repo.preload(:privilege)
   end
 
   @doc """
@@ -41,6 +45,7 @@ defmodule Schoolhub.Accounts do
     User
     |> Repo.get!(id)
     |> Repo.preload(:credential)
+    |> Repo.preload(:privilege)
   end
 
   @doc """
@@ -56,9 +61,12 @@ defmodule Schoolhub.Accounts do
 
   """
   def create_user(attrs \\ %{}) do
+    attrs_with_privilege = Map.put(attrs, "privilege", %{"level": @default_privilege})
+    
     %User{}
-    |> User.changeset(attrs)
+    |> User.changeset(attrs_with_privilege)
     |> Ecto.Changeset.cast_assoc(:credential, with: &Credential.changeset/2)
+    |> Ecto.Changeset.cast_assoc(:privilege, with: &Privilege.changeset/2)
     |> Repo.insert()
   end
 
@@ -78,6 +86,7 @@ defmodule Schoolhub.Accounts do
     user
     |> User.changeset(attrs)
     |> Ecto.Changeset.cast_assoc(:credential, with: &Credential.changeset/2)
+    |> Ecto.Changeset.cast_assoc(:privilege, with: &Privilege.changeset/2)
     |> Repo.update()
   end
 

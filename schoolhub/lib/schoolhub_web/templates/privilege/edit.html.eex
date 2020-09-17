@@ -1,0 +1,5 @@
+<h1>Edit Privilege</h1>
+
+<%= render "form.html", Map.put(assigns, :action, Routes.privilege_path(@conn, :update, @privilege)) %>
+
+<span><%= link "Back", to: Routes.privilege_path(@conn, :index) %></span>

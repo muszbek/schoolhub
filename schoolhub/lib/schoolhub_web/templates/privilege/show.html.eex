@@ -1,0 +1,13 @@
+<h1>Show Privilege</h1>
+
+<ul>
+
+  <li>
+    <strong>Level:</strong>
+    <%= @privilege.level %>
+  </li>
+
+</ul>
+
+<span><%= link "Edit", to: Routes.privilege_path(@conn, :edit, @privilege) %></span>
+<span><%= link "Back", to: Routes.privilege_path(@conn, :index) %></span>

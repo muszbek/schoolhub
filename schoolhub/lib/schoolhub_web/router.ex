@@ -27,7 +27,7 @@ defmodule SchoolhubWeb.Router do
 
     pipe_through :session
     resources "/users", UserController, except: [:new, :create]
-    
+    resources "/privileges", PrivilegeController, except: [:new, :create, :delete]
   end
 
   scope "/auth", SchoolhubWeb do
