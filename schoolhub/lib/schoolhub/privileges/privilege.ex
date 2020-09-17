@@ -2,6 +2,8 @@ defmodule Schoolhub.Privileges.Privilege do
   use Ecto.Schema
   import Ecto.Changeset
 
+  alias Schoolhub.Accounts.User
+
   schema "privileges" do
     field :level, :string
     belongs_to :user, User

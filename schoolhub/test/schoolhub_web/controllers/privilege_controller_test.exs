@@ -1,50 +1,41 @@
 defmodule SchoolhubWeb.PrivilegeControllerTest do
   use SchoolhubWeb.ConnCase
 
-  alias Schoolhub.Privileges
+  alias Schoolhub.Accounts
 
-  @create_attrs %{level: "some level"}
-  @update_attrs %{level: "some updated level"}
-  @invalid_attrs %{level: nil}
+  @update_attrs %{level: "teacher"}
+  @invalid_attrs %{level: "some invalid level"}
+  
+  @create_user_attrs %{email: "some email",
+		       name: "some name",
+		       credential: %{username: "some username",
+				     password: "some password"}}
 
-  def fixture(:privilege) do
-    {:ok, privilege} = Privileges.create_privilege(@create_attrs)
-    privilege
+  def fixture(:user) do
+    {:ok, user} = Accounts.create_user(@create_user_attrs)
+    user
   end
 
+  def fixture(:session, conn = %Plug.Conn{}, user) do
+    conn
+    |> Plug.Test.init_test_session(user_id: nil)
+    |> SchoolhubWeb.SessionController.enter_session(user)
+  end
+  
+
   describe "index" do
+    setup [:create_user]
+    setup [:enter_session]
+    
     test "lists all privileges", %{conn: conn} do
       conn = get(conn, Routes.privilege_path(conn, :index))
       assert html_response(conn, 200) =~ "Listing Privileges"
     end
   end
 
-  describe "new privilege" do
-    test "renders form", %{conn: conn} do
-      conn = get(conn, Routes.privilege_path(conn, :new))
-      assert html_response(conn, 200) =~ "New Privilege"
-    end
-  end
-
-  describe "create privilege" do
-    test "redirects to show when data is valid", %{conn: conn} do
-      conn = post(conn, Routes.privilege_path(conn, :create), privilege: @create_attrs)
-
-      assert %{id: id} = redirected_params(conn)
-      assert redirected_to(conn) == Routes.privilege_path(conn, :show, id)
-
-      conn = get(conn, Routes.privilege_path(conn, :show, id))
-      assert html_response(conn, 200) =~ "Show Privilege"
-    end
-
-    test "renders errors when data is invalid", %{conn: conn} do
-      conn = post(conn, Routes.privilege_path(conn, :create), privilege: @invalid_attrs)
-      assert html_response(conn, 200) =~ "New Privilege"
-    end
-  end
-
   describe "edit privilege" do
-    setup [:create_privilege]
+    setup [:create_user]
+    setup [:enter_session]
 
     test "renders form for editing chosen privilege", %{conn: conn, privilege: privilege} do
       conn = get(conn, Routes.privilege_path(conn, :edit, privilege))
@@ -53,7 +44,8 @@ defmodule SchoolhubWeb.PrivilegeControllerTest do
   end
 
   describe "update privilege" do
-    setup [:create_privilege]
+    setup [:create_user]
+    setup [:enter_session]
 
     test "redirects when data is valid", %{conn: conn, privilege: privilege} do
       conn = put(conn, Routes.privilege_path(conn, :update, privilege), privilege: @update_attrs)
@@ -68,21 +60,15 @@ defmodule SchoolhubWeb.PrivilegeControllerTest do
       assert html_response(conn, 200) =~ "Edit Privilege"
     end
   end
+  
 
-  describe "delete privilege" do
-    setup [:create_privilege]
-
-    test "deletes chosen privilege", %{conn: conn, privilege: privilege} do
-      conn = delete(conn, Routes.privilege_path(conn, :delete, privilege))
-      assert redirected_to(conn) == Routes.privilege_path(conn, :index)
-      assert_error_sent 404, fn ->
-        get(conn, Routes.privilege_path(conn, :show, privilege))
-      end
-    end
+  defp create_user(_) do
+    user = fixture(:user)
+    %{user: user}
   end
 
-  defp create_privilege(_) do
-    privilege = fixture(:privilege)
-    %{privilege: privilege}
+  defp enter_session(%{conn: conn, user: user}) do
+    new_conn = fixture(:session, conn, user)
+    %{conn: new_conn}
   end
 end

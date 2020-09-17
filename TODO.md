@@ -22,12 +22,10 @@
 
 # Phoenix
 
-- JWT later, it is for sessioning (guardian)
 - user_profile - email fullname
 -- user
 -- user_privilege
 -- (user_data)
 
-scram tests
 privilege forms
 more content (courses) to get clear on responsibilites and session plugs
