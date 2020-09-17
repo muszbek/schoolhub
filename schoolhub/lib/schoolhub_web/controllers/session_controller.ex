@@ -16,8 +16,7 @@ defmodule SchoolhubWeb.SessionController do
       {:ok, user} ->
         conn
         |> put_flash(:info, "Welcome back!")
-        |> put_session(:user_id, user.id)
-        |> configure_session(renew: true)
+	|> enter_session(user)
         |> redirect(to: "/")
       {:error, :unauthorized} ->
         conn
@@ -40,6 +39,13 @@ defmodule SchoolhubWeb.SessionController do
     |> put_resp_content_type("application/json")
     |> http_respond()
   end
+
+
+  def enter_session(conn, user) do
+    conn
+    |> put_session(:user_id, user.id)
+    |> configure_session(renew: true)
+  end
   
   
   defp http_respond(conn) do
@@ -52,5 +58,5 @@ defmodule SchoolhubWeb.SessionController do
 	raise "http_timeout"
     end	
   end
-  
+
 end

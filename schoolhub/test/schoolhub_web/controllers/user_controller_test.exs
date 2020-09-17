@@ -18,7 +18,16 @@ defmodule SchoolhubWeb.UserControllerTest do
     user
   end
 
+  def fixture(:session, conn = %Plug.Conn{}, user) do
+    conn
+    |> Plug.Test.init_test_session(user_id: nil)
+    |> SchoolhubWeb.SessionController.enter_session(user)
+  end
+
   describe "index" do
+    setup [:create_user]
+    setup [:enter_session]
+    
     test "lists all users", %{conn: conn} do
       conn = get(conn, Routes.user_path(conn, :index))
       assert html_response(conn, 200) =~ "Listing Users"
@@ -46,6 +55,7 @@ defmodule SchoolhubWeb.UserControllerTest do
 
   describe "edit user" do
     setup [:create_user]
+    setup [:enter_session]
 
     test "renders form for editing chosen user", %{conn: conn, user: user} do
       conn = get(conn, Routes.user_path(conn, :edit, user))
@@ -55,6 +65,7 @@ defmodule SchoolhubWeb.UserControllerTest do
 
   describe "update user" do
     setup [:create_user]
+    setup [:enter_session]
 
     test "redirects when data is valid", %{conn: conn, user: user} do
       conn = put(conn, Routes.user_path(conn, :update, user), user: @update_attrs)
@@ -85,5 +96,10 @@ defmodule SchoolhubWeb.UserControllerTest do
   defp create_user(_) do
     user = fixture(:user)
     %{user: user}
+  end
+
+  defp enter_session(%{conn: conn, user: user}) do
+    new_conn = fixture(:session, conn, user)
+    %{conn: new_conn}
   end
 end
