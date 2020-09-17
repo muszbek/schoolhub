@@ -24,17 +24,6 @@ config :logger, :console,
   format: "$time $metadata[$level] $message\n",
   metadata: [:request_id]
 
-# Configures Guardian for JWT session authentication
-config :guardian, Guardian,
-  allowed_algos: ["HS512"], #optional
-  verify_module: Guardian.JWT, #optional
-  issuer: "Schoolhub",
-  ttl: {30, :days},
-  allowed_drift: 2000,
-  verify_issuer: true, #optional
-  secret_key: "NmWu8hFqVDs+tKqf9crzLpjIHHsMNICpaCrbB5TGQFeeKgT3Ir/5I/522rCnR9+Y",
-  serializer: Schoolhub.GuardianSerializer
-
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
 

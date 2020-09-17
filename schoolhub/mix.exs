@@ -45,7 +45,6 @@ defmodule Schoolhub.MixProject do
       {:gettext, "~> 0.11"},
       {:jason, "~> 1.0"},
       {:plug_cowboy, "~> 2.0"},
-      {:guardian, "~> 0.14"},
       {:scramerl, git: "https://github.com/erdemaksu/scramerl"}
     ]
   end
