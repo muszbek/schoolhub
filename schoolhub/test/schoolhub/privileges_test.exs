@@ -2,20 +2,26 @@ defmodule Schoolhub.PrivilegesTest do
   use Schoolhub.DataCase
 
   alias Schoolhub.Privileges
+  alias Schoolhub.Accounts
 
   describe "privileges" do
     alias Schoolhub.Privileges.Privilege
 
+    @valid_user_attrs %{email: "some email",
+			name: "some name",
+			credential: %{username: "some username",
+				      password: "some password"}}
     @valid_attrs %{level: "student"}
     @update_attrs %{level: "teacher"}
     @invalid_attrs %{level: "some invalid level"}
 
     def privilege_fixture(attrs \\ %{}) do
-      {:ok, privilege} =
+      {:ok, user} =
         attrs
-        |> Enum.into(@valid_attrs)
-        |> Privileges.create_privilege()
+        |> Enum.into(@valid_user_attrs)
+        |> Accounts.create_user()
 
+      %{privilege: privilege} = user
       privilege
     end
 
@@ -30,8 +36,12 @@ defmodule Schoolhub.PrivilegesTest do
     end
 
     test "create_privilege/1 with valid data creates a privilege" do
-      assert {:ok, %Privilege{} = privilege} = Privileges.create_privilege(@valid_attrs)
-      assert privilege.level == "some level"
+      some_privilege = privilege_fixture()
+      %{user_id: user_id} = some_privilege
+      valid_attrs = Enum.into(%{user_id: user_id}, @valid_attrs)
+      
+      assert {:ok, %Privilege{} = privilege} = Privileges.create_privilege(valid_attrs)
+      assert privilege.level == "student"
     end
 
     test "create_privilege/1 with invalid data returns error changeset" do
@@ -41,7 +51,7 @@ defmodule Schoolhub.PrivilegesTest do
     test "update_privilege/2 with valid data updates the privilege" do
       privilege = privilege_fixture()
       assert {:ok, %Privilege{} = privilege} = Privileges.update_privilege(privilege, @update_attrs)
-      assert privilege.level == "some updated level"
+      assert privilege.level == "teacher"
     end
 
     test "update_privilege/2 with invalid data returns error changeset" do

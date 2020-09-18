@@ -27,7 +27,6 @@
 -- user_privilege
 -- (user_data)
 
-fix test
 fix privilege form (prettier desplay of user reference)
 more content (courses) to get clear on responsibilites and session plugs
 
