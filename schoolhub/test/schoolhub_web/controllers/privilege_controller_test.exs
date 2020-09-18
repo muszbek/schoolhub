@@ -52,7 +52,7 @@ defmodule SchoolhubWeb.PrivilegeControllerTest do
       assert redirected_to(conn) == Routes.privilege_path(conn, :show, privilege)
 
       conn = get(conn, Routes.privilege_path(conn, :show, privilege))
-      assert html_response(conn, 200) =~ "some updated level"
+      assert html_response(conn, 200) =~ "teacher"
     end
 
     test "renders errors when data is invalid", %{conn: conn, privilege: privilege} do
@@ -64,7 +64,8 @@ defmodule SchoolhubWeb.PrivilegeControllerTest do
 
   defp create_user(_) do
     user = fixture(:user)
-    %{user: user}
+    %{privilege: privilege} = user
+    %{user: user, privilege: privilege}
   end
 
   defp enter_session(%{conn: conn, user: user}) do

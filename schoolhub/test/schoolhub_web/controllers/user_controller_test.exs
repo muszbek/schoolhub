@@ -23,6 +23,7 @@ defmodule SchoolhubWeb.UserControllerTest do
     |> Plug.Test.init_test_session(user_id: nil)
     |> SchoolhubWeb.SessionController.enter_session(user)
   end
+  
 
   describe "index" do
     setup [:create_user]
@@ -92,6 +93,7 @@ defmodule SchoolhubWeb.UserControllerTest do
       #end
     end
   end
+  
 
   defp create_user(_) do
     user = fixture(:user)
