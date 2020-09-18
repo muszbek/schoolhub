@@ -13,7 +13,7 @@
 alias Schoolhub.Accounts.{User, Credential}
 alias Schoolhub.Privileges.Privilege
 
-admin_pw = "==SCRAM==,B5MvA8tsxOLvGXYEv7uYF9ZeOPU=,je1u7PlEhL/U/KEQKRwCZkGi5oc=,G5FcyAd91/ViouVZOzwm/w==,4096"
+admin_pw = File.read!("./priv/repo/admin_pw.secret")
 
 admin = %User{name: "Admin McAdminson",
 	      email: "admin@admin.com",
@@ -24,4 +24,4 @@ admin = %User{name: "Admin McAdminson",
 
 Schoolhub.Repo.insert!(admin)
 
-#TODO: extract pw as secret, protect from errors
+#TODO: protect from errors
