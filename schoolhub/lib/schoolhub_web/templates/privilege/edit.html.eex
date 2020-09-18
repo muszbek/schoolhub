@@ -5,4 +5,6 @@
 
 <%= render "form.html", Map.put(assigns, :action, Routes.privilege_path(@conn, :update, @privilege)) %>
 
+<%= render "explanation.html" %>
+
 <span><%= link "Back", to: Routes.privilege_path(@conn, :index) %></span>

@@ -14,5 +14,7 @@
 
 </ul>
 
+<%= render "explanation.html" %>
+
 <span><%= link "Edit", to: Routes.privilege_path(@conn, :edit, @privilege) %></span>
 <span><%= link "Back", to: Routes.privilege_path(@conn, :index) %></span>

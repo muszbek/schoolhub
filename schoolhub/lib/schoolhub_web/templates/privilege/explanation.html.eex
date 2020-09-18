@@ -1,0 +1,6 @@
+<label>
+  Privileges explained:<br><br>
+  student - default, low privileges<br>
+  teacher - allowed to create courses<br>
+  admin - allowed to access personal data and change privileges<br>
+</label>
