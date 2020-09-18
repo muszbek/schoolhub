@@ -18,7 +18,12 @@ defmodule Schoolhub.Accounts.ScramLib do
     |> Changeset.put_change(:pass_details, encoded_pw)
     |> Changeset.put_change(:password, "")
   end
-  
+
+  def encode_password(password) when is_binary(password) do
+    password
+    |> encode_password()
+    |> to_string()
+  end
   def encode_password(password) when is_list(password) do
     password_to_scram(password, @scram_default_iteration_count)
   end
