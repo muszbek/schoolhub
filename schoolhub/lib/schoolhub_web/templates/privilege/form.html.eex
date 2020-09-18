@@ -6,7 +6,7 @@
   <% end %>
 
   <%= label f, :level %>
-  <%= text_input f, :level %>
+  <%= select f, :level, ["student", "teacher", "admin"] %>
   <%= error_tag f, :level %>
 
   <div>

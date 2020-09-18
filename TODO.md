@@ -27,8 +27,9 @@
 -- user_privilege
 -- (user_data)
 
-fix privilege form (prettier desplay of user reference)
 more content (courses) to get clear on responsibilites and session plugs
 
 admin, teacher, self criteria
 delete user self or admin
+
+auto insert admin user upon server startup

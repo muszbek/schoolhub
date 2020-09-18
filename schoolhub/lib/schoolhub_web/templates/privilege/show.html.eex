@@ -3,6 +3,11 @@
 <ul>
 
   <li>
+    <strong>Username:</strong>
+    <%= Schoolhub.Accounts.get_user!(@privilege.user_id).credential.username %>
+  </li>
+  
+  <li>
     <strong>Level:</strong>
     <%= @privilege.level %>
   </li>
