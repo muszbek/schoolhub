@@ -1,0 +1,28 @@
+<h1>Listing Courses</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Description</th>
+
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+<%= for course <- @courses do %>
+    <tr>
+      <td><%= course.name %></td>
+      <td><%= course.description %></td>
+
+      <td>
+        <span><%= link "Show", to: Routes.course_path(@conn, :show, course) %></span>
+        <span><%= link "Edit", to: Routes.course_path(@conn, :edit, course) %></span>
+        <span><%= link "Delete", to: Routes.course_path(@conn, :delete, course), method: :delete, data: [confirm: "Are you sure?"] %></span>
+      </td>
+    </tr>
+<% end %>
+  </tbody>
+</table>
+
+<span><%= link "New Course", to: Routes.course_path(@conn, :new) %></span>

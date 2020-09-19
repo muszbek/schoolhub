@@ -22,14 +22,8 @@
 
 # Phoenix
 
-- user_profile - email fullname
--- user
--- user_privilege
--- (user_data)
-
 more content (courses) to get clear on responsibilites and session plugs
+chat
 
 admin, teacher, self criteria
 delete user self or admin
-
-auto insert admin user upon server startup
