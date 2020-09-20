@@ -21,7 +21,10 @@ defmodule SchoolhubWeb.CourseController do
     |> Morphix.atomorphify!()
     
     case Courses.create_course(course_params_with_owner) do
-      {:ok, course} ->
+      {:ok, course = %{id: course_id}} ->
+	%{course_id: course_id, user_id: user_id, affiliation: "owner"}
+	|> Courses.create_affiliation()
+	
         conn
         |> put_flash(:info, "Course created successfully.")
         |> redirect(to: Routes.course_path(conn, :show, course))

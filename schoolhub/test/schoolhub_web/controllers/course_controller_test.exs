@@ -56,6 +56,10 @@ defmodule SchoolhubWeb.CourseControllerTest do
 
       conn = get(conn, Routes.course_path(conn, :show, id))
       assert html_response(conn, 200) =~ "Show Course"
+
+      [_owner_aff = %{id: aff_id}] = Courses.list_course_affiliations()
+      conn = get(conn, Routes.course_affiliation_path(conn, :show, id, aff_id))
+      assert html_response(conn, 200) =~ "Show Affiliation"
     end
 
     test "renders errors when data is invalid", %{conn: conn} do
