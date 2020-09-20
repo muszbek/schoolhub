@@ -27,3 +27,7 @@ chat
 
 admin, teacher, self criteria
 delete user self or admin
+
+course affiliations
+course disable
+course comment wall

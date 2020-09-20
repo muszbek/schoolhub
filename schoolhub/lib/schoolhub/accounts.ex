@@ -62,8 +62,8 @@ defmodule Schoolhub.Accounts do
   """
   def create_user(attrs \\ %{}) do
     attrs_with_privilege = attrs
-    |>Map.put("privilege", %{level: @default_privilege})
-    |>Morphix.atomorphify!()
+    |> Map.put("privilege", %{level: @default_privilege})
+    |> Morphix.atomorphify!()
     
     %User{}
     |> User.changeset(attrs_with_privilege)

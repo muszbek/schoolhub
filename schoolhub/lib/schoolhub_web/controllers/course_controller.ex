@@ -15,7 +15,12 @@ defmodule SchoolhubWeb.CourseController do
   end
 
   def create(conn, %{"course" => course_params}) do
-    case Courses.create_course(course_params) do
+    user_id = get_session(conn, :user_id)
+    course_params_with_owner = course_params
+    |> Map.put("owner", user_id)
+    |> Morphix.atomorphify!()
+    
+    case Courses.create_course(course_params_with_owner) do
       {:ok, course} ->
         conn
         |> put_flash(:info, "Course created successfully.")
