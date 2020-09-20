@@ -21,15 +21,13 @@ defmodule SchoolhubWeb.AffiliationControllerTest do
   end
 
   def fixture(:course, conn = %Plug.Conn{}) do
-    {:ok, user} = Accounts.create_user(@create_user_attrs)
-    %{id: user_id} = user
+    {:ok, user = %{id: user_id}} = Accounts.create_user(@create_user_attrs)
     
     new_conn = conn
     |> Plug.Test.init_test_session(user_id: nil)
     |> SchoolhubWeb.SessionController.enter_session(user)
 
-    {:ok, course} = Courses.create_course(@create_course_attrs)
-    %{id: course_id} = course
+    {:ok, course = %{id: course_id}} = Courses.create_course(@create_course_attrs)
     
     %{conn: new_conn, course_id: course_id, user_id: user_id}
   end
