@@ -1,0 +1,13 @@
+<h1>Show Affiliation</h1>
+
+<ul>
+
+  <li>
+    <strong>Affiliation:</strong>
+    <%= @affiliation.affiliation %>
+  </li>
+
+</ul>
+
+<span><%= link "Edit", to: Routes.course_affiliation_path(@conn, :edit, @course_id, @affiliation) %></span>
+<span><%= link "Back", to: Routes.course_affiliation_path(@conn, :index, @course_id) %></span>

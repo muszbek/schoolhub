@@ -5,7 +5,8 @@ defmodule Schoolhub.Privileges.Privilege do
   alias Schoolhub.Accounts.User
 
   schema "privileges" do
-    field :level, :string
+    field :level, :string,
+      default: "student"
     belongs_to :user, User
 
     timestamps()

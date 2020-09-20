@@ -1,0 +1,26 @@
+<h1>Listing Course affiliations</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Affiliation</th>
+
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+<%= for affiliation <- @course_affiliations do %>
+    <tr>
+      <td><%= affiliation.affiliation %></td>
+
+      <td>
+        <span><%= link "Show", to: Routes.course_affiliation_path(@conn, :show, @course_id, affiliation) %></span>
+        <span><%= link "Edit", to: Routes.course_affiliation_path(@conn, :edit, @course_id, affiliation) %></span>
+        <span><%= link "Delete", to: Routes.course_affiliation_path(@conn, :delete, @course_id, affiliation), method: :delete, data: [confirm: "Are you sure?"] %></span>
+      </td>
+    </tr>
+<% end %>
+  </tbody>
+</table>
+
+<span><%= link "New Affiliation", to: Routes.course_affiliation_path(@conn, :new, @course_id) %></span>

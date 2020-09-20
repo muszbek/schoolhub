@@ -3,6 +3,7 @@ defmodule Schoolhub.Courses.Course do
   import Ecto.Changeset
 
   alias Schoolhub.Accounts.User
+  alias Schoolhub.Courses.Affiliation
 
   schema "courses" do
     field :description, :string
@@ -11,6 +12,7 @@ defmodule Schoolhub.Courses.Course do
       foreign_key: :owner
     field :active, :boolean,
       default: true
+    has_many :affiliation, Affiliation
 
     timestamps()
   end
@@ -21,5 +23,6 @@ defmodule Schoolhub.Courses.Course do
     |> cast(attrs, [:name, :description, :active, :owner])
     |> validate_required([:name, :description])
     |> foreign_key_constraint(:owner)
+    |> unique_constraint(:name)
   end
 end
