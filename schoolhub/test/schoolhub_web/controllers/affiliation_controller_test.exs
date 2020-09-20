@@ -27,7 +27,7 @@ defmodule SchoolhubWeb.AffiliationControllerTest do
     |> Plug.Test.init_test_session(user_id: nil)
     |> SchoolhubWeb.SessionController.enter_session(user)
 
-    {:ok, course = %{id: course_id}} = Courses.create_course(@create_course_attrs)
+    {:ok, _course = %{id: course_id}} = Courses.create_course(@create_course_attrs)
     
     %{conn: new_conn, course_id: course_id, user_id: user_id}
   end

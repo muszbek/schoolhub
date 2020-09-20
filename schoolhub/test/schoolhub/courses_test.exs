@@ -2,17 +2,34 @@ defmodule Schoolhub.CoursesTest do
   use Schoolhub.DataCase
 
   alias Schoolhub.Courses
+  alias Schoolhub.Accounts
 
   describe "courses" do
     alias Schoolhub.Courses.Course
 
+    @valid_user_attrs %{email: "some email",
+			name: "some name",
+			credential: %{username: "some username",
+				      password: "some password"}}
+    
     @valid_attrs %{description: "some description", name: "some name"}
     @update_attrs %{description: "some updated description", name: "some updated name"}
     @invalid_attrs %{description: nil, name: nil}
 
+    def user_fixture() do
+      {:ok, user} =
+        %{}
+        |> Enum.into(@valid_user_attrs)
+        |> Accounts.create_user()
+      user
+    end
+    
     def course_fixture(attrs \\ %{}) do
+      _user = %{id: user_id} = user_fixture()
+      
       {:ok, course} =
         attrs
+        |> Enum.into(%{owner: user_id})
         |> Enum.into(@valid_attrs)
         |> Courses.create_course()
 
@@ -30,7 +47,9 @@ defmodule Schoolhub.CoursesTest do
     end
 
     test "create_course/1 with valid data creates a course" do
-      assert {:ok, %Course{} = course} = Courses.create_course(@valid_attrs)
+      user = user_fixture()
+      attrs = create_valid_attrs(@valid_attrs, user)
+      assert {:ok, %Course{} = course} = Courses.create_course(attrs)
       assert course.description == "some description"
       assert course.name == "some name"
     end
@@ -62,18 +81,47 @@ defmodule Schoolhub.CoursesTest do
       course = course_fixture()
       assert %Ecto.Changeset{} = Courses.change_course(course)
     end
+
+    
+    defp create_valid_attrs(attrs, _user = %{id: user_id}) do
+      attrs
+      |> Enum.into(%{owner: user_id})
+      |> Enum.into(@valid_attrs)
+    end
   end
 
   describe "course_affiliations" do
     alias Schoolhub.Courses.Affiliation
 
-    @valid_attrs %{affiliation: "some affiliation"}
-    @update_attrs %{affiliation: "some updated affiliation"}
-    @invalid_attrs %{affiliation: nil}
+    @valid_user_attrs %{email: "some email",
+			name: "some name",
+			credential: %{username: "some username",
+				      password: "some password"}}
+    @valid_course_attrs %{description: "some description", name: "some name"}
 
+    @valid_attrs %{affiliation: "student"}
+    @update_attrs %{affiliation: "assistant"}
+    @invalid_attrs %{affiliation: "some invalid affiliation"}
+
+    def ids_fixture() do
+      {:ok, _user = %{id: user_id}} =
+        %{}
+        |> Enum.into(@valid_user_attrs)
+        |> Accounts.create_user()
+      
+      {:ok, _course = %{id: course_id}} =
+        %{}
+        |> Enum.into(%{owner: user_id})
+        |> Enum.into(@valid_course_attrs)
+        |> Courses.create_course()
+
+      %{course_id: course_id, user_id: user_id}
+    end
+    
     def affiliation_fixture(attrs \\ %{}) do
       {:ok, affiliation} =
         attrs
+        |> Enum.into(ids_fixture())
         |> Enum.into(@valid_attrs)
         |> Courses.create_affiliation()
 
@@ -91,8 +139,11 @@ defmodule Schoolhub.CoursesTest do
     end
 
     test "create_affiliation/1 with valid data creates a affiliation" do
-      assert {:ok, %Affiliation{} = affiliation} = Courses.create_affiliation(@valid_attrs)
-      assert affiliation.affiliation == "some affiliation"
+      attrs = ids_fixture()
+      |> Enum.into(@valid_attrs)
+      
+      assert {:ok, %Affiliation{} = affiliation} = Courses.create_affiliation(attrs)
+      assert affiliation.affiliation == "student"
     end
 
     test "create_affiliation/1 with invalid data returns error changeset" do
@@ -102,7 +153,7 @@ defmodule Schoolhub.CoursesTest do
     test "update_affiliation/2 with valid data updates the affiliation" do
       affiliation = affiliation_fixture()
       assert {:ok, %Affiliation{} = affiliation} = Courses.update_affiliation(affiliation, @update_attrs)
-      assert affiliation.affiliation == "some updated affiliation"
+      assert affiliation.affiliation == "assistant"
     end
 
     test "update_affiliation/2 with invalid data returns error changeset" do
