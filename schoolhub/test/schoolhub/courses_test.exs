@@ -1,6 +1,7 @@
 defmodule Schoolhub.CoursesTest do
   use Schoolhub.DataCase
 
+  alias Schoolhub.Repo
   alias Schoolhub.Courses
   alias Schoolhub.Accounts
 
@@ -34,6 +35,7 @@ defmodule Schoolhub.CoursesTest do
         |> Courses.create_course()
 
       course
+      |> Repo.preload(:affiliation)
     end
 
     test "list_courses/0 returns all courses" do

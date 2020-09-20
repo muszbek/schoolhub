@@ -28,6 +28,8 @@ chat
 admin, teacher, self criteria
 delete user self or admin
 
-course affiliations
+course affiliation owner created with course
+course aff owner gets replaced as only one
+course aff clean up forms
 course disable
 course comment wall
