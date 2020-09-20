@@ -2,87 +2,145 @@ defmodule SchoolhubWeb.AffiliationControllerTest do
   use SchoolhubWeb.ConnCase
 
   alias Schoolhub.Courses
+  alias Schoolhub.Accounts
 
-  @create_attrs %{affiliation: "some affiliation"}
-  @update_attrs %{affiliation: "some updated affiliation"}
-  @invalid_attrs %{affiliation: nil}
+  @create_attrs %{affiliation: "student"}
+  @update_attrs %{affiliation: "assistant"}
+  @invalid_attrs %{affiliation: "some invalid affiliation"}
 
-  def fixture(:affiliation) do
-    {:ok, affiliation} = Courses.create_affiliation(@create_attrs)
+  @create_user_attrs %{email: "some email",
+		       name: "some name",
+		       credential: %{username: "some username",
+				     password: "some password"}}
+  @create_course_attrs %{description: "some description", name: "some name"}
+
+  def fixture(:affiliation, course_id, user_id) do
+    attrs = create_valid_attrs(@create_attrs, course_id, user_id)
+    {:ok, affiliation} = Courses.create_affiliation(attrs)
     affiliation
   end
 
+  def fixture(:course, conn = %Plug.Conn{}) do
+    {:ok, user} = Accounts.create_user(@create_user_attrs)
+    %{id: user_id} = user
+    
+    new_conn = conn
+    |> Plug.Test.init_test_session(user_id: nil)
+    |> SchoolhubWeb.SessionController.enter_session(user)
+
+    {:ok, course} = Courses.create_course(@create_course_attrs)
+    %{id: course_id} = course
+    
+    %{conn: new_conn, course_id: course_id, user_id: user_id}
+  end
+  
+
   describe "index" do
-    test "lists all course_affiliations", %{conn: conn} do
-      conn = get(conn, Routes.affiliation_path(conn, :index))
+    setup [:create_course]
+    
+    test "lists all course_affiliations", %{conn: conn, course_id: course_id} do
+      conn = get(conn, Routes.course_affiliation_path(conn, :index, course_id))
       assert html_response(conn, 200) =~ "Listing Course affiliations"
     end
   end
 
   describe "new affiliation" do
-    test "renders form", %{conn: conn} do
-      conn = get(conn, Routes.affiliation_path(conn, :new))
+    setup [:create_course]
+    
+    test "renders form", %{conn: conn, course_id: course_id} do
+      conn = get(conn, Routes.course_affiliation_path(conn, :new, course_id))
       assert html_response(conn, 200) =~ "New Affiliation"
     end
   end
 
   describe "create affiliation" do
-    test "redirects to show when data is valid", %{conn: conn} do
-      conn = post(conn, Routes.affiliation_path(conn, :create), affiliation: @create_attrs)
+    setup [:create_course]
+    
+    test "redirects to show when data is valid", %{conn: conn,
+						   course_id: course_id, user_id: user_id} do
+      attrs = create_valid_attrs(@create_attrs, course_id, user_id)
+      conn = post(conn, Routes.course_affiliation_path(conn, :create, course_id),
+	affiliation: attrs)
 
       assert %{id: id} = redirected_params(conn)
-      assert redirected_to(conn) == Routes.affiliation_path(conn, :show, id)
+      assert redirected_to(conn) == Routes.course_affiliation_path(conn, :show, course_id, id)
 
-      conn = get(conn, Routes.affiliation_path(conn, :show, id))
+      conn = get(conn, Routes.course_affiliation_path(conn, :show, course_id, id))
       assert html_response(conn, 200) =~ "Show Affiliation"
     end
 
-    test "renders errors when data is invalid", %{conn: conn} do
-      conn = post(conn, Routes.affiliation_path(conn, :create), affiliation: @invalid_attrs)
+    test "renders errors when data is invalid", %{conn: conn,
+						  course_id: course_id, user_id: user_id} do
+      invalid_attrs = create_valid_attrs(@invalid_attrs, course_id, user_id)
+      conn = post(conn, Routes.course_affiliation_path(conn, :create, course_id),
+	affiliation: invalid_attrs)
       assert html_response(conn, 200) =~ "New Affiliation"
     end
   end
 
   describe "edit affiliation" do
+    setup [:create_course]
     setup [:create_affiliation]
 
-    test "renders form for editing chosen affiliation", %{conn: conn, affiliation: affiliation} do
-      conn = get(conn, Routes.affiliation_path(conn, :edit, affiliation))
+    test "renders form for editing chosen affiliation", %{conn: conn, affiliation: affiliation,
+							  course_id: course_id} do
+      conn = get(conn, Routes.course_affiliation_path(conn, :edit, course_id, affiliation))
       assert html_response(conn, 200) =~ "Edit Affiliation"
     end
   end
 
   describe "update affiliation" do
+    setup [:create_course]
     setup [:create_affiliation]
 
-    test "redirects when data is valid", %{conn: conn, affiliation: affiliation} do
-      conn = put(conn, Routes.affiliation_path(conn, :update, affiliation), affiliation: @update_attrs)
-      assert redirected_to(conn) == Routes.affiliation_path(conn, :show, affiliation)
+    test "redirects when data is valid", %{conn: conn, affiliation: affiliation,
+					   course_id: course_id} do
+      conn = put(conn, Routes.course_affiliation_path(conn, :update, course_id, affiliation),
+	affiliation: @update_attrs)
+      assert redirected_to(conn) == Routes.course_affiliation_path(conn, :show, course_id, affiliation)
 
-      conn = get(conn, Routes.affiliation_path(conn, :show, affiliation))
-      assert html_response(conn, 200) =~ "some updated affiliation"
+      conn = get(conn, Routes.course_affiliation_path(conn, :show, course_id, affiliation))
+      assert html_response(conn, 200) =~ "assistant"
     end
 
-    test "renders errors when data is invalid", %{conn: conn, affiliation: affiliation} do
-      conn = put(conn, Routes.affiliation_path(conn, :update, affiliation), affiliation: @invalid_attrs)
+    test "renders errors when data is invalid", %{conn: conn, affiliation: affiliation,
+						  course_id: course_id} do
+      conn = put(conn, Routes.course_affiliation_path(conn, :update, course_id, affiliation),
+	affiliation: @invalid_attrs)
       assert html_response(conn, 200) =~ "Edit Affiliation"
     end
   end
 
   describe "delete affiliation" do
+    setup [:create_course]
     setup [:create_affiliation]
 
-    test "deletes chosen affiliation", %{conn: conn, affiliation: affiliation} do
-      conn = delete(conn, Routes.affiliation_path(conn, :delete, affiliation))
-      assert redirected_to(conn) == Routes.affiliation_path(conn, :index)
+    test "deletes chosen affiliation", %{conn: conn, affiliation: affiliation,
+					 course_id: course_id} do
+      conn = delete(conn, Routes.course_affiliation_path(conn, :delete, course_id, affiliation))
+      assert redirected_to(conn) == Routes.course_affiliation_path(conn, :index, course_id)
       assert_error_sent 404, fn ->
-        get(conn, Routes.affiliation_path(conn, :show, affiliation))
+        get(conn, Routes.course_affiliation_path(conn, :show, course_id, affiliation))
       end
     end
   end
 
-  defp create_affiliation(_) do
-    affiliation = fixture(:affiliation)
+  
+  defp create_affiliation(%{course_id: course_id, user_id: user_id}) do
+    affiliation = fixture(:affiliation, course_id, user_id)
     %{affiliation: affiliation}
   end
+
+  defp create_course(%{conn: conn}) do
+    _conn_and_ids = fixture(:course, conn)
+  end
+
+
+  defp create_valid_attrs(attrs, course_id, user_id) do
+    attrs
+    |> Map.put("course_id", course_id)
+    |> Map.put("user_id", user_id)
+    |> Morphix.atomorphify!()
+  end
+
 end
