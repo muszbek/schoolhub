@@ -1,5 +1,10 @@
 <h1>Edit Affiliation</h1>
 
+<strong>Username:</strong>
+<%= Schoolhub.Accounts.get_user!(@affiliation.user_id).credential.username %>
+
 <%= render "form.html", Map.put(assigns, :action, Routes.course_affiliation_path(@conn, :update, @course_id, @affiliation)) %>
+
+<%= render "explanation.html" %>
 
 <span><%= link "Back", to: Routes.course_affiliation_path(@conn, :index, @course_id) %></span>

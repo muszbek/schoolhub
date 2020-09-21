@@ -1,0 +1,6 @@
+<label>
+  Affiliations explained:<br><br>
+  student - default, low privileges<br>
+  assistant - allowed to invite students, set grades, admin messages and course content<br>
+  owner - allowed to change affiliations, there can be only one<br>
+</label>

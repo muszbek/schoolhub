@@ -3,11 +3,18 @@
 <ul>
 
   <li>
+    <strong>Username:</strong>
+    <%= Schoolhub.Accounts.get_user!(@affiliation.user_id).credential.username %>
+  </li>
+  
+  <li>
     <strong>Affiliation:</strong>
     <%= @affiliation.affiliation %>
   </li>
 
 </ul>
+
+<%= render "explanation.html" %>
 
 <span><%= link "Edit", to: Routes.course_affiliation_path(@conn, :edit, @course_id, @affiliation) %></span>
 <span><%= link "Back", to: Routes.course_affiliation_path(@conn, :index, @course_id) %></span>

@@ -11,6 +11,7 @@ defmodule Schoolhub.PrivilegesTest do
 			name: "some name",
 			credential: %{username: "some username",
 				      password: "some password"}}
+    
     @valid_attrs %{level: "student"}
     @update_attrs %{level: "teacher"}
     @invalid_attrs %{level: "some invalid level"}
