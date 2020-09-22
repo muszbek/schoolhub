@@ -13,6 +13,25 @@
   <%= hidden_input f, :course_id, value: @course_id %>
 
   <div>
-    <%= submit "Save" %>
+    <input type="button" onclick="change_aff()" value="Save">  
   </div>
+
 <% end %>
+
+<script>
+  change_aff = function() {
+      var aff_level = document.getElementById("affiliation_affiliation").value;
+      var confirm_msg = "There can only be one owner.\n" +
+	  "If you promote this member, the original owner gets demoted to assistant.\n" +
+	  "Still continue?"
+      const form = document.forms[0];
+      
+      if (aff_level === "owner") {
+	  if (!confirm(confirm_msg)) {
+	      return;
+	  }
+      }
+
+      form.submit();
+  }
+</script>
