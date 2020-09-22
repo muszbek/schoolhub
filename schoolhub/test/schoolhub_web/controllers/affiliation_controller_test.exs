@@ -122,6 +122,20 @@ defmodule SchoolhubWeb.AffiliationControllerTest do
       conn = get(conn, Routes.course_affiliation_path(conn, :show, course_id, affiliation))
       assert html_response(conn, 200) =~ "owner"
     end
+
+    test "change owner to owner nothing happens", %{conn: conn, affiliation: affiliation,
+						    course_id: course_id} do
+      conn = put(conn, Routes.course_affiliation_path(conn, :update, course_id, affiliation),
+	affiliation: @owner_attrs)
+      assert redirected_to(conn) == Routes.course_affiliation_path(conn, :show, course_id, affiliation)
+
+      conn = put(conn, Routes.course_affiliation_path(conn, :update, course_id, affiliation),
+	affiliation: @owner_attrs)
+      assert redirected_to(conn) == Routes.course_affiliation_path(conn, :show, course_id, affiliation)
+
+      conn = get(conn, Routes.course_affiliation_path(conn, :show, course_id, affiliation))
+      assert html_response(conn, 200) =~ "owner"
+    end
   end
 
   describe "delete affiliation" do

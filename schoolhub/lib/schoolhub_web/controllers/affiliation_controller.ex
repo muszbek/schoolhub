@@ -42,6 +42,12 @@ defmodule SchoolhubWeb.AffiliationController do
       course_id: course_id)
   end
 
+  def update(conn, %{"course_id" => course_id, "id" => id,
+		     "affiliation" => affiliation_params = %{"affiliation" => "owner"}}) do
+    
+    affiliation = %{affiliation: aff_level} = Courses.get_affiliation!(id)
+    change_owner(conn, course_id, aff_level, affiliation, affiliation_params)
+  end
   def update(conn, %{"course_id" => course_id, "id" => id, "affiliation" => affiliation_params}) do
     affiliation = %{affiliation: aff_level} = Courses.get_affiliation!(id)
 
@@ -55,6 +61,23 @@ defmodule SchoolhubWeb.AffiliationController do
     end
   end
 
+  defp change_owner(conn, course_id, "owner", affiliation, _affiliation_params) do
+    conn
+    |> redirect(to: Routes.course_affiliation_path(conn, :show, course_id, affiliation))
+  end
+  defp change_owner(conn, course_id, _other_aff_level, affiliation, affiliation_params) do
+    try do
+      owner_aff = Courses.get_owner!(course_id)
+
+      conn
+      |> do_update(course_id, affiliation, affiliation_params)
+      |> demote_original_owner(owner_aff)
+    rescue
+      Ecto.NoResultsError ->
+	do_update(conn, course_id, affiliation, affiliation_params)
+    end
+  end
+
   defp do_update(conn, course_id, affiliation, affiliation_params) do
     case Courses.update_affiliation(affiliation, affiliation_params) do
       {:ok, affiliation} ->
@@ -63,9 +86,15 @@ defmodule SchoolhubWeb.AffiliationController do
         |> redirect(to: Routes.course_affiliation_path(conn, :show, course_id, affiliation))
 
       {:error, %Ecto.Changeset{} = changeset} ->
-        render(conn, "edit.html", affiliation: affiliation, changeset: changeset,
+        conn
+	|> render("edit.html", affiliation: affiliation, changeset: changeset,
 	  course_id: course_id)
+	|> halt()
     end
+  end
+
+  defp demote_original_owner(_conn, owner_aff) do
+    Courses.update_affiliation(owner_aff, %{owner_aff | affiliation: "assistant"})
   end
 
   def delete(conn, %{"course_id" => course_id, "id" => id}) do
