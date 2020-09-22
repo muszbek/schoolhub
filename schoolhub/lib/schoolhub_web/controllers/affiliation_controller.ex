@@ -43,8 +43,19 @@ defmodule SchoolhubWeb.AffiliationController do
   end
 
   def update(conn, %{"course_id" => course_id, "id" => id, "affiliation" => affiliation_params}) do
-    affiliation = Courses.get_affiliation!(id)
+    affiliation = %{affiliation: aff_level} = Courses.get_affiliation!(id)
 
+    case aff_level do
+      "owner" ->
+	conn
+        |> put_flash(:error, "You can only change the owner by promoting another member!")
+        |> redirect(to: Routes.course_affiliation_path(conn, :show, course_id, affiliation))
+      _other ->
+	do_update(conn, course_id, affiliation, affiliation_params)
+    end
+  end
+
+  defp do_update(conn, course_id, affiliation, affiliation_params) do
     case Courses.update_affiliation(affiliation, affiliation_params) do
       {:ok, affiliation} ->
         conn
