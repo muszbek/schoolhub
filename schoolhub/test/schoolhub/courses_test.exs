@@ -103,6 +103,7 @@ defmodule Schoolhub.CoursesTest do
 
     @valid_attrs %{affiliation: "student"}
     @update_attrs %{affiliation: "assistant"}
+    @owner_attrs %{affiliation: "owner"}
     @invalid_attrs %{affiliation: "some invalid affiliation"}
 
     def ids_fixture() do
@@ -138,6 +139,14 @@ defmodule Schoolhub.CoursesTest do
     test "get_affiliation!/1 returns the affiliation with given id" do
       affiliation = affiliation_fixture()
       assert Courses.get_affiliation!(affiliation.id) == affiliation
+    end
+
+    test "get_owner!/1 returns the affiliation that owns given course" do
+      affiliation = affiliation_fixture()
+      assert {:ok, %Affiliation{} = affiliation} = Courses.update_affiliation(affiliation, @owner_attrs)
+      assert affiliation.affiliation == "owner"
+
+      assert Courses.get_owner!(affiliation.course_id) == affiliation
     end
 
     test "create_affiliation/1 with valid data creates a affiliation" do
