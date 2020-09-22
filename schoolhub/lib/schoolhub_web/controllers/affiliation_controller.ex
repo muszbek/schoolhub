@@ -58,11 +58,19 @@ defmodule SchoolhubWeb.AffiliationController do
   end
 
   def delete(conn, %{"course_id" => course_id, "id" => id}) do
-    affiliation = Courses.get_affiliation!(id)
-    {:ok, _affiliation} = Courses.delete_affiliation(affiliation)
+    affiliation = %{affiliation: aff_level} = Courses.get_affiliation!(id)
 
-    conn
-    |> put_flash(:info, "Affiliation deleted successfully.")
-    |> redirect(to: Routes.course_affiliation_path(conn, :index, course_id))
+    case aff_level do
+      "owner" ->
+	conn
+	|> put_flash(:error, "Cannot remove the owner of the course!")
+	|> redirect(to: Routes.course_affiliation_path(conn, :index, course_id))
+      _other ->
+	{:ok, _affiliation} = Courses.delete_affiliation(affiliation)
+
+	conn
+	|> put_flash(:info, "Affiliation deleted successfully.")
+	|> redirect(to: Routes.course_affiliation_path(conn, :index, course_id))
+    end
   end
 end

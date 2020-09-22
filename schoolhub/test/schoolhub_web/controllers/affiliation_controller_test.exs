@@ -6,6 +6,7 @@ defmodule SchoolhubWeb.AffiliationControllerTest do
 
   @create_attrs %{affiliation: "student"}
   @update_attrs %{affiliation: "assistant"}
+  @owner_attrs %{affiliation: "owner"}
   @invalid_attrs %{affiliation: "some invalid affiliation"}
 
   @create_user_attrs %{email: "some email",
@@ -120,6 +121,19 @@ defmodule SchoolhubWeb.AffiliationControllerTest do
       assert_error_sent 404, fn ->
         get(conn, Routes.course_affiliation_path(conn, :show, course_id, affiliation))
       end
+    end
+
+    test "cannot delete owner", %{conn: conn, affiliation: affiliation,
+				  course_id: course_id} do
+      conn = put(conn, Routes.course_affiliation_path(conn, :update, course_id, affiliation),
+	affiliation: @owner_attrs)
+      assert redirected_to(conn) == Routes.course_affiliation_path(conn, :show, course_id, affiliation)
+      
+      conn = delete(conn, Routes.course_affiliation_path(conn, :delete, course_id, affiliation))
+      assert redirected_to(conn) == Routes.course_affiliation_path(conn, :index, course_id)
+
+      conn = get(conn, Routes.course_affiliation_path(conn, :show, course_id, affiliation))
+      assert html_response(conn, 200) =~ "owner"
     end
   end
 
