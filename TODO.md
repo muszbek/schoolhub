@@ -28,9 +28,7 @@ chat
 admin, teacher, self criteria
 delete user self or admin
 
-course aff clean up forms
-course aff owner gets replaced as only one
-cannot delete owner
+course aff clean up how to select users to add
 
 course disable
 course comment wall

@@ -1,6 +1,6 @@
 defmodule SchoolhubWeb.AffiliationControllerTest do
   use SchoolhubWeb.ConnCase
-
+  
   alias Schoolhub.Courses
   alias Schoolhub.Accounts
 
@@ -13,12 +13,22 @@ defmodule SchoolhubWeb.AffiliationControllerTest do
 		       name: "some name",
 		       credential: %{username: "some username",
 				     password: "some password"}}
+  @other_user_attrs %{email: "some other email",
+		      name: "some other name",
+		      credential: %{username: "some other username",
+				    password: "some other password"}}
   @create_course_attrs %{description: "some description", name: "some name"}
 
   def fixture(:affiliation, course_id, user_id) do
     attrs = create_valid_attrs(@create_attrs, course_id, user_id)
     {:ok, affiliation} = Courses.create_affiliation(attrs)
     affiliation
+  end
+
+  def fixture(:set_owner, aff) do
+    attrs = %{affiliation: "owner"}
+    {:ok, owner} = Courses.update_affiliation(aff, attrs)
+    owner
   end
 
   def fixture(:course, conn = %Plug.Conn{}) do
@@ -109,12 +119,26 @@ defmodule SchoolhubWeb.AffiliationControllerTest do
       assert html_response(conn, 200) =~ "Change Affiliation"
     end
 
-    test "cannot change self if owner", %{conn: conn, affiliation: affiliation,
-					  course_id: course_id} do
+    test "change to owner valid when there is none", %{conn: conn, affiliation: affiliation,
+						       course_id: course_id} do
+
       conn = put(conn, Routes.course_affiliation_path(conn, :update, course_id, affiliation),
 	affiliation: @owner_attrs)
       assert redirected_to(conn) == Routes.course_affiliation_path(conn, :show, course_id, affiliation)
 
+      conn = get(conn, Routes.course_affiliation_path(conn, :show, course_id, affiliation))
+      assert html_response(conn, 200) =~ "owner"
+    end
+  end
+  
+  describe "set owner" do
+    setup [:create_course]
+    setup [:create_affiliation]
+    setup [:set_owner]
+    
+    test "cannot change self if owner", %{conn: conn, affiliation: affiliation,
+					  course_id: course_id} do
+      
       conn = put(conn, Routes.course_affiliation_path(conn, :update, course_id, affiliation),
 	affiliation: @update_attrs)
       assert redirected_to(conn) == Routes.course_affiliation_path(conn, :show, course_id, affiliation)
@@ -125,16 +149,31 @@ defmodule SchoolhubWeb.AffiliationControllerTest do
 
     test "change owner to owner nothing happens", %{conn: conn, affiliation: affiliation,
 						    course_id: course_id} do
-      conn = put(conn, Routes.course_affiliation_path(conn, :update, course_id, affiliation),
-	affiliation: @owner_attrs)
-      assert redirected_to(conn) == Routes.course_affiliation_path(conn, :show, course_id, affiliation)
-
+      
       conn = put(conn, Routes.course_affiliation_path(conn, :update, course_id, affiliation),
 	affiliation: @owner_attrs)
       assert redirected_to(conn) == Routes.course_affiliation_path(conn, :show, course_id, affiliation)
 
       conn = get(conn, Routes.course_affiliation_path(conn, :show, course_id, affiliation))
       assert html_response(conn, 200) =~ "owner"
+    end
+
+    test "change other user owner demotes previous", %{conn: conn, affiliation: affiliation,
+						       course_id: course_id} do
+      
+      {:ok, _other_user = %{id: user_id}} = Accounts.create_user(@other_user_attrs)
+      attrs = create_valid_attrs(@create_attrs, course_id, user_id)
+      {:ok, other_aff} = Courses.create_affiliation(attrs)
+      
+      conn = put(conn, Routes.course_affiliation_path(conn, :update, course_id, other_aff),
+	affiliation: @owner_attrs)
+      assert redirected_to(conn) == Routes.course_affiliation_path(conn, :show, course_id, other_aff)
+
+      conn = get(conn, Routes.course_affiliation_path(conn, :show, course_id, other_aff))
+      assert html_response(conn, 200) =~ "owner"
+
+      conn = get(conn, Routes.course_affiliation_path(conn, :show, course_id, affiliation))
+      assert html_response(conn, 200) =~ "assistant"
     end
   end
 
@@ -169,6 +208,11 @@ defmodule SchoolhubWeb.AffiliationControllerTest do
   defp create_affiliation(%{course_id: course_id, user_id: user_id}) do
     affiliation = fixture(:affiliation, course_id, user_id)
     %{affiliation: affiliation}
+  end
+
+  defp set_owner(%{affiliation: affiliation}) do
+    owner = fixture(:set_owner, affiliation)
+    %{affiliation: owner}
   end
 
   defp create_course(%{conn: conn}) do

@@ -93,8 +93,9 @@ defmodule SchoolhubWeb.AffiliationController do
     end
   end
 
-  defp demote_original_owner(_conn, owner_aff) do
-    Courses.update_affiliation(owner_aff, %{owner_aff | affiliation: "assistant"})
+  defp demote_original_owner(conn, owner_aff) do
+    Courses.update_affiliation(owner_aff, %{affiliation: "assistant"})
+    conn
   end
 
   def delete(conn, %{"course_id" => course_id, "id" => id}) do
