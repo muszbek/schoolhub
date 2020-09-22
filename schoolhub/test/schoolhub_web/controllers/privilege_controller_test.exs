@@ -39,7 +39,7 @@ defmodule SchoolhubWeb.PrivilegeControllerTest do
 
     test "renders form for editing chosen privilege", %{conn: conn, privilege: privilege} do
       conn = get(conn, Routes.privilege_path(conn, :edit, privilege))
-      assert html_response(conn, 200) =~ "Edit Privilege"
+      assert html_response(conn, 200) =~ "Change Privilege"
     end
   end
 
@@ -57,7 +57,7 @@ defmodule SchoolhubWeb.PrivilegeControllerTest do
 
     test "renders errors when data is invalid", %{conn: conn, privilege: privilege} do
       conn = put(conn, Routes.privilege_path(conn, :update, privilege), privilege: @invalid_attrs)
-      assert html_response(conn, 200) =~ "Edit Privilege"
+      assert html_response(conn, 200) =~ "Change Privilege"
     end
   end
   

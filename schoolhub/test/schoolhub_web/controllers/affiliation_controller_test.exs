@@ -47,7 +47,7 @@ defmodule SchoolhubWeb.AffiliationControllerTest do
     
     test "renders form", %{conn: conn, course_id: course_id} do
       conn = get(conn, Routes.course_affiliation_path(conn, :new, course_id))
-      assert html_response(conn, 200) =~ "New Affiliation"
+      assert html_response(conn, 200) =~ "Add Member"
     end
   end
 
@@ -72,7 +72,7 @@ defmodule SchoolhubWeb.AffiliationControllerTest do
       invalid_attrs = create_valid_attrs(@invalid_attrs, course_id, user_id)
       conn = post(conn, Routes.course_affiliation_path(conn, :create, course_id),
 	affiliation: invalid_attrs)
-      assert html_response(conn, 200) =~ "New Affiliation"
+      assert html_response(conn, 200) =~ "Add Member"
     end
   end
 
@@ -83,7 +83,7 @@ defmodule SchoolhubWeb.AffiliationControllerTest do
     test "renders form for editing chosen affiliation", %{conn: conn, affiliation: affiliation,
 							  course_id: course_id} do
       conn = get(conn, Routes.course_affiliation_path(conn, :edit, course_id, affiliation))
-      assert html_response(conn, 200) =~ "Edit Affiliation"
+      assert html_response(conn, 200) =~ "Change Affiliation"
     end
   end
 
@@ -105,7 +105,7 @@ defmodule SchoolhubWeb.AffiliationControllerTest do
 						  course_id: course_id} do
       conn = put(conn, Routes.course_affiliation_path(conn, :update, course_id, affiliation),
 	affiliation: @invalid_attrs)
-      assert html_response(conn, 200) =~ "Edit Affiliation"
+      assert html_response(conn, 200) =~ "Change Affiliation"
     end
   end
 

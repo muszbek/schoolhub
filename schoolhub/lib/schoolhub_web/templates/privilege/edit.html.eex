@@ -1,4 +1,4 @@
-<h1>Edit Privilege</h1>
+<h1>Change Privilege</h1>
 
 <strong>Username:</strong>
 <%= Schoolhub.Accounts.get_user!(@privilege.user_id).credential.username %>
