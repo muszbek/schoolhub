@@ -8,7 +8,7 @@
   <%= hidden_input f, :affiliation, value: "student" %>
 
   <%= label f, :user_id %>
-  <%= number_input f, :user_id %>
+  <%= text_input f, :user_id %>
   <%= error_tag f, :user_id %>
 
   <%= hidden_input f, :course_id, value: @course_id %>

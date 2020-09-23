@@ -22,13 +22,12 @@
 
 # Phoenix
 
+mass add users to course
 more content (courses) to get clear on responsibilites and session plugs
 chat
 
 admin, teacher, self criteria
 delete user self or admin
-
-course aff clean up how to select users to add
 
 course disable
 course comment wall

@@ -3,7 +3,8 @@ defmodule SchoolhubWeb.AffiliationController do
 
   alias Schoolhub.Courses
   alias Schoolhub.Courses.Affiliation
-
+  alias Schoolhub.Accounts
+  
   def index(conn, %{"course_id" => course_id}) do
     course_affiliations = Courses.list_course_affiliations()
     render(conn, "index.html", course_affiliations: course_affiliations,
@@ -16,8 +17,13 @@ defmodule SchoolhubWeb.AffiliationController do
       course_id: course_id)
   end
 
-  def create(conn, %{"course_id" => course_id, "affiliation" => affiliation_params}) do
-    case Courses.create_affiliation(affiliation_params) do
+  def create(conn, %{"course_id" => course_id,
+		     "affiliation" => affiliation_params = %{"user_id" => username}}) do
+
+    user = Accounts.get_user_by_name!(username)
+    params = %{affiliation_params | "user_id" => user.id}
+    
+    case Courses.create_affiliation(params) do
       {:ok, affiliation} ->
         conn
         |> put_flash(:info, "Affiliation created successfully.")

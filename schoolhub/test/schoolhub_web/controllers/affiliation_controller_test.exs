@@ -19,8 +19,14 @@ defmodule SchoolhubWeb.AffiliationControllerTest do
 				    password: "some other password"}}
   @create_course_attrs %{description: "some description", name: "some name"}
 
-  def fixture(:affiliation, course_id, user_id) do
-    attrs = create_valid_attrs(@create_attrs, course_id, user_id)
+  def fixture(:affiliation, course_id, username) do
+    user = Accounts.get_user_by_name!(username)
+    
+    attrs = @create_attrs
+    |> Map.put("course_id", course_id)
+    |> Map.put("user_id", user.id)
+    |> Morphix.atomorphify!()
+    
     {:ok, affiliation} = Courses.create_affiliation(attrs)
     affiliation
   end
@@ -32,15 +38,15 @@ defmodule SchoolhubWeb.AffiliationControllerTest do
   end
 
   def fixture(:course, conn = %Plug.Conn{}) do
-    {:ok, user = %{id: user_id}} = Accounts.create_user(@create_user_attrs)
+    {:ok, user} = Accounts.create_user(@create_user_attrs)
     
     new_conn = conn
     |> Plug.Test.init_test_session(user_id: nil)
     |> SchoolhubWeb.SessionController.enter_session(user)
 
     {:ok, _course = %{id: course_id}} = Courses.create_course(@create_course_attrs)
-    
-    %{conn: new_conn, course_id: course_id, user_id: user_id}
+
+    %{conn: new_conn, course_id: course_id, username: user.credential.username}
   end
   
 
@@ -66,8 +72,9 @@ defmodule SchoolhubWeb.AffiliationControllerTest do
     setup [:create_course]
     
     test "redirects to show when data is valid", %{conn: conn,
-						   course_id: course_id, user_id: user_id} do
-      attrs = create_valid_attrs(@create_attrs, course_id, user_id)
+						   course_id: course_id, username: username} do
+      attrs = create_valid_attrs(@create_attrs, course_id, username)
+      ## controller needs username as user_id
       conn = post(conn, Routes.course_affiliation_path(conn, :create, course_id),
 	affiliation: attrs)
 
@@ -79,8 +86,9 @@ defmodule SchoolhubWeb.AffiliationControllerTest do
     end
 
     test "renders errors when data is invalid", %{conn: conn,
-						  course_id: course_id, user_id: user_id} do
-      invalid_attrs = create_valid_attrs(@invalid_attrs, course_id, user_id)
+						  course_id: course_id, username: username} do
+      invalid_attrs = create_valid_attrs(@invalid_attrs, course_id, username)
+      ## controller needs username as user_id
       conn = post(conn, Routes.course_affiliation_path(conn, :create, course_id),
 	affiliation: invalid_attrs)
       assert html_response(conn, 200) =~ "Add Member"
@@ -163,6 +171,7 @@ defmodule SchoolhubWeb.AffiliationControllerTest do
       
       {:ok, _other_user = %{id: user_id}} = Accounts.create_user(@other_user_attrs)
       attrs = create_valid_attrs(@create_attrs, course_id, user_id)
+      ## API function needs user_id as user_id
       {:ok, other_aff} = Courses.create_affiliation(attrs)
       
       conn = put(conn, Routes.course_affiliation_path(conn, :update, course_id, other_aff),
@@ -205,8 +214,8 @@ defmodule SchoolhubWeb.AffiliationControllerTest do
   end
 
   
-  defp create_affiliation(%{course_id: course_id, user_id: user_id}) do
-    affiliation = fixture(:affiliation, course_id, user_id)
+  defp create_affiliation(%{course_id: course_id, username: username}) do
+    affiliation = fixture(:affiliation, course_id, username)
     %{affiliation: affiliation}
   end
 
@@ -220,10 +229,10 @@ defmodule SchoolhubWeb.AffiliationControllerTest do
   end
 
 
-  defp create_valid_attrs(attrs, course_id, user_id) do
+  defp create_valid_attrs(attrs, course_id, username) do
     attrs
     |> Map.put("course_id", course_id)
-    |> Map.put("user_id", user_id)
+    |> Map.put("user_id", username)
     |> Morphix.atomorphify!()
   end
 
