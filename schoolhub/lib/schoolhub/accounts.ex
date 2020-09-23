@@ -153,6 +153,11 @@ defmodule Schoolhub.Accounts do
     Repo.get!(Credential, username)
   end
 
+  def get_user_by_name!(username) do
+    credential = Repo.get!(Credential, username)
+    get_user!(credential.user_id)
+  end
+
   @doc """
   Creates a credential.
 
