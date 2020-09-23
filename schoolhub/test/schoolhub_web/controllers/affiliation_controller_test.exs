@@ -21,11 +21,7 @@ defmodule SchoolhubWeb.AffiliationControllerTest do
 
   def fixture(:affiliation, course_id, username) do
     user = Accounts.get_user_by_name!(username)
-    
-    attrs = @create_attrs
-    |> Map.put("course_id", course_id)
-    |> Map.put("user_id", user.id)
-    |> Morphix.atomorphify!()
+    attrs = create_valid_attrs(@create_attrs, course_id, user.id)
     
     {:ok, affiliation} = Courses.create_affiliation(attrs)
     affiliation
