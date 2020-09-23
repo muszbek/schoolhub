@@ -9,9 +9,6 @@
   <%= select f, :affiliation, ["student", "assistant", "owner"] %>
   <%= error_tag f, :affiliation %>
 
-  <%= hidden_input f, :user_id %>
-  <%= hidden_input f, :course_id, value: @course_id %>
-
   <div>
     <input type="button" onclick="change_aff()" value="Save">  
   </div>
