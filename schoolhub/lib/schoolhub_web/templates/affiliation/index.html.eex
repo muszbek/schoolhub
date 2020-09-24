@@ -28,3 +28,4 @@
 </table>
 
 <span><%= link "Add Member", to: Routes.course_affiliation_path(@conn, :new, @course_id) %></span>
+<span><%= link "Back", to: Routes.course_path(@conn, :show, @course_id) %></span>

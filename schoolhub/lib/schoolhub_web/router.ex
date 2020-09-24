@@ -19,10 +19,23 @@ defmodule SchoolhubWeb.Router do
     plug :authenticate_user
   end
 
+  pipeline :admin do
+    plug :need_admin_priv
+  end
+
   pipeline :teacher do
     plug :need_teacher_priv
   end
 
+  pipeline :course_owner do
+    plug :need_owner_aff
+  end
+
+  pipeline :course_assistant do
+    plug :need_assistant_aff
+  end
+
+  
   scope "/", SchoolhubWeb do
     pipe_through :browser
 
@@ -35,8 +48,19 @@ defmodule SchoolhubWeb.Router do
     resources "/users", UserController, except: [:new, :create]
     resources "/privileges", PrivilegeController, except: [:new, :create, :delete]
     resources "/courses", CourseController, only: [:index, :show] do
-      resources "/affiliations", AffiliationController
+      resources "/affiliations", AffiliationController, only: [:index, :show]
     end
+
+    pipe_through :course_assistant
+    resources "/courses/assistant", CourseController, except: [:index, :show, :new, :create, :delete] do
+      resources "/affiliations", AffiliationController, except: [:index, :show, :edit, :update]
+    end
+
+    pipe_through :course_owner
+    resources "/courses/owner", CourseController, only: [:delete] do
+      resources "/affiliations", AffiliationController, only: [:edit, :update]
+    end
+    
   end
 
   scope "/teacher", SchoolhubWeb do
@@ -44,7 +68,7 @@ defmodule SchoolhubWeb.Router do
     pipe_through :session
     pipe_through :teacher
 
-    resources "/courses", CourseController, except: [:index, :show]
+    resources "/courses", CourseController, only: [:new, :create]
   end
 
   scope "/auth", SchoolhubWeb do
