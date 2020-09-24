@@ -143,6 +143,10 @@ defmodule Schoolhub.Courses do
     Repo.get_by!(Affiliation, [course_id: course_id, affiliation: "owner"])
   end
 
+  def get_affiliation_by_user!(course_id, user_id) do
+    Repo.get_by!(Affiliation, [course_id: course_id, user_id: user_id])
+  end
+
   @doc """
   Creates a affiliation.
 

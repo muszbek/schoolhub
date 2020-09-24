@@ -149,6 +149,14 @@ defmodule Schoolhub.CoursesTest do
       assert Courses.get_owner!(affiliation.course_id) == affiliation
     end
 
+    test "get_affiliation_by_user!/2 returns the affiliation with given id" do
+      affiliation = affiliation_fixture()
+      user_id = affiliation.user_id
+      course_id = affiliation.course_id
+
+      assert Courses.get_affiliation_by_user!(course_id, user_id) == affiliation
+    end
+
     test "create_affiliation/1 with valid data creates a affiliation" do
       attrs = ids_fixture()
       |> Enum.into(@valid_attrs)
