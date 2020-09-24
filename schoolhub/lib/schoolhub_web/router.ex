@@ -19,6 +19,10 @@ defmodule SchoolhubWeb.Router do
     plug :authenticate_user
   end
 
+  pipeline :teacher do
+    plug :need_teacher_priv
+  end
+
   scope "/", SchoolhubWeb do
     pipe_through :browser
 
@@ -30,9 +34,17 @@ defmodule SchoolhubWeb.Router do
     pipe_through :session
     resources "/users", UserController, except: [:new, :create]
     resources "/privileges", PrivilegeController, except: [:new, :create, :delete]
-    resources "/courses", CourseController do
+    resources "/courses", CourseController, only: [:index, :show] do
       resources "/affiliations", AffiliationController
     end
+  end
+
+  scope "/teacher", SchoolhubWeb do
+    pipe_through :browser
+    pipe_through :session
+    pipe_through :teacher
+
+    resources "/courses", CourseController, except: [:index, :show]
   end
 
   scope "/auth", SchoolhubWeb do

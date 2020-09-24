@@ -1,8 +1,7 @@
 defmodule SchoolhubWeb.CourseControllerTest do
   use SchoolhubWeb.ConnCase
 
-  alias Schoolhub.Courses
-  alias Schoolhub.Accounts
+  alias Schoolhub.{Courses, Accounts, Privileges}
 
   @create_attrs %{description: "some description", name: "some name"}
   @update_attrs %{description: "some updated description", name: "some updated name"}
@@ -12,6 +11,7 @@ defmodule SchoolhubWeb.CourseControllerTest do
 		       name: "some name",
 		       credential: %{username: "some username",
 				     password: "some password"}}
+  @privilege_attrs %{level: "teacher"}
 
   def fixture(:course) do
     {:ok, course} = Courses.create_course(@create_attrs)
@@ -20,6 +20,7 @@ defmodule SchoolhubWeb.CourseControllerTest do
 
   def fixture(:session, conn = %Plug.Conn{}) do
     {:ok, user} = Accounts.create_user(@create_user_attrs)
+    Privileges.update_privilege(user.privilege, @privilege_attrs)
     
     conn
     |> Plug.Test.init_test_session(user_id: nil)
