@@ -17,7 +17,7 @@ defmodule SchoolhubWeb.CourseController do
   def create(conn, %{"course" => course_params}) do
     user_id = get_session(conn, :user_id)
     course_params_with_owner = course_params
-    |> Map.put("owner", user_id)
+    |> Map.put("creator", user_id)
     |> Morphix.atomorphify!()
     
     case Courses.create_course(course_params_with_owner) do

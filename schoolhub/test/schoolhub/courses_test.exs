@@ -30,7 +30,7 @@ defmodule Schoolhub.CoursesTest do
       
       {:ok, course} =
         attrs
-        |> Enum.into(%{owner: user_id})
+        |> Enum.into(%{creator: user_id})
         |> Enum.into(@valid_attrs)
         |> Courses.create_course()
 
@@ -87,7 +87,7 @@ defmodule Schoolhub.CoursesTest do
     
     defp create_valid_attrs(attrs, _user = %{id: user_id}) do
       attrs
-      |> Enum.into(%{owner: user_id})
+      |> Enum.into(%{creator: user_id})
       |> Enum.into(@valid_attrs)
     end
   end
@@ -114,7 +114,7 @@ defmodule Schoolhub.CoursesTest do
       
       {:ok, _course = %{id: course_id}} =
         %{}
-        |> Enum.into(%{owner: user_id})
+        |> Enum.into(%{creator: user_id})
         |> Enum.into(@valid_course_attrs)
         |> Courses.create_course()
 

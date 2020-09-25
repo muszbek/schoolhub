@@ -23,6 +23,14 @@ defmodule Schoolhub.Courses do
     |> Repo.preload(:affiliation)
   end
 
+  def list_affiliated_courses(user_id) do
+    affiliations = Affiliation
+    |> where(user_id: ^user_id)
+    |> Repo.all()
+
+    for aff <- affiliations, do: get_course!(aff.course_id)
+  end
+
   @doc """
   Gets a single course.
 
