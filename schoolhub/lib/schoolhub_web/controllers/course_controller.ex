@@ -4,8 +4,14 @@ defmodule SchoolhubWeb.CourseController do
   alias Schoolhub.Courses
   alias Schoolhub.Courses.Course
 
-  def index(conn, _params) do
+  def admin_index(conn, _params) do
     courses = Courses.list_courses()
+    render(conn, "index.html", courses: courses)
+  end
+  
+  def index(conn, _params) do
+    user_id = get_session(conn, :user_id)
+    courses = Courses.list_affiliated_courses(user_id)
     render(conn, "index.html", courses: courses)
   end
 

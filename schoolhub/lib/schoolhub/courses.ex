@@ -6,7 +6,7 @@ defmodule Schoolhub.Courses do
   import Ecto.Query, warn: false
   alias Schoolhub.Repo
 
-  alias Schoolhub.Courses.Course
+  alias Schoolhub.Courses.{Course, Affiliation}
 
   @doc """
   Returns the list of courses.
@@ -116,7 +116,6 @@ defmodule Schoolhub.Courses do
     Course.changeset(course, attrs)
   end
 
-  alias Schoolhub.Courses.Affiliation
 
   @doc """
   Returns the list of course_affiliations.

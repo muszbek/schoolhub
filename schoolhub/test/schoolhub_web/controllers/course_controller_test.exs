@@ -34,7 +34,7 @@ defmodule SchoolhubWeb.CourseControllerTest do
   describe "index" do
     setup [:enter_session]
     
-    test "lists all courses", %{conn: conn} do
+    test "lists affiliated courses", %{conn: conn} do
       conn = get(conn, Routes.course_path(conn, :index))
       assert html_response(conn, 200) =~ "Listing Courses"
     end
