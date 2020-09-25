@@ -4,7 +4,6 @@
   <thead>
     <tr>
       <th>Name</th>
-      <th>Description</th>
 
       <th></th>
     </tr>
@@ -13,7 +12,6 @@
 <%= for course <- @courses do %>
     <tr>
       <td><%= course.name %></td>
-      <td><%= course.description %></td>
 
       <td>
         <span><%= link "Show", to: Routes.course_path(@conn, :show, course) %></span>

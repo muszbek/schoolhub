@@ -104,6 +104,21 @@ defmodule SchoolhubWeb.Plugs do
     end
   end
 
+  def need_aff(conn, _) do
+    course_id = get_course_id(conn)
+    user = %{id: user_id} = get_user(conn)
+    affiliation = Courses.get_affiliation_by_user!(course_id, user_id)
+
+    conn
+    |> check_if_admin(user)
+    |> check_if_affiliated(affiliation)
+  end
+
+  defp check_if_affiliated({:authorized, conn}, _affiliation), do: conn
+  defp check_if_affiliated({:check, conn}, _affiliation), do: conn
+  ## fetching the affiliation already checks this,
+  ## it crashes if there is no affiliation
+
   defp check_if_admin(conn, user) do
     case user.privilege.level do
       "admin" -> {:authorized, conn}

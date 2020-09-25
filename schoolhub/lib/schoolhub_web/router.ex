@@ -35,6 +35,10 @@ defmodule SchoolhubWeb.Router do
     plug :need_assistant_aff
   end
 
+  pipeline :course_member do
+    plug :need_aff
+  end
+
   
   scope "/", SchoolhubWeb do
     pipe_through :browser
@@ -47,7 +51,10 @@ defmodule SchoolhubWeb.Router do
     pipe_through :session
     resources "/users", UserController, except: [:new, :create]
     resources "/privileges", PrivilegeController, except: [:new, :create, :delete]
-    resources "/courses", CourseController, only: [:index, :show] do
+    resources "/courses", CourseController, only: [:index]
+    
+    pipe_through :course_member
+    resources "/courses", CourseController, only: [:show] do
       resources "/affiliations", AffiliationController, only: [:index, :show]
     end
 
