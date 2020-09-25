@@ -13,8 +13,11 @@ defmodule SchoolhubWeb.CourseControllerTest do
 				     password: "some password"}}
   @privilege_attrs %{level: "teacher"}
 
-  def fixture(:course) do
+  def fixture(:course, conn) do
     {:ok, course} = Courses.create_course(@create_attrs)
+    user_id = Plug.Conn.get_session(conn, :user_id)
+    aff_attrs = %{course_id: course.id, user_id: user_id, affiliation: "owner"}
+    Courses.create_affiliation(aff_attrs)
     course
   end
 
@@ -111,8 +114,8 @@ defmodule SchoolhubWeb.CourseControllerTest do
   end
 
   
-  defp create_course(_) do
-    course = fixture(:course)
+  defp create_course(%{conn: conn}) do
+    course = fixture(:course, conn)
     %{course: course}
   end
 
