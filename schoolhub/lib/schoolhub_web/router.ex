@@ -49,7 +49,7 @@ defmodule SchoolhubWeb.Router do
       singleton: true
 
     pipe_through :session
-    resources "/users", UserController, except: [:new, :create]
+    resources "/users", UserController, only: [:show]
     resources "/courses", CourseController, only: [:index]
     
     pipe_through :course_member
@@ -83,6 +83,7 @@ defmodule SchoolhubWeb.Router do
     #pipe_through :admin
 
     resources "/privileges", PrivilegeController, except: [:new, :create, :delete]
+    resources "/users", UserController, except: [:new, :create, :show]
     get "/courses", CourseController, :admin_index
   end
 

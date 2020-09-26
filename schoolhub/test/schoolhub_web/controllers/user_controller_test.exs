@@ -1,7 +1,7 @@
 defmodule SchoolhubWeb.UserControllerTest do
   use SchoolhubWeb.ConnCase
 
-  alias Schoolhub.Accounts
+  alias Schoolhub.{Accounts, Privileges}
 
   @create_attrs %{email: "some email",
 		  name: "some name",
@@ -13,8 +13,11 @@ defmodule SchoolhubWeb.UserControllerTest do
 				password: "some updated password"}}
   @invalid_attrs %{email: nil, name: nil}
 
+  @admin_attrs %{level: "admin"}
+
   def fixture(:user) do
     {:ok, user} = Accounts.create_user(@create_attrs)
+    Privileges.update_privilege(user.privilege, @admin_attrs)
     user
   end
 
