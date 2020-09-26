@@ -83,6 +83,7 @@ defmodule SchoolhubWeb.Router do
     #pipe_through :admin
 
     resources "/privileges", PrivilegeController, except: [:new, :create, :delete]
+    get "/courses", CourseController, :admin_index
   end
 
   scope "/auth", SchoolhubWeb do

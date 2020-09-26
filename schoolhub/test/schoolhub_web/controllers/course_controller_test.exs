@@ -12,6 +12,7 @@ defmodule SchoolhubWeb.CourseControllerTest do
 		       credential: %{username: "some username",
 				     password: "some password"}}
   @privilege_attrs %{level: "teacher"}
+  @admin_attrs %{level: "admin"}
 
   def fixture(:course, conn) do
     {:ok, course} = Courses.create_course(@create_attrs)
@@ -36,6 +37,19 @@ defmodule SchoolhubWeb.CourseControllerTest do
     
     test "lists affiliated courses", %{conn: conn} do
       conn = get(conn, Routes.course_path(conn, :index))
+      assert html_response(conn, 200) =~ "Listing Courses"
+    end
+  end
+
+  describe "admin index" do
+    setup [:enter_session]
+    
+    test "lists all courses", %{conn: conn} do
+      user_id = Plug.Conn.get_session(conn, :user_id)
+      user = Accounts.get_user!(user_id)
+      Privileges.update_privilege(user.privilege, @admin_attrs)
+      
+      conn = get(conn, Routes.course_path(conn, :admin_index))
       assert html_response(conn, 200) =~ "Listing Courses"
     end
   end
