@@ -1,9 +1,9 @@
 defmodule SchoolhubWeb.PrivilegeControllerTest do
   use SchoolhubWeb.ConnCase
 
-  alias Schoolhub.Accounts
+  alias Schoolhub.{Accounts, Privileges}
 
-  @update_attrs %{level: "teacher"}
+  @update_attrs %{level: "admin"}
   @invalid_attrs %{level: "some invalid level"}
   
   @create_user_attrs %{email: "some email",
@@ -13,6 +13,7 @@ defmodule SchoolhubWeb.PrivilegeControllerTest do
 
   def fixture(:user) do
     {:ok, user} = Accounts.create_user(@create_user_attrs)
+    Privileges.update_privilege(user.privilege, @update_attrs)
     user
   end
 
@@ -52,7 +53,7 @@ defmodule SchoolhubWeb.PrivilegeControllerTest do
       assert redirected_to(conn) == Routes.privilege_path(conn, :show, privilege)
 
       conn = get(conn, Routes.privilege_path(conn, :show, privilege))
-      assert html_response(conn, 200) =~ "teacher"
+      assert html_response(conn, 200) =~ "admin"
     end
 
     test "renders errors when data is invalid", %{conn: conn, privilege: privilege} do

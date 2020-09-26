@@ -50,7 +50,6 @@ defmodule SchoolhubWeb.Router do
 
     pipe_through :session
     resources "/users", UserController, except: [:new, :create]
-    resources "/privileges", PrivilegeController, except: [:new, :create, :delete]
     resources "/courses", CourseController, only: [:index]
     
     pipe_through :course_member
@@ -76,6 +75,14 @@ defmodule SchoolhubWeb.Router do
     pipe_through :teacher
 
     resources "/courses", CourseController, only: [:new, :create]
+  end
+
+  scope "/admin", SchoolhubWeb do
+    pipe_through :browser
+    pipe_through :session
+    #pipe_through :admin
+
+    resources "/privileges", PrivilegeController, except: [:new, :create, :delete]
   end
 
   scope "/auth", SchoolhubWeb do

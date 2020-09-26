@@ -17,6 +17,11 @@
     <%= @user.credential.username %>
   </li>
 
+  <li>
+    <strong>Privilege:</strong>
+    <%= @user.privilege.level %>
+  </li>
+
 </ul>
 
 <span><%= link "Edit", to: Routes.user_path(@conn, :edit, @user) %></span>
