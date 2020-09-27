@@ -26,8 +26,7 @@ mass add users to course
 more content (courses) to get clear on responsibilites and session plugs
 chat
 
-admin, teacher, self criteria
-delete user self or admin
+more sophisticated self user api
 
 course disable
 course comment wall

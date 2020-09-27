@@ -22,11 +22,11 @@ defmodule SchoolhubWeb.CourseController do
 
   def create(conn, %{"course" => course_params}) do
     user_id = get_session(conn, :user_id)
-    course_params_with_owner = course_params
+    course_params_with_creator = course_params
     |> Map.put("creator", user_id)
     |> Morphix.atomorphify!()
     
-    case Courses.create_course(course_params_with_owner) do
+    case Courses.create_course(course_params_with_creator) do
       {:ok, course = %{id: course_id}} ->
 	%{course_id: course_id, user_id: user_id, affiliation: "owner"}
 	|> Courses.create_affiliation()

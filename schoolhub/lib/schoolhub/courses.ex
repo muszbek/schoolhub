@@ -21,6 +21,7 @@ defmodule Schoolhub.Courses do
     Course
     |> Repo.all()
     |> Repo.preload(:affiliation)
+    |> Repo.preload(:post)
   end
 
   def list_affiliated_courses(user_id) do
@@ -49,6 +50,7 @@ defmodule Schoolhub.Courses do
     Course
     |> Repo.get!(id)
     |> Repo.preload(:affiliation)
+    |> Repo.preload(:post)
   end
 
   @doc """

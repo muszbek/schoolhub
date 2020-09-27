@@ -4,6 +4,7 @@ defmodule Schoolhub.Courses.Course do
 
   alias Schoolhub.Accounts.User
   alias Schoolhub.Courses.Affiliation
+  alias Schoolhub.Posts.Post
 
   schema "courses" do
     field :description, :string
@@ -13,6 +14,7 @@ defmodule Schoolhub.Courses.Course do
     field :active, :boolean,
       default: true
     has_many :affiliation, Affiliation
+    has_many :post, Post
 
     timestamps()
   end

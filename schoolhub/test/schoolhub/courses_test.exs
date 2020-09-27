@@ -36,6 +36,7 @@ defmodule Schoolhub.CoursesTest do
 
       course
       |> Repo.preload(:affiliation)
+      |> Repo.preload(:post)
     end
 
     test "list_courses/0 returns all courses" do

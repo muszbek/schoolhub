@@ -1,0 +1,18 @@
+<h1>Show Post</h1>
+
+<ul>
+
+  <li>
+    <strong>Content:</strong>
+    <%= @post.content %>
+  </li>
+
+  <li>
+    <strong>Pinned:</strong>
+    <%= @post.pinned %>
+  </li>
+
+</ul>
+
+<span><%= link "Edit", to: Routes.course_post_path(@conn, :edit, @course_id, @post) %></span>
+<span><%= link "Back", to: Routes.course_post_path(@conn, :index, @course_id) %></span>

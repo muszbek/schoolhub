@@ -55,6 +55,7 @@ defmodule SchoolhubWeb.Router do
     pipe_through :course_member
     resources "/courses", CourseController, only: [:show] do
       resources "/affiliations", AffiliationController, only: [:index, :show]
+      resources "/posts", PostController
     end
 
     pipe_through :course_assistant
