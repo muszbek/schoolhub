@@ -57,7 +57,9 @@ defmodule SchoolhubWeb.PostControllerTest do
     setup [:create_course]
     
     test "redirects to show when data is valid", %{conn: conn, course_id: course_id} do
-      conn = post(conn, Routes.course_post_path(conn, :create, course_id), post: @create_attrs)
+      creator = get_session(conn, :user_id)
+      post_attrs = create_valid_attrs(@create_attrs, course_id, creator)
+      conn = post(conn, Routes.course_post_path(conn, :create, course_id), post: post_attrs)
 
       assert %{id: id} = redirected_params(conn)
       assert redirected_to(conn) == Routes.course_post_path(conn, :show, course_id, id)
@@ -106,7 +108,7 @@ defmodule SchoolhubWeb.PostControllerTest do
 
     test "deletes chosen post", %{conn: conn, course_id: course_id, post: post} do
       conn = delete(conn, Routes.course_post_path(conn, :delete, course_id, post))
-      assert redirected_to(conn) == Routes.course_post_path(conn, course_id, :index)
+      assert redirected_to(conn) == Routes.course_post_path(conn, :index, course_id)
       assert_error_sent 404, fn ->
         get(conn, Routes.course_post_path(conn, :show, course_id, post))
       end

@@ -4,14 +4,14 @@ defmodule SchoolhubWeb.PostController do
   alias Schoolhub.Posts
   alias Schoolhub.Posts.Post
 
-  def index(conn, _params) do
+  def index(conn, %{"course_id" => course_id}) do
     posts = Posts.list_posts()
-    render(conn, "index.html", posts: posts)
+    render(conn, "index.html", posts: posts, course_id: course_id)
   end
 
-  def new(conn, _params) do
+  def new(conn, %{"course_id" => course_id}) do
     changeset = Posts.change_post(%Post{})
-    render(conn, "new.html", changeset: changeset)
+    render(conn, "new.html", changeset: changeset, course_id: course_id)
   end
 
   def create(conn, %{"course_id" => course_id, "post" => post_params}) do
@@ -27,19 +27,19 @@ defmodule SchoolhubWeb.PostController do
         |> redirect(to: Routes.course_post_path(conn, :show, course_id, post))
 
       {:error, %Ecto.Changeset{} = changeset} ->
-        render(conn, "new.html", changeset: changeset)
+        render(conn, "new.html", changeset: changeset, course_id: course_id)
     end
   end
 
-  def show(conn, %{"id" => id}) do
+  def show(conn, %{"course_id" => course_id, "id" => id}) do
     post = Posts.get_post!(id)
-    render(conn, "show.html", post: post)
+    render(conn, "show.html", post: post, course_id: course_id)
   end
 
-  def edit(conn, %{"id" => id}) do
+  def edit(conn, %{"course_id" => course_id, "id" => id}) do
     post = Posts.get_post!(id)
     changeset = Posts.change_post(post)
-    render(conn, "edit.html", post: post, changeset: changeset)
+    render(conn, "edit.html", post: post, changeset: changeset, course_id: course_id)
   end
 
   def update(conn, %{"course_id" => course_id, "id" => id, "post" => post_params}) do
@@ -52,7 +52,7 @@ defmodule SchoolhubWeb.PostController do
         |> redirect(to: Routes.course_post_path(conn, :show, course_id, post))
 
       {:error, %Ecto.Changeset{} = changeset} ->
-        render(conn, "edit.html", post: post, changeset: changeset)
+        render(conn, "edit.html", post: post, changeset: changeset, course_id: course_id)
     end
   end
 
