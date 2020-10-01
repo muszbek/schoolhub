@@ -3,7 +3,7 @@ services:
 
   mongooseim-1:
     container_name: mongooseim-1
-    image: mongooseim/mongooseim
+    image: mongooseim/mongooseim:PR-2860
     hostname: mongooseim-1
     expose:
       - "5222"
@@ -20,7 +20,7 @@ services:
 
   mongooseim-2:
     container_name: mongooseim-2
-    image: mongooseim/mongooseim
+    image: mongooseim/mongooseim:PR-2860
     hostname: mongooseim-2
     expose:
       - "5222"
