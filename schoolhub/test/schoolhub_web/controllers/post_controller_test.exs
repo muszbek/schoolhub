@@ -4,7 +4,7 @@ defmodule SchoolhubWeb.PostControllerTest do
   alias Schoolhub.{Accounts, Courses, Privileges, Posts}
 
   @create_attrs %{content: "some content", pinned: false}
-  @update_attrs %{content: "some updated content", pinned: true}
+  @update_attrs %{content: "some updated content", pinned: false}
   @invalid_attrs %{content: nil, pinned: nil}
 
   @create_user_attrs %{email: "some email",
@@ -112,6 +112,27 @@ defmodule SchoolhubWeb.PostControllerTest do
       assert_error_sent 404, fn ->
         get(conn, Routes.course_post_path(conn, :show, course_id, post))
       end
+    end
+  end
+
+  describe "pin post" do
+    setup [:create_course]
+    setup [:create_post]
+
+    test "pins post", %{conn: conn, course_id: course_id, post: post} do
+      conn = put(conn, Routes.course_post_post_path(conn, :pin, course_id, post), to_pin: true)
+      assert redirected_to(conn) == Routes.course_post_path(conn, :index, course_id)
+
+      conn = get(conn, Routes.course_post_path(conn, :show, course_id, post))
+      assert html_response(conn, 200) =~ "true"
+    end
+
+    test "unpins post", %{conn: conn, course_id: course_id, post: post} do
+      conn = put(conn, Routes.course_post_post_path(conn, :pin, course_id, post), to_pin: false)
+      assert redirected_to(conn) == Routes.course_post_path(conn, :index, course_id)
+
+      conn = get(conn, Routes.course_post_path(conn, :show, course_id, post))
+      assert html_response(conn, 200) =~ "false"
     end
   end
 
