@@ -3,7 +3,7 @@ services:
 
   mongooseim-1:
     container_name: mongooseim-1
-    image: mongooseim/mongooseim:PR-2860
+    image: mongooseim/mongooseim
     hostname: mongooseim-1
     expose:
       - "5222"
@@ -17,10 +17,12 @@ services:
     volumes:
       - ./mongooseim/member:/member
       - ./ssl:/usr/lib/mongooseim/priv/ssl
+    environment:
+      - MONGOOSEIM_CONFIG_FORMAT=cfg
 
   mongooseim-2:
     container_name: mongooseim-2
-    image: mongooseim/mongooseim:PR-2860
+    image: mongooseim/mongooseim
     hostname: mongooseim-2
     expose:
       - "5222"
@@ -34,6 +36,8 @@ services:
     volumes:
       - ./mongooseim/member:/member
       - ./ssl:/usr/lib/mongooseim/priv/ssl
+    environment:
+      - MONGOOSEIM_CONFIG_FORMAT=cfg
 
   
   postgres:
