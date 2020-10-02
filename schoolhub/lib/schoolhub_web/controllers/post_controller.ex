@@ -65,4 +65,17 @@ defmodule SchoolhubWeb.PostController do
     |> put_flash(:info, "Post deleted successfully.")
     |> redirect(to: Routes.course_post_path(conn, :index, course_id))
   end
+
+  def pin(conn, %{"course_id" => course_id, "post_id" => id, "to_pin" => to_pin}) do
+    
+    post = Posts.get_post!(id)
+    {:ok, _post} = Posts.update_post(post, %{pinned: to_pin})
+    
+    msg = if to_pin, do: "Post pinned.", else: "Post unpinned."
+    
+    conn
+    |> put_flash(:info, msg)
+    |> redirect(to: Routes.course_post_path(conn, :index, course_id))
+  end
+    
 end

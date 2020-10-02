@@ -8,6 +8,11 @@
   </li>
 
   <li>
+    <strong>Author:</strong>
+    <%= Schoolhub.Accounts.get_user!(@post.creator).name %>
+  </li>
+
+  <li>
     <strong>Pinned:</strong>
     <%= @post.pinned %>
   </li>

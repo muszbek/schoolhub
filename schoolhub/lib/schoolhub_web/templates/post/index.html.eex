@@ -20,6 +20,11 @@
       <td>
         <span><%= link "Show", to: Routes.course_post_path(@conn, :show, @course_id, post) %></span>
         <span><%= link "Edit", to: Routes.course_post_path(@conn, :edit, @course_id, post) %></span>
+	<span><%= if post.pinned, do:
+		  (link "Unpin", to: Routes.course_post_post_path(@conn, :pin, @course_id, post, [to_pin: false]), method: :put),
+		  else:
+		  (link "Pin", to: Routes.course_post_post_path(@conn, :pin, @course_id, post, [to_pin: true]), method: :put)
+		  %></span>
         <span><%= link "Delete", to: Routes.course_post_path(@conn, :delete, @course_id, post), method: :delete, data: [confirm: "Are you sure?"] %></span>
       </td>
     </tr>
