@@ -18,6 +18,7 @@ defmodule SchoolhubWeb.PostController do
     user_id = get_session(conn, :user_id)
     post_params_with_creator = post_params
     |> Map.put("creator", user_id)
+    |> Map.put("pinned", false)
     |> Morphix.atomorphify!()
     
     case Posts.create_post(post_params_with_creator) do

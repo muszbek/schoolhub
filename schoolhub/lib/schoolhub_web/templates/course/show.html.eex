@@ -15,5 +15,6 @@
 </ul>
 
 <span><%= link "View Members", to: Routes.course_affiliation_path(@conn, :index, @course.id) %></span>
+<span><%= link "View Posts", to: Routes.course_post_path(@conn, :index, @course.id) %></span>
 <span><%= link "Edit", to: Routes.course_path(@conn, :edit, @course) %></span>
 <span><%= link "Back", to: Routes.course_path(@conn, :index) %></span>

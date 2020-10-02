@@ -4,7 +4,8 @@
   <thead>
     <tr>
       <th>Content</th>
-      <th>Pinned</th>
+      <th>Author</th>
+      <th></th>
 
       <th></th>
     </tr>
@@ -13,7 +14,8 @@
 <%= for post <- @posts do %>
     <tr>
       <td><%= post.content %></td>
-      <td><%= post.pinned %></td>
+      <td><%= Schoolhub.Accounts.get_user!(post.creator).name %></td>
+      <td><%= if post.pinned, do: "pinned" %></td>
 
       <td>
         <span><%= link "Show", to: Routes.course_post_path(@conn, :show, @course_id, post) %></span>
