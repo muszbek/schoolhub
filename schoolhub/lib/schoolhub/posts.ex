@@ -2,11 +2,13 @@ defmodule Schoolhub.Posts do
   @moduledoc """
   The Posts context.
   """
-
+  
   import Ecto.Query, warn: false
   alias Schoolhub.Repo
 
   alias Schoolhub.Posts.Post
+
+  @post_limit_default 5
 
   @doc """
   Returns the list of posts.
@@ -17,8 +19,12 @@ defmodule Schoolhub.Posts do
       [%Post{}, ...]
 
   """
-  def list_posts do
-    Repo.all(Post)
+  def list_posts(post_limit \\ @post_limit_default) do
+    Post
+    |> order_by(desc: :pinned)
+    |> order_by(desc: :inserted_at)
+    |> limit(^post_limit)
+    |> Repo.all()
   end
 
   @doc """
