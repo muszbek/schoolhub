@@ -38,8 +38,13 @@ defmodule SchoolhubWeb.PostControllerTest do
   describe "index" do
     setup [:create_course]
     
-    test "lists all posts", %{conn: conn, course_id: course_id} do
+    test "lists some posts", %{conn: conn, course_id: course_id} do
       conn = get(conn, Routes.course_post_path(conn, :index, course_id))
+      assert html_response(conn, 200) =~ "Listing Posts"
+    end
+
+    test "lists some posts with limit", %{conn: conn, course_id: course_id} do
+      conn = get(conn, Routes.course_post_path(conn, :index, course_id, [post_limit: 5]))
       assert html_response(conn, 200) =~ "Listing Posts"
     end
   end
