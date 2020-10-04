@@ -33,3 +33,7 @@
 </table>
 
 <span><%= link "New Post", to: Routes.course_post_path(@conn, :new, @course_id) %></span>
+<%= if @post_limit !== -1 do %>
+<span><%= link "More", to: Routes.course_post_path(@conn, :index, @course_id,
+	  [limit: String.to_integer(@post_limit) + 5]) %></span>
+<% end %>

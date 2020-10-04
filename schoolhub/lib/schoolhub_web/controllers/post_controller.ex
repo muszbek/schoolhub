@@ -3,10 +3,16 @@ defmodule SchoolhubWeb.PostController do
 
   alias Schoolhub.Posts
   alias Schoolhub.Posts.Post
+  
+  @post_limit_default "5"
 
+  def index(conn, %{"course_id" => course_id, "limit" => limit}) do
+    posts = Posts.list_posts(limit)
+    limit = if Enum.count(posts) < String.to_integer(limit), do: -1, else: limit
+    render(conn, "index.html", posts: posts, course_id: course_id, post_limit: limit)
+  end
   def index(conn, %{"course_id" => course_id}) do
-    posts = Posts.list_posts()
-    render(conn, "index.html", posts: posts, course_id: course_id)
+    index(conn, %{"course_id" => course_id, "limit" => @post_limit_default})
   end
 
   def new(conn, %{"course_id" => course_id}) do
