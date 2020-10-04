@@ -98,13 +98,40 @@ defmodule Schoolhub.PostsTest do
   describe "post_replies" do
     alias Schoolhub.Posts.Reply
 
+    @valid_user_attrs %{email: "some email",
+			name: "some name",
+			credential: %{username: "some username",
+				      password: "some password"}}
+    @valid_course_attrs %{description: "some description", name: "some name"}
+
     @valid_attrs %{content: "some content"}
     @update_attrs %{content: "some updated content"}
     @invalid_attrs %{content: nil}
 
+    def ids_fixture2() do
+      {:ok, _user = %{id: user_id}} =
+        %{}
+        |> Enum.into(@valid_user_attrs)
+        |> Accounts.create_user()
+      
+      {:ok, _course = %{id: course_id}} =
+        %{}
+        |> Enum.into(%{creator: user_id})
+        |> Enum.into(@valid_course_attrs)
+        |> Courses.create_course()
+
+      {:ok, _post = %{id: post_id}} =
+        @valid_attrs
+	|> Enum.into(%{creator: user_id, course_id: course_id})
+        |> Posts.create_post()
+
+      %{parent_post: post_id, creator: user_id}
+    end
+
     def reply_fixture(attrs \\ %{}) do
       {:ok, reply} =
         attrs
+	|> Enum.into(ids_fixture2())
         |> Enum.into(@valid_attrs)
         |> Posts.create_reply()
 
@@ -122,7 +149,10 @@ defmodule Schoolhub.PostsTest do
     end
 
     test "create_reply/1 with valid data creates a reply" do
-      assert {:ok, %Reply{} = reply} = Posts.create_reply(@valid_attrs)
+      attrs = ids_fixture2()
+      |> Enum.into(@valid_attrs)
+      
+      assert {:ok, %Reply{} = reply} = Posts.create_reply(attrs)
       assert reply.content == "some content"
     end
 

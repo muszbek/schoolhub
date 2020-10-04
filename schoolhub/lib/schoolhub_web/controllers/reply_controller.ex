@@ -4,59 +4,68 @@ defmodule SchoolhubWeb.ReplyController do
   alias Schoolhub.Posts
   alias Schoolhub.Posts.Reply
 
-  def index(conn, _params) do
+  def index(conn, %{"course_id" => course_id, "post_id" => post_id}) do
     post_replies = Posts.list_post_replies()
-    render(conn, "index.html", post_replies: post_replies)
+    render(conn, "index.html", post_replies: post_replies, course_id: course_id, post_id: post_id)
   end
 
-  def new(conn, _params) do
+  def new(conn, %{"course_id" => course_id, "post_id" => post_id}) do
     changeset = Posts.change_reply(%Reply{})
-    render(conn, "new.html", changeset: changeset)
+    render(conn, "new.html", changeset: changeset, course_id: course_id, post_id: post_id)
   end
 
-  def create(conn, %{"reply" => reply_params}) do
-    case Posts.create_reply(reply_params) do
+  def create(conn, %{"course_id" => course_id, "post_id" => post_id, "reply" => reply_params}) do
+    user_id = get_session(conn, :user_id)
+    reply_params_with_creator = reply_params
+    |> Map.put("creator", user_id)
+    |> Map.put("parent_post", post_id)
+    |> Morphix.atomorphify!()
+    
+    case Posts.create_reply(reply_params_with_creator) do
       {:ok, reply} ->
         conn
         |> put_flash(:info, "Reply created successfully.")
-        |> redirect(to: Routes.reply_path(conn, :show, reply))
+        |> redirect(to: Routes.course_post_reply_path(conn, :show, course_id, post_id, reply))
 
       {:error, %Ecto.Changeset{} = changeset} ->
-        render(conn, "new.html", changeset: changeset)
+        render(conn, "new.html", changeset: changeset, course_id: course_id, post_id: post_id)
     end
   end
 
-  def show(conn, %{"id" => id}) do
+  def show(conn, %{"course_id" => course_id, "post_id" => post_id, "id" => id}) do
     reply = Posts.get_reply!(id)
-    render(conn, "show.html", reply: reply)
+    render(conn, "show.html", reply: reply, course_id: course_id, post_id: post_id)
   end
 
-  def edit(conn, %{"id" => id}) do
+  def edit(conn, %{"course_id" => course_id, "post_id" => post_id, "id" => id}) do
     reply = Posts.get_reply!(id)
     changeset = Posts.change_reply(reply)
-    render(conn, "edit.html", reply: reply, changeset: changeset)
+    render(conn, "edit.html", reply: reply, changeset: changeset,
+      course_id: course_id, post_id: post_id)
   end
 
-  def update(conn, %{"id" => id, "reply" => reply_params}) do
+  def update(conn, %{"course_id" => course_id, "post_id" => post_id, "id" => id,
+		     "reply" => reply_params}) do
     reply = Posts.get_reply!(id)
 
     case Posts.update_reply(reply, reply_params) do
       {:ok, reply} ->
         conn
         |> put_flash(:info, "Reply updated successfully.")
-        |> redirect(to: Routes.reply_path(conn, :show, reply))
+        |> redirect(to: Routes.course_post_reply_path(conn, :show, course_id, post_id, reply))
 
       {:error, %Ecto.Changeset{} = changeset} ->
-        render(conn, "edit.html", reply: reply, changeset: changeset)
+        render(conn, "edit.html", reply: reply, changeset: changeset,
+	  course_id: course_id, post_id: post_id)
     end
   end
 
-  def delete(conn, %{"id" => id}) do
+  def delete(conn, %{"course_id" => course_id, "post_id" => post_id, "id" => id}) do
     reply = Posts.get_reply!(id)
     {:ok, _reply} = Posts.delete_reply(reply)
 
     conn
     |> put_flash(:info, "Reply deleted successfully.")
-    |> redirect(to: Routes.reply_path(conn, :index))
+    |> redirect(to: Routes.course_post_reply_path(conn, :index, course_id, post_id))
   end
 end

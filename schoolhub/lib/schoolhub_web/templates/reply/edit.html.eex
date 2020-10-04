@@ -1,5 +1,5 @@
 <h1>Edit Reply</h1>
 
-<%= render "form.html", Map.put(assigns, :action, Routes.reply_path(@conn, :update, @reply)) %>
+<%= render "form.html", Map.put(assigns, :action, Routes.course_post_reply_path(@conn, :update, @course_id, @post_id, @reply)) %>
 
-<span><%= link "Back", to: Routes.reply_path(@conn, :index) %></span>
+<span><%= link "Back", to: Routes.course_post_reply_path(@conn, :index, @course_id, @post_id) %></span>
