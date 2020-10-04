@@ -4,6 +4,7 @@ defmodule Schoolhub.Posts.Post do
 
   alias Schoolhub.Accounts.User
   alias Schoolhub.Courses.Course
+  alias Schoolhub.Posts.Reply
 
   schema "posts" do
     field :content, :string
@@ -11,6 +12,8 @@ defmodule Schoolhub.Posts.Post do
     belongs_to :user, User,
       foreign_key: :creator
     field :pinned, :boolean, default: false
+    has_many :reply, Reply,
+      foreign_key: :parent_post
 
     timestamps()
   end

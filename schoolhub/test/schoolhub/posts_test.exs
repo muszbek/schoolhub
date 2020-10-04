@@ -39,6 +39,7 @@ defmodule Schoolhub.PostsTest do
         |> Posts.create_post()
 
       post
+      |> Repo.preload(:reply)
     end
 
     test "list_posts/0 returns some posts" do
@@ -91,6 +92,65 @@ defmodule Schoolhub.PostsTest do
     test "change_post/1 returns a post changeset" do
       post = post_fixture()
       assert %Ecto.Changeset{} = Posts.change_post(post)
+    end
+  end
+
+  describe "post_replies" do
+    alias Schoolhub.Posts.Reply
+
+    @valid_attrs %{content: "some content"}
+    @update_attrs %{content: "some updated content"}
+    @invalid_attrs %{content: nil}
+
+    def reply_fixture(attrs \\ %{}) do
+      {:ok, reply} =
+        attrs
+        |> Enum.into(@valid_attrs)
+        |> Posts.create_reply()
+
+      reply
+    end
+
+    test "list_post_replies/0 returns all post_replies" do
+      reply = reply_fixture()
+      assert Posts.list_post_replies() == [reply]
+    end
+
+    test "get_reply!/1 returns the reply with given id" do
+      reply = reply_fixture()
+      assert Posts.get_reply!(reply.id) == reply
+    end
+
+    test "create_reply/1 with valid data creates a reply" do
+      assert {:ok, %Reply{} = reply} = Posts.create_reply(@valid_attrs)
+      assert reply.content == "some content"
+    end
+
+    test "create_reply/1 with invalid data returns error changeset" do
+      assert {:error, %Ecto.Changeset{}} = Posts.create_reply(@invalid_attrs)
+    end
+
+    test "update_reply/2 with valid data updates the reply" do
+      reply = reply_fixture()
+      assert {:ok, %Reply{} = reply} = Posts.update_reply(reply, @update_attrs)
+      assert reply.content == "some updated content"
+    end
+
+    test "update_reply/2 with invalid data returns error changeset" do
+      reply = reply_fixture()
+      assert {:error, %Ecto.Changeset{}} = Posts.update_reply(reply, @invalid_attrs)
+      assert reply == Posts.get_reply!(reply.id)
+    end
+
+    test "delete_reply/1 deletes the reply" do
+      reply = reply_fixture()
+      assert {:ok, %Reply{}} = Posts.delete_reply(reply)
+      assert_raise Ecto.NoResultsError, fn -> Posts.get_reply!(reply.id) end
+    end
+
+    test "change_reply/1 returns a reply changeset" do
+      reply = reply_fixture()
+      assert %Ecto.Changeset{} = Posts.change_reply(reply)
     end
   end
 end
