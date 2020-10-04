@@ -55,14 +55,15 @@ defmodule SchoolhubWeb.Router do
     pipe_through :course_member
     resources "/courses", CourseController, only: [:show] do
       resources "/affiliations", AffiliationController, only: [:index, :show]
-      resources "/posts", PostController do
-	put "/pin", PostController, :pin
-      end
+      resources "/posts", PostController, except: [:edit, :update, :delete]
     end
 
     pipe_through :course_assistant
     resources "/courses/assistant", CourseController, except: [:index, :show, :new, :create, :delete] do
       resources "/affiliations", AffiliationController, except: [:index, :show, :edit, :update]
+      resources "/posts", PostController, only: [:edit, :update, :delete] do
+	put "/pin", PostController, :pin
+      end
     end
 
     pipe_through :course_owner

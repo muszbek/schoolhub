@@ -23,10 +23,10 @@
 # Phoenix
 
 mass add users to course
-more content (courses) to get clear on responsibilites and session plugs
 chat
 
 more sophisticated self user api
 
 course disable
 course comment wall
+course members can delete edit their own messages
