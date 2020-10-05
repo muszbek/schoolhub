@@ -5,8 +5,7 @@ defmodule SchoolhubWeb.ReplyController do
   alias Schoolhub.Posts.Reply
 
   def index(conn, %{"course_id" => course_id, "post_id" => post_id}) do
-    post_replies = Posts.list_post_replies()
-    render(conn, "index.html", post_replies: post_replies, course_id: course_id, post_id: post_id)
+    redirect(conn, to: Routes.course_post_path(conn, :show, course_id, post_id))
   end
 
   def new(conn, %{"course_id" => course_id, "post_id" => post_id}) do

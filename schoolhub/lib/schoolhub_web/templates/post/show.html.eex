@@ -21,3 +21,6 @@
 
 <span><%= link "Edit", to: Routes.course_post_path(@conn, :edit, @course_id, @post) %></span>
 <span><%= link "Back", to: Routes.course_post_path(@conn, :index, @course_id) %></span>
+
+<%= render SchoolhubWeb.ReplyView, "index.html",
+    conn: @conn, course_id: @course_id, post_id: @post.id, post_replies: @replies %>

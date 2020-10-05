@@ -47,7 +47,8 @@ defmodule SchoolhubWeb.ReplyControllerTest do
     
     test "lists all post_replies", %{conn: conn, course_id: course_id, parent_post: post_id} do
       conn = get(conn, Routes.course_post_reply_path(conn, :index, course_id, post_id))
-      assert html_response(conn, 200) =~ "Listing Post replies"
+      assert redirected_to(conn) == Routes.course_post_path(conn, :show,
+	course_id, post_id)
     end
   end
 

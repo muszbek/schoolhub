@@ -40,7 +40,7 @@ defmodule SchoolhubWeb.PostController do
 
   def show(conn, %{"course_id" => course_id, "id" => id}) do
     post = Posts.get_post!(id)
-    render(conn, "show.html", post: post, course_id: course_id)
+    render(conn, "show.html", post: post, course_id: course_id, replies: post.reply)
   end
 
   def edit(conn, %{"course_id" => course_id, "id" => id}) do
