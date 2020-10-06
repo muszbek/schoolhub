@@ -2,6 +2,7 @@
   <thead>
     <tr>
       <th>Content</th>
+      <th>Author</th>
 
       <th></th>
     </tr>
@@ -10,6 +11,7 @@
 <%= for reply <- @post_replies do %>
     <tr>
       <td><%= reply.content %></td>
+      <td><%= Schoolhub.Accounts.get_user!(reply.creator).name %></td>
 
       <td>
         <span><%= link "Show", to: Routes.course_post_reply_path(@conn, :show, @course_id, @post_id, reply) %></span>

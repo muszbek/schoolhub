@@ -5,6 +5,7 @@
     <tr>
       <th>Content</th>
       <th>Author</th>
+      <th>Replies</th>
       <th></th>
 
       <th></th>
@@ -15,6 +16,7 @@
     <tr>
       <td><%= post.content %></td>
       <td><%= Schoolhub.Accounts.get_user!(post.creator).name %></td>
+      <td><%= Enum.count(post.reply) %></td>
       <td><%= if post.pinned, do: "pinned" %></td>
 
       <td>
