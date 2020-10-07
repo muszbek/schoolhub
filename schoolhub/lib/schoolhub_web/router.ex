@@ -44,6 +44,7 @@ defmodule SchoolhubWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :index
+    get "/phoenix", PageController, :phoenix
     resources "/users", UserController, only: [:new, :create]
     resources "/sessions", SessionController, only: [:new, :create, :delete],
       singleton: true
