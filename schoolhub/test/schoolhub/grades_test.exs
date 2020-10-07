@@ -1,18 +1,45 @@
 defmodule Schoolhub.GradesTest do
   use Schoolhub.DataCase
 
-  alias Schoolhub.Grades
+  alias Schoolhub.{Accounts, Courses, Grades}
 
   describe "grades" do
     alias Schoolhub.Grades.Grade
 
+    @valid_user_attrs %{email: "some email",
+			name: "some name",
+			credential: %{username: "some username",
+				      password: "some password"}}
+    @valid_course_attrs %{description: "some description", name: "some name"}
+    
     @valid_attrs %{grades: %{}}
     @update_attrs %{grades: %{}}
     @invalid_attrs %{grades: nil}
 
+    def affiliation_fixture() do
+      {:ok, _user = %{id: user_id}} =
+        %{}
+        |> Enum.into(@valid_user_attrs)
+        |> Accounts.create_user()
+      
+      {:ok, _course = %{id: course_id}} =
+        %{}
+        |> Enum.into(%{creator: user_id})
+        |> Enum.into(@valid_course_attrs)
+        |> Courses.create_course()
+
+      {:ok, affiliation} =
+        %{course_id: course_id, user_id: user_id}
+        |> Enum.into(@valid_attrs)
+        |> Courses.create_affiliation()
+
+      %{affiliation_id: affiliation.id}
+    end
+    
     def grade_fixture(attrs \\ %{}) do
       {:ok, grade} =
         attrs
+	|> Enum.into(affiliation_fixture())
         |> Enum.into(@valid_attrs)
         |> Grades.create_grade()
 
@@ -20,7 +47,8 @@ defmodule Schoolhub.GradesTest do
     end
 
     test "list_grades/0 returns all grades" do
-      grade = grade_fixture()
+      %{affiliation_id: aff_id} = affiliation_fixture()
+      %{grade: grade} = Courses.get_affiliation!(aff_id)
       assert Grades.list_grades() == [grade]
     end
 
@@ -30,7 +58,8 @@ defmodule Schoolhub.GradesTest do
     end
 
     test "create_grade/1 with valid data creates a grade" do
-      assert {:ok, %Grade{} = grade} = Grades.create_grade(@valid_attrs)
+      valid_attrs_with_aff = Enum.into(affiliation_fixture(), @valid_attrs)
+      assert {:ok, %Grade{} = grade} = Grades.create_grade(valid_attrs_with_aff)
       assert grade.grades == %{}
     end
 
