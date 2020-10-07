@@ -57,6 +57,12 @@ defmodule Schoolhub.GradesTest do
       assert Grades.get_grade!(grade.id) == grade
     end
 
+    test "get_grade_by_aff!/1 returns the grade with given id" do
+      %{affiliation_id: aff_id} = affiliation_fixture()
+      %{grade: grade} = Courses.get_affiliation!(aff_id)
+      assert Grades.get_grade_by_aff!(aff_id) == grade
+    end
+
     test "create_grade/1 with valid data creates a grade" do
       valid_attrs_with_aff = Enum.into(affiliation_fixture(), @valid_attrs)
       assert {:ok, %Grade{} = grade} = Grades.create_grade(valid_attrs_with_aff)

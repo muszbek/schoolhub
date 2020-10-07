@@ -7,6 +7,7 @@ defmodule Schoolhub.Grades do
   alias Schoolhub.Repo
 
   alias Schoolhub.Grades.Grade
+  alias Schoolhub.Courses
 
   @doc """
   Returns the list of grades.
@@ -36,6 +37,11 @@ defmodule Schoolhub.Grades do
 
   """
   def get_grade!(id), do: Repo.get!(Grade, id)
+
+  def get_grade_by_aff!(aff_id) do
+    %{grade: grade} = Courses.get_affiliation!(aff_id)
+    grade
+  end
 
   @doc """
   Creates a grade.
