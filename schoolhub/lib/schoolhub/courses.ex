@@ -7,7 +7,10 @@ defmodule Schoolhub.Courses do
   alias Schoolhub.Repo
 
   alias Schoolhub.Courses.{Course, Affiliation}
+  alias Schoolhub.Grades.Grade
 
+  @default_grade %{}
+  
   @doc """
   Returns the list of courses.
 
@@ -129,7 +132,9 @@ defmodule Schoolhub.Courses do
 
   """
   def list_course_affiliations do
-    Repo.all(Affiliation)
+    Affiliation
+    |> Repo.all()
+    |> Repo.preload(:grade)
   end
 
   @doc """
@@ -146,14 +151,22 @@ defmodule Schoolhub.Courses do
       ** (Ecto.NoResultsError)
 
   """
-  def get_affiliation!(id), do: Repo.get!(Affiliation, id)
+  def get_affiliation!(id) do
+    Affiliation
+    |> Repo.get!(id)
+    |> Repo.preload(:grade)
+  end
 
   def get_owner!(course_id) do
-    Repo.get_by!(Affiliation, [course_id: course_id, affiliation: "owner"])
+    Affiliation
+    |> Repo.get_by!([course_id: course_id, affiliation: "owner"])
+    |> Repo.preload(:grade)
   end
 
   def get_affiliation_by_user!(course_id, user_id) do
-    Repo.get_by!(Affiliation, [course_id: course_id, user_id: user_id])
+    Affiliation
+    |> Repo.get_by!([course_id: course_id, user_id: user_id])
+    |> Repo.preload(:grade)
   end
 
   @doc """
@@ -169,8 +182,13 @@ defmodule Schoolhub.Courses do
 
   """
   def create_affiliation(attrs \\ %{}) do
+    attrs_with_grade = attrs
+    |> Map.put("grade", %{grades: @default_grade})
+    |> Morphix.atomorphify!()
+    
     %Affiliation{}
-    |> Affiliation.changeset(attrs)
+    |> Affiliation.changeset(attrs_with_grade)
+    |> Ecto.Changeset.cast_assoc(:grade, with: &Grade.changeset/2)
     |> Repo.insert()
   end
 

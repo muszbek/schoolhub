@@ -1,0 +1,26 @@
+<h1>Listing Grades</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Grades</th>
+
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+<%= for grade <- @grades do %>
+    <tr>
+      <td><%= grade.grades %></td>
+
+      <td>
+        <span><%= link "Show", to: Routes.grade_path(@conn, :show, grade) %></span>
+        <span><%= link "Edit", to: Routes.grade_path(@conn, :edit, grade) %></span>
+        <span><%= link "Delete", to: Routes.grade_path(@conn, :delete, grade), method: :delete, data: [confirm: "Are you sure?"] %></span>
+      </td>
+    </tr>
+<% end %>
+  </tbody>
+</table>
+
+<span><%= link "New Grade", to: Routes.grade_path(@conn, :new) %></span>

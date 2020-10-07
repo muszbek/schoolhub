@@ -4,13 +4,14 @@ defmodule Schoolhub.Courses.Affiliation do
 
   alias Schoolhub.Courses.Course
   alias Schoolhub.Accounts.User
+  alias Schoolhub.Grades.Grade
   
   schema "course_affiliations" do
     field :affiliation, :string,
       default: "student"
     belongs_to :course, Course
     belongs_to :user, User
-    field :grades, :map
+    has_one :grade, Grade
 
     timestamps()
   end
@@ -18,7 +19,7 @@ defmodule Schoolhub.Courses.Affiliation do
   @doc false
   def changeset(affiliation, attrs) do
     affiliation
-    |> cast(attrs, [:affiliation, :course_id, :user_id, :grades])
+    |> cast(attrs, [:affiliation, :course_id, :user_id])
     |> validate_required([:affiliation, :course_id, :user_id])
     |> validate_inclusion(:affiliation, ["student", "assistant", "owner"],
       message: "Affiliation level has to be one of the following: student, assistant, owner")

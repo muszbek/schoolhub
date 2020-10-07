@@ -9,7 +9,6 @@ defmodule Schoolhub.Repo.Migrations.CreateCourseAffiliations do
 	null: false
       add :user_id, references(:user_profiles, on_delete: :delete_all),
 	null: false
-      add :grades, :map
 
       timestamps()
     end
