@@ -6,7 +6,7 @@
   <% end %>
 
   <%= label f, :grades %>
-  <%= text_input f, :grades %>
+  <%= textarea f, :grades %>
   <%= error_tag f, :grades %>
 
   <div>

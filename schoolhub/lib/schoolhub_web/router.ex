@@ -61,9 +61,18 @@ defmodule SchoolhubWeb.Router do
       end
     end
 
+    resources "/courses", CourseController, only: [] do
+      resources "/affiliations", AffiliationController, only: [] do
+	resources "/grades", GradeController, only: [:show]
+      end
+    end
+
     pipe_through :course_assistant
     resources "/courses/assistant", CourseController, except: [:index, :show, :new, :create, :delete] do
-      resources "/affiliations", AffiliationController, except: [:index, :show, :edit, :update]
+      resources "/affiliations", AffiliationController, except: [:index, :show, :edit, :update] do
+	resources "/grades", GradeController, only: [:edit, :update]
+      end
+      
       resources "/posts", PostController, only: [:edit, :update, :delete] do
 	resources "/replies", ReplyController, only: [:edit, :update, :delete]
 	put "/pin", PostController, :pin

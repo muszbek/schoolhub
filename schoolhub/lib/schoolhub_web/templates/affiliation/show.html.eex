@@ -16,5 +16,6 @@
 
 <%= render "explanation.html" %>
 
+<span><%= link "Show Grades", to: Routes.course_affiliation_grade_path(@conn, :show, @course_id, @affiliation, Schoolhub.Grades.get_grade_by_aff!(@affiliation.id)) %></span>
 <span><%= link "Edit", to: Routes.course_affiliation_path(@conn, :edit, @course_id, @affiliation) %></span>
 <span><%= link "Back", to: Routes.course_affiliation_path(@conn, :index, @course_id) %></span>

@@ -1,5 +1,6 @@
 <h1>Edit Grade</h1>
 
-<%= render "form.html", Map.put(assigns, :action, Routes.grade_path(@conn, :update, @grade)) %>
+<%= render "form.html", Map.put(assigns, :action, Routes.course_affiliation_grade_path(@conn, :update, @course_id, @affiliation_id, @grade)) %>
 
-<span><%= link "Back", to: Routes.grade_path(@conn, :index) %></span>
+<span><%= link "Back", to: Routes.course_affiliation_grade_path(@conn, :show,
+	  @course_id, @affiliation_id, @grade) %></span>

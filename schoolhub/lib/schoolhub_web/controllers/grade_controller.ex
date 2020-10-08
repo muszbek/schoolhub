@@ -26,29 +26,51 @@ defmodule SchoolhubWeb.GradeController do
     end
   end
 
-  def show(conn, %{"id" => id}) do
+  def show(conn, %{"course_id" => course_id, "affiliation_id" => aff_id, "id" => id}) do
     grade = Grades.get_grade!(id)
-    render(conn, "show.html", grade: grade)
+    grade_string = display_grade(grade)
+    render(conn, "show.html", grade: grade_string,
+      course_id: course_id, affiliation_id: aff_id)
   end
 
-  def edit(conn, %{"id" => id}) do
+  def edit(conn, %{"course_id" => course_id, "affiliation_id" => aff_id, "id" => id}) do
     grade = Grades.get_grade!(id)
-    changeset = Grades.change_grade(grade)
-    render(conn, "edit.html", grade: grade, changeset: changeset)
+    grade_string = display_grade(grade)
+    changeset = Grades.change_grade(grade_string)
+    render(conn, "edit.html", grade: grade_string, changeset: changeset,
+      course_id: course_id, affiliation_id: aff_id)
   end
 
-  def update(conn, %{"id" => id, "grade" => grade_params}) do
+  def update(conn, %{"course_id" => course_id, "affiliation_id" => aff_id,
+		     "id" => id, "grade" => grade_params}) do
+    grade_params
+    |> decode_grade()
+    |> do_update(conn, course_id, aff_id, id)
+  end
+
+  defp do_update(grade_params_map = %{}, conn, course_id, aff_id, id) do
     grade = Grades.get_grade!(id)
 
-    case Grades.update_grade(grade, grade_params) do
+    case Grades.update_grade(grade, grade_params_map) do
       {:ok, grade} ->
         conn
         |> put_flash(:info, "Grade updated successfully.")
-        |> redirect(to: Routes.grade_path(conn, :show, grade))
+        |> redirect(to: Routes.course_affiliation_grade_path(conn, :show, course_id, aff_id, grade))
 
       {:error, %Ecto.Changeset{} = changeset} ->
-        render(conn, "edit.html", grade: grade, changeset: changeset)
+        render(conn, "edit.html", grade: grade, changeset: changeset,
+	  course_id: course_id, affiliation_id: aff_id)
     end
+  end
+  defp do_update({:json_error, grade_string}, conn, course_id, aff_id, id) do
+    grade = Grades.get_grade!(id)
+    grade_string = display_grade(grade)
+    changeset = Grades.change_grade(grade_string)
+
+    conn
+    |> put_flash(:error, "Wrong json format!")
+    |> render("edit.html", grade: grade_string, changeset: changeset,
+      course_id: course_id, affiliation_id: aff_id)
   end
 
   def delete(conn, %{"id" => id}) do
@@ -58,5 +80,20 @@ defmodule SchoolhubWeb.GradeController do
     conn
     |> put_flash(:info, "Grade deleted successfully.")
     |> redirect(to: Routes.grade_path(conn, :index))
+  end
+
+
+  defp display_grade(grade = %{grades: map}) do
+    json = Jason.encode!(map, pretty: true)
+    %{grade | grades: json}
+  end
+  
+  defp decode_grade(grade = %{"grades" => json}) do
+    try do
+      map = Jason.decode!(json)
+      %{grade | "grades" => map}
+    rescue
+      Jason.DecodeError -> {:json_error, grade}
+    end
   end
 end
