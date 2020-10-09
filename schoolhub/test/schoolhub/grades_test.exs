@@ -15,6 +15,7 @@ defmodule Schoolhub.GradesTest do
     @valid_attrs %{grades: %{}}
     @update_attrs %{grades: %{}}
     @invalid_attrs %{grades: nil}
+    @add_attrs %{title: "grade"}
 
     def affiliation_fixture() do
       {:ok, _user = %{id: user_id}} =
@@ -71,6 +72,12 @@ defmodule Schoolhub.GradesTest do
 
     test "create_grade/1 with invalid data returns error changeset" do
       assert {:error, %Ecto.Changeset{}} = Grades.create_grade(@invalid_attrs)
+    end
+
+    test "add_grade/2 appends to grade map" do
+      grade = grade_fixture()
+      assert {:ok, %Grade{} = new_grade} = Grades.add_grade(grade.id, @add_attrs)
+      assert new_grade.grades == @add_attrs
     end
 
     test "update_grade/2 with valid data updates the grade" do

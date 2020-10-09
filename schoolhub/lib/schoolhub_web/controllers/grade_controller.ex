@@ -1,7 +1,7 @@
 defmodule SchoolhubWeb.GradeController do
   use SchoolhubWeb, :controller
-
-  alias Schoolhub.Grades
+  
+  alias Schoolhub.{Courses, Grades}
   alias Schoolhub.Grades.Grade
 
   def index(conn, _params) do
@@ -9,20 +9,27 @@ defmodule SchoolhubWeb.GradeController do
     render(conn, "index.html", grades: grades)
   end
 
-  def new(conn, _params) do
+  def new(conn, %{"course_id" => course_id, "affiliation_id" => aff_id}) do
     changeset = Grades.change_grade(%Grade{})
-    render(conn, "new.html", changeset: changeset)
+    render(conn, "new.html", changeset: changeset,
+      course_id: course_id, affiliation_id: aff_id)
   end
 
-  def create(conn, %{"grade" => grade_params}) do
-    case Grades.create_grade(grade_params) do
+  def create(conn, %{"course_id" => course_id, "affiliation_id" => aff_id,
+		     "title" => title, "grade" => grade}) do
+
+    grade_id = Courses.get_affiliation!(aff_id).grade.id
+    grade_input = Morphix.atomorphify!(%{title => grade})
+    
+    case Grades.add_grade(grade_id, grade_input) do
       {:ok, grade} ->
         conn
         |> put_flash(:info, "Grade created successfully.")
-        |> redirect(to: Routes.grade_path(conn, :show, grade))
+        |> redirect(to: Routes.course_affiliation_grade_path(conn, :show, course_id, aff_id, grade))
 
       {:error, %Ecto.Changeset{} = changeset} ->
-        render(conn, "new.html", changeset: changeset)
+        render(conn, "new.html", changeset: changeset,
+	  course_id: course_id, affiliation_id: aff_id)
     end
   end
 

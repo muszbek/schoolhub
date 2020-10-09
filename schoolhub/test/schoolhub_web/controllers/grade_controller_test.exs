@@ -1,9 +1,9 @@
 defmodule SchoolhubWeb.GradeControllerTest do
   use SchoolhubWeb.ConnCase
 
-  alias Schoolhub.{Accounts, Privileges, Courses, Grades}
+  alias Schoolhub.{Accounts, Privileges, Courses}
 
-  @create_attrs %{grades: "{}"}
+  @create_attrs %{title: "some grade title", grade: "some grade"}
   @update_attrs %{grades: "{}"}
   @invalid_attrs %{grades: ""}
 
@@ -46,8 +46,8 @@ defmodule SchoolhubWeb.GradeControllerTest do
   describe "new grade" do
     setup [:create_affiliation]
     
-    test "renders form", %{conn: conn} do
-      conn = get(conn, Routes.course_affiliation_grade_path(conn, :new))
+    test "renders form", %{conn: conn, course_id: course_id, affiliation_id: aff_id} do
+      conn = get(conn, Routes.course_affiliation_grade_path(conn, :new, course_id, aff_id))
       assert html_response(conn, 200) =~ "New Grade"
     end
   end
@@ -55,19 +55,17 @@ defmodule SchoolhubWeb.GradeControllerTest do
   describe "create grade" do
     setup [:create_affiliation]
     
-    test "redirects to show when data is valid", %{conn: conn} do
-      conn = post(conn, Routes.course_affiliation_grade_path(conn, :create), grade: @create_attrs)
+    test "redirects to show when data is valid",
+      %{conn: conn, course_id: course_id, affiliation_id: aff_id} do
+      
+      conn = post(conn, Routes.course_affiliation_grade_path(conn, :create, course_id, aff_id),
+	@create_attrs)
 
       assert %{id: id} = redirected_params(conn)
-      assert redirected_to(conn) == Routes.course_affiliation_grade_path(conn, :show, id)
+      assert redirected_to(conn) == Routes.course_affiliation_grade_path(conn, :show, course_id, aff_id, id)
 
-      conn = get(conn, Routes.course_affiliation_grade_path(conn, :show, id))
+      conn = get(conn, Routes.course_affiliation_grade_path(conn, :show, course_id, aff_id, id))
       assert html_response(conn, 200) =~ "Show Grade"
-    end
-
-    test "renders errors when data is invalid", %{conn: conn} do
-      conn = post(conn, Routes.course_affiliation_grade_path(conn, :create), grade: @invalid_attrs)
-      assert html_response(conn, 200) =~ "New Grade"
     end
   end
 

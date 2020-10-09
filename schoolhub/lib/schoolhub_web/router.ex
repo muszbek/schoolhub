@@ -70,7 +70,7 @@ defmodule SchoolhubWeb.Router do
     pipe_through :course_assistant
     resources "/courses/assistant", CourseController, except: [:index, :show, :new, :create, :delete] do
       resources "/affiliations", AffiliationController, except: [:index, :show, :edit, :update] do
-	resources "/grades", GradeController, only: [:edit, :update]
+	resources "/grades", GradeController, only: [:new, :create, :edit, :update]
       end
       
       resources "/posts", PostController, only: [:edit, :update, :delete] do

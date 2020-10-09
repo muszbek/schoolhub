@@ -5,7 +5,7 @@ defmodule Schoolhub.Grades do
 
   import Ecto.Query, warn: false
   alias Schoolhub.Repo
-
+  
   alias Schoolhub.Grades.Grade
   alias Schoolhub.Courses
 
@@ -59,6 +59,17 @@ defmodule Schoolhub.Grades do
     %Grade{}
     |> Grade.changeset(attrs)
     |> Repo.insert()
+  end
+
+  def add_grade(id, key_value_pair \\ %{}) do
+    grade = %{grades: grades_map} = get_grade!(id)
+    new_grades_map = grades_map
+    |> Map.merge(key_value_pair)
+    |> Morphix.atomorphify!()
+    
+    new_grade_attrs = %{affiliation_id: grade.affiliation_id, grades: new_grades_map}
+
+    update_grade(grade, new_grade_attrs)
   end
 
   @doc """
