@@ -62,7 +62,7 @@ defmodule SchoolhubWeb.GradeController do
 	  course_id: course_id, affiliation_id: aff_id)
     end
   end
-  defp do_update({:json_error, grade_string}, conn, course_id, aff_id, id) do
+  defp do_update({:json_error, _wrong_grade_string}, conn, course_id, aff_id, id) do
     grade = Grades.get_grade!(id)
     grade_string = display_grade(grade)
     changeset = Grades.change_grade(grade_string)
