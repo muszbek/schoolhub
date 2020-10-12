@@ -37,8 +37,8 @@ defmodule SchoolhubWeb.GradeControllerTest do
   describe "index" do
     setup [:create_affiliation]
     
-    test "lists all grades", %{conn: conn} do
-      conn = get(conn, Routes.course_affiliation_grade_path(conn, :index))
+    test "lists all grades", %{conn: conn, course_id: course_id} do
+      conn = get(conn, Routes.course_grade_path(conn, :index, course_id))
       assert html_response(conn, 200) =~ "Listing Grades"
     end
   end

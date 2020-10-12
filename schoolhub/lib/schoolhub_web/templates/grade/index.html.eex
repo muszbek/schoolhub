@@ -3,6 +3,7 @@
 <table>
   <thead>
     <tr>
+      <th>Name</th>
       <th>Grades</th>
 
       <th></th>
@@ -11,16 +12,15 @@
   <tbody>
 <%= for grade <- @grades do %>
     <tr>
+      <td><%= grade.name %></td>
       <td><%= grade.grades %></td>
 
       <td>
-        <span><%= link "Show", to: Routes.grade_path(@conn, :show, grade) %></span>
-        <span><%= link "Edit", to: Routes.grade_path(@conn, :edit, grade) %></span>
-        <span><%= link "Delete", to: Routes.grade_path(@conn, :delete, grade), method: :delete, data: [confirm: "Are you sure?"] %></span>
+        <span><%= link "Show", to: Routes.course_affiliation_grade_path(@conn, :show, @course_id, grade.affiliation_id, grade) %></span>
+        <span><%= link "Edit", to: Routes.course_affiliation_grade_path(@conn, :edit, @course_id, grade.affiliation_id, grade) %></span>
+        <span><%= link "Delete", to: Routes.course_affiliation_grade_path(@conn, :delete, @course_id, grade.affiliation_id, grade), method: :delete, data: [confirm: "Are you sure?"] %></span>
       </td>
     </tr>
 <% end %>
   </tbody>
 </table>
-
-<span><%= link "New Grade", to: Routes.grade_path(@conn, :new) %></span>

@@ -1,12 +1,24 @@
 defmodule SchoolhubWeb.GradeController do
   use SchoolhubWeb, :controller
   
-  alias Schoolhub.{Courses, Grades}
+  alias Schoolhub.{Accounts, Courses, Grades}
   alias Schoolhub.Grades.Grade
 
   def index(conn, %{"course_id" => course_id}) do
     grades = Grades.list_grades(course_id)
-    render(conn, "index.html", grades: grades)
+    displayed_grades = Enum.map(grades, &create_grade_index_display/1)
+    render(conn, "index.html", course_id: course_id, grades: displayed_grades)
+  end
+
+  defp create_grade_index_display(grade) do
+    grade_json = display_grade(grade)
+    name = grade.affiliation_id
+    |> Courses.get_affiliation!()
+    |> Map.fetch!(:user_id)
+    |> Accounts.get_user!()
+    |> Map.fetch!(:name)
+
+    Map.merge(grade_json, %{name: name})
   end
 
   def new(conn, %{"course_id" => course_id, "affiliation_id" => aff_id}) do
