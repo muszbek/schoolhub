@@ -133,8 +133,8 @@ defmodule Schoolhub.CoursesTest do
     end
 
     test "list_course_affiliations/0 returns all course_affiliations" do
-      affiliation = affiliation_fixture()
-      assert Courses.list_course_affiliations() == [affiliation]
+      aff = affiliation_fixture()
+      assert Courses.list_course_affiliations(aff.course_id) == [aff]
     end
 
     test "list_affiliated_courses/1 returns all courses that user is member of" do

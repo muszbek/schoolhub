@@ -8,6 +8,7 @@ defmodule Schoolhub.Grades do
   
   alias Schoolhub.Grades.Grade
   alias Schoolhub.Courses
+  alias Schoolhub.Courses.Affiliation
 
   @doc """
   Returns the list of grades.
@@ -18,8 +19,18 @@ defmodule Schoolhub.Grades do
       [%Grade{}, ...]
 
   """
-  def list_grades do
-    Repo.all(Grade)
+  def list_grades(course_id) do
+    aff_ids = aff_ids_subquery(course_id)
+    
+    Grade
+    |> where([g], g.affiliation_id in subquery(aff_ids))
+    |> Repo.all()
+  end
+
+  defp aff_ids_subquery(course_id) do
+    Affiliation
+    |> where(course_id: ^course_id)
+    |> select([:id])
   end
 
   @doc """

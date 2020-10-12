@@ -75,7 +75,7 @@ defmodule SchoolhubWeb.CourseControllerTest do
       conn = get(conn, Routes.course_path(conn, :show, id))
       assert html_response(conn, 200) =~ "Show Course"
 
-      [_owner_aff = %{id: aff_id}] = Courses.list_course_affiliations()
+      [_owner_aff = %{id: aff_id}] = Courses.list_course_affiliations(id)
       conn = get(conn, Routes.course_affiliation_path(conn, :show, id, aff_id))
       assert html_response(conn, 200) =~ "Show Affiliation"
     end

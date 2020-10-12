@@ -12,7 +12,7 @@ defmodule Schoolhub.GradesTest do
 				      password: "some password"}}
     @valid_course_attrs %{description: "some description", name: "some name"}
     
-    @valid_attrs %{grades: %{some_grade: 1}}
+    @valid_attrs %{grades: %{}}
     @update_attrs %{grades: %{}}
     @invalid_attrs %{grades: nil}
     @add_attrs %{title: "grade"}
@@ -34,7 +34,7 @@ defmodule Schoolhub.GradesTest do
         |> Enum.into(@valid_attrs)
         |> Courses.create_affiliation()
 
-      %{affiliation_id: affiliation.id}
+      %{course_id: course_id, affiliation_id: affiliation.id}
     end
     
     def grade_fixture(attrs \\ %{}) do
@@ -47,10 +47,10 @@ defmodule Schoolhub.GradesTest do
       grade
     end
 
-    test "list_grades/0 returns all grades" do
-      %{affiliation_id: aff_id} = affiliation_fixture()
+    test "list_grades/1 returns all grades" do
+      %{course_id: course_id, affiliation_id: aff_id} = affiliation_fixture()
       %{grade: grade} = Courses.get_affiliation!(aff_id)
-      assert Grades.list_grades() == [grade]
+      assert Grades.list_grades(course_id) == [grade]
     end
 
     test "get_grade!/1 returns the grade with given id" do

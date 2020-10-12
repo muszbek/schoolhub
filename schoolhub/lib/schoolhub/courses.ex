@@ -131,8 +131,9 @@ defmodule Schoolhub.Courses do
       [%Affiliation{}, ...]
 
   """
-  def list_course_affiliations do
+  def list_course_affiliations(course_id) do
     Affiliation
+    |> where(course_id: ^course_id)
     |> Repo.all()
     |> Repo.preload(:grade)
   end

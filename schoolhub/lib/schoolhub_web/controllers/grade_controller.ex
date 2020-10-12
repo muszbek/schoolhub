@@ -4,8 +4,8 @@ defmodule SchoolhubWeb.GradeController do
   alias Schoolhub.{Courses, Grades}
   alias Schoolhub.Grades.Grade
 
-  def index(conn, _params) do
-    grades = Grades.list_grades()
+  def index(conn, %{"course_id" => course_id}) do
+    grades = Grades.list_grades(course_id)
     render(conn, "index.html", grades: grades)
   end
 
@@ -80,13 +80,13 @@ defmodule SchoolhubWeb.GradeController do
       course_id: course_id, affiliation_id: aff_id)
   end
 
-  def delete(conn, %{"id" => id}) do
+  def delete(conn, %{"course_id" => course_id, "id" => id}) do
     grade = Grades.get_grade!(id)
-    {:ok, _grade} = Grades.delete_grade(grade)
+    {:ok, _grade} = Grades.reset_grade(grade)
 
     conn
     |> put_flash(:info, "Grade deleted successfully.")
-    |> redirect(to: Routes.grade_path(conn, :index))
+    |> redirect(to: Routes.course_grade_path(conn, :index, course_id))
   end
 
 

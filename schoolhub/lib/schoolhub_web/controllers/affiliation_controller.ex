@@ -6,7 +6,7 @@ defmodule SchoolhubWeb.AffiliationController do
   alias Schoolhub.Accounts
   
   def index(conn, %{"course_id" => course_id}) do
-    course_affiliations = Courses.list_course_affiliations()
+    course_affiliations = Courses.list_course_affiliations(course_id)
     render(conn, "index.html", course_affiliations: course_affiliations,
       course_id: course_id)
   end

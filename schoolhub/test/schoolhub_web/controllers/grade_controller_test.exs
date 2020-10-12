@@ -104,12 +104,14 @@ defmodule SchoolhubWeb.GradeControllerTest do
   describe "delete grade" do
     setup [:create_affiliation]
 
-    test "deletes chosen grade", %{conn: conn, grade: grade} do
-      conn = delete(conn, Routes.course_affiliation_grade_path(conn, :delete, grade))
-      assert redirected_to(conn) == Routes.course_affiliation_grade_path(conn, :index)
-      assert_error_sent 404, fn ->
-        get(conn, Routes.course_affiliation_grade_path(conn, :show, grade))
-      end
+    test "deletes chosen grade",
+      %{conn: conn, course_id: course_id, affiliation_id: aff_id, grade: grade} do
+      
+      conn = delete(conn, Routes.course_affiliation_grade_path(conn, :delete, course_id, aff_id, grade))
+      assert redirected_to(conn) == Routes.course_grade_path(conn, :index, course_id)
+
+      conn = get(conn, Routes.course_affiliation_grade_path(conn, :show, course_id, aff_id, grade))
+      assert html_response(conn, 200)
     end
   end
 
