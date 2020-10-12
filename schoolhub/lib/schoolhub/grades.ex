@@ -67,7 +67,7 @@ defmodule Schoolhub.Grades do
     |> Map.merge(key_value_pair)
     |> Morphix.atomorphify!()
     
-    new_grade_attrs = %{affiliation_id: grade.affiliation_id, grades: new_grades_map}
+    new_grade_attrs = %{grades: new_grades_map}
 
     update_grade(grade, new_grade_attrs)
   end
@@ -104,6 +104,11 @@ defmodule Schoolhub.Grades do
   """
   def delete_grade(%Grade{} = grade) do
     Repo.delete(grade)
+  end
+
+  def reset_grade(%Grade{} = grade) do
+    new_grade_attrs = %{grades: %{}}
+    update_grade(grade, new_grade_attrs)
   end
 
   @doc """

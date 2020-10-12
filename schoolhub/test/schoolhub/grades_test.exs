@@ -12,7 +12,7 @@ defmodule Schoolhub.GradesTest do
 				      password: "some password"}}
     @valid_course_attrs %{description: "some description", name: "some name"}
     
-    @valid_attrs %{grades: %{}}
+    @valid_attrs %{grades: %{some_grade: 1}}
     @update_attrs %{grades: %{}}
     @invalid_attrs %{grades: nil}
     @add_attrs %{title: "grade"}
@@ -96,6 +96,12 @@ defmodule Schoolhub.GradesTest do
       grade = grade_fixture()
       assert {:ok, %Grade{}} = Grades.delete_grade(grade)
       assert_raise Ecto.NoResultsError, fn -> Grades.get_grade!(grade.id) end
+    end
+
+    test "reset_grade/1 resets the grade" do
+      grade = grade_fixture()
+      assert {:ok, %Grade{} = grade} = Grades.reset_grade(grade)
+      assert grade.grades == %{}
     end
 
     test "change_grade/1 returns a grade changeset" do
