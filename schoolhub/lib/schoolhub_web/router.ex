@@ -35,6 +35,10 @@ defmodule SchoolhubWeb.Router do
     plug :need_assistant_aff
   end
 
+  pipeline :course_self do
+    plug :need_self_aff
+  end
+  
   pipeline :course_member do
     plug :need_aff
   end
@@ -52,6 +56,7 @@ defmodule SchoolhubWeb.Router do
     pipe_through :session
     resources "/users", UserController, only: [:show]
     resources "/courses", CourseController, only: [:index]
+
     
     pipe_through :course_member
     resources "/courses", CourseController, only: [:show] do
@@ -61,6 +66,7 @@ defmodule SchoolhubWeb.Router do
       end
     end
 
+    pipe_through :course_self
     resources "/courses", CourseController, only: [] do
       resources "/affiliations", AffiliationController, only: [] do
 	resources "/grades", GradeController, only: [:show]

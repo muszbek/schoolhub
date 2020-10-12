@@ -28,5 +28,4 @@ chat
 more sophisticated self user api
 
 course disable
-course comment wall
 course members can delete edit their own messages

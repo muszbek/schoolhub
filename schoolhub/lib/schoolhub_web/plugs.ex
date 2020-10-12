@@ -81,6 +81,7 @@ defmodule SchoolhubWeb.Plugs do
     end
   end
 
+  
   def need_assistant_aff(conn, _) do
     course_id = get_course_id(conn)
     user = %{id: user_id} = get_user(conn)
@@ -98,12 +99,42 @@ defmodule SchoolhubWeb.Plugs do
       "assistant" -> conn
       _other ->
 	conn
-	|> Phoenix.Controller.put_flash(:error, "Owner affiliation required")
+	|> Phoenix.Controller.put_flash(:error, "Assistant affiliation required")
 	|> Phoenix.Controller.redirect(to: "/courses/" <> get_course_id(conn))
 	|> halt()
     end
   end
 
+  
+  def need_self_aff(conn, _) do
+    course_id = get_course_id(conn)
+    user = %{id: user_id} = get_user(conn)
+    affiliation = Courses.get_affiliation_by_user!(course_id, user_id)
+
+    conn
+    |> check_if_admin(user)
+    |> check_if_self(affiliation)
+  end
+
+  defp check_if_self({:authorized, conn}, _affiliation), do: conn
+  defp check_if_self({:check, conn}, affiliation) do
+    case affiliation.affiliation do
+      "owner" -> conn
+      "assistant" -> conn
+      _other ->
+	case affiliation.id == get_aff_id(conn) do
+	  true -> conn
+	  _ ->
+	    conn
+	    |> Phoenix.Controller.put_flash(:error, "Assistant affiliation required")
+	    |> Phoenix.Controller.redirect(to: "/courses/" <> get_course_id(conn) <>
+	      "/affiliations")
+	    |> halt()
+	end
+    end
+  end
+
+  
   def need_aff(conn, _) do
     course_id = get_course_id(conn)
     user = %{id: user_id} = get_user(conn)
@@ -119,6 +150,7 @@ defmodule SchoolhubWeb.Plugs do
   ## fetching the affiliation already checks this,
   ## it crashes if there is no affiliation
 
+  
   defp check_if_admin(conn, user) do
     case user.privilege.level do
       "admin" -> {:authorized, conn}
@@ -130,6 +162,13 @@ defmodule SchoolhubWeb.Plugs do
     case conn.path_params do
       %{"course_id" => course_id} -> course_id
       %{"id" => course_id} -> course_id
+    end
+  end
+
+  defp get_aff_id(conn) do
+    case conn.path_params do
+      %{"affiliation_id" => aff_id} -> aff_id
+      _other -> {:error, :session_not_affiliated}
     end
   end
 
