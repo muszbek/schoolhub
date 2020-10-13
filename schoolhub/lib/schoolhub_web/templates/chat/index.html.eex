@@ -1,0 +1,24 @@
+<h1>Listing Users</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+<%= for user <- @users do %>
+    <tr>
+      <td><%= user.name %></td>
+
+      <td>
+        <span><%= link "Chat", to: Routes.course_chat_path(@conn, :chat, @course_id, user) %></span>
+      </td>
+    </tr>
+<% end %>
+  </tbody>
+</table>
+
+<span><%= link "Back", to: Routes.course_path(@conn, :show, @course_id) %></span>

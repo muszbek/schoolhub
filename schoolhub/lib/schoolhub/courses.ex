@@ -8,6 +8,7 @@ defmodule Schoolhub.Courses do
 
   alias Schoolhub.Courses.{Course, Affiliation}
   alias Schoolhub.Grades.Grade
+  alias Schoolhub.Accounts.User
 
   @default_grade %{}
   
@@ -136,6 +137,22 @@ defmodule Schoolhub.Courses do
     |> where(course_id: ^course_id)
     |> Repo.all()
     |> Repo.preload(:grade)
+  end
+
+  def list_affiliated_users(course_id) do
+    user_ids = user_ids_subquery(course_id)
+
+    User
+    |> where([u], u.id in subquery(user_ids))
+    |> Repo.all()
+    |> Repo.preload(:credential)
+    |> Repo.preload(:privilege)
+  end
+
+  defp user_ids_subquery(course_id) do
+    Affiliation
+    |> where(course_id: ^course_id)
+    |> select([:user_id])
   end
 
   @doc """

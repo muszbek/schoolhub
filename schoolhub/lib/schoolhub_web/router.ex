@@ -60,6 +60,8 @@ defmodule SchoolhubWeb.Router do
     
     pipe_through :course_member
     resources "/courses", CourseController, only: [:show] do
+      get "/chat", ChatController, :index
+      get "/chat/:user_id", ChatController, :chat
       resources "/affiliations", AffiliationController, only: [:index, :show]
       resources "/posts", PostController, except: [:edit, :update, :delete] do
 	resources "/replies", ReplyController, except: [:edit, :update, :delete]
