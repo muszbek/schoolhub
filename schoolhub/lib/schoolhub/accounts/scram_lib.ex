@@ -7,10 +7,10 @@ defmodule Schoolhub.Accounts.ScramLib do
 
   alias Ecto.Changeset
   
-  @scram_default_iteration_count 4096
-  @scram_serial_prefix "==SCRAM==,"
+  @scram_default_iteration_count 10000
+  @scram_serial_prefix "==MULTI_SCRAM=="
   @salt_length 16
-  @default_sha_method :sha
+  @sha_methods [:sha, :sha224, :sha256, :sha384, :sha512]
   
   def encode_password_in_changeset(changeset) do
     encoded_pw = encode_password(changeset)
@@ -36,12 +36,17 @@ defmodule Schoolhub.Accounts.ScramLib do
   end
 
   ## Ported from erlang code of mongooseim
-  
+
   defp password_to_scram(password, iteration_count) do
+    prefix = @scram_serial_prefix <> "," <> to_string(iteration_count)
+    Enum.reduce(@sha_methods, prefix,
+      fn x, acc -> acc <> "," <> password_to_scram(password, iteration_count, x) end)
+  end
+  
+  defp password_to_scram(password, iteration_count, hash_type) do
     salt = :crypto.strong_rand_bytes(@salt_length)
-    server_stored_keys = password_to_scram(password, salt, iteration_count, :sha)
-    result_list = server_stored_keys ++ [salt: :base64.encode(salt),
-					 iteration_count: iteration_count |> to_string()]
+    server_stored_keys = password_to_scram(password, salt, iteration_count, hash_type)
+    result_list = server_stored_keys ++ [salt: :base64.encode(salt), hash_type: hash_type]
     serialize(Enum.into(result_list, %{}))
   end
   
@@ -54,13 +59,9 @@ defmodule Schoolhub.Accounts.ScramLib do
      server_key: :base64.encode(server_key)]
   end
 
-  defp salted_password(_hash_type, password, salt, iteration_count) do
+  defp salted_password(hash_type, password, salt, iteration_count) do
     normalized_pw = :stringprep.prepare(password)
-    _salted_pw = do_salt_password(normalized_pw, salt, iteration_count)
-  end
-
-  defp do_salt_password(normalized_pw, salt, iteration_count, sha \\ @default_sha_method) do
-    hi(normalized_pw, salt, iteration_count, sha)
+    _salted_pw = hi(normalized_pw, salt, iteration_count, hash_type)
   end
 
   defp client_key(hash_type, salted_password) do
@@ -75,12 +76,12 @@ defmodule Schoolhub.Accounts.ScramLib do
     :crypto.hmac(hash_type, salted_password, "Server Key")
   end
 
-  defp serialize(%{server_key: server_key,
-		   stored_key: stored_key,
+  defp serialize(%{stored_key: stored_key,
+		   server_key: server_key,
 		   salt: salt,
-		   iteration_count: ic}) do
+		   hash_type: hash_type}) do
     
-    @scram_serial_prefix <> stored_key <> "," <> server_key <> "," <> salt <> "," <> ic
+    sha_prefix(hash_type) <> salt <> "|" <> stored_key <> "|" <> server_key
   end
 
 
@@ -103,5 +104,11 @@ defmodule Schoolhub.Accounts.ScramLib do
     exor = :crypto.exor(uy, uz)
     hi(str, [ux, exor], i, n+1, sha)
   end
+
+  defp sha_prefix(:sha), do: "===SHA1==="
+  defp sha_prefix(:sha224), do: "==SHA224=="
+  defp sha_prefix(:sha256), do: "==SHA256=="
+  defp sha_prefix(:sha384), do: "==SHA384=="
+  defp sha_prefix(:sha512), do: "==SHA512=="
   
 end

@@ -6,8 +6,10 @@ defmodule Schoolhub.AuthStateMachine do
   require Logger
   
   alias Schoolhub.Accounts
-
+  
   @behaviour :gen_statem
+  @scram_prefix "==MULTI_SCRAM=="
+  @sha_prefix "===SHA1==="
 
   defstruct(
     requester: :nil,
@@ -67,7 +69,10 @@ defmodule Schoolhub.AuthStateMachine do
       
       scram_stored ->
 	scram_tokens = String.split(scram_stored, ",")
-	["==SCRAM==", stored_key, server_key, salt, iter_count] = scram_tokens
+	[@scram_prefix, iter_count, sha1, sha224, sha256, sha384, sha512] = scram_tokens
+	@sha_prefix <> sha1_without_prefix = sha1
+	scram_tokens_sha1 = String.split(sha1_without_prefix, "|")
+	[salt, stored_key, server_key] = scram_tokens_sha1
 	
 	snonce = :scramerl.gen_nonce()
 	nonce = cnonce ++ snonce
