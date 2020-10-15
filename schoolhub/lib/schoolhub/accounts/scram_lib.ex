@@ -49,13 +49,13 @@ defmodule Schoolhub.Accounts.ScramLib do
     stored_key = stored_key(hash_type, client_key(hash_type, salted_password))
     server_key = server_key(hash_type, salted_password)
     
-    [server_key: :base64.encode(server_key),
-     stored_key: :base64.encode(stored_key)]
+    [stored_key: :base64.encode(stored_key),
+     server_key: :base64.encode(server_key)]
   end
 
   defp salted_password(_hash_type, password, salt, iteration_count) do
     normalized_pw = :stringprep.prepare(password)
-    _salted_pw = :scramerl_lib.hi(normalized_pw, salt, iteration_count)
+    _salted_pw = hi(normalized_pw, salt, iteration_count)
   end
 
   defp client_key(hash_type, salted_password) do
@@ -76,6 +76,26 @@ defmodule Schoolhub.Accounts.ScramLib do
 		   iteration_count: ic}) do
     
     @scram_serial_prefix <> stored_key <> "," <> server_key <> "," <> salt <> "," <> ic
+  end
+
+
+  defp hi(str, salt, i) when is_list(str), do: hi(to_string(str), salt, i)
+  defp hi(str, salt, i) when is_list(salt), do: hi(str, to_string(salt), i)
+  defp hi(str, salt, 1), do: :crypto.hmac(:sha, str, <<salt :: binary, 0, 0, 0, 1>>)
+  defp hi(str, salt, i) when is_integer(i) and i > 1 do
+    u1 = :crypto.hmac(:sha, str, <<salt :: binary, 0, 0, 0, 1>>)
+    hi(str, [u1], i, 1)
+  end
+
+  defp hi(str, [uy], i, 1) do
+    ux = :crypto.hmac(:sha, str, uy)
+    hi(str, [ux, uy], i, 2)
+  end
+  defp hi(_str, [uy, uz], i , i), do: :crypto.exor(uy, uz)
+  defp hi(str, [uy, uz], i, n) do
+    ux = :crypto.hmac(:sha, str, uy)
+    exor = :crypto.exor(uy, uz)
+    hi(str, [ux, exor], i, n+1)
   end
   
 end
