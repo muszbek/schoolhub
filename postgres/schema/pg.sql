@@ -205,12 +205,17 @@ CREATE TABLE mam_message(
   -- Term-encoded message packet
   message bytea NOT NULL,
   search_body text,
+  origin_id varchar,
   PRIMARY KEY(user_id, id)
 );
 CREATE INDEX i_mam_message_username_jid_id
     ON mam_message
     USING BTREE
     (user_id, remote_bare_jid, id);
+CREATE INDEX i_mam_message_username_jid_origin_id
+    ON mam_message
+    USING BTREE
+    (user_id, remote_bare_jid, origin_id);
 
 CREATE TABLE mam_config(
   user_id INT NOT NULL,
@@ -245,10 +250,12 @@ CREATE TABLE mam_muc_message(
   -- Term-encoded message packet
   message bytea NOT NULL,
   search_body text,
+  origin_id varchar,
   PRIMARY KEY (room_id, id)
 );
 
 CREATE INDEX i_mam_muc_message_sender_id ON mam_muc_message USING BTREE (sender_id);
+CREATE INDEX i_mam_muc_message_room_id_sender_id_origin_id ON mam_muc_message USING BTREE (room_id, sender_id, origin_id);
 
 CREATE TABLE offline_message(
     id SERIAL UNIQUE PRIMARY Key,
@@ -431,3 +438,32 @@ CREATE TABLE mongoose_cluster_id (
     k varchar(50) PRIMARY KEY,
     v text
 );
+
+-- chat marker types:
+-- 'R' - received
+-- 'D' - displayed
+-- 'A' - acknowledged
+CREATE TYPE chat_marker_type AS ENUM('R', 'D', 'A');
+
+CREATE TABLE smart_markers (
+    from_jid VARCHAR(250) NOT NULL,
+    to_jid VARCHAR(250) NOT NULL,
+    thread VARCHAR(250) NOT NULL,
+    type chat_marker_type NOT NULL,
+    msg_id VARCHAR(250) NOT NULL,
+    timestamp BIGINT NOT NULL,
+    PRIMARY KEY(from_jid, to_jid, thread, type)
+);
+
+CREATE INDEX i_smart_markers ON smart_markers(to_jid, thread);
+
+
+CREATE TABLE offline_markers (
+    jid VARCHAR(250) NOT NULL,
+    thread VARCHAR(250) NOT NULL,
+    room VARCHAR(250) NOT NULL,
+    timestamp BIGINT NOT NULL,
+    PRIMARY KEY(jid, thread, room)
+);
+
+CREATE INDEX i_offline_markers ON offline_markers(jid);

@@ -8,6 +8,8 @@ services:
     expose:
       - "5222"
       - "5269"
+      - "5280"
+      - "5285"
     networks:
       schoolhub_network:
         ipv4_address: 10.3.2.1
@@ -27,6 +29,8 @@ services:
     expose:
       - "5222"
       - "5269"
+      - "5280"
+      - "5285"
     networks:
       schoolhub_network:
         ipv4_address: 10.3.2.2
