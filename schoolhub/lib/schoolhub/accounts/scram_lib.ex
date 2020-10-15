@@ -10,6 +10,7 @@ defmodule Schoolhub.Accounts.ScramLib do
   @scram_default_iteration_count 4096
   @scram_serial_prefix "==SCRAM==,"
   @salt_length 16
+  @default_sha_method :sha
   
   def encode_password_in_changeset(changeset) do
     encoded_pw = encode_password(changeset)
@@ -55,7 +56,11 @@ defmodule Schoolhub.Accounts.ScramLib do
 
   defp salted_password(_hash_type, password, salt, iteration_count) do
     normalized_pw = :stringprep.prepare(password)
-    _salted_pw = hi(normalized_pw, salt, iteration_count)
+    _salted_pw = do_salt_password(normalized_pw, salt, iteration_count)
+  end
+
+  defp do_salt_password(normalized_pw, salt, iteration_count, sha \\ @default_sha_method) do
+    hi(normalized_pw, salt, iteration_count, sha)
   end
 
   defp client_key(hash_type, salted_password) do
@@ -79,23 +84,24 @@ defmodule Schoolhub.Accounts.ScramLib do
   end
 
 
-  defp hi(str, salt, i) when is_list(str), do: hi(to_string(str), salt, i)
-  defp hi(str, salt, i) when is_list(salt), do: hi(str, to_string(salt), i)
-  defp hi(str, salt, 1), do: :crypto.hmac(:sha, str, <<salt :: binary, 0, 0, 0, 1>>)
-  defp hi(str, salt, i) when is_integer(i) and i > 1 do
-    u1 = :crypto.hmac(:sha, str, <<salt :: binary, 0, 0, 0, 1>>)
-    hi(str, [u1], i, 1)
+  ## source: https://github.com/pundunlabs/scramerl/blob/master/src/scramerl_lib.erl
+  defp hi(str, salt, i, sha) when is_list(str), do: hi(to_string(str), salt, i, sha)
+  defp hi(str, salt, i, sha) when is_list(salt), do: hi(str, to_string(salt), i, sha)
+  defp hi(str, salt, 1, sha), do: :crypto.hmac(sha, str, <<salt :: binary, 0, 0, 0, 1>>)
+  defp hi(str, salt, i, sha) when is_integer(i) and i > 1 do
+    u1 = :crypto.hmac(sha, str, <<salt :: binary, 0, 0, 0, 1>>)
+    hi(str, [u1], i, 1, sha)
   end
 
-  defp hi(str, [uy], i, 1) do
-    ux = :crypto.hmac(:sha, str, uy)
-    hi(str, [ux, uy], i, 2)
+  defp hi(str, [uy], i, 1, sha) do
+    ux = :crypto.hmac(sha, str, uy)
+    hi(str, [ux, uy], i, 2, sha)
   end
-  defp hi(_str, [uy, uz], i , i), do: :crypto.exor(uy, uz)
-  defp hi(str, [uy, uz], i, n) do
-    ux = :crypto.hmac(:sha, str, uy)
+  defp hi(_str, [uy, uz], i , i, _sha), do: :crypto.exor(uy, uz)
+  defp hi(str, [uy, uz], i, n, sha) do
+    ux = :crypto.hmac(sha, str, uy)
     exor = :crypto.exor(uy, uz)
-    hi(str, [ux, exor], i, n+1)
+    hi(str, [ux, exor], i, n+1, sha)
   end
   
 end
