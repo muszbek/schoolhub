@@ -69,7 +69,7 @@ defmodule Schoolhub.AuthStateMachine do
       
       scram_stored ->
 	scram_tokens = String.split(scram_stored, ",")
-	[@scram_prefix, iter_count, sha1, sha224, sha256, sha384, sha512] = scram_tokens
+	[@scram_prefix, iter_count, sha1, _sha224, _sha256, _sha384, _sha512] = scram_tokens
 	@sha_prefix <> sha1_without_prefix = sha1
 	scram_tokens_sha1 = String.split(sha1_without_prefix, "|")
 	[salt, stored_key, server_key] = scram_tokens_sha1

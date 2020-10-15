@@ -8,6 +8,7 @@ defmodule Schoolhub.Accounts.ScramLib do
   alias Ecto.Changeset
   
   @scram_default_iteration_count 10000
+  @test_iteration_count 10
   @scram_serial_prefix "==MULTI_SCRAM=="
   @salt_length 16
   @sha_methods [:sha, :sha224, :sha256, :sha384, :sha512]
@@ -26,7 +27,7 @@ defmodule Schoolhub.Accounts.ScramLib do
     |> to_string()
   end
   def encode_password(password) when is_list(password) do
-    password_to_scram(password, @scram_default_iteration_count)
+    password_to_scram(password, get_iter_count())
   end
   def encode_password(changeset) do
     changeset
@@ -110,5 +111,13 @@ defmodule Schoolhub.Accounts.ScramLib do
   defp sha_prefix(:sha256), do: "==SHA256=="
   defp sha_prefix(:sha384), do: "==SHA384=="
   defp sha_prefix(:sha512), do: "==SHA512=="
+
+  defp get_iter_count() do
+    if Mix.env() == :test do
+      @test_iteration_count
+    else
+      @scram_default_iteration_count
+    end
+  end
   
 end

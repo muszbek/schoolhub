@@ -89,7 +89,7 @@ defmodule Schoolhub.AccountsTest do
 		    password: "some updated password",
 		    username: "some updated username"}
     @invalid_attrs %{pass_details: nil, password: nil, username: nil, user_id: nil}
-    @scram_prefix "==SCRAM=="
+    @scram_prefix "==MULTI_SCRAM=="
 
     def credential_fixture(attrs \\ %{}) do
       {:ok, user} =
