@@ -23,6 +23,7 @@
     "sasl-scram-sha-1": "git://github.com/muszbek/js-sasl-scram-sha-1",
     "saslmechanisms": "^0.1.1",
     "sass-loader": "^8.0.2",
+    "stanza": "^12.14.7",
     "terser-webpack-plugin": "^2.3.2",
     "webpack": "4.41.5",
     "webpack-cli": "^3.3.2"
