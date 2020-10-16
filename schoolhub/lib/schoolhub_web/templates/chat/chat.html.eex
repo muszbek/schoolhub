@@ -1,7 +1,11 @@
 <h1>Chat</h1>
 
 <strong><%= @user.name %></strong>
+
 <input type="hidden" id="username" name="username" value="<%= @user.credential.username %>">
+<input type="hidden" id="address" name="address" value="10.3.2.1">
+<input type="hidden" id="host" name="host" value="10.3.2.1">
+
 <textarea id="chatbox" name="chatbox" readonly></textarea>
 <textarea id="sendbox" name="sendbox" placeholder="Type here to send a message"></textarea>
 <button type="button" id="send_button" name="send_button" onclick="send_msg()">Send</button>
