@@ -10,8 +10,8 @@ const client = XMPP.createClient({
     server: host,
     
     transports: {
-        websocket: 'ws://10.3.2.1:5280/ws-xmpp',
-        bosh: 'http://10.3.2.1:5280/http-bind'
+        websocket: 'ws://' + host + ':5280/ws-xmpp',
+        bosh: 'http://' + host + ':5280/http-bind'
     }
 });
 
@@ -42,8 +42,9 @@ send_msg = function() {
 	to: jid,
 	body: msg
     });
-    
-    var to_print = jid + " -> " + msg;
+
+    var self_jid = self + '@' + domain;
+    var to_print = self_jid + " -> " + msg;
     print(to_print);
     document.getElementById("sendbox").value = "";
 };
