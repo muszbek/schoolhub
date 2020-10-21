@@ -2,10 +2,12 @@ const XMPP = require('stanza');
 const server_address = document.getElementById("address").value;
 const host_name = document.getElementById("host").value;
 const username = document.getElementById("username").value;
+const self = document.getElementById("self").value;
 
 const client = XMPP.createClient({
-    jid: 'admin' + '@' + host_name,
-    password: 'admin',
+    jid: self + '@' + host_name,
+    password: self,
+    server: server_address,
     
     transports: {
         websocket: 'ws://10.3.2.1:5280/ws-xmpp',
