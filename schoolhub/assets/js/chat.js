@@ -1,13 +1,13 @@
 const XMPP = require('stanza');
-const server_address = document.getElementById("address").value;
-const host_name = document.getElementById("host").value;
+const host = document.getElementById("host").value;
+const domain = document.getElementById("domain").value;
 const username = document.getElementById("username").value;
 const self = document.getElementById("self").value;
 
 const client = XMPP.createClient({
-    jid: self + '@' + host_name,
+    jid: self + '@' + domain,
     password: self,
-    server: server_address,
+    server: host,
     
     transports: {
         websocket: 'ws://10.3.2.1:5280/ws-xmpp',
@@ -33,7 +33,7 @@ client.connect();
 
 send_msg = function() {
     console.log("sending message...");
-    var jid = username + '@' + host_name;
+    var jid = username + '@' + domain;
     var msg = document.getElementById("sendbox").value;
     if (msg == "")
 	return;
