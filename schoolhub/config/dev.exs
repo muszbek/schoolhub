@@ -19,6 +19,12 @@ config :schoolhub, Schoolhub.Repo,
 # with webpack to recompile .js and .css sources.
 config :schoolhub, SchoolhubWeb.Endpoint,
   http: [port: 4000],
+  https: [
+    port: 4001,
+    cipher_suite: :strong,
+    keyfile: "priv/cert/schoolhub.key",
+    certfile: "priv/cert/schoolhub.crt"
+  ],
   debug_errors: true,
   code_reloader: true,
   check_origin: false,

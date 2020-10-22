@@ -72,7 +72,8 @@ services:
     image: haproxy
     hostname: schoolhub
     expose:
-      - "8080"
+      - "4000"
+      - "4001"
       - "8404"
     networks:
       schoolhub_network:
