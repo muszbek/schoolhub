@@ -1,0 +1,30 @@
+<h1>Listing Files</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Filename</th>
+      <th>Data</th>
+      <th>Size</th>
+
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+<%= for file <- @files do %>
+    <tr>
+      <td><%= file.filename %></td>
+      <td><%= file.data %></td>
+      <td><%= file.size %></td>
+
+      <td>
+        <span><%= link "Show", to: Routes.file_path(@conn, :show, file) %></span>
+        <span><%= link "Edit", to: Routes.file_path(@conn, :edit, file) %></span>
+        <span><%= link "Delete", to: Routes.file_path(@conn, :delete, file), method: :delete, data: [confirm: "Are you sure?"] %></span>
+      </td>
+    </tr>
+<% end %>
+  </tbody>
+</table>
+
+<span><%= link "New File", to: Routes.file_path(@conn, :new) %></span>

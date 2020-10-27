@@ -1,0 +1,23 @@
+<h1>Show File</h1>
+
+<ul>
+
+  <li>
+    <strong>Filename:</strong>
+    <%= @file.filename %>
+  </li>
+
+  <li>
+    <strong>Data:</strong>
+    <%= @file.data %>
+  </li>
+
+  <li>
+    <strong>Size:</strong>
+    <%= @file.size %>
+  </li>
+
+</ul>
+
+<span><%= link "Edit", to: Routes.file_path(@conn, :edit, @file) %></span>
+<span><%= link "Back", to: Routes.file_path(@conn, :index) %></span>
