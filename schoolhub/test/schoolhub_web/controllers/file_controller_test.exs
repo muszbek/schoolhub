@@ -56,8 +56,9 @@ defmodule SchoolhubWeb.FileControllerTest do
   describe "create file" do
     setup [:create_course]
     
-    test "redirects to show when data is valid", %{conn: conn, course_id: course_id} do
-      conn = post(conn, Routes.course_file_path(conn, :create, course_id), file: @create_attrs)
+    test "redirects to show when data is valid", %{conn: conn, course_id: course_id, uploader: uploader} do
+      file_attrs = create_valid_attrs(@create_attrs, course_id, uploader)
+      conn = post(conn, Routes.course_file_path(conn, :create, course_id), file: file_attrs)
 
       assert %{id: id} = redirected_params(conn)
       assert redirected_to(conn) == Routes.course_file_path(conn, :show, course_id, id)
