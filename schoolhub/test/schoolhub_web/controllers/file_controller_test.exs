@@ -76,7 +76,7 @@ defmodule SchoolhubWeb.FileControllerTest do
     setup [:create_course]
     setup [:create_file]
 
-    test "renders form for editing chosen file", %{conn: conn, course_id: course_id, file: file} do
+    test "renders form for editing chosen file", %{conn: conn, course_id: course_id, course_file: file} do
       conn = get(conn, Routes.course_file_path(conn, :edit, course_id, file))
       assert html_response(conn, 200) =~ "Edit File"
     end
@@ -86,7 +86,7 @@ defmodule SchoolhubWeb.FileControllerTest do
     setup [:create_course]
     setup [:create_file]
 
-    test "redirects when data is valid", %{conn: conn, course_id: course_id, file: file} do
+    test "redirects when data is valid", %{conn: conn, course_id: course_id, course_file: file} do
       conn = put(conn, Routes.course_file_path(conn, :update, course_id, file), file: @update_attrs)
       assert redirected_to(conn) == Routes.course_file_path(conn, :show, course_id, file)
 
@@ -94,7 +94,7 @@ defmodule SchoolhubWeb.FileControllerTest do
       assert html_response(conn, 200) =~ "some updated filename"
     end
 
-    test "renders errors when data is invalid", %{conn: conn, course_id: course_id, file: file} do
+    test "renders errors when data is invalid", %{conn: conn, course_id: course_id, course_file: file} do
       conn = put(conn, Routes.course_file_path(conn, :update, course_id, file), file: @invalid_attrs)
       assert html_response(conn, 200) =~ "Edit File"
     end
@@ -104,7 +104,7 @@ defmodule SchoolhubWeb.FileControllerTest do
     setup [:create_course]
     setup [:create_file]
 
-    test "deletes chosen file", %{conn: conn, course_id: course_id, file: file} do
+    test "deletes chosen file", %{conn: conn, course_id: course_id, course_file: file} do
       conn = delete(conn, Routes.course_file_path(conn, :delete, course_id, file))
       assert redirected_to(conn) == Routes.course_file_path(conn, :index, course_id)
       assert_error_sent 404, fn ->
@@ -116,7 +116,7 @@ defmodule SchoolhubWeb.FileControllerTest do
   
   defp create_file(%{course_id: course_id, uploader: uploader}) do
     file = fixture(:file, course_id, uploader)
-    %{file: file}
+    %{course_file: file}
   end
     
   defp create_course(%{conn: conn}) do
