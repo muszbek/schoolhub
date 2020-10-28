@@ -19,5 +19,5 @@
 
 </ul>
 
-<span><%= link "Edit", to: Routes.file_path(@conn, :edit, @file) %></span>
-<span><%= link "Back", to: Routes.file_path(@conn, :index) %></span>
+<span><%= link "Edit", to: Routes.course_file_path(@conn, :edit, @course_id, @file) %></span>
+<span><%= link "Back", to: Routes.course_file_path(@conn, :index, @course_id) %></span>

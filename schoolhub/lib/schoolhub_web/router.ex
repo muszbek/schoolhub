@@ -66,6 +66,7 @@ defmodule SchoolhubWeb.Router do
       resources "/posts", PostController, except: [:edit, :update, :delete] do
 	resources "/replies", ReplyController, except: [:edit, :update, :delete]
       end
+      resources "/files", FileController, except: [:edit, :update, :delete]
     end
 
     pipe_through :course_self
@@ -86,6 +87,8 @@ defmodule SchoolhubWeb.Router do
 	resources "/replies", ReplyController, only: [:edit, :update, :delete]
 	put "/pin", PostController, :pin
       end
+
+      resources "/files", FileController, only: [:edit, :update, :delete]
     end
 
     pipe_through :course_owner
