@@ -28,3 +28,4 @@
 </table>
 
 <span><%= link "New File", to: Routes.course_file_path(@conn, :new, @course_id) %></span>
+<span><%= link "Back", to: Routes.course_path(@conn, :show, @course_id) %></span>

@@ -1,6 +1,6 @@
 defmodule SchoolhubWeb.FileController do
   use SchoolhubWeb, :controller
-
+  
   alias Schoolhub.Files
   alias Schoolhub.Files.File
 
@@ -15,7 +15,12 @@ defmodule SchoolhubWeb.FileController do
   end
 
   def create(conn, %{"course_id" => course_id, "file" => file_params}) do
-    case Files.create_file(file_params) do
+    user_id = get_session(conn, :user_id)
+    file_params_with_uploader = file_params
+    |> Map.put("uploader", user_id)
+    |> Morphix.atomorphify!()
+    
+    case Files.create_file(file_params_with_uploader) do
       {:ok, file} ->
         conn
         |> put_flash(:info, "File created successfully.")

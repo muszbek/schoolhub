@@ -5,6 +5,8 @@
     </div>
   <% end %>
 
+  <%= hidden_input f, :course_id, value: @course_id %>
+  
   <%= label f, :filename %>
   <%= text_input f, :filename %>
   <%= error_tag f, :filename %>
