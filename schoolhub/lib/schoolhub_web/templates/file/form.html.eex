@@ -1,4 +1,4 @@
-<%= form_for @changeset, @action, fn f -> %>
+<%= form_for @changeset, @action, [multipart: true], fn f -> %>
   <%= if @changeset.action do %>
     <div class="alert alert-danger">
       <p>Oops, something went wrong! Please check the errors below.</p>
@@ -6,18 +6,10 @@
   <% end %>
 
   <%= hidden_input f, :course_id, value: @course_id %>
-  
-  <%= label f, :filename %>
-  <%= text_input f, :filename %>
-  <%= error_tag f, :filename %>
 
   <%= label f, :data %>
-  <%= text_input f, :data %>
+  <%= file_input f, :data %>
   <%= error_tag f, :data %>
-
-  <%= label f, :size %>
-  <%= number_input f, :size, step: "any" %>
-  <%= error_tag f, :size %>
 
   <div>
     <%= submit "Save" %>

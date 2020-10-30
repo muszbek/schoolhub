@@ -1,8 +1,9 @@
 defmodule SchoolhubWeb.FileController do
   use SchoolhubWeb, :controller
-  
+
+  alias File, as: BuiltinFile
   alias Schoolhub.Files
-  alias Schoolhub.Files.File
+  alias Schoolhub.Files.File, as: CourseFile
 
   def index(conn, %{"course_id" => course_id}) do
     files = Files.list_files()
@@ -10,17 +11,23 @@ defmodule SchoolhubWeb.FileController do
   end
 
   def new(conn, %{"course_id" => course_id}) do
-    changeset = Files.change_file(%File{})
+    changeset = Files.change_file(%CourseFile{})
     render(conn, "new.html", changeset: changeset, course_id: course_id)
   end
 
-  def create(conn, %{"course_id" => course_id, "file" => file_params}) do
+  def create(conn, %{"course_id" => course_id, "file" => file_params = %{"data" => file_data}}) do
     user_id = get_session(conn, :user_id)
-    file_params_with_uploader = file_params
+    {:ok, binary_content} = BuiltinFile.read(file_data.path)
+    {:ok, %{size: size}} = BuiltinFile.stat(file_data.path)
+    
+    file_params_with_data = file_params
     |> Map.put("uploader", user_id)
+    |> Map.put("filename", file_data.filename)
+    |> Map.put("data", binary_content)
+    |> Map.put("size", size)
     |> Morphix.atomorphify!()
     
-    case Files.create_file(file_params_with_uploader) do
+    case Files.create_file(file_params_with_data) do
       {:ok, file} ->
         conn
         |> put_flash(:info, "File created successfully.")
