@@ -104,6 +104,15 @@ defmodule Schoolhub.Files do
     File.changeset(file, attrs)
   end
 
+  def display_size(size) when is_float(size), do: size |> do_display_size()
+
+  defp do_display_size(size) when size < 1024, do: size_string(size) <> " bytes"
+  defp do_display_size(size) when size < 1048576, do: size_string(size / 1024) <> " kB"
+  defp do_display_size(size) when size < 1073741824, do: size_string(size / 1048576) <> " MB"
+  defp do_display_size(size), do: size_string(size / 1073741824) <> " GB"
+
+  defp size_string(size), do: :erlang.float_to_binary(size, decimals: 0)
+
 
   @doc """
   Returns the list of file_data.

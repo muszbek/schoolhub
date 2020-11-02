@@ -14,7 +14,7 @@
 
   <li>
     <strong>Size:</strong>
-    <%= @file.size %>
+    <%= Schoolhub.Files.display_size(@file.size) %>
   </li>
 
 </ul>

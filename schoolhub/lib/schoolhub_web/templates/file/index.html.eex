@@ -15,7 +15,7 @@
     <tr>
       <td><%= file.filename %></td>
       <td><%= Schoolhub.Accounts.get_user!(file.uploader).name %></td>
-      <td><%= file.size %></td>
+      <td><%= Schoolhub.Files.display_size(file.size) %></td>
 
       <td>
         <span><%= link "Show", to: Routes.course_file_path(@conn, :show, @course_id, file) %></span>
