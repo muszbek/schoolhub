@@ -4,9 +4,10 @@ defmodule Schoolhub.Files.File do
 
   alias Schoolhub.Courses.Course
   alias Schoolhub.Accounts.User
+  alias Schoolhub.Files.FileData
   
   schema "files" do
-    field :data, :binary
+    has_one :file_data, FileData, on_replace: :update
     field :filename, :string
     field :size, :float
     belongs_to :course, Course
@@ -19,8 +20,8 @@ defmodule Schoolhub.Files.File do
   @doc false
   def changeset(file, attrs) do
     file
-    |> cast(attrs, [:filename, :data, :size, :course_id, :uploader])
-    |> validate_required([:filename, :data, :size, :course_id])
+    |> cast(attrs, [:filename, :size, :course_id, :uploader])
+    |> validate_required([:filename, :size, :course_id])
     |> unique_constraint(:filename)
     |> foreign_key_constraint(:course_id)
     |> foreign_key_constraint(:uploader)

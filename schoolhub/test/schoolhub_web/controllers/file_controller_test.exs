@@ -3,9 +3,14 @@ defmodule SchoolhubWeb.FileControllerTest do
 
   alias Schoolhub.{Accounts, Courses, Privileges, Files}
 
-  @create_attrs %{data: "some data", filename: "some filename", size: 120.5}
-  @update_attrs %{data: "some updated data", filename: "some updated filename", size: 456.7}
-  @invalid_attrs %{data: nil, filename: nil, size: nil}
+  @test_path "test/priv/test_file"
+  @test_filename "test_file"
+  @create_attrs %{filename: "some filename",
+		  size: 120.5,
+		  file_data: %{data: "some data"}}
+  @update_attrs %{filename: "some updated filename",
+		  size: 456.7}
+  @invalid_attrs %{filename: nil, size: nil}
 
   @create_user_attrs %{email: "some email",
 		       name: "some name",
@@ -56,8 +61,8 @@ defmodule SchoolhubWeb.FileControllerTest do
   describe "create file" do
     setup [:create_course]
     
-    test "redirects to show when data is valid", %{conn: conn, course_id: course_id, uploader: uploader} do
-      file_attrs = create_valid_attrs(@create_attrs, course_id, uploader)
+    test "redirects to show when data is valid", %{conn: conn, course_id: course_id} do
+      file_attrs = %{course_id: course_id, data: create_upload(@test_filename)}
       conn = post(conn, Routes.course_file_path(conn, :create, course_id), file: file_attrs)
 
       assert %{id: id} = redirected_params(conn)
@@ -68,7 +73,8 @@ defmodule SchoolhubWeb.FileControllerTest do
     end
 
     test "renders errors when data is invalid", %{conn: conn, course_id: course_id} do
-      conn = post(conn, Routes.course_file_path(conn, :create, course_id), file: @invalid_attrs)
+      file_attrs = %{course_id: course_id, data: create_upload()}
+      conn = post(conn, Routes.course_file_path(conn, :create, course_id), file: file_attrs)
       assert html_response(conn, 200) =~ "New File"
     end
   end
@@ -130,5 +136,10 @@ defmodule SchoolhubWeb.FileControllerTest do
     |> Map.put("course_id", course_id)
     |> Map.put("uploader", uploader)
     |> Morphix.atomorphify!()
+  end
+
+  defp create_upload(), do: create_upload(nil)
+  defp create_upload(filename) do
+    %Plug.Upload{path: @test_path, filename: filename}
   end
 end

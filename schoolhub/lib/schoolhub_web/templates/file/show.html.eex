@@ -8,8 +8,8 @@
   </li>
 
   <li>
-    <strong>Data:</strong>
-    <%= @file.data %>
+    <strong>Uploader:</strong>
+    <%= Schoolhub.Accounts.get_user!(@file.uploader).name %>
   </li>
 
   <li>
@@ -19,5 +19,4 @@
 
 </ul>
 
-<span><%= link "Edit", to: Routes.course_file_path(@conn, :edit, @course_id, @file) %></span>
 <span><%= link "Back", to: Routes.course_file_path(@conn, :index, @course_id) %></span>

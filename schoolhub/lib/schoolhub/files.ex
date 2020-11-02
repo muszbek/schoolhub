@@ -6,7 +6,7 @@ defmodule Schoolhub.Files do
   import Ecto.Query, warn: false
   alias Schoolhub.Repo
 
-  alias Schoolhub.Files.File
+  alias Schoolhub.Files.{File, FileData}
 
   @doc """
   Returns the list of files.
@@ -52,6 +52,7 @@ defmodule Schoolhub.Files do
   def create_file(attrs \\ %{}) do
     %File{}
     |> File.changeset(attrs)
+    |> Ecto.Changeset.cast_assoc(:file_data, with: &FileData.changeset/2)
     |> Repo.insert()
   end
 
@@ -70,6 +71,7 @@ defmodule Schoolhub.Files do
   def update_file(%File{} = file, attrs) do
     file
     |> File.changeset(attrs)
+    |> Ecto.Changeset.cast_assoc(:file_data, with: &FileData.changeset/2)
     |> Repo.update()
   end
 
@@ -100,5 +102,100 @@ defmodule Schoolhub.Files do
   """
   def change_file(%File{} = file, attrs \\ %{}) do
     File.changeset(file, attrs)
+  end
+
+
+  @doc """
+  Returns the list of file_data.
+
+  ## Examples
+
+      iex> list_file_data()
+      [%FileData{}, ...]
+
+  """
+  def list_file_data do
+    Repo.all(FileData)
+  end
+
+  @doc """
+  Gets a single file_data.
+
+  Raises `Ecto.NoResultsError` if the File data does not exist.
+
+  ## Examples
+
+      iex> get_file_data!(123)
+      %FileData{}
+
+      iex> get_file_data!(456)
+      ** (Ecto.NoResultsError)
+
+  """
+  def get_file_data!(id), do: Repo.get!(FileData, id)
+
+  @doc """
+  Creates a file_data.
+
+  ## Examples
+
+      iex> create_file_data(%{field: value})
+      {:ok, %FileData{}}
+
+      iex> create_file_data(%{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def create_file_data(attrs \\ %{}) do
+    %FileData{}
+    |> FileData.changeset(attrs)
+    |> Repo.insert()
+  end
+
+  @doc """
+  Updates a file_data.
+
+  ## Examples
+
+      iex> update_file_data(file_data, %{field: new_value})
+      {:ok, %FileData{}}
+
+      iex> update_file_data(file_data, %{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def update_file_data(%FileData{} = file_data, attrs) do
+    file_data
+    |> FileData.changeset(attrs)
+    |> Repo.update()
+  end
+
+  @doc """
+  Deletes a file_data.
+
+  ## Examples
+
+      iex> delete_file_data(file_data)
+      {:ok, %FileData{}}
+
+      iex> delete_file_data(file_data)
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def delete_file_data(%FileData{} = file_data) do
+    Repo.delete(file_data)
+  end
+
+  @doc """
+  Returns an `%Ecto.Changeset{}` for tracking file_data changes.
+
+  ## Examples
+
+      iex> change_file_data(file_data)
+      %Ecto.Changeset{data: %FileData{}}
+
+  """
+  def change_file_data(%FileData{} = file_data, attrs \\ %{}) do
+    FileData.changeset(file_data, attrs)
   end
 end

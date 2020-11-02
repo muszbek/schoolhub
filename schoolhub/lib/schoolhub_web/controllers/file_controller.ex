@@ -23,7 +23,7 @@ defmodule SchoolhubWeb.FileController do
     file_params_with_data = file_params
     |> Map.put("uploader", user_id)
     |> Map.put("filename", file_data.filename)
-    |> Map.put("data", binary_content)
+    |> Map.put("file_data", %{data: binary_content})
     |> Map.put("size", size)
     |> Morphix.atomorphify!()
     
@@ -70,5 +70,10 @@ defmodule SchoolhubWeb.FileController do
     conn
     |> put_flash(:info, "File deleted successfully.")
     |> redirect(to: Routes.course_file_path(conn, :index, course_id))
+  end
+
+
+  def download(conn, %{"course_id" => course_id, "id" => id}) do
+    
   end
 end
