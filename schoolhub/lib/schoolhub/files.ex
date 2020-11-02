@@ -134,6 +134,8 @@ defmodule Schoolhub.Files do
   """
   def get_file_data!(id), do: Repo.get!(FileData, id)
 
+  def get_file_data_by_file!(file_id), do: Repo.get_by!(FileData, file_id: file_id)
+
   @doc """
   Creates a file_data.
 

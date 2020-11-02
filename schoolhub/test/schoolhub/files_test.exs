@@ -96,17 +96,40 @@ defmodule Schoolhub.FilesTest do
   describe "file_data" do
     alias Schoolhub.Files.FileData
 
+    @valid_user_attrs %{email: "some email",
+			name: "some name",
+			credential: %{username: "some username",
+				      password: "some password"}}
+    @valid_course_attrs %{description: "some description", name: "some name"}
+
+    @valid_file_attrs %{filename: "some filename",
+			size: 120.5,
+			file_data: %{data: "some data"}}
+    
     @valid_attrs %{data: "some data"}
     @update_attrs %{data: "some updated data"}
     @invalid_attrs %{data: nil}
 
+    
     def file_data_fixture(attrs \\ %{}) do
-      {:ok, file_data} =
-        attrs
-        |> Enum.into(@valid_attrs)
-        |> Files.create_file_data()
+      {:ok, _user = %{id: user_id}} =
+        %{}
+        |> Enum.into(@valid_user_attrs)
+        |> Accounts.create_user()
+      
+      {:ok, _course = %{id: course_id}} =
+        %{}
+        |> Enum.into(%{creator: user_id})
+        |> Enum.into(@valid_course_attrs)
+        |> Courses.create_course()
 
-      file_data
+      {:ok, file} =
+        attrs
+        |> Enum.into(%{course_id: course_id, uploader: user_id})
+        |> Enum.into(@valid_file_attrs)
+        |> Files.create_file()
+
+      Files.get_file_data_by_file!(file.id)
     end
 
     test "list_file_data/0 returns all file_data" do
@@ -119,8 +142,17 @@ defmodule Schoolhub.FilesTest do
       assert Files.get_file_data!(file_data.id) == file_data
     end
 
+    test "get_file_data_by_file!/1 returns the file_data with given file_id" do
+      file_data = file_data_fixture()
+      assert Files.get_file_data_by_file!(file_data.file_id) == file_data
+    end
+
     test "create_file_data/1 with valid data creates a file_data" do
-      assert {:ok, %FileData{} = file_data} = Files.create_file_data(@valid_attrs)
+      some_file_data = file_data_fixture()
+      %{file_id: file_id} = some_file_data
+      valid_attrs = Enum.into(%{file_id: file_id}, @valid_attrs)
+      
+      assert {:ok, %FileData{} = file_data} = Files.create_file_data(valid_attrs)
       assert file_data.data == "some data"
     end
 
