@@ -73,7 +73,9 @@ defmodule SchoolhubWeb.FileController do
   end
 
 
-  def download(conn, %{"course_id" => course_id, "id" => id}) do
-    
+  def download(conn, %{"course_id" => _course_id, "id" => file_id}) do
+    %{filename: filename} = Files.get_file!(file_id)
+    %{data: content} = Files.get_file_data_by_file!(file_id)
+    send_download(conn, {:binary, content}, [filename: filename])
   end
 end

@@ -19,4 +19,5 @@
 
 </ul>
 
+<span><%= link "Download", to: Routes.course_file_path(@conn, :download, @course_id, @file) %></span>
 <span><%= link "Back", to: Routes.course_file_path(@conn, :index, @course_id) %></span>

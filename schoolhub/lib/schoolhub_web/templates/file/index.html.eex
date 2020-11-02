@@ -19,6 +19,7 @@
 
       <td>
         <span><%= link "Show", to: Routes.course_file_path(@conn, :show, @course_id, file) %></span>
+	<span><%= link "Download", to: Routes.course_file_path(@conn, :download, @course_id, file) %></span>
         <span><%= link "Delete", to: Routes.course_file_path(@conn, :delete, @course_id, file), method: :delete, data: [confirm: "Are you sure?"] %></span>
       </td>
     </tr>

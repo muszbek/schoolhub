@@ -67,6 +67,7 @@ defmodule SchoolhubWeb.Router do
 	resources "/replies", ReplyController, except: [:edit, :update, :delete]
       end
       resources "/files", FileController, except: [:edit, :update, :delete]
+      get "/files/download/:id", FileController, :download
     end
 
     pipe_through :course_self

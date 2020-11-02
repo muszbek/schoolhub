@@ -120,6 +120,17 @@ defmodule SchoolhubWeb.FileControllerTest do
     end
   end
 
+  describe "download file" do
+    setup [:create_course]
+    setup [:create_file]
+
+    test "downloads chosen file", %{conn: conn, course_id: course_id, course_file: file} do
+      conn = get(conn, Routes.course_file_path(conn, :download, course_id, file))
+      ## TODO: check more explicitely for content type: application/octet-stream
+      assert response(conn, 200) =~ "some data"
+    end
+  end
+
   
   defp create_file(%{course_id: course_id, uploader: uploader}) do
     file = fixture(:file, course_id, uploader)
