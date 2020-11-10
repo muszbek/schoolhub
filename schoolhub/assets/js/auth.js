@@ -6,7 +6,7 @@ const stanzas = new XMPP.JXT.Registry();
 const requestTokenIq = stanzas.define({
     name: 'requestToken',
     element: 'query',
-    path: 'requestToken',
+    path: 'iq.requestToken',
     namespace: 'erlang-solutions.com:xmpp:token-auth:0'
 });
 
@@ -102,7 +102,7 @@ function authXMPP(creds) {
 	}
     });
 
-    client.on('iq', iq => {
+    client.on('raw:outgoing', iq => {
 	console.log(iq);
     });
 
@@ -111,11 +111,7 @@ function authXMPP(creds) {
     var promise = waitForEventWithTimeout(client, 'session:started', 2000);
     promise.then(() => {
 	console.log("session started");
-	var myIq = stanzas.export('requestToken', {
-	    to: jid,
-	    type: 'get',
-	    requestToken: {}
-	});
+	var myIq = stanzas.export('iq.requestToken', {});
 	console.log(myIq.toString());
 				  
 	client.sendIQ({

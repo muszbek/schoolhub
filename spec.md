@@ -29,6 +29,8 @@
 - Organizatinal permanent polls that show on message board.
 - Poll page, for quick polls in class. Either persist or disappear.
   - Elixir, MongooseMQ push
+  
+- Create exams, submit files with deadline
 
 #Client
 
