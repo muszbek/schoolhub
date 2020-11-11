@@ -42,4 +42,3 @@ sudo apt-get install inotify-tools
 
 # deploy:
 fix mongooseim version, check with new config locations
-add assets/package-lock.json to gitignore
