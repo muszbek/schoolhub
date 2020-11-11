@@ -39,6 +39,3 @@ sudo chown 999:999 schoolhub.key
 sudo chmod 0600 schoolhub.key
 
 sudo apt-get install inotify-tools
-
-# deploy:
-fix mongooseim version, check with new config locations
