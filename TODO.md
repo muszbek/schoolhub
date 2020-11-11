@@ -31,3 +31,15 @@ more sophisticated self user api
 
 course disable
 course members can delete edit their own messages
+
+
+# launch:
+in ssl:
+sudo chown 999:999 schoolhub.key
+sudo chmod 0600 schoolhub.key
+
+sudo apt-get install inotify-tools
+
+# deploy:
+fix mongooseim version, check with new config locations
+add assets/package-lock.json to gitignore
