@@ -3,11 +3,25 @@ const csrfToken = document.head.querySelector("[name~=csrf-token][content]").con
 
 const XMPP = require('stanza');
 const stanzas = new XMPP.JXT.Registry();
-const requestTokenIq = stanzas.define({
-    name: 'requestToken',
+const tokenNS = 'erlang-solutions.com:xmpp:token-auth:0';
+
+const requestTokenIq = XMPP.JXT.extendIQ({
     element: 'query',
+    namespace: tokenNS,
+    path: 'iq.requestToken'
+});
+stanzas.define(requestTokenIq);
+
+stanzas.define({
+    name: 'requestToken',
+    element: 'iq',
     path: 'iq.requestToken',
-    namespace: 'erlang-solutions.com:xmpp:token-auth:0'
+    fields: {
+	to: XMPP.JXT.attribute('to'),
+	type: XMPP.JXT.attribute('type'),
+	id: XMPP.JXT.attribute('id'),
+	query: XMPP.JXT.childAttribute(tokenNS, 'query')
+    }
 });
 
 
@@ -111,7 +125,7 @@ function authXMPP(creds) {
     var promise = waitForEventWithTimeout(client, 'session:started', 2000);
     promise.then(() => {
 	console.log("session started");
-	var myIq = stanzas.export('iq.requestToken', {});
+	var myIq = stanzas.export('iq.requestToken', {to: jid, type: 'get', id: client.nextId(), query: null});
 	console.log(myIq.toString());
 				  
 	client.sendIQ({
