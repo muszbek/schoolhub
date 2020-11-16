@@ -45,9 +45,9 @@ login = function() {
 	    addResult(form, 'result', authResult);
 	    addResult(form, 'username', creds.username);
 	    
-	    authXMPP(creds);
+	    //authXMPP(creds);
 	    
-	    //form.submit();
+	    form.submit();
 	})
 };
 
@@ -125,7 +125,8 @@ function authXMPP(creds) {
     var promise = waitForEventWithTimeout(client, 'session:started', 2000);
     promise.then(() => {
 	console.log("session started");
-	var myIq = stanzas.export('iq.requestToken', {to: jid, type: 'get', id: client.nextId(), query: null});
+	var tokenIq = {to: jid, type: 'get', id: client.nextId(), query: null}
+	var myIq = stanzas.export('iq.requestToken', tokenIq);
 	console.log(myIq.toString());
 				  
 	client.sendIQ({

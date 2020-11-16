@@ -1,47 +1,62 @@
-const XMPP = require('stanza');
+import "regenerator-runtime/runtime"
+
+document.getElementById("send_button").addEventListener("click", send_msg, false);
+
+const {client, xml} = require("@xmpp/client");
 const host = document.getElementById("host").value;
 const domain = document.getElementById("domain").value;
 const username = document.getElementById("username").value;
 const self = document.getElementById("self").value;
 
-const client = XMPP.createClient({
-    jid: self + '@' + domain,
-    password: self,
-    server: host,
-    
-    transports: {
-        websocket: 'ws://' + host + ':5280/ws-xmpp',
-        bosh: 'http://' + host + ':5280/http-bind'
-    }
+const xmpp = client({
+    service: 'ws://' + host + ':5280/ws-xmpp',
+    domain: domain,
+    username: self,
+    password: self
 });
 
-client.on('session:started', () => {
+xmpp.on("error", (err) => {
+    console.error(err);
+});
+
+xmpp.on('online', async (address) => {
     console.log("session started");
-    client.getRoster();
-    client.sendPresence();
+    await xmpp.send(xml("presence"));
+
+    const message = xml(
+	"message",
+	{type: "chat", to: address},
+	xml("body", {}, "hello world")
+    );
+    await xmpp.send(message);
 });
 
-client.on('chat', msg => {
-    console.log("got message: " + msg.body);
-    var from = msg.from.substr(0, msg.from.indexOf('/'));
-    var to_print = from + " -> " + msg.body;
+xmpp.on('stanza', (stanza) => {
+    console.log("got stanza: " + stanza.toString());
+    if (!stanza.is('message')) return;
+
+    var from_long = stanza.attrs.from;
+    var from = from_long.substr(0, from_long.indexOf('/'));
+    var to_print = from + " -> " + stanza.getChildText("body");
     print(to_print);
 });
 
-client.connect();
+xmpp.start().catch(console.error);
 
 
-send_msg = function() {
+async function send_msg() {
     console.log("sending message...");
     var jid = username + '@' + domain;
     var msg = document.getElementById("sendbox").value;
     if (msg == "")
 	return;
-    
-    client.sendMessage({
-	to: jid,
-	body: msg
-    });
+
+    const message = xml(
+	"message",
+	{type: "chat", to: jid},
+	xml("body", {}, msg)
+    );
+    await xmpp.send(message);
 
     var self_jid = self + '@' + domain;
     var to_print = self_jid + " -> " + msg;
