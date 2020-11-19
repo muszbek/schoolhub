@@ -1,31 +1,14 @@
+import "regenerator-runtime/runtime"
+
+document.getElementById("login_button").addEventListener("click", login, false);
+
 const authUrl = window.location.origin.concat("/auth");
 const csrfToken = document.head.querySelector("[name~=csrf-token][content]").content;
 
-const XMPP = require('stanza');
-const stanzas = new XMPP.JXT.Registry();
+const {client, xml} = require("@xmpp/client");
 const tokenNS = 'erlang-solutions.com:xmpp:token-auth:0';
 
-const requestTokenIq = XMPP.JXT.extendIQ({
-    element: 'query',
-    namespace: tokenNS,
-    path: 'iq.requestToken'
-});
-stanzas.define(requestTokenIq);
-
-stanzas.define({
-    name: 'requestToken',
-    element: 'iq',
-    path: 'iq.requestToken',
-    fields: {
-	to: XMPP.JXT.attribute('to'),
-	type: XMPP.JXT.attribute('type'),
-	id: XMPP.JXT.attribute('id'),
-	query: XMPP.JXT.childAttribute(tokenNS, 'query')
-    }
-});
-
-
-login = function() {
+function login() {
     console.log("Logging in");
 
     var username = document.getElementById("username").value;
@@ -45,9 +28,9 @@ login = function() {
 	    addResult(form, 'result', authResult);
 	    addResult(form, 'username', creds.username);
 	    
-	    //authXMPP(creds);
+	    authXMPP(creds);
 	    
-	    form.submit();
+	    //form.submit();
 	})
 };
 
@@ -105,39 +88,24 @@ function authXMPP(creds) {
     var domain = document.getElementById("domain").value;
     var jid = creds.username + '@' + domain
 
-    var client = XMPP.createClient({
-	jid: jid,
-	password: creds.password,
-	server: host,
+    const xmpp = client({
+	service: 'ws://' + host + ':5280/ws-xmpp',
+	domain: domain,
+	username: creds.username,
+	password: creds.password
+    });
+
+    xmpp.on("error", (err) => {
+	console.error(err);
+    });
+
+    xmpp.start().catch(console.error);
     
-	transports: {
-            websocket: 'ws://' + host + ':5280/ws-xmpp',
-            bosh: 'http://' + host + ':5280/http-bind'
-	}
-    });
-
-    client.on('raw:outgoing', iq => {
-	console.log(iq);
-    });
-
-    client.connect();
-    
-    var promise = waitForEventWithTimeout(client, 'session:started', 2000);
-    promise.then(() => {
-	console.log("session started");
-	var tokenIq = {to: jid, type: 'get', id: client.nextId(), query: null}
-	var myIq = stanzas.export('iq.requestToken', tokenIq);
-	console.log(myIq.toString());
-				  
-	client.sendIQ({
-	    to: jid,
-	    type: 'get',
-	    requestToken: {}
-	}).then(result => {
-	    console.log(result);
-	})
-    });
-
+    waitForEventWithTimeout(xmpp, 'online', 2000)
+	.then(() => {
+	    console.log("session started");
+	    
+	});
     
 };
 
