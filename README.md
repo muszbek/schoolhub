@@ -2,28 +2,34 @@
 
 A communication platform targeted for facilitating education courses.
 
-Contains a server and a client application both written in Elixir.
-For the moment there is no graphical front-end, coming later.
+Written in Phoenix.
 
 ## Installation
 
-Both in the `./schoolhub_server` and `./schoolhub_client` folders:
-
 ```
+cd ./schoolhub
 mix deps.get
+
+cd ./assets
+npm install
 ```
 
 ## Running
 
-Launch the MongooseIM server, Postgres, HAProxy and container instances for Schoolhub server:
+Launch the MongooseIM server, Postgres, HAProxy:
 
 ```
 docker-compose up
 ```
 
-Launch the Schoolhub client:
+Set up the Phoenix server:
+```
+cd ./schoolhub
+mix ecto.migrate
+mix run priv/repo/seeds.exs
+mix phx.server
+```
 
-```
-cd schoolhub_client  
-iex -S mix
-```
+localhost:4000
+
+(Proxy access and https deployment coming later...)
