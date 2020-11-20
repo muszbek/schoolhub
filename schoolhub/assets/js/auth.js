@@ -88,25 +88,40 @@ function authXMPP(creds) {
     var domain = document.getElementById("domain").value;
     var jid = creds.username + '@' + domain
 
-    const xmpp = client({
+    var xmpp = client({
 	service: 'ws://' + host + ':5280/ws-xmpp',
 	domain: domain,
 	username: creds.username,
 	password: creds.password
     });
+    var {iqCaller} = xmpp;
 
     xmpp.on("error", (err) => {
 	console.error(err);
     });
 
+    xmpp.on('stanza', (stanza) => {
+	console.log("got stanza: " + stanza.toString());
+    });
+
     xmpp.start().catch(console.error);
     
     waitForEventWithTimeout(xmpp, 'online', 2000)
-	.then(() => {
+	.then(async () => {
 	    console.log("session started");
-	    
+	    var iq = requestTokenIq(jid);
+	    //var response = await iqCaller.request(iq, 1000).catch(console.error);
+	    //var response = await iqCaller.get(xml("query", {xmlns: tokenNS}), jid, 1000).catch(console.error);
 	});
     
+};
+
+function requestTokenIq(jid) {
+    return xml(
+	"iq",
+	{type: "get", to: jid},
+	xml("query", {xmlns: tokenNS})
+    );
 };
 
 
