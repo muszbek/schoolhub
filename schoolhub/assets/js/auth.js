@@ -28,9 +28,9 @@ function login() {
 	    addResult(form, 'result', authResult);
 	    addResult(form, 'username', creds.username);
 	    
-	    authXMPP(creds);
+	    //authXMPP(creds);
 	    
-	    //form.submit();
+	    form.submit();
 	})
 };
 

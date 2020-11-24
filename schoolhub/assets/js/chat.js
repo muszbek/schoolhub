@@ -3,6 +3,7 @@ import "regenerator-runtime/runtime"
 document.getElementById("send_button").addEventListener("click", send_msg, false);
 
 const {client, xml} = require("@xmpp/client");
+const debug = require("@xmpp/debug");
 const host = document.getElementById("host").value;
 const domain = document.getElementById("domain").value;
 const username = document.getElementById("username").value;
@@ -14,6 +15,14 @@ const xmpp = client({
     username: self,
     password: self
 });
+
+debug(xmpp, true);
+
+// fix import of scram for @xmpp
+const mech = require('sasl-scram-sha-1')
+const {sasl} = xmpp;
+sasl.use(mech);
+xmpp.sasl = sasl
 
 xmpp.on("error", (err) => {
     console.error(err);
@@ -32,7 +41,7 @@ xmpp.on('online', async (address) => {
 });
 
 xmpp.on('stanza', (stanza) => {
-    console.log("got stanza: " + stanza.toString());
+    //console.log("got stanza: " + stanza.toString());
     if (!stanza.is('message')) return;
 
     var from_long = stanza.attrs.from;
