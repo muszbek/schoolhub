@@ -6,6 +6,7 @@ const authUrl = window.location.origin.concat("/auth");
 const csrfToken = document.head.querySelector("[name~=csrf-token][content]").content;
 
 const {client, xml} = require("@xmpp/client");
+const debug = require("@xmpp/debug");
 const tokenNS = 'erlang-solutions.com:xmpp:token-auth:0';
 
 function login() {
@@ -28,7 +29,7 @@ function login() {
 	    addResult(form, 'result', authResult);
 	    addResult(form, 'username', creds.username);
 	    
-	    //authXMPP(creds);
+	    authXMPP(creds);
 	    
 	    form.submit();
 	})
@@ -94,6 +95,15 @@ function authXMPP(creds) {
 	username: creds.username,
 	password: creds.password
     });
+
+    debug(xmpp, true);
+
+    // fix import of scram for @xmpp
+    const mech = require('sasl-scram-sha-1')
+    const {sasl} = xmpp;
+    sasl.use(mech);
+    xmpp.sasl = sasl
+    
     var {iqCaller} = xmpp;
 
     xmpp.on("error", (err) => {
@@ -110,8 +120,7 @@ function authXMPP(creds) {
 	.then(async () => {
 	    console.log("session started");
 	    var iq = requestTokenIq(jid);
-	    //var response = await iqCaller.request(iq, 1000).catch(console.error);
-	    //var response = await iqCaller.get(xml("query", {xmlns: tokenNS}), jid, 1000).catch(console.error);
+	    var response = await iqCaller.request(iq, 1000).catch(console.error);
 	});
     
 };
