@@ -31,7 +31,7 @@ function login() {
 	    
 	    authXMPP(creds);
 	    
-	    form.submit();
+	    //form.submit();
 	})
 };
 
@@ -95,8 +95,7 @@ function authXMPP(creds) {
 	username: creds.username,
 	password: creds.password
     });
-
-    debug(xmpp, true);
+    //debug(xmpp, true);
 
     // fix import of scram for @xmpp
     const mech = require('sasl-scram-sha-1')
@@ -110,17 +109,20 @@ function authXMPP(creds) {
 	console.error(err);
     });
 
-    xmpp.on('stanza', (stanza) => {
-	console.log("got stanza: " + stanza.toString());
-    });
-
     xmpp.start().catch(console.error);
     
     waitForEventWithTimeout(xmpp, 'online', 2000)
 	.then(async () => {
 	    console.log("session started");
 	    var iq = requestTokenIq(jid);
-	    var response = await iqCaller.request(iq, 1000).catch(console.error);
+	    return await iqCaller.request(iq, 1000).catch(console.error);
+	})
+	.then(response => {
+	    var tokens = response.getChild("items");
+	    var accessToken = tokens.getChildText("access_token");
+	    var refreshToken = tokens.getChildText("refresh_token");
+	    console.log(accessToken);
+	    console.log(refreshToken);
 	});
     
 };
