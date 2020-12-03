@@ -11,12 +11,13 @@ defmodule SchoolhubWeb.SessionController do
     render(conn, "new.html")
   end
 
-  def create(conn, %{"username" => username, "result" => result}) do    
+  def create(conn, form_data = %{"username" => username, "result" => result}) do    
     case Accounts.authenticate(result, username) do
       {:ok, user} ->
         conn
         |> put_flash(:info, "Welcome back!")
 	|> enter_session(user)
+	|> add_tokens(form_data)
         |> redirect(to: "/")
       {:error, :unauthorized} ->
         conn
@@ -47,6 +48,14 @@ defmodule SchoolhubWeb.SessionController do
     |> configure_session(renew: true)
   end
   
+
+  defp add_tokens(conn, form_data) do
+    %{"access_token" => access_token, "refresh_token" => refresh_token} = form_data
+
+    conn
+    |> put_session(:access_token, access_token)
+    |> put_session(:refresh_token, refresh_token)
+  end
   
   defp http_respond(conn) do
     receive do
