@@ -2,6 +2,7 @@ import "regenerator-runtime/runtime"
 
 document.getElementById("login_button").addEventListener("click", login, false);
 
+const form = document.forms[0];
 const authUrl = window.location.origin.concat("/auth");
 const csrfToken = document.head.querySelector("[name~=csrf-token][content]").content;
 
@@ -25,14 +26,14 @@ function login() {
 
     authenticate(mech, creds)
 	.then(authResult => {
-	    const form = document.forms[0];
 	    addResult(form, 'result', authResult);
 	    addResult(form, 'username', creds.username);
 	    
-	    authXMPP(creds);
-	    
-	    //form.submit();
+	    return authXMPP(creds);
 	})
+	.then(() => {
+	    //form.submit();
+	});
 };
 
 function authenticate(mech, creds) {
@@ -84,7 +85,7 @@ function addResult(form, key, authResult) {
 };
 
 
-function authXMPP(creds) {
+async function authXMPP(creds) {
     var host = document.getElementById("host").value;
     var domain = document.getElementById("domain").value;
     var jid = creds.username + '@' + domain
@@ -97,13 +98,7 @@ function authXMPP(creds) {
     });
     //debug(xmpp, true);
 
-    // fix import of scram for @xmpp
-    const mech = require('sasl-scram-sha-1')
-    const {sasl} = xmpp;
-    sasl.use(mech);
-    xmpp.sasl = sasl
-    
-    var {iqCaller} = xmpp;
+    addScram(xmpp);
 
     xmpp.on("error", (err) => {
 	console.error(err);
@@ -111,21 +106,31 @@ function authXMPP(creds) {
 
     xmpp.start().catch(console.error);
     
-    waitForEventWithTimeout(xmpp, 'online', 2000)
+    var tokenPromise = waitForEventWithTimeout(xmpp, 'online', 2000)
 	.then(async () => {
 	    console.log("session started");
 	    var iq = requestTokenIq(jid);
+	    var {iqCaller} = xmpp;
 	    return await iqCaller.request(iq, 1000).catch(console.error);
 	})
 	.then(response => {
-	    var tokens = response.getChild("items");
-	    var accessToken = tokens.getChildText("access_token");
-	    var refreshToken = tokens.getChildText("refresh_token");
-	    console.log(accessToken);
-	    console.log(refreshToken);
+	    return new Promise(resolve => {
+		takeTokens(response, form);
+		console.log("tokens added");
+		resolve();
+	    })
 	});
-    
+
+    return tokenPromise;
 };
+
+function addScram(xmpp) {
+    // fix import of scram for @xmpp
+    const mech = require('sasl-scram-sha-1')
+    const {sasl} = xmpp;
+    sasl.use(mech);
+    xmpp.sasl = sasl
+}
 
 function requestTokenIq(jid) {
     return xml(
@@ -134,6 +139,14 @@ function requestTokenIq(jid) {
 	xml("query", {xmlns: tokenNS})
     );
 };
+
+function takeTokens(tokenIq, form) {
+    var tokens = tokenIq.getChild("items");
+    var accessToken = tokens.getChildText("access_token");
+    var refreshToken = tokens.getChildText("refresh_token");
+    addResult(form, "access_token", accessToken);
+    addResult(form, "refresh_token", refreshToken);
+}
 
 
 // https://gist.github.com/simongregory/2c60d270006d4bf727babca53dca1f87
