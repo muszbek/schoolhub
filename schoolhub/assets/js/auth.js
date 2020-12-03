@@ -29,10 +29,10 @@ function login() {
 	    addResult(form, 'result', authResult);
 	    addResult(form, 'username', creds.username);
 	    
-	    return authXMPP(creds);
+	    return maybeAuthXMPP(authResult, creds);
 	})
 	.then(() => {
-	    //form.submit();
+	    form.submit();
 	});
 };
 
@@ -84,8 +84,19 @@ function addResult(form, key, authResult) {
     form.appendChild(hiddenField);
 };
 
+function maybeAuthXMPP(authResult, creds) {
+    if (authResult == "authenticated") {
+	return authXMPP(creds);
+    }
+    else {
+	// return an empty promise to make this call then-able without authXMPP
+	return new Promise(resolve => {
+	    resolve();
+	});
+    }
+};
 
-async function authXMPP(creds) {
+function authXMPP(creds) {
     var host = document.getElementById("host").value;
     var domain = document.getElementById("domain").value;
     var jid = creds.username + '@' + domain
