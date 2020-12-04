@@ -8,7 +8,9 @@ defmodule SchoolhubWeb.SessionControllerTest do
 		credential: %{username: "some username",
 			      password: "some password"}}
   @auth_success %{username: "some username",
-		  result: "authenticated"}
+		  result: "authenticated",
+		  access_token: "some access token",
+		  refresh_token: "some refresh token"}
   @auth_fail %{username: "some username",
 	       result: "some error"}
   @auth_client_first %{data: "n,,n=some username,r=80151d1f366758f3a5ea00191a565575"}

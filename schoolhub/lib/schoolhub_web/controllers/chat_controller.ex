@@ -13,8 +13,18 @@ defmodule SchoolhubWeb.ChatController do
     self = conn
     |> get_session(:user_id)
     |> Accounts.get_user!()
-    
-    render(conn, "chat.html", course_id: course_id, user: user, self: self)
+
+    refresh_token = get_session(conn, :refresh_token)
+
+    case refresh_token do
+      nil ->
+	conn
+        |> put_flash(:error, "Token missing for XMPP authentication, please authenticate again")
+        |> redirect(to: Routes.session_path(conn, :new))
+      _ ->
+	render(conn, "chat.html", course_id: course_id, user: user, self: self,
+	  token: refresh_token)
+    end
   end
 
 end

@@ -42,13 +42,25 @@ defmodule SchoolhubWeb.ChatControllerTest do
     setup [:create_course]
 
     test "show chat page", %{conn: conn, course_id: course_id, user_id: user_id} do
+      conn = add_tokens(conn)
       conn = get(conn, Routes.course_chat_path(conn, :chat, course_id, user_id))
       assert html_response(conn, 200) =~ "Chat"
+    end
+
+    test "no token redirect", %{conn: conn, course_id: course_id, user_id: user_id} do
+      conn = get(conn, Routes.course_chat_path(conn, :chat, course_id, user_id))
+      assert redirected_to(conn) == Routes.session_path(conn, :new)
     end
   end
 
   
   defp create_course(%{conn: conn}) do
     _course_id = fixture(:course, conn)
+  end
+
+  defp add_tokens(conn) do
+    conn
+    |> put_session(:access_token, "some access token")
+    |> put_session(:refresh_token, "some refresh token")
   end
 end

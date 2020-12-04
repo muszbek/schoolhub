@@ -6,6 +6,7 @@
 <input type="hidden" id="host" name="host" value="10.3.0.4">
 <input type="hidden" id="domain" name="domain" value="10.3.2.1">
 <input type="hidden" id="self" name="self" value="<%= @self.credential.username %>">
+<input type="hidden" id="token" name="token" value="<%= @token %>">
 
 <textarea id="chatbox" name="chatbox" readonly></textarea>
 <textarea id="sendbox" name="sendbox" placeholder="Type here to send a message"></textarea>
