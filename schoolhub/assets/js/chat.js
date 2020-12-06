@@ -1,4 +1,5 @@
 import "regenerator-runtime/runtime"
+import { Mechanism } from './xoauth.js';
 
 document.getElementById("send_button").addEventListener("click", send_msg, false);
 
@@ -8,21 +9,17 @@ const host = document.getElementById("host").value;
 const domain = document.getElementById("domain").value;
 const username = document.getElementById("username").value;
 const self = document.getElementById("self").value;
+const token = document.getElementById("token").value;
 
 const xmpp = client({
     service: 'ws://' + host + ':5280/ws-xmpp',
     domain: domain,
     username: self,
-    password: self
+    password: token
 });
-
 debug(xmpp, true);
 
-// fix import of scram for @xmpp
-const mech = require('sasl-scram-sha-1')
-const {sasl} = xmpp;
-sasl.use(mech);
-xmpp.sasl = sasl
+addXoauth(xmpp);
 
 xmpp.on("error", (err) => {
     console.error(err);
@@ -52,6 +49,14 @@ xmpp.on('stanza', (stanza) => {
 
 xmpp.start().catch(console.error);
 
+
+function addXoauth(xmpp) {
+    // fix import of scram for @xmpp
+    const mech = Mechanism;
+    const {sasl} = xmpp;
+    sasl.use(mech);
+    xmpp.sasl = sasl
+};
 
 async function send_msg() {
     console.log("sending message...");
