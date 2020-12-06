@@ -4,6 +4,7 @@ import { Mechanism } from './xoauth.js';
 document.getElementById("send_button").addEventListener("click", send_msg, false);
 
 const {client, xml} = require("@xmpp/client");
+const {decode} = require("@xmpp/base64");
 const debug = require("@xmpp/debug");
 const host = document.getElementById("host").value;
 const domain = document.getElementById("domain").value;
@@ -15,7 +16,8 @@ const xmpp = client({
     service: 'ws://' + host + ':5280/ws-xmpp',
     domain: domain,
     username: self,
-    password: token
+    // sasl will base64 encode the token automatically, but it is received already encoded
+    password: decode(token)
 });
 debug(xmpp, true);
 
