@@ -14,6 +14,7 @@ defmodule SchoolhubWeb.SessionControllerTest do
   @auth_fail %{username: "some username",
 	       result: "some error"}
   @auth_client_first %{data: "n,,n=some username,r=80151d1f366758f3a5ea00191a565575"}
+  @new_token %{refresh_token: "some token"}
 
   def fixture(:user) do
     {:ok, user} = Accounts.create_user(@user_attrs)
@@ -58,6 +59,20 @@ defmodule SchoolhubWeb.SessionControllerTest do
       assert json_response(conn, 200)
     end
   end
+
+  describe "renew_token" do
+    setup [:create_user]
+
+    test "renew token ok", %{conn: conn, user: user} do
+      conn = conn
+      |> Plug.Test.init_test_session(user_id: nil)
+      |> SchoolhubWeb.SessionController.enter_session(user)
+      
+      conn = post(conn, Routes.session_path(conn, :renew_token), @new_token)
+      assert response(conn, 200)
+    end
+  end
+  
 
   defp create_user(_) do
     user = fixture(:user)

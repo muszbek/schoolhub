@@ -44,9 +44,9 @@ xmpp.on('online', async (address) => {
 
 xmpp.on('element', (element) => {
     if (!element.is('success')) return;
-    
-    var newToken = element.text();
+
     console.log("New token received");
+    var newToken = element.text();
     sendNewToken(newToken);
 });
 
