@@ -54,6 +54,7 @@ defmodule SchoolhubWeb.Router do
       singleton: true
 
     pipe_through :session
+    post "/token", SessionController, :renew_token
     resources "/users", UserController, only: [:show]
     resources "/courses", CourseController, only: [:index]
 

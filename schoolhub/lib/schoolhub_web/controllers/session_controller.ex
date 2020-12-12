@@ -17,7 +17,8 @@ defmodule SchoolhubWeb.SessionController do
         conn
         |> put_flash(:info, "Welcome back!")
 	|> enter_session(user)
-	|> add_tokens(form_data)
+	|> add_access_token(form_data)
+	|> add_refresh_token(form_data)
         |> redirect(to: "/")
       {:error, :unauthorized} ->
         conn
@@ -42,6 +43,13 @@ defmodule SchoolhubWeb.SessionController do
   end
 
 
+  def renew_token(conn, data) do
+    conn
+    |> add_refresh_token(data)
+    |> send_resp(200, "new_token_stored")
+  end
+
+
   def enter_session(conn, user) do
     conn
     |> put_session(:user_id, user.id)
@@ -49,12 +57,14 @@ defmodule SchoolhubWeb.SessionController do
   end
   
 
-  defp add_tokens(conn, form_data) do
-    %{"access_token" => access_token, "refresh_token" => refresh_token} = form_data
+  defp add_access_token(conn, form_data) do
+    %{"access_token" => access_token} = form_data
+    put_session(conn, :access_token, access_token)
+  end
 
-    conn
-    |> put_session(:access_token, access_token)
-    |> put_session(:refresh_token, refresh_token)
+  defp add_refresh_token(conn, form_data) do
+    %{"refresh_token" => refresh_token} = form_data
+    put_session(conn, :refresh_token, refresh_token)
   end
   
   defp http_respond(conn) do

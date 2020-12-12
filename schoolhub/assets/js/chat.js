@@ -3,6 +3,9 @@ import { Mechanism } from './xoauth.js';
 
 document.getElementById("send_button").addEventListener("click", send_msg, false);
 
+const tokenUrl = window.location.origin.concat("/token");
+const csrfToken = document.head.querySelector("[name~=csrf-token][content]").content;
+
 const {client, xml} = require("@xmpp/client");
 const {decode} = require("@xmpp/base64");
 const debug = require("@xmpp/debug");
@@ -19,7 +22,7 @@ const xmpp = client({
     // sasl will base64 encode the token automatically, but it is received already encoded
     password: decode(token)
 });
-debug(xmpp, true);
+//debug(xmpp, true);
 
 addXoauth(xmpp);
 
@@ -37,6 +40,14 @@ xmpp.on('online', async (address) => {
 	xml("body", {}, "hello world")
     );
     await xmpp.send(message);
+});
+
+xmpp.on('element', (element) => {
+    if (!element.is('success')) return;
+    
+    var newToken = element.text();
+    console.log("New token received");
+    sendNewToken(newToken);
 });
 
 xmpp.on('stanza', (stanza) => {
@@ -58,6 +69,31 @@ function addXoauth(xmpp) {
     const {sasl} = xmpp;
     sasl.use(mech);
     xmpp.sasl = sasl
+};
+
+function sendNewToken(token) {
+    if (token == "") {
+	console.warn('Token received upon auth is empty! No new token stored!');
+	return;
+    }
+    
+    var httpData = JSON.stringify({"refresh_token": token});
+    sendHttp(tokenUrl, httpData)
+	.then(httpResponse => httpResponse.text())
+	.then(response => {
+	    console.log(response);
+	});
+};
+
+function sendHttp(targetUrl, body_data) {
+    return fetch(targetUrl, {
+	method: "POST",
+	headers: {
+	    "Content-Type": "application/json",
+	    "X-CSRF-Token": csrfToken
+	},
+	body: body_data
+    })
 };
 
 async function send_msg() {
