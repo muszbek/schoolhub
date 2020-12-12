@@ -56,6 +56,10 @@ xmpp.on('stanza', (stanza) => {
 
     var from_long = stanza.attrs.from;
     var from = from_long.substr(0, from_long.indexOf('/'));
+    var from_just_name = from_long.substr(0, from_long.indexOf('@'));
+
+    if (from_just_name != username) return;
+    
     var to_print = from + " -> " + stanza.getChildText("body");
     print(to_print);
 });
@@ -64,7 +68,6 @@ xmpp.start().catch(console.error);
 
 
 function addXoauth(xmpp) {
-    // fix import of scram for @xmpp
     const mech = Mechanism;
     const {sasl} = xmpp;
     sasl.use(mech);
