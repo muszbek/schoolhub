@@ -23,6 +23,7 @@ defmodule Schoolhub.Accounts.ScramLib do
 
   def encode_password(password) when is_binary(password) do
     password
+    |> to_charlist()
     |> encode_password()
     |> to_string()
   end

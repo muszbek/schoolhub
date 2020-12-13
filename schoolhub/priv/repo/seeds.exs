@@ -12,8 +12,11 @@
 
 alias Schoolhub.Accounts.{User, Credential}
 alias Schoolhub.Privileges.Privilege
+alias Schoolhub.Accounts.ScramLib, as: CredLib
 
-admin_pw = File.read!("./priv/repo/admin_pw.secret")
+admin_pw =
+  File.read!("./priv/repo/admin_pw.secret")
+  |> CredLib.encode_password()
 
 admin = %User{name: "Admin McAdminson",
 	      email: "admin@admin.com",
