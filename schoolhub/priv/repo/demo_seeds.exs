@@ -399,3 +399,27 @@ path = "./priv/repo/demo_seeds.exs"
 %User{id: user_id} = Accounts.get_user_by_name!("apavlou")
 Files.create_file(%{uploader: user_id, course_id: course1, filename: "demo_seeds.exs", size: size,
 		    file_data: %{data: binary_content}})
+
+
+## Add grades to course members
+alias Schoolhub.Grades
+alias Schoolhub.Grades.Grade
+alias Schoolhub.Courses.Affiliation
+
+grade = %{first_test: 20, second_test: 20, project: 10, total: 50}
+
+%User{id: user_id} = Accounts.get_user_by_name!("apavlou")
+%Affiliation{grade: %Grade{id: grade_id}} = Courses.get_affiliation_by_user!(course1, user_id)
+Grades.add_grade(grade_id, grade)
+
+%User{id: user_id} = Accounts.get_user_by_name!("gbenevides")
+%Affiliation{grade: %Grade{id: grade_id}} = Courses.get_affiliation_by_user!(course1, user_id)
+Grades.add_grade(grade_id, grade)
+
+%User{id: user_id} = Accounts.get_user_by_name!("fdode")
+%Affiliation{grade: %Grade{id: grade_id}} = Courses.get_affiliation_by_user!(course1, user_id)
+Grades.add_grade(grade_id, grade)
+
+%User{id: user_id} = Accounts.get_user_by_name!("jpatil")
+%Affiliation{grade: %Grade{id: grade_id}} = Courses.get_affiliation_by_user!(course1, user_id)
+Grades.add_grade(grade_id, grade)
