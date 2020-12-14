@@ -22,6 +22,10 @@ more sophisticated self user api
 course disable
 course members can delete edit their own messages
 
+admin should be able to view all courses, regardless of affiliation
+course description should be displayed nicely
+course members displayed in order of role + alphabetical
+
 
 # launch:
 in ssl:
