@@ -373,3 +373,29 @@ Posts.create_reply(%{creator: user_id, parent_post: post4,
 		     И все должны мы 
 		     Неудержимо 
 		     Идти в последний смертный бой! "})
+
+
+## Add files to the course
+alias Schoolhub.Files
+alias File, as: BuiltinFile
+
+path = "./assets/static/images/schoolhub.png"
+{:ok, binary_content} = BuiltinFile.read(path)
+{:ok, %{size: size}} = BuiltinFile.stat(path)
+%User{id: user_id} = Accounts.get_user_by_name!("tmuszbek")
+Files.create_file(%{uploader: user_id, course_id: course1, filename: "schoolhub.png", size: size,
+		    file_data: %{data: binary_content}})
+
+path = "./README.md"
+{:ok, binary_content} = BuiltinFile.read(path)
+{:ok, %{size: size}} = BuiltinFile.stat(path)
+%User{id: user_id} = Accounts.get_user_by_name!("nreda")
+Files.create_file(%{uploader: user_id, course_id: course1, filename: "README.md", size: size,
+		    file_data: %{data: binary_content}})
+
+path = "./priv/repo/demo_seeds.exs"
+{:ok, binary_content} = BuiltinFile.read(path)
+{:ok, %{size: size}} = BuiltinFile.stat(path)
+%User{id: user_id} = Accounts.get_user_by_name!("apavlou")
+Files.create_file(%{uploader: user_id, course_id: course1, filename: "demo_seeds.exs", size: size,
+		    file_data: %{data: binary_content}})
