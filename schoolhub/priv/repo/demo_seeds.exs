@@ -232,3 +232,144 @@ Courses.create_affiliation(%{affiliation: "student", course_id: course2, user_id
 
 %User{id: user_id} = Accounts.get_user_by_name!("dpollux")
 Courses.create_affiliation(%{affiliation: "student", course_id: course2, user_id: user_id})
+
+
+## Creating posts to courses
+alias Schoolhub.Posts
+alias Schoolhub.Posts.Post
+
+%User{id: user_id} = Accounts.get_user_by_name!("apavlou")
+{:ok, %Post{id: post1}} = Posts.create_post(%{creator: user_id, course_id: course1, pinned: false,
+  content: "Is this real life"})
+
+%User{id: user_id} = Accounts.get_user_by_name!("tmuszbek")
+{:ok, %Post{id: post2}} = Posts.create_post(%{creator: user_id, course_id: course1, pinned: true,
+  content: "Az éjjel soha nem érhet véget"})
+
+%User{id: user_id} = Accounts.get_user_by_name!("jpatil")
+{:ok, %Post{id: post3}} = Posts.create_post(%{creator: user_id, course_id: course1, pinned: false,
+  content: "שלח לי מלאך"})
+
+%User{id: user_id} = Accounts.get_user_by_name!("gbenevides")
+{:ok, %Post{id: post4}} = Posts.create_post(%{creator: user_id, course_id: course1, pinned: false,
+  content: "Белая армия, чёрный барон"})
+
+
+## Replies to posts
+%User{id: user_id} = Accounts.get_user_by_name!("gbenevides")
+Posts.create_reply(%{creator: user_id, parent_post: post1, content: "Or is this just fantasy"})
+
+%User{id: user_id} = Accounts.get_user_by_name!("fdode")
+Posts.create_reply(%{creator: user_id, parent_post: post1, content: "Caught in a landslide"})
+
+%User{id: user_id} = Accounts.get_user_by_name!("jpatil")
+Posts.create_reply(%{creator: user_id, parent_post: post1, content: "There's no escape from reality"})
+
+%User{id: user_id} = Accounts.get_user_by_name!("tmuszbek")
+Posts.create_reply(%{creator: user_id, parent_post: post1, content: "Open your eyes"})
+
+%User{id: user_id} = Accounts.get_user_by_name!("nreda")
+Posts.create_reply(%{creator: user_id, parent_post: post1, content: "Look up to the sky and see"})
+
+%User{id: user_id} = Accounts.get_user_by_name!("apavlou")
+Posts.create_reply(%{creator: user_id, parent_post: post1, content: "I'm just a poor boy"})
+
+%User{id: user_id} = Accounts.get_user_by_name!("gbenevides")
+Posts.create_reply(%{creator: user_id, parent_post: post1, content: "I need no love"})
+
+%User{id: user_id} = Accounts.get_user_by_name!("fdode")
+Posts.create_reply(%{creator: user_id, parent_post: post1, content: "Because I'm easy come - easy go"})
+
+%User{id: user_id} = Accounts.get_user_by_name!("jpatil")
+Posts.create_reply(%{creator: user_id, parent_post: post1, content: "Little high - little low"})
+
+%User{id: user_id} = Accounts.get_user_by_name!("tmuszbek")
+Posts.create_reply(%{creator: user_id, parent_post: post1, content: "Anywhere the wind blows"})
+
+%User{id: user_id} = Accounts.get_user_by_name!("nreda")
+Posts.create_reply(%{creator: user_id, parent_post: post1, content: "Doesn't really matter to me"})
+
+%User{id: user_id} = Accounts.get_user_by_name!("apavlou")
+Posts.create_reply(%{creator: user_id, parent_post: post1, content: "To me"})
+
+
+%User{id: user_id} = Accounts.get_user_by_name!("nreda")
+Posts.create_reply(%{creator: user_id, parent_post: post2, content: "Varázsolj nekünk valami szépet"})
+
+%User{id: user_id} = Accounts.get_user_by_name!("apavlou")
+Posts.create_reply(%{creator: user_id, parent_post: post2, content: "Repülj velünk a szerelem szárnyán"})
+
+%User{id: user_id} = Accounts.get_user_by_name!("gbenevides")
+Posts.create_reply(%{creator: user_id, parent_post: post2, content: "Indul az utazás, csak erre vártál"})
+
+
+%User{id: user_id} = Accounts.get_user_by_name!("tmuszbek")
+Posts.create_reply(%{creator: user_id, parent_post: post3,
+		     content: "שלח לי מלאך 
+		     שיקח, שיקח אותי ללב 
+		     שאוהב ומחכה לי 
+		     ורוצה בי כל הזמן"})
+
+%User{id: user_id} = Accounts.get_user_by_name!("nreda")
+Posts.create_reply(%{creator: user_id, parent_post: post3,
+		     content: "שלח לי מלאך 
+		     שאותי ואותך הוא לא יקח 
+		     למקום שאין בו 
+		     מה שיש פה כל הזמן"})
+
+%User{id: user_id} = Accounts.get_user_by_name!("apavlou")
+Posts.create_reply(%{creator: user_id, parent_post: post3,
+		     content: "ולפעמים הכל נראה אותו דבר 
+		     ולפעמים, פתאום, יש רגע מאושר"})
+
+%User{id: user_id} = Accounts.get_user_by_name!("gbenevides")
+Posts.create_reply(%{creator: user_id, parent_post: post3,
+		     content: "שלח לי מלאך 
+		     שישמח וידליק פה את האור 
+		     וישמור על מה שיש לשמור פה 
+		     כל הזמן"})
+
+%User{id: user_id} = Accounts.get_user_by_name!("fdode")
+Posts.create_reply(%{creator: user_id, parent_post: post3,
+		     content: "סתם הזיות זה גן חיות 
+		     אריות ונמרים ואחרים 
+		     מנסים למצוא מקום לחיות בו 
+		     כל הזמן"})
+
+%User{id: user_id} = Accounts.get_user_by_name!("jpatil")
+Posts.create_reply(%{creator: user_id, parent_post: post3,
+		     content: "ולפעמים הכל נראה אותו דבר 
+		     ולפעמים, פתאום, יש רגע מאושר"})
+
+
+%User{id: user_id} = Accounts.get_user_by_name!("fdode")
+Posts.create_reply(%{creator: user_id, parent_post: post4,
+		     content: "Белая армия,чёрный барон 
+		     Снова готовят нам царский трон, 
+		     Но от тайги до британских морей 
+		     Красная Армия всех сильней. "})
+
+%User{id: user_id} = Accounts.get_user_by_name!("jpatil")
+Posts.create_reply(%{creator: user_id, parent_post: post4,
+		     content: "Так пусть же Красная 
+		     Сжимает властно 
+		     Свой штык мозолистой рукой, 
+		     И все должны мы 
+		     Неудержимо 
+		     Идти в последний смертный бой! "})
+
+%User{id: user_id} = Accounts.get_user_by_name!("tmuszbek")
+Posts.create_reply(%{creator: user_id, parent_post: post4,
+		     content: "Красная Армия,марш вперёд! 
+		     Реввоенсовет нас в бой зовёт. 
+		     Ведь от тайги до британских морей 
+		     Красная Армия всех сильней! "})
+
+%User{id: user_id} = Accounts.get_user_by_name!("nreda")
+Posts.create_reply(%{creator: user_id, parent_post: post4,
+		     content: "Так пусть же Красная 
+		     Сжимает властно 
+		     Свой штык мозолистой рукой, 
+		     И все должны мы 
+		     Неудержимо 
+		     Идти в последний смертный бой! "})
