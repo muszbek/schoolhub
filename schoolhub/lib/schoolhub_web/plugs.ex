@@ -62,16 +62,17 @@ defmodule SchoolhubWeb.Plugs do
   def need_owner_aff(conn, _) do
     course_id = get_course_id(conn)
     user = %{id: user_id} = get_user(conn)
-    affiliation = Courses.get_affiliation_by_user!(course_id, user_id)
 
     conn
     |> check_if_admin(user)
-    |> check_if_owner(affiliation)
+    |> check_if_owner(course_id, user_id)
   end
 
-  defp check_if_owner({:authorized, conn}, _affiliation), do: conn
-  defp check_if_owner({:check, conn}, affiliation) do
-    case affiliation.affiliation do
+  defp check_if_owner({:authorized, conn}, _course_id, _user_id), do: conn
+  defp check_if_owner({:check, conn}, course_id, user_id) do
+    %{affiliation: affiliation} = Courses.get_affiliation_by_user!(course_id, user_id)
+    
+    case affiliation do
       "owner" -> conn
       _other ->
 	conn
@@ -85,16 +86,17 @@ defmodule SchoolhubWeb.Plugs do
   def need_assistant_aff(conn, _) do
     course_id = get_course_id(conn)
     user = %{id: user_id} = get_user(conn)
-    affiliation = Courses.get_affiliation_by_user!(course_id, user_id)
 
     conn
     |> check_if_admin(user)
-    |> check_if_assistant(affiliation)
+    |> check_if_assistant(course_id, user_id)
   end
 
-  defp check_if_assistant({:authorized, conn}, _affiliation), do: conn
-  defp check_if_assistant({:check, conn}, affiliation) do
-    case affiliation.affiliation do
+  defp check_if_assistant({:authorized, conn}, _course_id, _user_id), do: conn
+  defp check_if_assistant({:check, conn}, course_id, user_id) do
+    %{affiliation: affiliation} = Courses.get_affiliation_by_user!(course_id, user_id)
+    
+    case affiliation do
       "owner" -> conn
       "assistant" -> conn
       _other ->
@@ -109,16 +111,17 @@ defmodule SchoolhubWeb.Plugs do
   def need_self_aff(conn, _) do
     course_id = get_course_id(conn)
     user = %{id: user_id} = get_user(conn)
-    affiliation = Courses.get_affiliation_by_user!(course_id, user_id)
 
     conn
     |> check_if_admin(user)
-    |> check_if_self(affiliation)
+    |> check_if_self(course_id, user_id)
   end
 
-  defp check_if_self({:authorized, conn}, _affiliation), do: conn
-  defp check_if_self({:check, conn}, affiliation) do
-    case affiliation.affiliation do
+  defp check_if_self({:authorized, conn}, _course_id, _user_id), do: conn
+  defp check_if_self({:check, conn}, course_id, user_id) do
+    %{affiliation: affiliation} = Courses.get_affiliation_by_user!(course_id, user_id)
+    
+    case affiliation do
       "owner" -> conn
       "assistant" -> conn
       _other ->
@@ -138,17 +141,19 @@ defmodule SchoolhubWeb.Plugs do
   def need_aff(conn, _) do
     course_id = get_course_id(conn)
     user = %{id: user_id} = get_user(conn)
-    affiliation = Courses.get_affiliation_by_user!(course_id, user_id)
 
     conn
     |> check_if_admin(user)
-    |> check_if_affiliated(affiliation)
+    |> check_if_affiliated(course_id, user_id)
   end
 
-  defp check_if_affiliated({:authorized, conn}, _affiliation), do: conn
-  defp check_if_affiliated({:check, conn}, _affiliation), do: conn
-  ## fetching the affiliation already checks this,
-  ## it crashes if there is no affiliation
+  defp check_if_affiliated({:authorized, conn}, _course_id, _user_id), do: conn
+  defp check_if_affiliated({:check, conn}, course_id, user_id) do
+    _affiliation = Courses.get_affiliation_by_user!(course_id, user_id)
+    ## fetching the affiliation already checks this,
+    ## it crashes if there is no affiliation
+    conn
+  end
 
   
   defp check_if_admin(conn, user) do
