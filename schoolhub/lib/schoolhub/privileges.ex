@@ -18,7 +18,9 @@ defmodule Schoolhub.Privileges do
 
   """
   def list_privileges do
-    Repo.all(Privilege)
+    Privilege
+    |> order_by(desc: :level)
+    |> Repo.all()
   end
 
   @doc """

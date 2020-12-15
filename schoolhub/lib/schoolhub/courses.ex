@@ -135,6 +135,7 @@ defmodule Schoolhub.Courses do
   def list_course_affiliations(course_id) do
     Affiliation
     |> where(course_id: ^course_id)
+    |> order_by(desc: :affiliation)
     |> Repo.all()
     |> Repo.preload(:grade)
   end

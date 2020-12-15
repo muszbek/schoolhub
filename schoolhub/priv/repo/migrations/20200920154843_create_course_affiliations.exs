@@ -2,8 +2,10 @@ defmodule Schoolhub.Repo.Migrations.CreateCourseAffiliations do
   use Ecto.Migration
 
   def change do
+    execute("CREATE TYPE affiliation AS ENUM ('student', 'assistant', 'owner')")
+    
     create table(:course_affiliations) do
-      add :affiliation, :string,
+      add :affiliation, :affiliation,
 	default: "student"
       add :course_id, references(:courses, on_delete: :delete_all),
 	null: false
