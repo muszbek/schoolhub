@@ -8,8 +8,8 @@
   </li>
 
   <li>
-    <strong>Description:</strong>
-    <%= @course.description %>
+    <strong>Description:<br></strong>
+    <%= Earmark.as_html!(@course.description) |> raw() %>
   </li>
 
 </ul>

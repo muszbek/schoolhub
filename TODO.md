@@ -22,9 +22,9 @@ more sophisticated self user api
 course disable
 course members can delete edit their own messages
 
-admin should be able to view all courses, regardless of affiliation
-course description should be displayed nicely
-course members displayed in order of role + alphabetical
+fix bug where non owner edit course crashes
+course posts should display nicely
+course members displayed in alphabetical order
 
 
 # launch:

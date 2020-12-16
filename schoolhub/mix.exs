@@ -46,6 +46,7 @@ defmodule Schoolhub.MixProject do
       {:jason, "~> 1.0"},
       {:plug_cowboy, "~> 2.0"},
       {:morphix, "~> 0.8.0"},
+      {:earmark, "~> 1.1"},
       {:scramerl, git: "https://github.com/erdemaksu/scramerl"}
     ]
   end

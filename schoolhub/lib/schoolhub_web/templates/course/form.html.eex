@@ -10,6 +10,7 @@
   <%= error_tag f, :name %>
 
   <%= label f, :description %>
+  (Write text in markdown to render)
   <%= textarea f, :description %>
   <%= error_tag f, :description %>
 
