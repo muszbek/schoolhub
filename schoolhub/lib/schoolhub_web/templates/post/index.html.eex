@@ -14,7 +14,7 @@
   <tbody>
 <%= for post <- @posts do %>
     <tr>
-      <td><%= post.content %></td>
+      <td><%= post.content |> SchoolhubWeb.Gettext.first_line() %></td>
       <td><%= Schoolhub.Accounts.get_user!(post.creator).name %></td>
       <td><%= Enum.count(post.reply) %></td>
       <td><%= if post.pinned, do: "pinned" %></td>

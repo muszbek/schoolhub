@@ -21,8 +21,6 @@ more sophisticated self user api
 
 course disable
 course members can delete edit their own messages
-
-course posts should display nicely
 course members displayed in alphabetical order
 
 

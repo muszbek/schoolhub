@@ -21,4 +21,14 @@ defmodule SchoolhubWeb.Gettext do
   See the [Gettext Docs](https://hexdocs.pm/gettext) for detailed usage.
   """
   use Gettext, otp_app: :schoolhub
+
+  def first_line(text) do
+    [first | rest] = String.split(text, "\n")
+    [first | rest] = String.split(first, "\\")
+
+    case rest do
+      [] -> first
+      _ -> first <> " ..."
+    end
+  end
 end

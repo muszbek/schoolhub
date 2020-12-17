@@ -10,7 +10,7 @@
   <tbody>
 <%= for reply <- @post_replies do %>
     <tr>
-      <td><%= reply.content %></td>
+      <td><%= reply.content |> SchoolhubWeb.Gettext.first_line() %></td>
       <td><%= Schoolhub.Accounts.get_user!(reply.creator).name %></td>
 
       <td>
