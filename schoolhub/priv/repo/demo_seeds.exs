@@ -241,57 +241,46 @@ alias Schoolhub.Posts.Post
 
 %User{id: user_id} = Accounts.get_user_by_name!("apavlou")
 {:ok, %Post{id: post1}} = Posts.create_post(%{creator: user_id, course_id: course1, pinned: false,
-  content: "Is this real life"})
+					      content: "Is this the real life
+					      Is this just fantasy
+					      Caught in a landslide
+					      No escape from reality
+					      Open your eyes
+					      Look up to the skies and see
+					      I'm just a poor boy, I need no sympathy
+					      Because I'm easy come, easy go
+					      A little high, little low
+					      Anyway the wind blows, doesn't really matter to me
+					      To me"})
 
 %User{id: user_id} = Accounts.get_user_by_name!("tmuszbek")
 {:ok, %Post{id: post2}} = Posts.create_post(%{creator: user_id, course_id: course1, pinned: true,
-  content: "Az éjjel soha nem érhet véget"})
+					      content: "Az éjjel soha nem érhet véget"})
 
 %User{id: user_id} = Accounts.get_user_by_name!("jpatil")
 {:ok, %Post{id: post3}} = Posts.create_post(%{creator: user_id, course_id: course1, pinned: false,
-  content: "שלח לי מלאך"})
+					      content: "שלח לי מלאך"})
 
 %User{id: user_id} = Accounts.get_user_by_name!("gbenevides")
 {:ok, %Post{id: post4}} = Posts.create_post(%{creator: user_id, course_id: course1, pinned: false,
-  content: "Белая армия, чёрный барон"})
+					      content: "Белая армия, чёрный барон"})
 
 
 ## Replies to posts
 %User{id: user_id} = Accounts.get_user_by_name!("gbenevides")
-Posts.create_reply(%{creator: user_id, parent_post: post1, content: "Or is this just fantasy"})
+Posts.create_reply(%{creator: user_id, parent_post: post1,
+		     content: "Mama, just killed a man
+		     Put a gun against his head
+		     Pulled my trigger, now he's dead
+		     Mama, life had just begun
+		     But now I've gone and thrown it all away"})
 
 %User{id: user_id} = Accounts.get_user_by_name!("fdode")
-Posts.create_reply(%{creator: user_id, parent_post: post1, content: "Caught in a landslide"})
-
-%User{id: user_id} = Accounts.get_user_by_name!("jpatil")
-Posts.create_reply(%{creator: user_id, parent_post: post1, content: "There's no escape from reality"})
-
-%User{id: user_id} = Accounts.get_user_by_name!("tmuszbek")
-Posts.create_reply(%{creator: user_id, parent_post: post1, content: "Open your eyes"})
-
-%User{id: user_id} = Accounts.get_user_by_name!("nreda")
-Posts.create_reply(%{creator: user_id, parent_post: post1, content: "Look up to the sky and see"})
-
-%User{id: user_id} = Accounts.get_user_by_name!("apavlou")
-Posts.create_reply(%{creator: user_id, parent_post: post1, content: "I'm just a poor boy"})
-
-%User{id: user_id} = Accounts.get_user_by_name!("gbenevides")
-Posts.create_reply(%{creator: user_id, parent_post: post1, content: "I need no love"})
-
-%User{id: user_id} = Accounts.get_user_by_name!("fdode")
-Posts.create_reply(%{creator: user_id, parent_post: post1, content: "Because I'm easy come - easy go"})
-
-%User{id: user_id} = Accounts.get_user_by_name!("jpatil")
-Posts.create_reply(%{creator: user_id, parent_post: post1, content: "Little high - little low"})
-
-%User{id: user_id} = Accounts.get_user_by_name!("tmuszbek")
-Posts.create_reply(%{creator: user_id, parent_post: post1, content: "Anywhere the wind blows"})
-
-%User{id: user_id} = Accounts.get_user_by_name!("nreda")
-Posts.create_reply(%{creator: user_id, parent_post: post1, content: "Doesn't really matter to me"})
-
-%User{id: user_id} = Accounts.get_user_by_name!("apavlou")
-Posts.create_reply(%{creator: user_id, parent_post: post1, content: "To me"})
+Posts.create_reply(%{creator: user_id, parent_post: post1,
+		     content: "Mama, ooo
+		     Didn't mean to make you cry
+		     If I'm not back again this time tomorrow
+		     Carry on, carry on, as if nothing really matters"})
 
 
 %User{id: user_id} = Accounts.get_user_by_name!("nreda")
