@@ -22,7 +22,6 @@ more sophisticated self user api
 course disable
 course members can delete edit their own messages
 
-fix bug where non owner edit course crashes
 course posts should display nicely
 course members displayed in alphabetical order
 

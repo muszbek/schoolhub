@@ -9,7 +9,7 @@
 
   <li>
     <strong>Description:<br></strong>
-    <%= Earmark.as_html!(@course.description) |> raw() %>
+    <%= @course.description |> Earmark.as_html!() |> raw() %>
   </li>
 
 </ul>

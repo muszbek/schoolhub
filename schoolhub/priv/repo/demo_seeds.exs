@@ -241,17 +241,17 @@ alias Schoolhub.Posts.Post
 
 %User{id: user_id} = Accounts.get_user_by_name!("apavlou")
 {:ok, %Post{id: post1}} = Posts.create_post(%{creator: user_id, course_id: course1, pinned: false,
-					      content: "Is this the real life
-					      Is this just fantasy
-					      Caught in a landslide
-					      No escape from reality
-					      Open your eyes
-					      Look up to the skies and see
-					      I'm just a poor boy, I need no sympathy
-					      Because I'm easy come, easy go
-					      A little high, little low
-					      Anyway the wind blows, doesn't really matter to me
-					      To me"})
+					      content: "Is this the real life \\
+Is this just fantasy \\
+Caught in a landslide \\
+No escape from reality \\
+Open your eyes \\
+Look up to the skies and see \\
+I'm just a poor boy, I need no sympathy \\
+Because I'm easy come, easy go \\
+A little high, little low \\
+Anyway the wind blows, doesn't really matter to me \\
+To me"})
 
 %User{id: user_id} = Accounts.get_user_by_name!("tmuszbek")
 {:ok, %Post{id: post2}} = Posts.create_post(%{creator: user_id, course_id: course1, pinned: true,
@@ -269,18 +269,18 @@ alias Schoolhub.Posts.Post
 ## Replies to posts
 %User{id: user_id} = Accounts.get_user_by_name!("gbenevides")
 Posts.create_reply(%{creator: user_id, parent_post: post1,
-		     content: "Mama, just killed a man
-		     Put a gun against his head
-		     Pulled my trigger, now he's dead
-		     Mama, life had just begun
-		     But now I've gone and thrown it all away"})
+		     content: "Mama, just killed a man \\
+Put a gun against his head \\
+Pulled my trigger, now he's dead \\
+Mama, life had just begun \\
+But now I've gone and thrown it all away"})
 
 %User{id: user_id} = Accounts.get_user_by_name!("fdode")
 Posts.create_reply(%{creator: user_id, parent_post: post1,
-		     content: "Mama, ooo
-		     Didn't mean to make you cry
-		     If I'm not back again this time tomorrow
-		     Carry on, carry on, as if nothing really matters"})
+		     content: "Mama, ooo \\
+Didn't mean to make you cry \\
+If I'm not back again this time tomorrow \\
+Carry on, carry on, as if nothing really matters"})
 
 
 %User{id: user_id} = Accounts.get_user_by_name!("nreda")
@@ -295,74 +295,74 @@ Posts.create_reply(%{creator: user_id, parent_post: post2, content: "Indul az ut
 
 %User{id: user_id} = Accounts.get_user_by_name!("tmuszbek")
 Posts.create_reply(%{creator: user_id, parent_post: post3,
-		     content: "שלח לי מלאך 
-		     שיקח, שיקח אותי ללב 
-		     שאוהב ומחכה לי 
-		     ורוצה בי כל הזמן"})
+		     content: "שלח לי מלאך \\
+שיקח, שיקח אותי ללב \\
+שאוהב ומחכה לי \\
+ורוצה בי כל הזמן"})
 
 %User{id: user_id} = Accounts.get_user_by_name!("nreda")
 Posts.create_reply(%{creator: user_id, parent_post: post3,
-		     content: "שלח לי מלאך 
-		     שאותי ואותך הוא לא יקח 
-		     למקום שאין בו 
-		     מה שיש פה כל הזמן"})
+		     content: "שלח לי מלאך \\
+שאותי ואותך הוא לא יקח \\
+למקום שאין בו \\
+מה שיש פה כל הזמן"})
 
 %User{id: user_id} = Accounts.get_user_by_name!("apavlou")
 Posts.create_reply(%{creator: user_id, parent_post: post3,
-		     content: "ולפעמים הכל נראה אותו דבר 
-		     ולפעמים, פתאום, יש רגע מאושר"})
+		     content: "ולפעמים הכל נראה אותו דבר \\
+ולפעמים, פתאום, יש רגע מאושר"})
 
 %User{id: user_id} = Accounts.get_user_by_name!("gbenevides")
 Posts.create_reply(%{creator: user_id, parent_post: post3,
-		     content: "שלח לי מלאך 
-		     שישמח וידליק פה את האור 
-		     וישמור על מה שיש לשמור פה 
-		     כל הזמן"})
+		     content: "שלח לי מלאך \\
+שישמח וידליק פה את האור \\
+וישמור על מה שיש לשמור פה \\
+כל הזמן"})
 
 %User{id: user_id} = Accounts.get_user_by_name!("fdode")
 Posts.create_reply(%{creator: user_id, parent_post: post3,
-		     content: "סתם הזיות זה גן חיות 
-		     אריות ונמרים ואחרים 
-		     מנסים למצוא מקום לחיות בו 
-		     כל הזמן"})
+		     content: "סתם הזיות זה גן חיות \\
+אריות ונמרים ואחרים \\
+מנסים למצוא מקום לחיות בו \\
+כל הזמן"})
 
 %User{id: user_id} = Accounts.get_user_by_name!("jpatil")
 Posts.create_reply(%{creator: user_id, parent_post: post3,
-		     content: "ולפעמים הכל נראה אותו דבר 
-		     ולפעמים, פתאום, יש רגע מאושר"})
+		     content: "ולפעמים הכל נראה אותו דבר \\
+ולפעמים, פתאום, יש רגע מאושר"})
 
 
 %User{id: user_id} = Accounts.get_user_by_name!("fdode")
 Posts.create_reply(%{creator: user_id, parent_post: post4,
-		     content: "Белая армия,чёрный барон 
-		     Снова готовят нам царский трон, 
-		     Но от тайги до британских морей 
-		     Красная Армия всех сильней. "})
+		     content: "Белая армия,чёрный барон \\
+Снова готовят нам царский трон, \\
+Но от тайги до британских морей \\
+Красная Армия всех сильней. "})
 
 %User{id: user_id} = Accounts.get_user_by_name!("jpatil")
 Posts.create_reply(%{creator: user_id, parent_post: post4,
-		     content: "Так пусть же Красная 
-		     Сжимает властно 
-		     Свой штык мозолистой рукой, 
-		     И все должны мы 
-		     Неудержимо 
-		     Идти в последний смертный бой! "})
+		     content: "Так пусть же Красная \\
+Сжимает властно \\
+Свой штык мозолистой рукой, \\
+И все должны мы \\
+Неудержимо \\
+Идти в последний смертный бой! "})
 
 %User{id: user_id} = Accounts.get_user_by_name!("tmuszbek")
 Posts.create_reply(%{creator: user_id, parent_post: post4,
-		     content: "Красная Армия,марш вперёд! 
-		     Реввоенсовет нас в бой зовёт. 
-		     Ведь от тайги до британских морей 
-		     Красная Армия всех сильней! "})
+		     content: "Красная Армия,марш вперёд! \\
+Реввоенсовет нас в бой зовёт. \\
+Ведь от тайги до британских морей \\
+Красная Армия всех сильней! "})
 
 %User{id: user_id} = Accounts.get_user_by_name!("nreda")
 Posts.create_reply(%{creator: user_id, parent_post: post4,
-		     content: "Так пусть же Красная 
-		     Сжимает властно 
-		     Свой штык мозолистой рукой, 
-		     И все должны мы 
-		     Неудержимо 
-		     Идти в последний смертный бой! "})
+		     content: "Так пусть же Красная \\
+Сжимает властно \\
+Свой штык мозолистой рукой, \\
+И все должны мы \\
+Неудержимо \\
+Идти в последний смертный бой! "})
 
 
 ## Add files to the course

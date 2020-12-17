@@ -3,8 +3,8 @@
 <ul>
 
   <li>
-    <strong>Content:</strong>
-    <%= @post.content %>
+    <strong>Content:<br></strong>
+    <%= @post.content |> Earmark.as_html!() |> raw() %>
   </li>
 
   <li>
