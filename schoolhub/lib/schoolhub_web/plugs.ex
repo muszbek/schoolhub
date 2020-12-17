@@ -119,13 +119,13 @@ defmodule SchoolhubWeb.Plugs do
 
   defp check_if_self({:authorized, conn}, _course_id, _user_id), do: conn
   defp check_if_self({:check, conn}, course_id, user_id) do
-    %{affiliation: affiliation} = Courses.get_affiliation_by_user!(course_id, user_id)
+    %{id: id, affiliation: affiliation} = Courses.get_affiliation_by_user!(course_id, user_id)
     
     case affiliation do
       "owner" -> conn
       "assistant" -> conn
       _other ->
-	case affiliation.id == get_aff_id(conn) do
+	case id == get_aff_id(conn) do
 	  true -> conn
 	  _ ->
 	    conn
