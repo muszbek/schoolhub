@@ -1,0 +1,12 @@
+#build
+_build
+deps
+assets/node_modules
+
+#test
+test
+
+#volumes
+lib
+config
+assets/js

@@ -83,6 +83,24 @@ services:
       - ./haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg
       - ./ssl/schoolhub.pem:/etc/cert/schoolhub.pem
       - ./ssl/schoolhub_cacert.crt:/etc/cert/schoolhub_cacert.pem
+
+
+  phx_server:
+    container_name: phx_server
+    image: phx_server:v0.2
+    build:
+      context: ./schoolhub
+    networks:
+      schoolhub_network:
+        ipv4_address: 10.3.0.5
+    restart: on-failure
+    depends_on:
+      - postgres
+    tty: true
+    volumes:
+      - ./schoolhub/lib:/opt/app/lib
+      - ./schoolhub/config:/opt/app/config
+      - ./schoolhub/assets/js:/opt/app/assets/js
       
     
 networks:

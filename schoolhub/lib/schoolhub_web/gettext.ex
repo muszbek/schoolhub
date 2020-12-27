@@ -23,7 +23,7 @@ defmodule SchoolhubWeb.Gettext do
   use Gettext, otp_app: :schoolhub
 
   def first_line(text) do
-    [first | rest] = String.split(text, "\n")
+    [first | _rest] = String.split(text, "\n")
     [first | rest] = String.split(first, "\\")
 
     case rest do
