@@ -25,6 +25,8 @@ admin = %User{name: "Admin McAdminson",
 				      pass_details: admin_pw},
 	      privilege: %Privilege{level: "admin"}}
 
-Schoolhub.Repo.insert!(admin)
-
-#TODO: protect from errors
+try do
+  Schoolhub.Repo.insert!(admin)
+rescue
+  Ecto.ConstraintError -> IO.puts("Admin user already inserted...")
+end

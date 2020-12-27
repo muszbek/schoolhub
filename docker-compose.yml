@@ -93,6 +93,9 @@ services:
     networks:
       schoolhub_network:
         ipv4_address: 10.3.0.5
+    expose:
+      - 4000
+      - 4001
     restart: on-failure
     depends_on:
       - postgres
@@ -101,6 +104,9 @@ services:
       - ./schoolhub/lib:/opt/app/lib
       - ./schoolhub/config:/opt/app/config
       - ./schoolhub/assets/js:/opt/app/assets/js
+    environment:
+      - PGUSER=schoolhub
+      - PGHOST=10.3.0.3
       
     
 networks:

@@ -2,10 +2,10 @@ use Mix.Config
 
 # Configure your database
 config :schoolhub, Schoolhub.Repo,
-  username: "schoolhub",
-  password: "schoolhub",
-  database: "schoolhub",
-  hostname: "10.3.0.3",
+  username: System.get_env("PGUSER", "schoolhub"),
+  password: System.get_env("PGPASSWORD", "schoolhub"),
+  database: System.get_env("PGDATABASE", "schoolhub"),
+  hostname: System.get_env("PGHOST", "10.3.0.3"),
   ssl: true,
   ssl_opts: [verify: :verify_none],
   show_sensitive_data_on_connection_error: true,
