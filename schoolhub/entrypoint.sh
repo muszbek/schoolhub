@@ -1,5 +1,3 @@
-# entrypoint.sh
-
 #!/bin/bash
 # Docker entrypoint script
 

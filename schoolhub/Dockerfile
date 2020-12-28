@@ -14,3 +14,5 @@ RUN cd assets && \
 #    npm run deploy
 #    cd - && \
 #    mix do compile, phx.digest
+
+CMD ["/opt/app/entrypoint.sh"]
