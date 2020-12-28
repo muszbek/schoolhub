@@ -93,20 +93,18 @@ services:
     networks:
       schoolhub_network:
         ipv4_address: 10.3.0.5
-    expose:
-      - 4000
-      - 4001
     restart: on-failure
     depends_on:
       - postgres
     tty: true
     volumes:
       - ./schoolhub/lib:/opt/app/lib
-      - ./schoolhub/config:/opt/app/config
-      - ./schoolhub/assets/js:/opt/app/assets/js
     environment:
       - PGUSER=schoolhub
       - PGHOST=10.3.0.3
+      - DATABASE_URL=ecto://schoolhub:schoolhub@10.3.0.3/schoolhub
+      - SECRET_KEY_BASE=/d8p4MwXOA3uA9jZ2fIouO5BwvwOIRM9Gqny3Cf7XFaY/pQ1Yukf53H9iy9AugqP
+      - MIX_ENV=prod
       
     
 networks:

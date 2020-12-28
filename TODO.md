@@ -24,6 +24,7 @@ course members can delete edit their own messages
 course members displayed in alphabetical order
 
 fix cors_token
+fix Forbidden in browser pipeline
 
 
 # launch:

@@ -5,19 +5,21 @@
 use Mix.Config
 
 database_url =
-  System.get_env("DATABASE_URL") ||
+  System.get_env("DATABASE_URL", "ecto://schoolhub:schoolhub@10.3.0.3/schoolhub") ||
     raise """
     environment variable DATABASE_URL is missing.
     For example: ecto://USER:PASS@HOST/DATABASE
     """
 
 config :schoolhub, Schoolhub.Repo,
-  # ssl: true,
+  ssl: true,
+  ssl_opts: [verify: :verify_none],
   url: database_url,
   pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10")
 
 secret_key_base =
-  System.get_env("SECRET_KEY_BASE") ||
+  System.get_env("SECRET_KEY_BASE",
+    "/d8p4MwXOA3uA9jZ2fIouO5BwvwOIRM9Gqny3Cf7XFaY/pQ1Yukf53H9iy9AugqP") ||
     raise """
     environment variable SECRET_KEY_BASE is missing.
     You can generate one by calling: mix phx.gen.secret
