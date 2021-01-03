@@ -72,8 +72,8 @@ services:
     image: haproxy
     hostname: schoolhub
     expose:
-      - "4000"
-      - "4001"
+      - "80"
+      - "443"
       - "8404"
     networks:
       schoolhub_network:
@@ -88,6 +88,7 @@ services:
   phx_server:
     container_name: phx_server
     image: phx_server:v0.2
+    hostname: schoolhub
     build:
       context: ./schoolhub
     networks:
@@ -96,7 +97,6 @@ services:
     restart: on-failure
     depends_on:
       - postgres
-    tty: true
     volumes:
       - ./schoolhub/lib:/opt/app/lib
     environment:
