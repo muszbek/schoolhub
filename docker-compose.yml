@@ -72,9 +72,10 @@ services:
     image: haproxy
     hostname: schoolhub
     expose:
-      - "80"
-      - "443"
       - "8404"
+    ports:
+      - "80:80"
+      - "443:443"
     networks:
       schoolhub_network:
         ipv4_address: 10.3.0.4
@@ -91,6 +92,9 @@ services:
     hostname: schoolhub
     build:
       context: ./schoolhub
+    expose:
+      - "4000"
+      - "4001"
     networks:
       schoolhub_network:
         ipv4_address: 10.3.0.5
