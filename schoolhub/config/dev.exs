@@ -7,7 +7,8 @@ config :schoolhub, Schoolhub.Repo,
   database: System.get_env("PGDATABASE", "schoolhub"),
   hostname: System.get_env("PGHOST", "10.3.0.3"),
   ssl: true,
-  ssl_opts: [verify: :verify_none],
+  ssl_opts: [verify: :verify_none,
+	     cacertfile: "priv/cert/chain.pem"],
   show_sensitive_data_on_connection_error: true,
   pool_size: 10
 
@@ -22,8 +23,8 @@ config :schoolhub, SchoolhubWeb.Endpoint,
   https: [
     port: 4001,
     cipher_suite: :strong,
-    keyfile: "priv/cert/schoolhub.key",
-    certfile: "priv/cert/schoolhub.crt"
+    keyfile: "priv/cert/privkey.pem",
+    certfile: "priv/cert/fullchain.pem"
   ],
   debug_errors: true,
   code_reloader: true,

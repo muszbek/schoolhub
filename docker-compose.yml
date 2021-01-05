@@ -18,7 +18,7 @@ services:
       - postgres
     volumes:
       - ./mongooseim/member:/member
-      - ./ssl:/usr/lib/mongooseim/priv/ssl
+      - ./letsencrypt/live/schoolhub.com:/usr/lib/mongooseim/priv/ssl
     environment:
       - MONGOOSEIM_CONFIG_FORMAT=cfg
 
@@ -39,7 +39,7 @@ services:
       - postgres
     volumes:
       - ./mongooseim/member:/member
-      - ./ssl:/usr/lib/mongooseim/priv/ssl
+      - ./letsencrypt/live/schoolhub.com:/usr/lib/mongooseim/priv/ssl
     environment:
       - MONGOOSEIM_CONFIG_FORMAT=cfg
 
@@ -47,7 +47,7 @@ services:
   postgres:
     container_name: schoolhub_postgres
     image: postgres
-    hostname: schoolhub
+    hostname: schoolhub.com
     expose:
       - "5432"
     networks:
@@ -57,8 +57,8 @@ services:
     shm_size: 256M
     volumes:
       - ./postgres/schema/pg.sql:/docker-entrypoint-initdb.d/pg.sql
-      - ./ssl/schoolhub.crt:/var/lib/postgresql/schoolhub.crt
-      - ./ssl/schoolhub.key:/var/lib/postgresql/schoolhub.key
+      - ./letsencrypt/live/schoolhub.com/fullchain.pem:/var/lib/postgresql/schoolhub.crt
+      - ./letsencrypt/live/schoolhub.com/privkey.pem:/var/lib/postgresql/schoolhub.key
     environment:
       - POSTGRES_PASSWORD=schoolhub
       - POSTGRES_USER=schoolhub
@@ -70,7 +70,7 @@ services:
   haproxy:
     container_name: schoolhub_haproxy
     image: haproxy
-    hostname: schoolhub
+    hostname: schoolhub.com
     expose:
       - "8404"
     ports:
@@ -82,14 +82,14 @@ services:
     restart: always
     volumes:
       - ./haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg
-      - ./ssl/schoolhub.pem:/etc/cert/schoolhub.pem
-      - ./ssl/schoolhub_cacert.crt:/etc/cert/schoolhub_cacert.pem
+      - ./letsencrypt/live/schoolhub.com/schoolhub.com.pem:/etc/cert/schoolhub.pem
+      - ./letsencrypt/live/schoolhub.com/chain.pem:/etc/cert/schoolhub_cacert.pem
 
 
   phx_server:
     container_name: phx_server
     image: phx_server:v0.2
-    hostname: schoolhub
+    hostname: schoolhub.com
     build:
       context: ./schoolhub
     expose:
@@ -103,6 +103,7 @@ services:
       - postgres
     volumes:
       - ./schoolhub/lib:/opt/app/lib
+      - ./letsencrypt/live/schoolhub.com:/opt/app/priv/cert
     environment:
       - PGUSER=schoolhub
       - PGHOST=10.3.0.3

@@ -13,7 +13,8 @@ database_url =
 
 config :schoolhub, Schoolhub.Repo,
   ssl: true,
-  ssl_opts: [verify: :verify_none],
+  ssl_opts: [verify: :verify_none,
+	     cacertfile: "priv/cert/chain.pem"],
   url: database_url,
   pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10")
 
@@ -33,8 +34,8 @@ config :schoolhub, SchoolhubWeb.Endpoint,
   https: [
     port: String.to_integer(System.get_env("PORT_TLS") || "4001"),
     cipher_suite: :strong,
-    keyfile: "priv/cert/schoolhub.key",
-    certfile: "priv/cert/schoolhub.crt",
+    keyfile: "priv/cert/privkey.pem",
+    certfile: "priv/cert/fullchain.pem",
     transport_options: [socket_opts: [:inet6]]
   ],
   secret_key_base: secret_key_base

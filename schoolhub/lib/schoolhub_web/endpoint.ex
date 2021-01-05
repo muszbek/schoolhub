@@ -5,7 +5,7 @@ defmodule SchoolhubWeb.Endpoint do
   # this means its contents can be read but not tampered with.
   # Set :encryption_salt if you would also like to encrypt it.
   @session_options [
-    domain: "schoolhub",
+    domain: "schoolhub.com",
     store: :cookie,
     secure: false,
     key: "_schoolhub_key",
