@@ -10,7 +10,7 @@ use Mix.Config
 # which you should run after static files are built and
 # before starting your production server.
 config :schoolhub, SchoolhubWeb.Endpoint,
-  url: [host: "schoolhub", port: 4000],
+  url: [host: "schoolhub.com", port: 4000],
   cache_static_manifest: "priv/static/cache_manifest.json"
 
 # Do not print debug messages in production

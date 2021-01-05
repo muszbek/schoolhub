@@ -69,8 +69,8 @@ services:
 
   haproxy:
     container_name: schoolhub_haproxy
-    image: haproxy
-    hostname: schoolhub
+    image: tomdess/haproxy-certbot
+    hostname: schoolhub.com
     expose:
       - "8404"
     ports:
@@ -81,9 +81,12 @@ services:
         ipv4_address: 10.3.0.4
     restart: always
     volumes:
-      - ./haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg
-      - ./ssl/schoolhub.pem:/etc/cert/schoolhub.pem
       - ./ssl/schoolhub_cacert.crt:/etc/cert/schoolhub_cacert.pem
+      - ./haproxy/haproxy.cfg:/etc/haproxy/haproxy.cfg
+      - ./letsencrypt:/etc/letsencrypt
+    environment:
+      - CERTS=schoolhub.com
+      - EMAIL=muszbektamas@gmail.com
 
 
   phx_server:
