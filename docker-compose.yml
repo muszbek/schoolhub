@@ -82,8 +82,8 @@ services:
     restart: always
     volumes:
       - ./haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg
-      - ./letsencrypt/live/schoolhub.com/schoolhub.com.pem:/etc/cert/schoolhub.pem
-      - ./letsencrypt/live/schoolhub.com/chain.pem:/etc/cert/schoolhub_cacert.pem
+      - ./letsencrypt/live/schoolhub.com/schoolhub.com.pem:/etc/cert/schoolhub.com.pem
+      - ./letsencrypt/live/schoolhub.com/chain.pem:/etc/cert/chain.pem
 
 
   phx_server:
