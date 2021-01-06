@@ -12,9 +12,6 @@
 
 
 # Phoenix
-
-https between server and haproxy (once server is dockerized)
-
 mass add users to course
 
 more sophisticated self user api
