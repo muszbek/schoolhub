@@ -4,6 +4,8 @@ A communication platform targeted for facilitating education courses.
 
 Written in Phoenix.
 
+All in docker containers, so make sure docker and docker-compose are installed.
+
 ## Installation
 
 ```
@@ -16,20 +18,23 @@ npm install
 
 ## Running
 
-Launch the MongooseIM server, Postgres, HAProxy:
+Back in the root directory, run this script to generate ssl certificates:
+
+```
+sudo ./dev_gen_ssl.sh
+```
+
+Launch the MongooseIM server, Postgres, HAProxy, and the Phoenix server:
 
 ```
 docker-compose up
 ```
 
-Set up the Phoenix server:
-```
-cd ./schoolhub
-mix ecto.migrate
-mix run priv/repo/seeds.exs
-mix phx.server
-```
+If in a development environment, have the address `schoolhub.com` evaluate to `127.0.0.1` in `/etc/hosts`
 
-localhost:4000
+Now you can access the webpage:
 
-(Proxy access and https deployment coming later...)
+```
+http://schoolhub.com
+https://schoolhub.com
+```
