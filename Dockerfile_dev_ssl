@@ -1,0 +1,10 @@
+FROM golang
+
+RUN apt-get update && \
+    apt-get install -y git libnss3-tools
+
+RUN go get -u github.com/FiloSottile/mkcert
+
+WORKDIR /root/.local/share/mkcert
+
+CMD ["mkcert"]
