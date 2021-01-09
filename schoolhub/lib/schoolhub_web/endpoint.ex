@@ -7,7 +7,7 @@ defmodule SchoolhubWeb.Endpoint do
   @session_options [
     domain: "schoolhub.com",
     store: :cookie,
-    secure: false,
+    secure: true,
     key: "_schoolhub_key",
     signing_salt: "ygUkyJkL"
   ]

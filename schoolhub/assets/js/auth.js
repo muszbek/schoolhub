@@ -102,7 +102,7 @@ function authXMPP(creds) {
     var jid = creds.username + '@' + domain
 
     var xmpp = client({
-	service: 'ws://' + host + ':5280/ws-xmpp',
+	service: 'wss://' + host + ':5285/ws-xmpp',
 	domain: domain,
 	username: creds.username,
 	password: creds.password
@@ -114,7 +114,8 @@ function authXMPP(creds) {
     xmpp.on("error", (err) => {
 	console.error(err);
     });
-
+    
+    console.log("*** HTTP SCRAM authentication passed... Now connecting XMPP ***");
     xmpp.start().catch(console.error);
     
     var tokenPromise = waitForEventWithTimeout(xmpp, 'online', 2000)
