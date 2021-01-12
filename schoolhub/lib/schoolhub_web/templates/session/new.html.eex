@@ -2,7 +2,7 @@
 
 <input type="text" id="username" name="username" placeholder="Username">
 <input type="password" id="password" name="password" placeholder="Password">
-<input type="hidden" id="host" name="host" value="10.3.0.4">
+<input type="hidden" id="host" name="host" value="schoolhub.com">
 <input type="hidden" id="domain" name="domain" value="10.3.2.1">
 
 <%= form_for @conn, Routes.session_path(@conn, :create), [method: :post], fn _ -> %>

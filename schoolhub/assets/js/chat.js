@@ -16,7 +16,7 @@ const self = document.getElementById("self").value;
 const token = document.getElementById("token").value;
 
 const xmpp = client({
-    service: 'ws://' + host + ':5280/ws-xmpp',
+    service: 'wss://' + host + ':5285/ws-xmpp',
     domain: domain,
     username: self,
     // sasl will base64 encode the token automatically, but it is received already encoded

@@ -3,7 +3,7 @@
 <strong><%= @user.name %></strong>
 
 <input type="hidden" id="username" name="username" value="<%= @user.credential.username %>">
-<input type="hidden" id="host" name="host" value="10.3.0.4">
+<input type="hidden" id="host" name="host" value="schoolhub.com">
 <input type="hidden" id="domain" name="domain" value="10.3.2.1">
 <input type="hidden" id="self" name="self" value="<%= @self.credential.username %>">
 <input type="hidden" id="token" name="token" value="<%= @token %>">

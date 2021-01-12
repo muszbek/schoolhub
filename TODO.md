@@ -20,8 +20,7 @@ course disable
 course members can delete edit their own messages
 course members displayed in alphabetical order
 
-enable secure session data in Endpoint.ex
-enable wss in chat -> needs implementation
+enable wss in chat
 
 
 # launch:

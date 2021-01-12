@@ -115,7 +115,7 @@ function authXMPP(creds) {
 	console.error(err);
     });
     
-    console.log("*** HTTP SCRAM authentication passed... Now connecting XMPP ***");
+    console.log("HTTP SCRAM authentication passed... Now connecting XMPP");
     xmpp.start().catch(console.error);
     
     var tokenPromise = waitForEventWithTimeout(xmpp, 'online', 2000)
