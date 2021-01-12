@@ -20,8 +20,7 @@ course disable
 course members can delete edit their own messages
 course members displayed in alphabetical order
 
-enable wss in chat
-
+DEPLOY - certbot
 
 # launch:
 in ssl:

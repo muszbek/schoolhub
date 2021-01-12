@@ -64,6 +64,7 @@ xmpp.on('stanza', (stanza) => {
     print(to_print);
 });
 
+console.log("Logging in XMPP...")
 xmpp.start().catch(console.error);
 
 
