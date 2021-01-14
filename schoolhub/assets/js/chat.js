@@ -33,13 +33,6 @@ xmpp.on("error", (err) => {
 xmpp.on('online', async (address) => {
     console.log("session started");
     await xmpp.send(xml("presence"));
-
-    const message = xml(
-	"message",
-	{type: "chat", to: address},
-	xml("body", {}, "hello world")
-    );
-    await xmpp.send(message);
 });
 
 xmpp.on('element', (element) => {

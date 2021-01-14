@@ -21,6 +21,7 @@ course members can delete edit their own messages
 course members displayed in alphabetical order
 
 DEPLOY - certbot
+encrypt session data in endpoint.ex
 
 # launch:
 in ssl:
