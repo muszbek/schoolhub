@@ -4,17 +4,13 @@
 # remember to add this file to your .gitignore.
 use Mix.Config
 
-database_url =
-  System.get_env("DATABASE_URL", "ecto://schoolhub:schoolhub@10.3.0.3/schoolhub") ||
-    raise """
-    environment variable DATABASE_URL is missing.
-    For example: ecto://USER:PASS@HOST/DATABASE
-    """
-
 config :schoolhub, Schoolhub.Repo,
+  username: System.get_env("POSTGRES_USER", "schoolhub"),
+  password: System.get_env("POSTGRES_PASSWORD", "schoolhub"),
+  database: System.get_env("POSTGRES_DB", "schoolhub"),
+  hostname: System.get_env("POSTGRES_HOST", "10.3.0.3"),
   ssl: true,
   ssl_opts: [cacertfile: "priv/cert/chain.pem"],
-  url: database_url,
   pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10")
 
 secret_key_base =

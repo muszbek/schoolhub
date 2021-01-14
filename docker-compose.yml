@@ -21,6 +21,8 @@ services:
       - ./letsencrypt/live/schoolhub.com:/usr/lib/mongooseim/priv/ssl
     environment:
       - MONGOOSEIM_CONFIG_FORMAT=cfg
+    env_file:
+      - ./postgres/postgres.env
 
   mongooseim-2:
     container_name: mongooseim-2
@@ -42,6 +44,8 @@ services:
       - ./letsencrypt/live/schoolhub.com:/usr/lib/mongooseim/priv/ssl
     environment:
       - MONGOOSEIM_CONFIG_FORMAT=cfg
+    env_file:
+      - ./postgres/postgres.env
 
   
   postgres:
@@ -59,9 +63,9 @@ services:
       - ./postgres/schema/pg.sql:/docker-entrypoint-initdb.d/pg.sql
       - ./letsencrypt/live/schoolhub.com/fullchain.pem:/var/lib/postgresql/schoolhub.crt
       - ./letsencrypt/live/schoolhub.com/privkey.pem:/var/lib/postgresql/schoolhub.key
-    environment:
-      - POSTGRES_PASSWORD=schoolhub
-      - POSTGRES_USER=schoolhub
+      - ./postgres/data/data:/var/lib/postgresql/data
+    env_file:
+      - ./postgres/postgres.env
     command: -c ssl=on
              -c ssl_cert_file=/var/lib/postgresql/schoolhub.crt
              -c ssl_key_file=/var/lib/postgresql/schoolhub.key
@@ -106,11 +110,10 @@ services:
       - ./schoolhub/lib:/opt/app/lib
       - ./letsencrypt/live/schoolhub.com:/opt/app/priv/cert
     environment:
-      - PGUSER=schoolhub
-      - PGHOST=10.3.0.3
-      - DATABASE_URL=ecto://schoolhub:schoolhub@10.3.0.3/schoolhub
       - SECRET_KEY_BASE=/d8p4MwXOA3uA9jZ2fIouO5BwvwOIRM9Gqny3Cf7XFaY/pQ1Yukf53H9iy9AugqP
       - MIX_ENV=prod
+    env_file:
+      - ./postgres/postgres.env
       
     
 networks:
