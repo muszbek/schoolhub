@@ -17,6 +17,7 @@
   - REST, Elixir, (maybe later MongoosePush)
 
 - Admin can upload files (on message board, also library).
+- Files are downloadable or view only -> view pdf or other stuff in browser
   - Elixir, PostgreSQL
 
 - Grades on student page.

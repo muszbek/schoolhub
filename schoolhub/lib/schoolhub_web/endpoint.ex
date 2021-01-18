@@ -9,7 +9,8 @@ defmodule SchoolhubWeb.Endpoint do
     store: :cookie,
     secure: true,
     key: "_schoolhub_key",
-    signing_salt: "ygUkyJkL"
+    signing_salt: System.get_env("SESSION_SIGNING_SALT", "ygUkyJkL"),
+    encryption_salt: System.get_env("SESSION_CRYPT_SALT", "Xx5sjPQJ")
   ]
 
   socket "/socket", SchoolhubWeb.UserSocket,

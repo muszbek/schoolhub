@@ -16,10 +16,10 @@ config :schoolhub, Schoolhub.Repo,
 secret_key_base =
   System.get_env("SECRET_KEY_BASE",
     "/d8p4MwXOA3uA9jZ2fIouO5BwvwOIRM9Gqny3Cf7XFaY/pQ1Yukf53H9iy9AugqP") ||
-    raise """
-    environment variable SECRET_KEY_BASE is missing.
-    You can generate one by calling: mix phx.gen.secret
-    """
+  raise """
+  environment variable SECRET_KEY_BASE is missing.
+  You can generate one by calling: mix phx.gen.secret
+  """
 
 config :schoolhub, SchoolhubWeb.Endpoint,
   http: [
