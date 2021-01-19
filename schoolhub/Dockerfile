@@ -16,4 +16,5 @@ RUN cd assets/ && \
     cd - && \
     mix do compile, phx.digest
 
-CMD ["/opt/app/entrypoint.sh"]
+ENTRYPOINT ["./entrypoint.sh"]
+CMD ["./launcher.sh"]

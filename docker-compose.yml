@@ -110,9 +110,6 @@ services:
       - ./schoolhub/lib:/opt/app/lib
       - ./letsencrypt/live/schoolhub.com:/opt/app/priv/cert
     environment:
-      - SECRET_KEY_BASE=/d8p4MwXOA3uA9jZ2fIouO5BwvwOIRM9Gqny3Cf7XFaY/pQ1Yukf53H9iy9AugqP
-      - SESSION_SIGNING_SALT=ygUkyJkL
-      - SESSION_CRYPT_SALT=Xx5sjPQJ
       - MIX_ENV=prod
     env_file:
       - ./postgres/postgres.env
