@@ -111,7 +111,7 @@ defmodule SchoolhubWeb.Router do
   scope "/admin", SchoolhubWeb do
     pipe_through :browser
     pipe_through :session
-    #pipe_through :admin
+    pipe_through :admin
 
     resources "/privileges", PrivilegeController, except: [:new, :create, :delete]
     resources "/users", UserController, except: [:new, :create, :show]
@@ -122,6 +122,15 @@ defmodule SchoolhubWeb.Router do
     pipe_through :api
 
     post "/", SessionController, :authenticate
+  end
+
+  scope "/database", SchoolhubWeb do
+    pipe_through :browser
+    pipe_through :session
+    pipe_through :admin
+
+    get "/clean", DatabaseController, :clean
+    get "/demo", DatabaseController, :demo
   end
 
   # Other scopes may use custom stacks.
