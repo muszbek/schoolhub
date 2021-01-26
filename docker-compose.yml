@@ -111,6 +111,7 @@ services:
       - ./letsencrypt/live/schoolhub.com:/opt/app/priv/cert
     environment:
       - MIX_ENV=prod
+      - DOMAIN=schoolhub.com
     env_file:
       - ./postgres/postgres.env
       
