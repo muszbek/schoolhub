@@ -8,14 +8,22 @@ if [ $(id --user) != 0 ]; then
     exit 1
 fi
 
+DOMAIN=schoolhub.com
+if [ $# -eq 1 ]
+then
+    DOMAIN=$1
+fi
+
+echo "Domain name is $DOMAIN ..."
+
 docker build -t mkcert -f Dockerfile_dev_ssl .
 
-mkdir -p letsencrypt/live/schoolhub.com
-cd ./letsencrypt/live/schoolhub.com
+mkdir -p letsencrypt/live/$DOMAIN
+cd ./letsencrypt/live/$DOMAIN
 
-docker run -v $PWD:/root/.local/share/mkcert -v /usr/bin/firefox:/usr/bin/firefox -v /usr/local/share/ca-certificates:/usr/local/share/ca-certificates -v $HOME/.mozilla/firefox:/root/.mozilla/firefox --name mkcert_temp mkcert /bin/sh -c "mkcert -install && mkcert -cert-file fullchain.pem -key-file privkey.pem schoolhub.com"
+docker run -v $PWD:/root/.local/share/mkcert -v /usr/bin/firefox:/usr/bin/firefox -v /usr/local/share/ca-certificates:/usr/local/share/ca-certificates -v $HOME/.mozilla/firefox:/root/.mozilla/firefox --name mkcert_temp mkcert /bin/sh -c "mkcert -install && mkcert -cert-file fullchain.pem -key-file privkey.pem $DOMAIN"
 
-cat privkey.pem fullchain.pem | tee schoolhub.com.pem >/dev/null
+cat privkey.pem fullchain.pem | tee $DOMAIN.pem >/dev/null
 mv rootCA.pem chain.pem
 
 chown 999:999 privkey.pem
