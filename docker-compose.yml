@@ -17,10 +17,13 @@ services:
     depends_on:
       - postgres
     volumes:
-      - ./mongooseim/member:/member
+      - ./mongooseim/entrypoint.sh:/entrypoint.sh
+      - ./mongooseim/member:/config_temp
       - ./letsencrypt/live/schoolhub.com:/usr/lib/mongooseim/priv/ssl
+    entrypoint: /entrypoint.sh
     environment:
       - MONGOOSEIM_CONFIG_FORMAT=cfg
+      - DOMAIN=schoolhub.com
     env_file:
       - ./postgres/postgres.env
 
@@ -40,10 +43,13 @@ services:
     depends_on:
       - postgres
     volumes:
-      - ./mongooseim/member:/member
+      - ./mongooseim/entrypoint.sh:/entrypoint.sh
+      - ./mongooseim/member:/config_temp
       - ./letsencrypt/live/schoolhub.com:/usr/lib/mongooseim/priv/ssl
+    entrypoint: /entrypoint.sh
     environment:
       - MONGOOSEIM_CONFIG_FORMAT=cfg
+      - DOMAIN=schoolhub.com
     env_file:
       - ./postgres/postgres.env
 
