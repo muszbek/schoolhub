@@ -9,7 +9,6 @@ CONFIG_PATH="/member/mongooseim.cfg"
 
 put_variable()
 {
-    echo "Replacing $1 with $2 ..."
     sed -i "s/$1/$2/" $CONFIG_PATH
 }
 

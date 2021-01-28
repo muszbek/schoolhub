@@ -19,11 +19,11 @@ services:
     volumes:
       - ./mongooseim/entrypoint.sh:/entrypoint.sh
       - ./mongooseim/member:/config_temp
-      - ./letsencrypt/live/schoolhub.com:/usr/lib/mongooseim/priv/ssl
+      - ./letsencrypt/live/$DOMAIN:/usr/lib/mongooseim/priv/ssl
     entrypoint: /entrypoint.sh
     environment:
       - MONGOOSEIM_CONFIG_FORMAT=cfg
-      - DOMAIN=schoolhub.com
+      - DOMAIN=$DOMAIN
     env_file:
       - ./postgres/postgres.env
 
@@ -45,11 +45,11 @@ services:
     volumes:
       - ./mongooseim/entrypoint.sh:/entrypoint.sh
       - ./mongooseim/member:/config_temp
-      - ./letsencrypt/live/schoolhub.com:/usr/lib/mongooseim/priv/ssl
+      - ./letsencrypt/live/$DOMAIN:/usr/lib/mongooseim/priv/ssl
     entrypoint: /entrypoint.sh
     environment:
       - MONGOOSEIM_CONFIG_FORMAT=cfg
-      - DOMAIN=schoolhub.com
+      - DOMAIN=$DOMAIN
     env_file:
       - ./postgres/postgres.env
 
@@ -57,7 +57,7 @@ services:
   postgres:
     container_name: schoolhub_postgres
     image: postgres
-    hostname: schoolhub.com
+    hostname: $DOMAIN
     expose:
       - "5432"
     networks:
@@ -67,8 +67,8 @@ services:
     shm_size: 256M
     volumes:
       - ./postgres/schema/pg.sql:/docker-entrypoint-initdb.d/pg.sql
-      - ./letsencrypt/live/schoolhub.com/fullchain.pem:/var/lib/postgresql/fullchain.pem
-      - ./letsencrypt/live/schoolhub.com/privkey.pem:/var/lib/postgresql/privkey.pem
+      - ./letsencrypt/live/$DOMAIN/fullchain.pem:/var/lib/postgresql/fullchain.pem
+      - ./letsencrypt/live/$DOMAIN/privkey.pem:/var/lib/postgresql/privkey.pem
       - ./postgres/data/data:/var/lib/postgresql/data
     env_file:
       - ./postgres/postgres.env
@@ -80,7 +80,7 @@ services:
   haproxy:
     container_name: schoolhub_haproxy
     image: haproxy
-    hostname: schoolhub.com
+    hostname: $DOMAIN
     expose:
       - "8404"
     ports:
@@ -93,14 +93,14 @@ services:
     restart: always
     volumes:
       - ./haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg
-      - ./letsencrypt/live/schoolhub.com/joined_cert.pem:/etc/cert/joined_cert.pem
-      - ./letsencrypt/live/schoolhub.com/chain.pem:/etc/cert/chain.pem
+      - ./letsencrypt/live/$DOMAIN/joined_cert.pem:/etc/cert/joined_cert.pem
+      - ./letsencrypt/live/$DOMAIN/chain.pem:/etc/cert/chain.pem
 
 
   phx_server:
     container_name: phx_server
     image: phx_server:v0.2
-    hostname: schoolhub.com
+    hostname: $DOMAIN
     build:
       context: ./schoolhub
     expose:
@@ -114,10 +114,10 @@ services:
       - postgres
     volumes:
       - ./schoolhub/lib:/opt/app/lib
-      - ./letsencrypt/live/schoolhub.com:/opt/app/priv/cert
+      - ./letsencrypt/live/$DOMAIN:/opt/app/priv/cert
     environment:
       - MIX_ENV=prod
-      - DOMAIN=schoolhub.com
+      - DOMAIN=$DOMAIN
     env_file:
       - ./postgres/postgres.env
       
