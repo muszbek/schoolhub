@@ -19,7 +19,7 @@ services:
     volumes:
       - ./mongooseim/entrypoint.sh:/entrypoint.sh
       - ./mongooseim/member:/config_temp
-      - ./letsencrypt/live/$DOMAIN/certs:/usr/lib/mongooseim/priv/ssl
+      - ./letsencrypt/selfsigned/$DOMAIN/certs:/usr/lib/mongooseim/priv/ssl
     entrypoint: /entrypoint.sh
     environment:
       - MONGOOSEIM_CONFIG_FORMAT=cfg
@@ -45,7 +45,7 @@ services:
     volumes:
       - ./mongooseim/entrypoint.sh:/entrypoint.sh
       - ./mongooseim/member:/config_temp
-      - ./letsencrypt/live/$DOMAIN/certs:/usr/lib/mongooseim/priv/ssl
+      - ./letsencrypt/selfsigned/$DOMAIN/certs:/usr/lib/mongooseim/priv/ssl
     entrypoint: /entrypoint.sh
     environment:
       - MONGOOSEIM_CONFIG_FORMAT=cfg
@@ -67,8 +67,8 @@ services:
     shm_size: 256M
     volumes:
       - ./postgres/schema/pg.sql:/docker-entrypoint-initdb.d/pg.sql
-      - ./letsencrypt/live/$DOMAIN/certs/fullchain.pem:/var/lib/postgresql/fullchain.pem
-      - ./letsencrypt/live/$DOMAIN/certs/privkey.pem:/var/lib/postgresql/privkey.pem
+      - ./letsencrypt/selfsigned/$DOMAIN/certs/fullchain.pem:/var/lib/postgresql/fullchain.pem
+      - ./letsencrypt/selfsigned/$DOMAIN/certs/privkey.pem:/var/lib/postgresql/privkey.pem
       - ./postgres/data/data:/var/lib/postgresql/data
     env_file:
       - ./postgres/postgres.env
@@ -94,7 +94,7 @@ services:
     volumes:
       - ./haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg
       - ./letsencrypt/live/$DOMAIN/certs/joined_cert.pem:/etc/cert/joined_cert.pem
-      - ./letsencrypt/live/$DOMAIN/certs/chain.pem:/etc/cert/chain.pem
+      - ./letsencrypt/selfsigned/$DOMAIN/certs/chain.pem:/etc/cert/chain.pem
 
 
   phx_server:
@@ -114,7 +114,7 @@ services:
       - postgres
     volumes:
       - ./schoolhub/lib:/opt/app/lib
-      - ./letsencrypt/live/$DOMAIN/certs:/opt/app/priv/cert
+      - ./letsencrypt/selfsigned/$DOMAIN/certs:/opt/app/priv/cert
     environment:
       - MIX_ENV=prod
       - DOMAIN=$DOMAIN
