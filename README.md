@@ -16,25 +16,40 @@ cd ./assets
 npm install
 ```
 
-## Running
+## Get SSL certificates
 
-Back in the root directory, run this script to generate ssl certificates:
+### In local development environment:
+
+In the root directory:
 
 ```
 sudo ./dev_gen_ssl.sh
 ```
 
-Launch the MongooseIM server, Postgres, HAProxy, and the Phoenix server:
+Have the address `schoolhub.com` evaluate to `127.0.0.1` in `/etc/hosts`
+
+### In production:
+
+In root directory:
+
+```
+sudo ./get_cert.sh MYDOMAIN
+```
+
+Your host has to be visible on the internet under MYDOMAIN, on ports 443, 5285, (80)
+
+## Running
+
+In the root directory, launch the MongooseIM server, Postgres, HAProxy, and the Phoenix server:
 
 ```
 docker-compose up
 ```
 
-If in a development environment, have the address `schoolhub.com` evaluate to `127.0.0.1` in `/etc/hosts`
-
 Now you can access the webpage:
 
 ```
-http://schoolhub.com
 https://schoolhub.com
+
+https://MYDOMAIN
 ```
