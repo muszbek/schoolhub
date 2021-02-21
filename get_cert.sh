@@ -16,6 +16,34 @@ fi
 
 echo "Domain name is $DOMAIN ..."
 
+
+function get_selfsigned {
+    echo "Creating self-signed certificates..."
+    
+    ROOT_DIR=$PWD
+    
+    docker build -t mkcert -f Dockerfile_dev_ssl .
+
+    mkdir -p letsencrypt/selfsigned/$DOMAIN/certs
+    cd ./letsencrypt/selfsigned/$DOMAIN/certs
+
+    docker run --rm -v $PWD:/root/.local/share/mkcert --name mkcert_temp mkcert /bin/sh -c "mkcert -install && mkcert -cert-file cert.pem -key-file privkey.pem $DOMAIN"
+
+    cat privkey.pem cert.pem | tee joined_cert.pem >/dev/null
+    mv rootCA.pem chain.pem
+    cp cert.pem fullchain.pem
+
+    chown 999:999 privkey.pem
+    chmod 0600 privkey.pem
+
+    cd $ROOT_DIR
+}
+
+
+if [ ! -d "./letsencrypt/selfsigned/$DOMAIN" ]; then
+    get_selfsigned
+fi
+
 apt-get update
 apt-get install -y certbot
 

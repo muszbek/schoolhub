@@ -16,6 +16,8 @@ fi
 
 echo "Domain name is $DOMAIN ..."
 
+ROOT_DIR=$PWD
+
 docker build -t mkcert -f Dockerfile_dev_ssl .
 
 mkdir -p letsencrypt/selfsigned/$DOMAIN/certs
@@ -30,8 +32,11 @@ cp cert.pem fullchain.pem
 chown 999:999 privkey.pem
 chmod 0600 privkey.pem
 
+mkdir -p $ROOT_DIR/letsencrpyt/live/$DOMAIN
+cp -r $ROOT_DIR/letsencrypt/selfsigned/$DOMAIN $ROOT_DIR/letsencrypt/live/$DOMAIN
+
 #docker rmi mkcert >/dev/null
 #docker rmi golang >/dev/null
 
-echo "Docker images cleaned up"
+#echo "Docker images cleaned up"
 

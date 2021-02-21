@@ -20,8 +20,6 @@ course disable
 course members can delete edit their own messages
 course members displayed in alphabetical order
 
-DEPLOY - certbot
-implement demo seed from user perspective
 
 # launch:
 in ssl:
