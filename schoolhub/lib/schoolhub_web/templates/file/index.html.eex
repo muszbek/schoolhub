@@ -1,4 +1,8 @@
-<h1>Listing Files</h1>
+<h1><%= link Schoolhub.Courses.get_course!(@course_id).name, to: Routes.course_path(@conn, :show, @course_id) %></h1>
+<h2>Listing Files</h2>
+
+<span><%= link "New File", to: Routes.course_file_path(@conn, :new, @course_id) %></span>
+<span><%= link "Back", to: Routes.course_path(@conn, :show, @course_id) %></span>
 
 <table>
   <thead>
@@ -26,6 +30,3 @@
 <% end %>
   </tbody>
 </table>
-
-<span><%= link "New File", to: Routes.course_file_path(@conn, :new, @course_id) %></span>
-<span><%= link "Back", to: Routes.course_path(@conn, :show, @course_id) %></span>

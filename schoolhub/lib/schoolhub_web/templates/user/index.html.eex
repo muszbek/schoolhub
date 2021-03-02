@@ -1,5 +1,7 @@
 <h1>Listing Users</h1>
 
+<span><%= link "Back", to: Routes.page_path(@conn, :index) %></span>
+
 <table>
   <thead>
     <tr>

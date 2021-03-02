@@ -1,18 +1,4 @@
-<h1>Show Course</h1>
-
-<ul>
-
-  <li>
-    <strong>Name:</strong>
-    <%= @course.name %>
-  </li>
-
-  <li>
-    <strong>Description:<br></strong>
-    <%= @course.description |> Earmark.as_html!() |> raw() %>
-  </li>
-
-</ul>
+<h1><%= @course.name %></h1>
 
 <span><%= link "View Members", to: Routes.course_affiliation_path(@conn, :index, @course.id) %></span>
 <span><%= link "View Posts", to: Routes.course_post_path(@conn, :index, @course.id) %></span>
@@ -20,3 +6,5 @@
 <span><%= link "Files", to: Routes.course_file_path(@conn, :index, @course.id) %></span>
 <span><%= link "Edit", to: Routes.course_path(@conn, :edit, @course) %></span>
 <span><%= link "Back", to: Routes.course_path(@conn, :index) %></span>
+
+<%= @course.description |> Earmark.as_html!() |> raw() %>

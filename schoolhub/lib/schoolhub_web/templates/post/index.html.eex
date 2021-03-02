@@ -1,4 +1,12 @@
-<h1>Listing Posts</h1>
+<h1><%= link Schoolhub.Courses.get_course!(@course_id).name, to: Routes.course_path(@conn, :show, @course_id) %></h1>
+<h2>Listing Posts</h2>
+
+<span><%= link "New Post", to: Routes.course_post_path(@conn, :new, @course_id) %></span>
+<%= if @post_limit !== -1 do %>
+<span><%= link "More", to: Routes.course_post_path(@conn, :index, @course_id,
+	  [limit: String.to_integer(@post_limit) + 5]) %></span>
+<% end %>
+<span><%= link "Back", to: Routes.course_path(@conn, :show, @course_id) %></span>
 
 <table>
   <thead>
@@ -33,10 +41,3 @@
 <% end %>
   </tbody>
 </table>
-
-<span><%= link "New Post", to: Routes.course_post_path(@conn, :new, @course_id) %></span>
-<%= if @post_limit !== -1 do %>
-<span><%= link "More", to: Routes.course_post_path(@conn, :index, @course_id,
-	  [limit: String.to_integer(@post_limit) + 5]) %></span>
-<% end %>
-<span><%= link "Back", to: Routes.course_path(@conn, :show, @course_id) %></span>

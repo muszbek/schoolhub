@@ -1,5 +1,8 @@
 <h1>Listing Courses</h1>
 
+<span><%= link "New Course", to: Routes.course_path(@conn, :new) %></span>
+<span><%= link "Back", to: Routes.page_path(@conn, :index) %></span>
+
 <table>
   <thead>
     <tr>
@@ -22,5 +25,3 @@
 <% end %>
   </tbody>
 </table>
-
-<span><%= link "New Course", to: Routes.course_path(@conn, :new) %></span>
