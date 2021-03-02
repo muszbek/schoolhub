@@ -50,18 +50,19 @@ assistant can modify courses
 
 #After review with Antrea:
 
-at any point: which course? - course homepage
 at any point: who is teacher? teacher on top
 
 grade is too hidden
-
-links on bottom should be on top
 
 posts -> announcements or questions
 questions polling
 reply to posts is confusing
 
 files students shouldn't upload
+
+forgot password
+reg confirm password
+email confirm reg
 
 files assignments grades
 exams time limit
@@ -71,7 +72,7 @@ this helps the teacher prioritize
 
 sort questions by title, chapter (numeric)
 
+invite users to course by spreading token, user regs themselves
+
 go with kurbernetes server model
 limit the users, find a way to monitor
-
-

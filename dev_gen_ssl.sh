@@ -32,7 +32,7 @@ cp cert.pem fullchain.pem
 chown 999:999 privkey.pem
 chmod 0600 privkey.pem
 
-mkdir -p $ROOT_DIR/letsencrpyt/live/$DOMAIN
+mkdir -p $ROOT_DIR/letsencrypt/live/$DOMAIN
 cp -r $ROOT_DIR/letsencrypt/selfsigned/$DOMAIN $ROOT_DIR/letsencrypt/live/$DOMAIN
 
 #docker rmi mkcert >/dev/null

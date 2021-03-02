@@ -1,5 +1,4 @@
 
-- handle persistent data in postgres volume
 - check mam common test why database is not cleaned
 
 - grades to XMPP
@@ -7,7 +6,6 @@
 
 - disable course operations on deactivated courses
 
-- whitelist plug macro make it read the test config
 - mongooseim whitelist access from HAProxy
 
 
@@ -20,10 +18,7 @@ course disable
 course members can delete edit their own messages
 course members displayed in alphabetical order
 
+embedded links should open in new tab instead of redirect current
 
-# launch:
-in ssl:
-sudo chown 999:999 schoolhub.key
-sudo chmod 0600 schoolhub.key
-
-sudo apt-get install inotify-tools
+BUG! posts are visible for all courses
+list_posts -> only ones belonging to course

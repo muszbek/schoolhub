@@ -73,7 +73,7 @@ defmodule SchoolhubWeb.CourseControllerTest do
       assert redirected_to(conn) == Routes.course_path(conn, :show, id)
 
       conn = get(conn, Routes.course_path(conn, :show, id))
-      assert html_response(conn, 200) =~ "Show Course"
+      assert html_response(conn, 200) =~ "Back"
 
       [_owner_aff = %{id: aff_id}] = Courses.list_course_affiliations(id)
       conn = get(conn, Routes.course_affiliation_path(conn, :show, id, aff_id))
