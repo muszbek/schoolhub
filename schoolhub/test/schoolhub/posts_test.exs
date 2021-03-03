@@ -42,14 +42,14 @@ defmodule Schoolhub.PostsTest do
       |> Repo.preload(:reply)
     end
 
-    test "list_posts/0 returns some posts" do
+    test "list_course_posts/0 returns some posts" do
       post = post_fixture()
-      assert Posts.list_posts() == [post]
+      assert Posts.list_course_posts(post.course_id) == [post]
     end
     
-    test "list_posts/1 returns some posts" do
+    test "list_course_posts/1 returns some posts" do
       post = post_fixture()
-      assert Posts.list_posts("5") == [post]
+      assert Posts.list_course_posts(post.course_id, "5") == [post]
     end
 
     test "get_post!/1 returns the post with given id" do

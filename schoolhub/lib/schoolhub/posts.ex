@@ -19,8 +19,9 @@ defmodule Schoolhub.Posts do
       [%Post{}, ...]
 
   """
-  def list_posts(post_limit \\ @post_limit_default) do
+  def list_course_posts(course_id, post_limit \\ @post_limit_default) do
     Post
+    |> where(course_id: ^course_id)
     |> order_by(desc: :pinned)
     |> order_by(desc: :inserted_at)
     |> limit(^post_limit)
