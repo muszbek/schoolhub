@@ -56,6 +56,10 @@ config :schoolhub, SchoolhubWeb.Endpoint,
 # configured to run both http and https servers on
 # different ports.
 
+config :schoolhub, :xmpp,
+  protocol: "ws",
+  port: "5280"
+
 # Watch static and templates for browser reloading.
 config :schoolhub, SchoolhubWeb.Endpoint,
   live_reload: [

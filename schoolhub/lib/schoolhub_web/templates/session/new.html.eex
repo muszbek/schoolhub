@@ -2,7 +2,8 @@
 
 <input type="text" id="username" name="username" placeholder="Username">
 <input type="password" id="password" name="password" placeholder="Password">
-<input type="hidden" id="host" name="host" value="<%= System.get_env("DOMAIN", "schoolhub.com") %>">
+<input type="hidden" id="xmpp_url" name="xmpp_url"
+       value="<%= Application.get_env(:schoolhub, :xmpp)[:protocol] <> "://" <>  System.get_env("DOMAIN", "localhost") <> ":" <> Application.get_env(:schoolhub, :xmpp)[:port] <> "/ws-xmpp" %>">
 <input type="hidden" id="domain" name="domain" value="10.3.2.1">
 
 <%= form_for @conn, Routes.session_path(@conn, :create), [method: :post], fn _ -> %>

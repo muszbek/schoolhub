@@ -9,14 +9,14 @@ const csrfToken = document.head.querySelector("[name~=csrf-token][content]").con
 const {client, xml} = require("@xmpp/client");
 const {decode} = require("@xmpp/base64");
 const debug = require("@xmpp/debug");
-const host = document.getElementById("host").value;
+const host = document.getElementById("xmpp_url").value;
 const domain = document.getElementById("domain").value;
 const username = document.getElementById("username").value;
 const self = document.getElementById("self").value;
 const token = document.getElementById("token").value;
 
 const xmpp = client({
-    service: 'wss://' + host + ':5285/ws-xmpp',
+    service: host,
     domain: domain,
     username: self,
     // sasl will base64 encode the token automatically, but it is received already encoded

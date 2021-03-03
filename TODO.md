@@ -8,6 +8,8 @@
 
 - mongooseim whitelist access from HAProxy
 
+- how to hot update code without restarting container?
+
 
 # Phoenix
 mass add users to course

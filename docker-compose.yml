@@ -86,6 +86,7 @@ services:
     ports:
       - "80:80"
       - "443:443"
+      - "5280:5280"
       - "5285:5285"
     networks:
       schoolhub_network:

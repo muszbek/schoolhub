@@ -97,12 +97,12 @@ function maybeAuthXMPP(authResult, creds) {
 };
 
 function authXMPP(creds) {
-    var host = document.getElementById("host").value;
+    var host = document.getElementById("xmpp_url").value;
     var domain = document.getElementById("domain").value;
     var jid = creds.username + '@' + domain
 
     var xmpp = client({
-	service: 'wss://' + host + ':5285/ws-xmpp',
+	service: host,
 	domain: domain,
 	username: creds.username,
 	password: creds.password

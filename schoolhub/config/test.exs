@@ -11,8 +11,7 @@ config :schoolhub, Schoolhub.Repo,
   database: "schoolhub_test#{System.get_env("MIX_TEST_PARTITION")}",
   hostname: "10.3.0.3",
   ssl: true,
-  ssl_opts: [verify: :verify_none,
-	     cacertfile: "priv/cert/chain.pem"],
+  ssl_opts: [verify: :verify_none],
   pool: Ecto.Adapters.SQL.Sandbox
 
 # We don't run a server during test. If one is required,
@@ -20,6 +19,10 @@ config :schoolhub, Schoolhub.Repo,
 config :schoolhub, SchoolhubWeb.Endpoint,
   http: [port: 4002],
   server: false
+
+config :schoolhub, :xmpp,
+  protocol: "ws",
+  port: "5280"
 
 # Print only warnings and errors during test
 config :logger, level: :warn
