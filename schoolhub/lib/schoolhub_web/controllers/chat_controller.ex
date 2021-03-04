@@ -4,8 +4,8 @@ defmodule SchoolhubWeb.ChatController do
   alias Schoolhub.{Accounts, Courses}
   
   def index(conn, %{"course_id" => course_id}) do
-    users = Courses.list_affiliated_users(course_id)
-    render(conn, "index.html", course_id: course_id, users: users)
+    affiliations = Courses.list_course_affiliations(course_id)
+    render(conn, "index.html", course_id: course_id, affiliations: affiliations)
   end
 
   def chat(conn, %{"course_id" => course_id, "user_id" => user_id}) do

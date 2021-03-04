@@ -137,24 +137,18 @@ defmodule Schoolhub.CoursesTest do
       assert Courses.list_course_affiliations(aff.course_id) == [aff]
     end
 
-    test "list_affiliated_users/1 returns all users" do
-      _aff = %{course_id: course_id, user_id: user_id} = affiliation_fixture()
-      user = Accounts.get_user!(user_id)
-      assert Courses.list_affiliated_users(course_id) == [user]
-    end
-
     test "get_username!/2 returns only name when student" do
       _aff = %{course_id: course_id, user_id: user_id, affiliation: "student"} =
 	affiliation_fixture()
       user = Accounts.get_user!(user_id)
-      assert Courses.get_username!(user, course_id) == user.name
+      assert Courses.get_username!(user_id, course_id) == user.name
     end
 
     test "get_username!/2 returns extended name when not student" do
       {:ok, %Affiliation{course_id: course_id, user_id: user_id, affiliation: "assistant"}} =
 	Courses.update_affiliation(affiliation_fixture(), @update_attrs)
       user = Accounts.get_user!(user_id)
-      assert Courses.get_username!(user, course_id) == user.name <> " (assistant)"
+      assert Courses.get_username!(user_id, course_id) == user.name <> " (assistant)"
     end
 
     test "list_affiliated_courses/1 returns all courses that user is member of" do

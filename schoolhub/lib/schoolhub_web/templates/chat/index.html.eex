@@ -12,12 +12,12 @@
     </tr>
   </thead>
   <tbody>
-<%= for user <- @users do %>
+<%= for aff <- @affiliations do %>
     <tr>
-      <td><%= user.name %></td>
+      <td><%= Schoolhub.Courses.get_username!(aff.user_id, @course_id) %></td>
 
       <td>
-        <span><%= link "Chat", to: Routes.course_chat_path(@conn, :chat, @course_id, user) %></span>
+        <span><%= link "Chat", to: Routes.course_chat_path(@conn, :chat, @course_id, aff.user_id) %></span>
       </td>
     </tr>
 <% end %>
