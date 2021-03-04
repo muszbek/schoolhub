@@ -156,6 +156,17 @@ defmodule Schoolhub.Courses do
     |> select([:user_id])
   end
 
+  def get_username!(%User{} = user, course_id) do
+    %Affiliation{affiliation: aff} = get_affiliation_by_user!(course_id, user.id)
+
+    case aff do
+      "student" ->
+	user.name
+      other ->
+	user.name <> " (" <> other <> ")"
+    end
+  end
+
   @doc """
   Gets a single affiliation.
 
