@@ -17,8 +17,10 @@ defmodule Schoolhub.Files do
       [%File{}, ...]
 
   """
-  def list_files do
-    Repo.all(File)
+  def list_course_files(course_id) do
+    File
+    |> where(course_id: ^course_id)
+    |> Repo.all()
   end
 
   @doc """

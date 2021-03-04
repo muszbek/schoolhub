@@ -386,7 +386,7 @@ Files.create_file(%{uploader: user_id, course_id: course1, filename: "README.md"
 path = "./priv/repo/demo_seeds.exs"
 {:ok, binary_content} = BuiltinFile.read(path)
 {:ok, %{size: size}} = BuiltinFile.stat(path)
-%User{id: user_id} = Accounts.get_user_by_name!("apavlou")
+%User{id: user_id} = Accounts.get_user_by_name!("nreda")
 Files.create_file(%{uploader: user_id, course_id: course1, filename: "demo_seeds.exs", size: size,
 		    file_data: %{data: binary_content}})
 

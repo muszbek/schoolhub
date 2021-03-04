@@ -46,7 +46,7 @@ defmodule Schoolhub.FilesTest do
 
     test "list_files/0 returns all files" do
       file = file_fixture()
-      assert Files.list_files() == [file]
+      assert Files.list_course_files(file.course_id) == [file]
     end
 
     test "get_file!/1 returns the file with given id" do

@@ -50,15 +50,11 @@ assistant can modify courses
 
 #After review with Antrea:
 
-at any point: who is teacher? teacher on top
-
 grade is too hidden
 
 posts -> announcements or questions
 questions polling
 reply to posts is confusing
-
-files students shouldn't upload
 
 forgot password
 reg confirm password

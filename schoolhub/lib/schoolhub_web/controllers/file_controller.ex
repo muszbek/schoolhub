@@ -6,7 +6,7 @@ defmodule SchoolhubWeb.FileController do
   alias Schoolhub.Files.File, as: CourseFile
 
   def index(conn, %{"course_id" => course_id}) do
-    files = Files.list_files()
+    files = Files.list_course_files(course_id)
     render(conn, "index.html", files: files, course_id: course_id)
   end
 
