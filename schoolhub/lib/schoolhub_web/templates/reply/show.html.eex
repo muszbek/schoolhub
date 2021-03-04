@@ -4,6 +4,9 @@
 <ul>
 
   <li>
+    <strong>Author:</strong>
+    <%= Schoolhub.Courses.get_username!(@reply.creator, @course_id) %>
+  <li>
     <strong>Content:<br></strong>
     <%= @reply.content |> Earmark.as_html!() |> raw() %>
   </li>

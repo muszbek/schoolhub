@@ -18,7 +18,7 @@
 <%= for file <- @files do %>
     <tr>
       <td><%= file.filename %></td>
-      <td><%= Schoolhub.Accounts.get_user!(file.uploader).name %></td>
+      <td><%= Schoolhub.Courses.get_username!(file.uploader, @course_id) %></td>
       <td><%= Schoolhub.Files.display_size(file.size) %></td>
 
       <td>

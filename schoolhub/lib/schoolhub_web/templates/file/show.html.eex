@@ -10,7 +10,7 @@
 
   <li>
     <strong>Uploader:</strong>
-    <%= Schoolhub.Accounts.get_user!(@file.uploader).name %>
+    <%= Schoolhub.Courses.get_username!(@file.uploader, @course_id) %>
   </li>
 
   <li>

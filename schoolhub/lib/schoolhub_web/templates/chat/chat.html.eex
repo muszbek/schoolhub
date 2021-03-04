@@ -1,7 +1,7 @@
 <h1><%= link Schoolhub.Courses.get_course!(@course_id).name, to: Routes.course_path(@conn, :show, @course_id) %></h1>
 <h2>Chat</h2>
 
-<strong><%= @user.name %></strong>
+<strong><%= Schoolhub.Courses.get_username!(@user.id, @course_id) %></strong>
 
 <input type="hidden" id="username" name="username" value="<%= @user.credential.username %>">
 <input type="hidden" id="xmpp_url" name="xmpp_url"

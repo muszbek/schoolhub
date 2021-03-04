@@ -10,7 +10,7 @@
 
   <li>
     <strong>Author:</strong>
-    <%= Schoolhub.Accounts.get_user!(@post.creator).name %>
+    <%= Schoolhub.Courses.get_username!(@post.creator, @course_id) %>
   </li>
 
   <li>
