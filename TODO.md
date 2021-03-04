@@ -22,7 +22,6 @@ course members displayed in alphabetical order
 
 embedded links should open in new tab instead of redirect current
 
-limit privileges for post
 implement question
 implement token course invite
 implement confirm password, forgot password, email confirm reg

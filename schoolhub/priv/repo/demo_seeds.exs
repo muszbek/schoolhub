@@ -239,7 +239,7 @@ Courses.create_affiliation(%{affiliation: "student", course_id: course2, user_id
 alias Schoolhub.Posts
 alias Schoolhub.Posts.Post
 
-%User{id: user_id} = Accounts.get_user_by_name!("apavlou")
+%User{id: user_id} = Accounts.get_user_by_name!("nreda")
 {:ok, %Post{id: post1}} = Posts.create_post(%{creator: user_id, course_id: course1, pinned: false,
 					      content: "Is this the real life \\
 Is this just fantasy \\
@@ -257,11 +257,11 @@ To me"})
 {:ok, %Post{id: post2}} = Posts.create_post(%{creator: user_id, course_id: course1, pinned: true,
 					      content: "Az éjjel soha nem érhet véget"})
 
-%User{id: user_id} = Accounts.get_user_by_name!("jpatil")
+%User{id: user_id} = Accounts.get_user_by_name!("tmuszbek")
 {:ok, %Post{id: post3}} = Posts.create_post(%{creator: user_id, course_id: course1, pinned: false,
 					      content: "שלח לי מלאך"})
 
-%User{id: user_id} = Accounts.get_user_by_name!("gbenevides")
+%User{id: user_id} = Accounts.get_user_by_name!("nreda")
 {:ok, %Post{id: post4}} = Posts.create_post(%{creator: user_id, course_id: course1, pinned: false,
 					      content: "Белая армия, чёрный барон"})
 
