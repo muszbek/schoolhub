@@ -41,9 +41,14 @@ defmodule Schoolhub.QuestionsTest do
       question
     end
 
-    test "list_questions/0 returns all questions" do
+    test "list_course_questions/0 returns some questions" do
       question = question_fixture()
-      assert Questions.list_questions() == [question]
+      assert Questions.list_course_questions(question.course_id) == [question]
+    end
+
+    test "list_course_questions/1 returns some questions" do
+      question = question_fixture()
+      assert Questions.list_course_questions(question.course_id, "5") == [question]
     end
 
     test "get_question!/1 returns the question with given id" do

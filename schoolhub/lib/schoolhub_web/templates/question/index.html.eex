@@ -2,6 +2,10 @@
 <h2>Listing Questions</h2>
 
 <span><%= link "New Question", to: Routes.course_question_path(@conn, :new, @course_id) %></span>
+<%= if @question_limit !== -1 do %>
+<span><%= link "More", to: Routes.course_question_path(@conn, :index, @course_id,
+	  [limit: String.to_integer(@question_limit) + 5]) %></span>
+<% end %>
 <span><%= link "Back", to: Routes.course_path(@conn, :show, @course_id) %></span>
 
 <table>

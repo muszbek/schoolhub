@@ -8,6 +8,8 @@ defmodule Schoolhub.Questions do
 
   alias Schoolhub.Questions.Question
 
+  @question_limit_default 5
+
   @doc """
   Returns the list of questions.
 
@@ -17,8 +19,13 @@ defmodule Schoolhub.Questions do
       [%Question{}, ...]
 
   """
-  def list_questions do
-    Repo.all(Question)
+  def list_course_questions(course_id, question_limit \\ @question_limit_default) do
+    Question
+    |> where(course_id: ^course_id)
+    |> order_by(desc: :pinned)
+    |> order_by(desc: :inserted_at)
+    |> limit(^question_limit)
+    |> Repo.all()
   end
 
   @doc """

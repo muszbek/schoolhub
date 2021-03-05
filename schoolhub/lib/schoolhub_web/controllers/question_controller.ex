@@ -4,9 +4,15 @@ defmodule SchoolhubWeb.QuestionController do
   alias Schoolhub.Questions
   alias Schoolhub.Questions.Question
 
+  @question_limit_default "5"
+
+  def index(conn, %{"course_id" => course_id, "limit" => limit}) do
+    questions = Questions.list_course_questions(course_id, limit)
+    limit = if Enum.count(questions) < String.to_integer(limit), do: -1, else: limit
+    render(conn, "index.html", questions: questions, course_id: course_id, question_limit: limit)
+  end
   def index(conn, %{"course_id" => course_id}) do
-    questions = Questions.list_questions()
-    render(conn, "index.html", questions: questions, course_id: course_id)
+    index(conn, %{"course_id" => course_id, "limit" => @question_limit_default})
   end
 
   def new(conn, %{"course_id" => course_id}) do
