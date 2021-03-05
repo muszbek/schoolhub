@@ -27,3 +27,5 @@ implement token course invite
 implement confirm password, forgot password, email confirm reg
 
 session page is not relevant if you are logged in, login status should be clear
+
+implement question display limit!

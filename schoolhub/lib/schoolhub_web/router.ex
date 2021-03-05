@@ -64,9 +64,12 @@ defmodule SchoolhubWeb.Router do
       get "/chat", ChatController, :index
       get "/chat/:user_id", ChatController, :chat
       resources "/affiliations", AffiliationController, only: [:index, :show]
+      
       resources "/posts", PostController, only: [:index, :show] do
 	resources "/replies", ReplyController, except: [:edit, :update, :delete]
       end
+      resources "/questions", QuestionController, except: [:edit, :update, :delete]
+      
       resources "/files", FileController, only: [:index, :show]
       get "/files/download/:id", FileController, :download
     end
@@ -88,6 +91,9 @@ defmodule SchoolhubWeb.Router do
       resources "/posts", PostController, except: [:index, :show] do
 	resources "/replies", ReplyController, only: [:edit, :update, :delete]
 	put "/pin", PostController, :pin
+      end
+      resources "/questions", QuestionController, only: [:edit, :update, :delete] do
+	put "/pin", QuestionController, :pin
       end
 
       resources "/files", FileController, except: [:index, :show]
