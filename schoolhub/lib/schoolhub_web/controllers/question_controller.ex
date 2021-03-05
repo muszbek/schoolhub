@@ -1,6 +1,6 @@
 defmodule SchoolhubWeb.QuestionController do
   use SchoolhubWeb, :controller
-
+  
   alias Schoolhub.Questions
   alias Schoolhub.Questions.Question
 
@@ -72,7 +72,7 @@ defmodule SchoolhubWeb.QuestionController do
     question = Questions.get_question!(id)
     {:ok, _question} = Questions.update_question(question, %{pinned: to_pin})
     
-    msg = if to_pin, do: "Question pinned.", else: "Question unpinned."
+    msg = if to_pin == "true", do: "Question pinned.", else: "Question unpinned."
     
     conn
     |> put_flash(:info, msg)

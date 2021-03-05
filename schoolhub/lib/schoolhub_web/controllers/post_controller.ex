@@ -77,7 +77,7 @@ defmodule SchoolhubWeb.PostController do
     post = Posts.get_post!(id)
     {:ok, _post} = Posts.update_post(post, %{pinned: to_pin})
     
-    msg = if to_pin, do: "Post pinned.", else: "Post unpinned."
+    msg = if to_pin == "true", do: "Post pinned.", else: "Post unpinned."
     
     conn
     |> put_flash(:info, msg)

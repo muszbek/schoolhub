@@ -1,10 +1,16 @@
-<h1>Show Question</h1>
+<h1><%= link Schoolhub.Courses.get_course!(@course_id).name, to: Routes.course_path(@conn, :show, @course_id) %></h1>
+<h2>Show Question</h2>
 
 <ul>
 
   <li>
-    <strong>Content:</strong>
-    <%= @question.content %>
+    <strong>Content:<br></strong>
+    <%= @question.content |> Earmark.as_html!() |> raw() %>
+  </li>
+
+  <li>
+    <strong>Author:</strong>
+    <%= Schoolhub.Courses.get_username!(@question.creator, @course_id) %>
   </li>
 
   <li>
@@ -19,5 +25,5 @@
 
 </ul>
 
-<span><%= link "Edit", to: Routes.question_path(@conn, :edit, @question) %></span>
-<span><%= link "Back", to: Routes.question_path(@conn, :index) %></span>
+<span><%= link "Edit", to: Routes.course_question_path(@conn, :edit, @course_id, @question) %></span>
+<span><%= link "Back", to: Routes.course_question_path(@conn, :index, @course_id) %></span>
