@@ -5,6 +5,7 @@ defmodule Schoolhub.Courses.Course do
   alias Schoolhub.Accounts.User
   alias Schoolhub.Courses.Affiliation
   alias Schoolhub.Posts.Post
+  alias Schoolhub.Questions.Question
 
   schema "courses" do
     field :description, :string
@@ -15,6 +16,7 @@ defmodule Schoolhub.Courses.Course do
       default: true
     has_many :affiliation, Affiliation
     has_many :post, Post
+    has_many :question, Question
 
     timestamps()
   end
