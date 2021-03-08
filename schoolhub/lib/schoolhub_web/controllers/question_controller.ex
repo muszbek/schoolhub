@@ -41,7 +41,7 @@ defmodule SchoolhubWeb.QuestionController do
 
   def show(conn, %{"course_id" => course_id, "id" => id}) do
     question = Questions.get_question!(id)
-    render(conn, "show.html", question: question, course_id: course_id)
+    render(conn, "show.html", question: question, course_id: course_id, qreplies: question.qreply)
   end
 
   def edit(conn, %{"course_id" => course_id, "id" => id}) do

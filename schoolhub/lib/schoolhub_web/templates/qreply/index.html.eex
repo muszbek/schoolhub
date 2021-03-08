@@ -1,26 +1,26 @@
-<h1>Listing Question replies</h1>
-
 <table>
   <thead>
     <tr>
       <th>Content</th>
+      <th>Author</th>
 
       <th></th>
     </tr>
   </thead>
   <tbody>
-<%= for qreply <- @question_replies do %>
+<%= for reply <- @question_replies do %>
     <tr>
-      <td><%= qreply.content %></td>
+      <td><%= reply.content |> SchoolhubWeb.Gettext.first_line() %></td>
+      <td><%= Schoolhub.Courses.get_username!(reply.creator, @course_id) %></td>
 
       <td>
-        <span><%= link "Show", to: Routes.qreply_path(@conn, :show, qreply) %></span>
-        <span><%= link "Edit", to: Routes.qreply_path(@conn, :edit, qreply) %></span>
-        <span><%= link "Delete", to: Routes.qreply_path(@conn, :delete, qreply), method: :delete, data: [confirm: "Are you sure?"] %></span>
+        <span><%= link "Show", to: Routes.course_question_qreply_path(@conn, :show, @course_id, @question_id, reply) %></span>
+        <span><%= link "Edit", to: Routes.course_question_qreply_path(@conn, :edit, @course_id, @question_id, reply) %></span>
+        <span><%= link "Delete", to: Routes.course_question_qreply_path(@conn, :delete, @course_id, @question_id, reply), method: :delete, data: [confirm: "Are you sure?"] %></span>
       </td>
     </tr>
 <% end %>
   </tbody>
 </table>
 
-<span><%= link "New Qreply", to: Routes.qreply_path(@conn, :new) %></span>
+<span><%= link "New Reply", to: Routes.course_question_qreply_path(@conn, :new, @course_id, @question_id) %></span>

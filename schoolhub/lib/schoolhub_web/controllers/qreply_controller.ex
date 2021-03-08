@@ -4,59 +4,69 @@ defmodule SchoolhubWeb.QreplyController do
   alias Schoolhub.Questions
   alias Schoolhub.Questions.Qreply
 
-  def index(conn, _params) do
-    question_replies = Questions.list_question_replies()
-    render(conn, "index.html", question_replies: question_replies)
+  def index(conn, %{"course_id" => course_id, "question_id" => question_id}) do
+    redirect(conn, to: Routes.course_question_path(conn, :show, course_id, question_id))
   end
 
-  def new(conn, _params) do
+  def new(conn, %{"course_id" => course_id, "question_id" => question_id}) do
     changeset = Questions.change_qreply(%Qreply{})
-    render(conn, "new.html", changeset: changeset)
+    render(conn, "new.html", changeset: changeset,
+      course_id: course_id, question_id: question_id)
   end
 
-  def create(conn, %{"qreply" => qreply_params}) do
-    case Questions.create_qreply(qreply_params) do
+  def create(conn, %{"course_id" => course_id, "question_id" => question_id, "qreply" => qreply_params}) do
+    user_id = get_session(conn, :user_id)
+    qreply_params_with_creator = qreply_params
+    |> Map.put("creator", user_id)
+    |> Map.put("parent_question", question_id)
+    |> Morphix.atomorphify!()
+
+    case Questions.create_qreply(qreply_params_with_creator) do
       {:ok, qreply} ->
         conn
-        |> put_flash(:info, "Qreply created successfully.")
-        |> redirect(to: Routes.qreply_path(conn, :show, qreply))
+        |> put_flash(:info, "Reply created successfully.")
+        |> redirect(to: Routes.course_question_qreply_path(conn, :show, course_id, question_id, qreply))
 
       {:error, %Ecto.Changeset{} = changeset} ->
-        render(conn, "new.html", changeset: changeset)
+        render(conn, "new.html", changeset: changeset,
+	  course_id: course_id, question_id: question_id)
     end
   end
 
-  def show(conn, %{"id" => id}) do
+  def show(conn, %{"course_id" => course_id, "question_id" => question_id, "id" => id}) do
     qreply = Questions.get_qreply!(id)
-    render(conn, "show.html", qreply: qreply)
+    render(conn, "show.html", qreply: qreply, course_id: course_id, question_id: question_id)
   end
 
-  def edit(conn, %{"id" => id}) do
+  def edit(conn, %{"course_id" => course_id, "question_id" => question_id, "id" => id}) do
     qreply = Questions.get_qreply!(id)
     changeset = Questions.change_qreply(qreply)
-    render(conn, "edit.html", qreply: qreply, changeset: changeset)
+    render(conn, "edit.html", qreply: qreply, changeset: changeset,
+      course_id: course_id, question_id: question_id)
   end
 
-  def update(conn, %{"id" => id, "qreply" => qreply_params}) do
+  def update(conn, %{"course_id" => course_id, "question_id" => question_id,
+		     "id" => id, "qreply" => qreply_params}) do
     qreply = Questions.get_qreply!(id)
 
     case Questions.update_qreply(qreply, qreply_params) do
       {:ok, qreply} ->
         conn
-        |> put_flash(:info, "Qreply updated successfully.")
-        |> redirect(to: Routes.qreply_path(conn, :show, qreply))
+        |> put_flash(:info, "Reply updated successfully.")
+        |> redirect(to: Routes.course_question_qreply_path(conn, :show, course_id, question_id, qreply))
 
       {:error, %Ecto.Changeset{} = changeset} ->
-        render(conn, "edit.html", qreply: qreply, changeset: changeset)
+        render(conn, "edit.html", qreply: qreply, changeset: changeset,
+	  course_id: course_id, question_id: question_id)
     end
   end
 
-  def delete(conn, %{"id" => id}) do
+  def delete(conn, %{"course_id" => course_id, "question_id" => question_id, "id" => id}) do
     qreply = Questions.get_qreply!(id)
     {:ok, _qreply} = Questions.delete_qreply(qreply)
 
     conn
-    |> put_flash(:info, "Qreply deleted successfully.")
-    |> redirect(to: Routes.qreply_path(conn, :index))
+    |> put_flash(:info, "Reply deleted successfully.")
+    |> redirect(to: Routes.course_question_qreply_path(conn, :index, course_id, question_id))
   end
 end

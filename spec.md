@@ -52,6 +52,8 @@ assistant can modify courses
 
 grade is too hidden
 
+want to edit or delete own question or reply
+
 posts -> announcements or questions
 questions polling
 reply to posts is confusing

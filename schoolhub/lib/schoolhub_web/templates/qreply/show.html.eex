@@ -1,13 +1,17 @@
-<h1>Show Qreply</h1>
+<h1><%= link Schoolhub.Courses.get_course!(@course_id).name, to: Routes.course_path(@conn, :show, @course_id) %></h1>
+<h2>Show Reply</h2>
 
 <ul>
 
   <li>
-    <strong>Content:</strong>
-    <%= @qreply.content %>
+    <strong>Author:</strong>
+    <%= Schoolhub.Courses.get_username!(@qreply.creator, @course_id) %>
+  <li>
+    <strong>Content:<br></strong>
+    <%= @qreply.content |> Earmark.as_html!() |> raw() %>
   </li>
 
 </ul>
 
-<span><%= link "Edit", to: Routes.qreply_path(@conn, :edit, @qreply) %></span>
-<span><%= link "Back", to: Routes.qreply_path(@conn, :index) %></span>
+<span><%= link "Edit", to: Routes.course_question_qreply_path(@conn, :edit, @course_id, @question_id, @qreply) %></span>
+<span><%= link "Back", to: Routes.course_question_qreply_path(@conn, :index, @course_id, @question_id) %></span>

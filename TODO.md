@@ -22,7 +22,6 @@ course members displayed in alphabetical order
 
 embedded links should open in new tab instead of redirect current
 
-implement question reply
 implement question sorting
 implement question like
 implement token course invite
