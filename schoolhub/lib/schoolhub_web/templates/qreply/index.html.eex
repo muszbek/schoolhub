@@ -1,0 +1,26 @@
+<h1>Listing Question replies</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Content</th>
+
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+<%= for qreply <- @question_replies do %>
+    <tr>
+      <td><%= qreply.content %></td>
+
+      <td>
+        <span><%= link "Show", to: Routes.qreply_path(@conn, :show, qreply) %></span>
+        <span><%= link "Edit", to: Routes.qreply_path(@conn, :edit, qreply) %></span>
+        <span><%= link "Delete", to: Routes.qreply_path(@conn, :delete, qreply), method: :delete, data: [confirm: "Are you sure?"] %></span>
+      </td>
+    </tr>
+<% end %>
+  </tbody>
+</table>
+
+<span><%= link "New Qreply", to: Routes.qreply_path(@conn, :new) %></span>

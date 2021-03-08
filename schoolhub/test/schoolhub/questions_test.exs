@@ -38,7 +38,8 @@ defmodule Schoolhub.QuestionsTest do
         |> Enum.into(@valid_attrs)
         |> Questions.create_question()
 
-      question
+	question
+	|> Repo.preload(:qreply)
     end
 
     test "list_course_questions/0 returns some questions" do
@@ -93,6 +94,95 @@ defmodule Schoolhub.QuestionsTest do
     test "change_question/1 returns a question changeset" do
       question = question_fixture()
       assert %Ecto.Changeset{} = Questions.change_question(question)
+    end
+  end
+
+  describe "question_replies" do
+    alias Schoolhub.Questions.Qreply
+
+    @valid_user_attrs %{email: "some email",
+			name: "some name",
+			credential: %{username: "some username",
+				      password: "some password"}}
+    @valid_course_attrs %{description: "some description", name: "some name"}
+    
+    @valid_attrs %{content: "some content"}
+    @update_attrs %{content: "some updated content"}
+    @invalid_attrs %{content: nil}
+
+    def ids_fixture2() do
+      {:ok, _user = %{id: user_id}} =
+        %{}
+        |> Enum.into(@valid_user_attrs)
+        |> Accounts.create_user()
+      
+      {:ok, _course = %{id: course_id}} =
+        %{}
+        |> Enum.into(%{creator: user_id})
+        |> Enum.into(@valid_course_attrs)
+        |> Courses.create_course()
+
+      {:ok, _question = %{id: question_id}} =
+        @valid_attrs
+	|> Enum.into(%{creator: user_id, course_id: course_id})
+        |> Questions.create_question()
+
+      %{parent_question: question_id, creator: user_id}
+    end
+    
+    def qreply_fixture(attrs \\ %{}) do
+      {:ok, qreply} =
+        attrs
+	|> Enum.into(ids_fixture2())
+        |> Enum.into(@valid_attrs)
+        |> Questions.create_qreply()
+
+      qreply
+    end
+
+    test "list_question_replies/0 returns all question_replies" do
+      qreply = qreply_fixture()
+      assert Questions.list_question_replies() == [qreply]
+    end
+
+    test "get_qreply!/1 returns the qreply with given id" do
+      qreply = qreply_fixture()
+      assert Questions.get_qreply!(qreply.id) == qreply
+    end
+
+    test "create_qreply/1 with valid data creates a qreply" do
+      attrs = ids_fixture2()
+      |> Enum.into(@valid_attrs)
+      
+      assert {:ok, %Qreply{} = qreply} = Questions.create_qreply(attrs)
+      assert qreply.content == "some content"
+    end
+
+    test "create_qreply/1 with invalid data returns error changeset" do
+      assert {:error, %Ecto.Changeset{}} = Questions.create_qreply(@invalid_attrs)
+    end
+
+    test "update_qreply/2 with valid data updates the qreply" do
+      qreply = qreply_fixture()
+      assert {:ok, %Qreply{} = qreply} = Questions.update_qreply(qreply, @update_attrs)
+      assert qreply.content == "some updated content"
+    end
+
+    test "update_qreply/2 with invalid data returns error changeset" do
+      qreply = qreply_fixture()
+      assert {:error, %Ecto.Changeset{}} = Questions.update_qreply(qreply, @invalid_attrs)
+      assert qreply == Questions.get_qreply!(qreply.id)
+    end
+
+    test "delete_qreply/1 deletes the qreply" do
+      qreply = qreply_fixture()
+      assert {:ok, %Qreply{}} = Questions.delete_qreply(qreply)
+      assert_raise Ecto.NoResultsError, fn -> Questions.get_qreply!(qreply.id) end
+    end
+
+    test "change_qreply/1 returns a qreply changeset" do
+      qreply = qreply_fixture()
+      assert %Ecto.Changeset{} = Questions.change_qreply(qreply)
     end
   end
 end

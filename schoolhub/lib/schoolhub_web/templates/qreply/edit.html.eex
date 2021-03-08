@@ -1,0 +1,5 @@
+<h1>Edit Qreply</h1>
+
+<%= render "form.html", Map.put(assigns, :action, Routes.qreply_path(@conn, :update, @qreply)) %>
+
+<span><%= link "Back", to: Routes.qreply_path(@conn, :index) %></span>

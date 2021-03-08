@@ -1,0 +1,13 @@
+<h1>Show Qreply</h1>
+
+<ul>
+
+  <li>
+    <strong>Content:</strong>
+    <%= @qreply.content %>
+  </li>
+
+</ul>
+
+<span><%= link "Edit", to: Routes.qreply_path(@conn, :edit, @qreply) %></span>
+<span><%= link "Back", to: Routes.qreply_path(@conn, :index) %></span>
