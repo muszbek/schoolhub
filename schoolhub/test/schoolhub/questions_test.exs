@@ -12,7 +12,7 @@ defmodule Schoolhub.QuestionsTest do
 				      password: "some password"}}
     @valid_course_attrs %{description: "some description", name: "some name"}
     
-    @valid_attrs %{content: "some content", pinned: true, tags: []}
+    @valid_attrs %{content: "some content", pinned: true, tags: ["some tag"]}
     @update_attrs %{content: "some updated content", pinned: false, tags: []}
     @invalid_attrs %{content: nil, pinned: nil, tags: nil}
 
@@ -52,6 +52,21 @@ defmodule Schoolhub.QuestionsTest do
       assert Questions.list_course_questions(question.course_id, "5") == [question]
     end
 
+    test "filter_questions/2 with right filters returns questions" do
+      question = question_fixture()
+      assert Questions.filter_questions(question.course_id, ["some tag"]) == [question]
+    end
+
+    test "filter questions/2 with wrong filters returns nothing" do
+      question = question_fixture()
+      assert Questions.filter_questions(question.course_id, ["invalid tag"]) == []
+    end
+
+    test "filter questions/2 with no filters returns all questions" do
+      question = question_fixture()
+      assert Questions.filter_questions(question.course_id, []) == [question]
+    end
+
     test "get_question!/1 returns the question with given id" do
       question = question_fixture()
       assert Questions.get_question!(question.id) == question
@@ -64,7 +79,7 @@ defmodule Schoolhub.QuestionsTest do
       assert {:ok, %Question{} = question} = Questions.create_question(attrs)
       assert question.content == "some content"
       assert question.pinned == true
-      assert question.tags == []
+      assert question.tags == ["some tag"]
     end
 
     test "create_question/1 with invalid data returns error changeset" do

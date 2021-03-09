@@ -29,6 +29,16 @@ defmodule Schoolhub.Questions do
     |> Repo.preload(:qreply)
   end
 
+  def filter_questions(course_id, filters \\ []) do
+    Question
+    |> where(course_id: ^course_id)
+    |> order_by(desc: :pinned)
+    |> order_by(desc: :inserted_at)
+    |> where([q], fragment("? @> ?::varchar[]", q.tags, ^filters))
+    |> Repo.all()
+    |> Repo.preload(:qreply)
+  end
+
   @doc """
   Gets a single question.
 
