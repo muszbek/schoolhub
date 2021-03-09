@@ -22,13 +22,13 @@ defmodule SchoolhubWeb.QuestionController do
 
   def create(conn, %{"course_id" => course_id, "question" => question_params}) do
     user_id = get_session(conn, :user_id)
-    question_params_with_creator = question_params
+    question_params_extended = question_params
     |> Map.put("creator", user_id)
     |> Map.put("pinned", false)
-    |> Map.put("tags", [])
+    |> Map.update("tags", [], &(String.split(&1, " ", [trim: true])))
     |> Morphix.atomorphify!()
     
-    case Questions.create_question(question_params_with_creator) do
+    case Questions.create_question(question_params_extended) do
       {:ok, question} ->
         conn
         |> put_flash(:info, "Question created successfully.")
@@ -52,8 +52,11 @@ defmodule SchoolhubWeb.QuestionController do
 
   def update(conn, %{"course_id" => course_id, "id" => id, "question" => question_params}) do
     question = Questions.get_question!(id)
+    question_params_extended = question_params
+    |> Map.update("tags", [], &(String.split(&1, " ", [trim: true])))
+    |> Morphix.atomorphify!()
 
-    case Questions.update_question(question, question_params) do
+    case Questions.update_question(question, question_params_extended) do
       {:ok, question} ->
         conn
         |> put_flash(:info, "Question updated successfully.")

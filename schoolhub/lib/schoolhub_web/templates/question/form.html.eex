@@ -12,8 +12,9 @@
   <%= error_tag f, :content %>
 
   <%= label f, :tags %>
-  <%= multiple_select f, :tags, ["Option 1": "option1", "Option 2": "option2"] %>
+  <%= text_input f, :tags, value: render_tag(f.data.tags) %>
   <%= error_tag f, :tags %>
+  <label>Separate multiple tags by spaces</label>
 
   <div>
     <%= submit "Save" %>

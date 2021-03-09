@@ -15,7 +15,7 @@
 
   <li>
     <strong>Tags:</strong>
-    <%= @question.tags %>
+    <%= render_tag(@question.tags) %>
   </li>
 
   <li>

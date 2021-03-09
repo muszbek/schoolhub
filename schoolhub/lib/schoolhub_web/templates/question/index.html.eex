@@ -25,7 +25,7 @@
     <tr>
       <td><%= question.content |> SchoolhubWeb.Gettext.first_line() %></td>
       <td><%= Schoolhub.Courses.get_username!(question.creator, @course_id) %></td>
-      <td><%= question.tags %></td>
+      <td><%= render_tag(question.tags) %></td>
       <td><%= Enum.count(question.qreply) %></td>
       <td><%= if question.pinned, do: "pinned" %></td>
 

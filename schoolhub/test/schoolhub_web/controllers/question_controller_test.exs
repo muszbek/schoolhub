@@ -3,9 +3,9 @@ defmodule SchoolhubWeb.QuestionControllerTest do
 
   alias Schoolhub.{Accounts, Courses, Privileges, Questions}
 
-  @create_attrs %{content: "some content", pinned: true, tags: []}
-  @update_attrs %{content: "some updated content", pinned: false, tags: []}
-  @invalid_attrs %{content: nil, pinned: nil, tags: nil}
+  @create_attrs %{content: "some content", pinned: true, tags: "some_tag"}
+  @update_attrs %{content: "some updated content", pinned: false, tags: ""}
+  @invalid_attrs %{content: nil, pinned: nil, tags: ""}
 
   @create_user_attrs %{email: "some email",
 		       name: "some name",
@@ -29,7 +29,10 @@ defmodule SchoolhubWeb.QuestionControllerTest do
   end
 
   def fixture(:question, course_id, creator) do
-    question_attrs = create_valid_attrs(@create_attrs, course_id, creator)
+    question_attrs = @create_attrs
+    |>create_valid_attrs(course_id, creator)
+    |> Map.update(:tags, [], &(String.split(&1, " ", [trim: true])))
+    
     {:ok, question} = Questions.create_question(question_attrs)
     question
   end
