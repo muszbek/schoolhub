@@ -16,7 +16,7 @@ defmodule SchoolhubWeb.QuestionController do
   end
 
   def filter(conn, %{"course_id" => course_id, "filters" => filters_string}) do
-    filters_list = String.split(filters_string, " ", [trim: true])
+    filters_list = String.split(filters_string, "@", [trim: true])
     questions = Questions.filter_questions(course_id, filters_list)
     render(conn, "index.html", questions: questions, course_id: course_id, question_limit: -1, filters: filters_list)
   end

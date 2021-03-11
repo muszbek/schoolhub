@@ -22,9 +22,10 @@ course members displayed in alphabetical order
 
 embedded links should open in new tab instead of redirect current
 
-implement question sorting
 implement question like
 implement token course invite
 implement confirm password, forgot password, email confirm reg
 
 session page is not relevant if you are logged in, login status should be clear
+
+force certain tags for questions? empty tag is invalid?

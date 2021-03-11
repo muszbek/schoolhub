@@ -68,10 +68,10 @@ defmodule SchoolhubWeb.Router do
       resources "/posts", PostController, only: [:index, :show] do
 	resources "/replies", ReplyController, except: [:edit, :update, :delete]
       end
+      get "/questions/filters/:filters", QuestionController, :filter
       resources "/questions", QuestionController, except: [:edit, :update, :delete] do
 	resources "/question_replies", QreplyController, except: [:edit, :update, :delete]
       end
-      post "/questions/filter", QuestionController, :filter
       
       resources "/files", FileController, only: [:index, :show]
       get "/files/download/:id", FileController, :download

@@ -3,7 +3,8 @@
 
 <div id="filter">
   <input type="search" id="filter_field" name="filter_field" placeholder="Separate multiple tags by spaces" value="<%= render_tag(@filters) %>">
-  <button type="button" id="filter_button" name="filter_button">Filter</button>
+  <input type="hidden" id="course_id" name="course_id" value="<%= @course_id %>">
+  <input type="button" onclick="filter()" value="Filter">
 </div>
 
 <span><%= link "New Question", to: Routes.course_question_path(@conn, :new, @course_id) %></span>
@@ -48,3 +49,18 @@
 <% end %>
   </tbody>
 </table>
+
+<script>
+  filter = function() {
+      var course_id = document.getElementById("course_id").value;
+      
+      var filter_text = document.getElementById("filter_field").value;
+      var filter_checked = (filter_text === "") ? " " : filter_text;
+      var filter_param = filter_checked.replace(/ /g, "@");
+      
+      var url_course = window.location.origin.concat("/courses/").concat(course_id);
+      var url = url_course.concat("/questions/filters/").concat(filter_param);
+      
+      window.location.href = url;
+  }
+</script>

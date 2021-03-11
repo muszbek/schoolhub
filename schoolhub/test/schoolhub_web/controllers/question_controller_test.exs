@@ -51,12 +51,12 @@ defmodule SchoolhubWeb.QuestionControllerTest do
     setup [:create_course]
 
     test "lists all questions", %{conn: conn, course_id: course_id} do
-      conn = post(conn, Routes.course_question_path(conn, :filter, course_id, filters: ""))
+      conn = get(conn, Routes.course_question_path(conn, :filter, course_id, "@"))
       assert html_response(conn, 200) =~ "Listing Questions"
     end
-
+    
     test "lists no questions", %{conn: conn, course_id: course_id} do
-      conn = post(conn, Routes.course_question_path(conn, :filter, course_id, filters: "invalid filters"))
+      conn = get(conn, Routes.course_question_path(conn, :filter, course_id, "invalid_filter"))
       assert html_response(conn, 200) =~ "Listing Questions"
     end
   end
