@@ -5,12 +5,12 @@
 
   <li>
     <strong>Name:</strong>
-    <%= Schoolhub.Accounts.get_user!(@affiliation.user_id).name %>
+    <%= get_user(@affiliation.user_id).name %>
   </li>
   
   <li>
     <strong>Username:</strong>
-    <%= Schoolhub.Accounts.get_user!(@affiliation.user_id).credential.username %>
+    <%= get_user(@affiliation.user_id).credential.username %>
   </li>
   
   <li>

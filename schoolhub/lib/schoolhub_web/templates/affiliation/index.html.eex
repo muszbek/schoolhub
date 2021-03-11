@@ -17,8 +17,8 @@
   <tbody>
 <%= for affiliation <- @course_affiliations do %>
     <tr>
-      <td><%= Schoolhub.Accounts.get_user!(affiliation.user_id).name %></td>
-      <td><%= Schoolhub.Accounts.get_user!(affiliation.user_id).credential.username %></td>
+      <td><%= get_user(affiliation.user_id).name %></td>
+      <td><%= get_user(affiliation.user_id).credential.username %></td>
       <td><%= affiliation.affiliation %></td>
 
       <td>
