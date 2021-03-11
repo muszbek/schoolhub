@@ -103,6 +103,7 @@ defmodule Schoolhub.PostsTest do
 			credential: %{username: "some username",
 				      password: "some password"}}
     @valid_course_attrs %{description: "some description", name: "some name"}
+    @valid_post_attrs %{content: "some content", pinned: false}
 
     @valid_attrs %{content: "some content"}
     @update_attrs %{content: "some updated content"}
@@ -121,7 +122,7 @@ defmodule Schoolhub.PostsTest do
         |> Courses.create_course()
 
       {:ok, _post = %{id: post_id}} =
-        @valid_attrs
+        @valid_post_attrs
 	|> Enum.into(%{creator: user_id, course_id: course_id})
         |> Posts.create_post()
 

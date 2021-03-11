@@ -112,6 +112,7 @@ defmodule Schoolhub.QuestionsTest do
     end
   end
 
+  
   describe "question_replies" do
     alias Schoolhub.Questions.Qreply
 
@@ -120,6 +121,7 @@ defmodule Schoolhub.QuestionsTest do
 			credential: %{username: "some username",
 				      password: "some password"}}
     @valid_course_attrs %{description: "some description", name: "some name"}
+    @valid_question_attrs %{content: "some content", pinned: true, tags: ["some tag"]}
     
     @valid_attrs %{content: "some content"}
     @update_attrs %{content: "some updated content"}
@@ -138,7 +140,7 @@ defmodule Schoolhub.QuestionsTest do
         |> Courses.create_course()
 
       {:ok, _question = %{id: question_id}} =
-        @valid_attrs
+        @valid_question_attrs
 	|> Enum.into(%{creator: user_id, course_id: course_id})
         |> Questions.create_question()
 
@@ -198,6 +200,90 @@ defmodule Schoolhub.QuestionsTest do
     test "change_qreply/1 returns a qreply changeset" do
       qreply = qreply_fixture()
       assert %Ecto.Changeset{} = Questions.change_qreply(qreply)
+    end
+  end
+
+  
+  describe "follows" do
+    alias Schoolhub.Questions.Follow
+
+    @valid_user_attrs %{email: "some email",
+			name: "some name",
+			credential: %{username: "some username",
+				      password: "some password"}}
+    @valid_course_attrs %{description: "some description", name: "some name"}
+    @valid_question_attrs %{content: "some content", pinned: true, tags: ["some tag"]}
+
+    @invalid_attrs %{}
+
+    def ids_fixture3() do
+      {:ok, _user = %{id: user_id}} =
+        %{}
+        |> Enum.into(@valid_user_attrs)
+        |> Accounts.create_user()
+      
+      {:ok, _course = %{id: course_id}} =
+        %{}
+        |> Enum.into(%{creator: user_id})
+        |> Enum.into(@valid_course_attrs)
+        |> Courses.create_course()
+
+      {:ok, _question = %{id: question_id}} =
+        @valid_question_attrs
+	|> Enum.into(%{creator: user_id, course_id: course_id})
+        |> Questions.create_question()
+
+      %{question_id: question_id, user_id: user_id}
+    end
+    
+    def follow_fixture(attrs \\ %{}) do
+      {:ok, follow} =
+        attrs
+        |> Enum.into(ids_fixture3())
+        |> Questions.create_follow()
+
+      follow
+    end
+    
+
+    test "get_follow!/1 returns the follow with given id" do
+      follow = follow_fixture()
+      assert Questions.get_follow!(follow.id) == follow
+    end
+
+    test "get_follow/2 returns the follow with given ids" do
+      follow = follow_fixture()
+      assert Questions.get_follow(follow.question_id, follow.user_id) == [follow]
+    end
+
+    test "get_follow/2 returns nothing with wrong ids" do
+      follow = follow_fixture()
+      assert Questions.get_follow(follow.question_id, follow.user_id + 1) == []
+    end
+
+    test "get_follows_number/1 returns 1" do
+      follow = follow_fixture()
+      assert Questions.get_follows_number(follow.question_id) == 1
+    end
+
+    test "create_follow/1 with valid data creates a follow" do
+      attrs = ids_fixture3()
+      assert {:ok, %Follow{}} = Questions.create_follow(attrs)
+    end
+
+    test "create_follow/1 with invalid data returns error changeset" do
+      assert {:error, %Ecto.Changeset{}} = Questions.create_follow(@invalid_attrs)
+    end
+
+    test "delete_follow/1 deletes the follow" do
+      follow = follow_fixture()
+      assert {:ok, %Follow{}} = Questions.delete_follow(follow)
+      assert_raise Ecto.NoResultsError, fn -> Questions.get_follow!(follow.id) end
+    end
+
+    test "change_follow/1 returns a follow changeset" do
+      follow = follow_fixture()
+      assert %Ecto.Changeset{} = Questions.change_follow(follow)
     end
   end
 end

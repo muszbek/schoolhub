@@ -4,7 +4,7 @@ defmodule Schoolhub.Questions.Question do
 
   alias Schoolhub.Accounts.User
   alias Schoolhub.Courses.Course
-  alias Schoolhub.Questions.Qreply
+  alias Schoolhub.Questions.{Qreply, Follow}
 
   schema "questions" do
     field :content, :string
@@ -15,6 +15,7 @@ defmodule Schoolhub.Questions.Question do
     field :pinned, :boolean, default: false
     has_many :qreply, Qreply,
       foreign_key: :parent_question
+    has_many :follow, Follow
 
     timestamps()
   end
