@@ -8,13 +8,13 @@
   <%= hidden_input f, :course_id, value: @course_id %>
 
   <%= label f, :content %>
-  <%= textarea f, :content %>
+  <%= textarea f, :content, placeholder: "Text renders in markdown" %>
   <%= error_tag f, :content %>
 
   <%= label f, :tags %>
-  <%= text_input f, :tags, value: render_tag(f.data.tags) %>
+  <%= text_input f, :tags, value: render_tag(f.data.tags),
+      placeholder: "Separate multiple tags by spaces" %>
   <%= error_tag f, :tags %>
-  <label>Separate multiple tags by spaces</label>
 
   <div>
     <%= submit "Save" %>

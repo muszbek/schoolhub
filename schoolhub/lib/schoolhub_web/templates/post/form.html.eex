@@ -8,7 +8,7 @@
   <%= hidden_input f, :course_id, value: @course_id %>
 
   <%= label f, :content %>
-  <%= textarea f, :content %>
+  <%= textarea f, :content, placeholder: "Text renders in markdown" %>
   <%= error_tag f, :content %>
 
   <div>
