@@ -2,61 +2,41 @@ defmodule SchoolhubWeb.FollowController do
   use SchoolhubWeb, :controller
 
   alias Schoolhub.Questions
-  alias Schoolhub.Questions.Follow
 
-  def index(conn, _params) do
-    follows = Questions.list_follows()
-    render(conn, "index.html", follows: follows)
-  end
 
-  def new(conn, _params) do
-    changeset = Questions.change_follow(%Follow{})
-    render(conn, "new.html", changeset: changeset)
-  end
-
-  def create(conn, %{"follow" => follow_params}) do
-    case Questions.create_follow(follow_params) do
-      {:ok, follow} ->
-        conn
-        |> put_flash(:info, "Follow created successfully.")
-        |> redirect(to: Routes.follow_path(conn, :show, follow))
-
-      {:error, %Ecto.Changeset{} = changeset} ->
-        render(conn, "new.html", changeset: changeset)
-    end
-  end
-
-  def show(conn, %{"id" => id}) do
-    follow = Questions.get_follow!(id)
-    render(conn, "show.html", follow: follow)
-  end
-
-  def edit(conn, %{"id" => id}) do
-    follow = Questions.get_follow!(id)
-    changeset = Questions.change_follow(follow)
-    render(conn, "edit.html", follow: follow, changeset: changeset)
-  end
-
-  def update(conn, %{"id" => id, "follow" => follow_params}) do
-    follow = Questions.get_follow!(id)
-
-    case Questions.update_follow(follow, follow_params) do
-      {:ok, follow} ->
-        conn
-        |> put_flash(:info, "Follow updated successfully.")
-        |> redirect(to: Routes.follow_path(conn, :show, follow))
-
-      {:error, %Ecto.Changeset{} = changeset} ->
-        render(conn, "edit.html", follow: follow, changeset: changeset)
-    end
-  end
-
-  def delete(conn, %{"id" => id}) do
-    follow = Questions.get_follow!(id)
-    {:ok, _follow} = Questions.delete_follow(follow)
+  def follow(conn, attrs = %{"course_id" => course_id, "question_id" => _question_id}) do
+    user_id = get_user_id(conn)
+    
+    attrs
+    |> Map.put("user_id", user_id)
+    |> Morphix.atomorphify()
+    
+    _follow = Questions.create_follow(attrs)
+    msg = "Question followed."
 
     conn
-    |> put_flash(:info, "Follow deleted successfully.")
-    |> redirect(to: Routes.follow_path(conn, :index))
+    |> put_flash(:info, msg)
+    |> redirect(to: Routes.course_question_path(conn, :index, course_id))
+  end
+
+  def unfollow(conn, %{"course_id" => course_id, "question_id" => question_id}) do
+    user_id = get_user_id(conn)
+    result = Questions.get_follow(question_id, user_id)
+
+    case result do
+      [] -> :ok
+      [follow] -> {:ok, _follow} = Questions.delete_follow(follow)
+    end
+
+    msg = "Question unfollowed."
+
+    conn
+    |> put_flash(:info, msg)
+    |> redirect(to: Routes.course_question_path(conn, :index, course_id))
+  end
+
+  
+  defp get_user_id(conn) do
+    get_session(conn, :user_id)
   end
 end

@@ -71,6 +71,8 @@ defmodule SchoolhubWeb.Router do
       get "/questions/filters/:filters", QuestionController, :filter
       resources "/questions", QuestionController, except: [:edit, :update, :delete] do
 	resources "/question_replies", QreplyController, except: [:edit, :update, :delete]
+	post "/follow", FollowController, :follow
+	delete "/unfollow", FollowController, :unfollow
       end
       
       resources "/files", FileController, only: [:index, :show]
