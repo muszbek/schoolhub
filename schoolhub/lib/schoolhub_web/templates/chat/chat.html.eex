@@ -12,7 +12,7 @@
 
 <textarea id="chatbox" name="chatbox" placeholder="Chat history currently empty" readonly></textarea>
 <textarea id="sendbox" name="sendbox" placeholder="Type here to send a message"></textarea>
-<button type="button" id="send_button" name="send_button"">Send</button>
+<button type="button" id="send_button" name="send_button">Send</button>
 
 <span><%= link "Back", to: Routes.course_chat_path(@conn, :index, @course_id) %></span>
   
