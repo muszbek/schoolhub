@@ -10,7 +10,7 @@
 <input type="hidden" id="self" name="self" value="<%= @self.credential.username %>">
 <input type="hidden" id="token" name="token" value="<%= @token %>">
 
-<textarea id="chatbox" name="chatbox" readonly></textarea>
+<textarea id="chatbox" name="chatbox" placeholder="Chat history currently empty" readonly></textarea>
 <textarea id="sendbox" name="sendbox" placeholder="Type here to send a message"></textarea>
 <button type="button" id="send_button" name="send_button"">Send</button>
 
