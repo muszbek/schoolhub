@@ -1,7 +1,7 @@
 defmodule SchoolhubWeb.FollowControllerTest do
   use SchoolhubWeb.ConnCase
 
-  alias Schoolhub.{Accounts, Courses, Privileges, Questions}
+  alias Schoolhub.{Accounts, Courses, Questions}
 
   @create_user_attrs %{email: "some email",
 		       name: "some name",
@@ -12,7 +12,6 @@ defmodule SchoolhubWeb.FollowControllerTest do
 
   def fixture(:question, conn = %Plug.Conn{}) do
     {:ok, user} = Accounts.create_user(@create_user_attrs)
-    Privileges.update_privilege(user.privilege, %{level: "admin"})
     
     new_conn = conn
     |> Plug.Test.init_test_session(user_id: nil)
@@ -45,6 +44,13 @@ defmodule SchoolhubWeb.FollowControllerTest do
       conn = post(conn, Routes.course_question_follow_path(conn, :follow, course_id, question_id))
       assert redirected_to(conn) == Routes.course_question_path(conn, :index, course_id)
     end
+
+    test "wrongly unfollows question", %{conn: conn,
+					 course_id: course_id, question_id: question_id} do
+      conn = delete(conn, Routes.course_question_follow_path(conn, :unfollow,
+	    course_id, question_id))
+      assert redirected_to(conn) == Routes.course_question_path(conn, :index, course_id)
+    end
   end
 
   describe "unfollow question" do
@@ -52,7 +58,14 @@ defmodule SchoolhubWeb.FollowControllerTest do
     setup [:create_follow]
 
     test "unfollows question", %{conn: conn, course_id: course_id, question_id: question_id} do
-      conn = delete(conn, Routes.course_question_follow_path(conn, :unfollow, course_id, question_id))
+      conn = delete(conn, Routes.course_question_follow_path(conn, :unfollow,
+	    course_id, question_id))
+      assert redirected_to(conn) == Routes.course_question_path(conn, :index, course_id)
+    end
+
+    test "wrongly follows question", %{conn: conn,
+				       course_id: course_id, question_id: question_id} do
+      conn = post(conn, Routes.course_question_follow_path(conn, :follow, course_id, question_id))
       assert redirected_to(conn) == Routes.course_question_path(conn, :index, course_id)
     end
   end

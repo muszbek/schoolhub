@@ -11,7 +11,7 @@ defmodule SchoolhubWeb.FollowController do
     |> Map.put("user_id", user_id)
     |> Morphix.atomorphify()
     
-    _follow = Questions.create_follow(attrs)
+    _ok_or_error = Questions.create_follow(attrs)
     msg = "Question followed."
 
     conn
