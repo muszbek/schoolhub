@@ -19,6 +19,11 @@
   </li>
 
   <li>
+    <strong>Follows:</strong>
+    <%= Schoolhub.Questions.get_follows_number(@question.id) %>
+  </li>
+
+  <li>
     <strong>Pinned:</strong>
     <%= @question.pinned %>
   </li>

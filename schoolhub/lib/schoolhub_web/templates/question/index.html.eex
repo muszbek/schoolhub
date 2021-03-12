@@ -21,6 +21,7 @@
       <th>Author</th>
       <th>Tags</th>
       <th>Replies</th>
+      <th>Follows</th>
       <th></th>
 
       <th></th>
@@ -33,6 +34,7 @@
       <td><%= Schoolhub.Courses.get_username!(question.creator, @course_id) %></td>
       <td><%= render_tag(question.tags) %></td>
       <td><%= Enum.count(question.qreply) %></td>
+      <td><%= Schoolhub.Questions.get_follows_number(question.id) %></td>
       <td><%= if question.pinned, do: "pinned" %></td>
 
       <td>
