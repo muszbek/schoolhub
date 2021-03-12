@@ -26,6 +26,13 @@
 </ul>
 
 <span><%= link "Edit", to: Routes.course_question_path(@conn, :edit, @course_id, @question) %></span>
+
+<span><%= if is_follow(@conn, @question), do:
+		  (link "Unfollow", to: Routes.course_question_follow_path(@conn, :unfollow, @course_id, @question), method: :delete),
+		  else:
+		  (link "Follow", to: Routes.course_question_follow_path(@conn, :follow, @course_id, @question), method: :post)
+	  %></span>
+
 <span><%= link "Back", to: Routes.course_question_path(@conn, :index, @course_id) %></span>
 
 <%= render SchoolhubWeb.QreplyView, "index.html",

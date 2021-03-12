@@ -1,6 +1,6 @@
 defmodule SchoolhubWeb.FollowController do
   use SchoolhubWeb, :controller
-
+  
   alias Schoolhub.Questions
 
 
@@ -9,9 +9,9 @@ defmodule SchoolhubWeb.FollowController do
     
     attrs
     |> Map.put("user_id", user_id)
-    |> Morphix.atomorphify()
+    |> Morphix.atomorphify!()
+    |> Questions.create_follow()
     
-    _ok_or_error = Questions.create_follow(attrs)
     msg = "Question followed."
 
     conn

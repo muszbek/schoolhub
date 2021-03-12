@@ -38,11 +38,19 @@
       <td>
         <span><%= link "Show", to: Routes.course_question_path(@conn, :show, @course_id, question) %></span>
         <span><%= link "Edit", to: Routes.course_question_path(@conn, :edit, @course_id, question) %></span>
+	
+	<span><%= if is_follow(@conn, question), do:
+		  (link "Unfollow", to: Routes.course_question_follow_path(@conn, :unfollow, @course_id, question), method: :delete),
+		  else:
+		  (link "Follow", to: Routes.course_question_follow_path(@conn, :follow, @course_id, question), method: :post)
+		  %></span>
+	
 	<span><%= if question.pinned, do:
 		  (link "Unpin", to: Routes.course_question_question_path(@conn, :pin, @course_id, question, [to_pin: false]), method: :put),
 		  else:
 		  (link "Pin", to: Routes.course_question_question_path(@conn, :pin, @course_id, question, [to_pin: true]), method: :put)
 		  %></span>
+	
         <span><%= link "Delete", to: Routes.course_question_path(@conn, :delete, @course_id, question), method: :delete, data: [confirm: "Are you sure?"] %></span>
       </td>
     </tr>
