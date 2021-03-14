@@ -6,19 +6,28 @@ defmodule SchoolhubWeb.QuestionController do
 
   @question_limit_default "5"
 
-  def index(conn, %{"course_id" => course_id, "limit" => limit}) do
+  def index(conn, %{"course_id" => course_id, "limit" => limit,
+		    "only_following" => only_following}) do
     questions = Questions.list_course_questions(course_id, limit)
     limit = if Enum.count(questions) < String.to_integer(limit), do: -1, else: limit
-    render(conn, "index.html", questions: questions, course_id: course_id, question_limit: limit, filters: [])
+    
+    render(conn, "index.html", questions: questions, course_id: course_id,
+      question_limit: limit, filters: [], only_following: only_following)
   end
   def index(conn, %{"course_id" => course_id}) do
-    index(conn, %{"course_id" => course_id, "limit" => @question_limit_default})
+    index(conn, %{"course_id" => course_id, "limit" => @question_limit_default,
+		  "only_following" => false})
   end
 
-  def filter(conn, %{"course_id" => course_id, "filters" => filters_string}) do
+  def filter(conn, %{"course_id" => course_id, "filters" => filters_string,
+		     "only_following" => only_following}) do
+    user_id = get_session(conn, :user_id)
     filters_list = String.split(filters_string, "@", [trim: true])
-    questions = Questions.filter_questions(course_id, filters_list)
-    render(conn, "index.html", questions: questions, course_id: course_id, question_limit: -1, filters: filters_list)
+    questions = Questions.filter_questions(course_id, user_id, filters_list, only_following)
+    following = parse_following(only_following)
+    
+    render(conn, "index.html", questions: questions, course_id: course_id,
+      question_limit: -1, filters: filters_list, only_following: following)
   end
 
   def new(conn, %{"course_id" => course_id}) do
@@ -93,4 +102,13 @@ defmodule SchoolhubWeb.QuestionController do
     |> put_flash(:info, msg)
     |> redirect(to: Routes.course_question_path(conn, :index, course_id))
   end
+
+
+  defp parse_following(only_following) do
+    case only_following do
+      "all" -> ""
+      "only_following" -> "checked"
+    end
+  end
+  
 end

@@ -74,3 +74,10 @@ invite users to course by spreading token, user regs themselves
 
 go with kurbernetes server model
 limit the users, find a way to monitor
+
+instead of certbot: site_encrypt
+
+surface ui
+liveview exploit more
+alpine.js
+tailwind css

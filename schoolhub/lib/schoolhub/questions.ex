@@ -29,14 +29,32 @@ defmodule Schoolhub.Questions do
     |> Repo.preload(:qreply)
   end
 
-  def filter_questions(course_id, filters \\ []) do
+  def filter_questions(course_id, user_id, filters \\ [], following \\ "all") do
     Question
     |> where(course_id: ^course_id)
+    |> filter_following(user_id, following)
     |> order_by(desc: :pinned)
     |> order_by(desc: :inserted_at)
     |> where([q], fragment("? @> ?::varchar[]", q.tags, ^filters))
     |> Repo.all()
     |> Repo.preload(:qreply)
+  end
+
+  defp filter_following(query, user_id, following) do
+    case following do
+      "all" -> query
+      "only_following" ->
+	followed = followed_questions_subquery(user_id)
+	
+	query
+	|> where([q], q.id in subquery(followed))
+    end
+  end
+  
+  defp followed_questions_subquery(user_id) do
+    Follow
+    |> where(user_id: ^user_id)
+    |> select([:question_id])
   end
 
   @doc """

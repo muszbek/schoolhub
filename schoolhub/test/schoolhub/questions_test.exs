@@ -54,12 +54,14 @@ defmodule Schoolhub.QuestionsTest do
 
     test "filter_questions/2 with right filters returns questions" do
       question = question_fixture()
-      assert Questions.filter_questions(question.course_id, ["some tag"]) == [question]
+      user = question.creator
+      assert Questions.filter_questions(question.course_id, user, ["some tag"]) == [question]
     end
 
     test "filter questions/2 with wrong filters returns nothing" do
       question = question_fixture()
-      assert Questions.filter_questions(question.course_id, ["invalid tag"]) == []
+      user = question.creator
+      assert Questions.filter_questions(question.course_id, user, ["invalid tag"]) == []
     end
 
     test "filter questions/2 with no filters returns all questions" do

@@ -68,7 +68,7 @@ defmodule SchoolhubWeb.Router do
       resources "/posts", PostController, only: [:index, :show] do
 	resources "/replies", ReplyController, except: [:edit, :update, :delete]
       end
-      get "/questions/filters/:filters", QuestionController, :filter
+      get "/questions/filters/:filters/:only_following", QuestionController, :filter
       resources "/questions", QuestionController, except: [:edit, :update, :delete] do
 	resources "/question_replies", QreplyController, except: [:edit, :update, :delete]
 	post "/follow", FollowController, :follow
