@@ -6,6 +6,7 @@
 <span><%= link "Chat", to: Routes.course_chat_path(@conn, :index, @course.id) %></span>
 <span><%= link "Files", to: Routes.course_file_path(@conn, :index, @course.id) %></span>
 <span><%= link "Edit", to: Routes.course_path(@conn, :edit, @course) %></span>
+<span><%= link "New Token", to: Routes.course_course_path(@conn, :new_token, @course.id) %></span>
 <span><%= link "Back", to: Routes.course_path(@conn, :index) %></span>
 
 <%= @course.description |> Earmark.as_html!() |> raw() %>

@@ -73,4 +73,10 @@ defmodule SchoolhubWeb.CourseController do
     |> put_flash(:info, "Course deleted successfully.")
     |> redirect(to: Routes.course_path(conn, :index))
   end
+
+  def new_token(conn, %{"course_id" => id}) do
+    course = Courses.get_course!(id)
+    token = Courses.create_token(course.id)
+    render(conn, "new_token.html", course: course, token: token)
+  end
 end

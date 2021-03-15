@@ -127,6 +127,16 @@ defmodule SchoolhubWeb.CourseControllerTest do
     end
   end
 
+  describe "new token" do
+    setup [:enter_session]
+    setup [:create_course]
+
+    test "creates new invitation token", %{conn: conn, course: course} do
+      conn = get(conn, Routes.course_course_path(conn, :new_token, course))
+      assert html_response(conn, 200) =~ "Token"
+    end
+  end
+
   
   defp create_course(%{conn: conn}) do
     course = fixture(:course, conn)

@@ -88,6 +88,7 @@ defmodule SchoolhubWeb.Router do
 
     pipe_through :course_assistant
     resources "/courses/assistant", CourseController, except: [:index, :show, :new, :create, :delete] do
+      get "/token", CourseController, :new_token
       resources "/grades", GradeController, only: [:index]
       resources "/affiliations", AffiliationController, except: [:index, :show, :edit, :update] do
 	resources "/grades", GradeController, except: [:show, :index]
