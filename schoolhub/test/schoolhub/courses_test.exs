@@ -212,5 +212,28 @@ defmodule Schoolhub.CoursesTest do
       affiliation = affiliation_fixture()
       assert %Ecto.Changeset{} = Courses.change_affiliation(affiliation)
     end
+
+    test "joining with token works" do
+      %{course_id: course_id, user_id: user_id} = ids_fixture()
+      token = Courses.create_token(course_id)
+
+      assert {:ok, %Affiliation{} = affiliation} = Courses.join_course_with_token(user_id, token)
+      assert affiliation.affiliation == "student"
+    end
+
+    test "invalid token returns error" do
+      %{user_id: user_id} = ids_fixture()
+      token = "invalid_token"
+      
+      assert {:error, :invalid} = Courses.join_course_with_token(user_id, token)
+    end
+
+    test "expired token returns error" do
+      %{course_id: course_id, user_id: user_id} = ids_fixture()
+      token = Courses.create_token(course_id)
+      Process.sleep(10)
+
+      assert {:error, :expired} = Courses.join_course_with_token(user_id, token, 0.01)
+    end
   end
 end

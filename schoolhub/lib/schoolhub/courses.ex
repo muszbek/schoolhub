@@ -5,6 +5,7 @@ defmodule Schoolhub.Courses do
   
   import Ecto.Query, warn: false
   alias Schoolhub.Repo
+  alias Phoenix.Token
 
   alias Schoolhub.Courses.{Course, Affiliation}
   alias Schoolhub.Grades.Grade
@@ -252,5 +253,22 @@ defmodule Schoolhub.Courses do
   """
   def change_affiliation(%Affiliation{} = affiliation, attrs \\ %{}) do
     Affiliation.changeset(affiliation, attrs)
+  end
+
+
+  def create_token(course_id) do
+    Token.sign(SchoolhubWeb.Endpoint, "join course", course_id)
+  end
+
+  def join_course_with_token(user_id, token, max_age \\ 604800) do
+    # max age default is one week
+    verify_result = Token.verify(SchoolhubWeb.Endpoint, "join course", token, max_age: max_age)
+
+    case verify_result do
+      {:ok, course_id} ->
+	create_affiliation(%{course_id: course_id, user_id: user_id})
+      error = {:error, _reason} ->
+	error
+    end
   end
 end
