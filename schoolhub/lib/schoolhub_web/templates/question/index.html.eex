@@ -3,7 +3,10 @@
 
 <div id="filter">
   <input type="search" id="filter_field" name="filter_field" placeholder="Separate multiple tags by spaces" value="<%= render_tag(@filters) %>">
-  <input type="checkbox" id="only_following" name="only_following" <%= @only_following %>>
+  <div>
+    <label for="only_following">Only followed</label>
+    <input type="checkbox" id="only_following" name="only_following" <%= @only_following %>>
+  </div>
   <input type="hidden" id="course_id" name="course_id" value="<%= @course_id %>">
   <input type="button" onclick="filter()" value="Filter">
 </div>

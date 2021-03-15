@@ -48,6 +48,7 @@ course rights: owner / assistant / student
 owner can reassign rights and modify courses
 assistant can modify courses
 
+
 #After review with Antrea:
 
 grade is too hidden
@@ -71,6 +72,8 @@ this helps the teacher prioritize
 sort questions by title, chapter (numeric)
 
 invite users to course by spreading token, user regs themselves
+
+french localization and others
 
 go with kurbernetes server model
 limit the users, find a way to monitor
