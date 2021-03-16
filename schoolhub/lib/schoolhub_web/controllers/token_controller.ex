@@ -8,7 +8,7 @@ defmodule SchoolhubWeb.TokenController do
     render(conn, "new.html")
   end
 
-  def create(conn, form_data = %{"token" => token}) do
+  def create(conn, %{"token" => token}) do
     user_id = get_session(conn, :user_id)
     join_result = Courses.join_course_with_token(user_id, token)
 

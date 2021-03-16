@@ -233,7 +233,7 @@ defmodule Schoolhub.CoursesTest do
       token = Courses.create_token(course_id)
       Process.sleep(10)
 
-      assert {:error, :expired} = Courses.join_course_with_token(user_id, token, 0.01)
+      assert {:error, :expired} = Courses.join_course_with_token(user_id, token, 0.001)
     end
   end
 end
