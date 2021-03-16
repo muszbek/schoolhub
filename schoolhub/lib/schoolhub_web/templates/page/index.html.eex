@@ -9,6 +9,9 @@
     <%= link "Courses", to: Routes.course_path(@conn, :index) %>
   </li>
   <li>
+    <%= link "Join course with token", to: Routes.token_path(@conn, :new) %>
+  </li>
+  <li>
     <%= link "Users", to: Routes.user_path(@conn, :index) %>
   </li>
   <li>

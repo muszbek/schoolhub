@@ -57,6 +57,7 @@ defmodule SchoolhubWeb.Router do
     post "/token", SessionController, :renew_token
     resources "/users", UserController, only: [:show]
     resources "/courses", CourseController, only: [:index]
+    resources "/course_token", TokenController, only: [:new, :create]
 
     
     pipe_through :course_member
