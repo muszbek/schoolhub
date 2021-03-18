@@ -35,6 +35,11 @@ Accounts.create_user(%{name: "Dominique Pollux",
 		       credential: %{username: "dpollux",
 				     password: "dpollux"}})
 
+Accounts.create_user(%{name: "Valeria Dranishnikova",
+		       email: "valeriadranishnikova@gmail.com",
+		       credential: %{username: "vdranishnikova",
+				     password: "vdranishnikova"}})
+
 Accounts.create_user(%{name: "Florence Dode",
 		       email: "florencedode@gmail.com",
 		       credential: %{username: "fdode",
@@ -206,6 +211,9 @@ Courses.create_affiliation(%{affiliation: "assistant", course_id: course1, user_
 %User{id: user_id} = Accounts.get_user_by_name!("apavlou")
 Courses.create_affiliation(%{affiliation: "student", course_id: course1, user_id: user_id})
 
+%User{id: user_id} = Accounts.get_user_by_name!("vdranishnikova")
+Courses.create_affiliation(%{affiliation: "student", course_id: course1, user_id: user_id})
+
 %User{id: user_id} = Accounts.get_user_by_name!("gbenevides")
 Courses.create_affiliation(%{affiliation: "student", course_id: course1, user_id: user_id})
 
@@ -339,7 +347,7 @@ Posts.create_reply(%{creator: user_id, parent_post: post4,
 Но от тайги до британских морей \\
 Красная Армия всех сильней. "})
 
-%User{id: user_id} = Accounts.get_user_by_name!("jpatil")
+%User{id: user_id} = Accounts.get_user_by_name!("vdranishnikova")
 Posts.create_reply(%{creator: user_id, parent_post: post4,
 		     content: "Так пусть же Красная \\
 Сжимает властно \\
@@ -355,7 +363,7 @@ Posts.create_reply(%{creator: user_id, parent_post: post4,
 Ведь от тайги до британских морей \\
 Красная Армия всех сильней! "})
 
-%User{id: user_id} = Accounts.get_user_by_name!("nreda")
+%User{id: user_id} = Accounts.get_user_by_name!("vdranishnikova")
 Posts.create_reply(%{creator: user_id, parent_post: post4,
 		     content: "Так пусть же Красная \\
 Сжимает властно \\
@@ -363,6 +371,42 @@ Posts.create_reply(%{creator: user_id, parent_post: post4,
 И все должны мы \\
 Неудержимо \\
 Идти в последний смертный бой! "})
+
+
+## Creating questions to courses
+alias Schoolhub.Questions
+alias Schoolhub.Questions.Question
+%User{id: user_id} = Accounts.get_user_by_name!("vdranishnikova")
+{:ok, %Question{id: question1}} = Questions.create_question(%{creator: user_id, course_id: course1,
+							  pinned: false,
+							  content: "Have you really been far as decided to use even go want to do look more like?"})
+
+%User{id: user_id} = Accounts.get_user_by_name!("jpatil")
+{:ok, %Question{id: question2}} = Questions.create_question(%{creator: user_id, course_id: course1,
+							  pinned: false,
+							  content: "Van egy cigid?"})
+
+
+## Replies to questions
+%User{id: user_id} = Accounts.get_user_by_name!("tmuszbek")
+Questions.create_qreply(%{creator: user_id, parent_question: question1,
+			  content: "Yes I have"})
+
+%User{id: user_id} = Accounts.get_user_by_name!("tmuszbek")
+Questions.create_qreply(%{creator: user_id, parent_question: question2,
+			  content: "Lekötelezel bástya"})
+
+%User{id: user_id} = Accounts.get_user_by_name!("tmuszbek")
+Questions.create_qreply(%{creator: user_id, parent_question: question2,
+			  content: "Adósod vagyok egy életre"})
+
+
+## Follows to questions
+%User{id: user_id} = Accounts.get_user_by_name!("vdranishnikova")
+Questions.create_follow(%{question_id: question1, user_id: user_id})
+
+%User{id: user_id} = Accounts.get_user_by_name!("gbenevides")
+Questions.create_follow(%{question_id: question1, user_id: user_id})
 
 
 ## Add files to the course
