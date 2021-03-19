@@ -35,8 +35,8 @@ Accounts.create_user(%{name: "Dominique Pollux",
 		       credential: %{username: "dpollux",
 				     password: "dpollux"}})
 
-Accounts.create_user(%{name: "Valeria Dranishnikova",
-		       email: "valeriadranishnikova@gmail.com",
+Accounts.create_user(%{name: "Valeriia Dranishnikova",
+		       email: "valeriiadranishnikova@gmail.com",
 		       credential: %{username: "vdranishnikova",
 				     password: "vdranishnikova"}})
 

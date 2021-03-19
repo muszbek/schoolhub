@@ -2,6 +2,7 @@ defmodule SchoolhubWeb.Plugs do
   use SchoolhubWeb, :router
   
   alias Schoolhub.{Accounts, Courses}
+  alias Schoolhub.{Grades, Questions, Posts}
   
   def authenticate_user(conn, _) do
     case get_session(conn, :user_id) do
@@ -119,13 +120,13 @@ defmodule SchoolhubWeb.Plugs do
 
   defp check_if_self({:authorized, conn}, _course_id, _user_id), do: conn
   defp check_if_self({:check, conn}, course_id, user_id) do
-    %{id: id, affiliation: affiliation} = Courses.get_affiliation_by_user!(course_id, user_id)
+    %{affiliation: affiliation} = Courses.get_affiliation_by_user!(course_id, user_id)
     
     case affiliation do
       "owner" -> conn
       "assistant" -> conn
       _other ->
-	case id == get_aff_id(conn) do
+	case user_id == get_context_owner(conn) do
 	  true -> conn
 	  _ ->
 	    conn
@@ -170,11 +171,42 @@ defmodule SchoolhubWeb.Plugs do
     end
   end
 
-  defp get_aff_id(conn) do
-    case conn.path_params do
-      %{"affiliation_id" => aff_id} -> aff_id
-      _other -> {:error, :session_not_affiliated}
+  @self_controllable_contexts ["/grades/", "/question_replies/", "/questions/", "/replies/"]
+  
+  defp get_context_owner(conn) do
+    check_by_route(conn, @self_controllable_contexts)
+  end
+
+  #defp check_by_route(conn, []), do: {:error, :self_check_in_wrong_route}
+  defp check_by_route(conn, [context | rest_contexts]) do
+    route = conn.request_path
+    
+    case route =~ context do
+      true -> do_get_context_owner(conn, context)
+      false -> check_by_route(conn, rest_contexts)
     end
+  end
+
+  defp do_get_context_owner(conn, "/grades/") do
+    %{"id" => grade_id} = conn.path_params
+    %{affiliation_id: aff_id} = Grades.get_grade!(grade_id)
+    %{user_id: user_id} = Courses.get_affiliation!(aff_id)
+    user_id
+  end
+  defp do_get_context_owner(conn, "/question_replies/") do
+    %{"id" => qreply_id} = conn.path_params
+    %{creator: user_id} = Questions.get_qreply!(qreply_id)
+    user_id
+  end
+  defp do_get_context_owner(conn, "/questions/") do
+    %{"id" => question_id} = conn.path_params
+    %{creator: user_id} = Questions.get_question!(question_id)
+    user_id
+  end
+  defp do_get_context_owner(conn, "/replies/") do
+    %{"id" => reply_id} = conn.path_params
+    %{creator: user_id} = Posts.get_reply!(reply_id)
+    user_id
   end
 
 end

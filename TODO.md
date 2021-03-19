@@ -17,7 +17,6 @@ mass add users to course
 more sophisticated self user api
 
 course disable
-course members can delete edit their own messages
 course members displayed in alphabetical order
 
 embedded links should open in new tab instead of redirect current

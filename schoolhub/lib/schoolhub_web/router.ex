@@ -85,6 +85,12 @@ defmodule SchoolhubWeb.Router do
       resources "/affiliations", AffiliationController, only: [] do
 	resources "/grades", GradeController, only: [:show]
       end
+      resources "/posts", PostController, only: [] do
+	resources "/replies", ReplyController, only: [:edit, :update, :delete]
+      end
+      resources "/questions", QuestionController, only: [:edit, :update, :delete] do
+	resources "/question_replies", QreplyController, only: [:edit, :update, :delete]
+      end
     end
 
     pipe_through :course_assistant
@@ -96,11 +102,9 @@ defmodule SchoolhubWeb.Router do
       end
       
       resources "/posts", PostController, except: [:index, :show] do
-	resources "/replies", ReplyController, only: [:edit, :update, :delete]
 	put "/pin", PostController, :pin
       end
-      resources "/questions", QuestionController, only: [:edit, :update, :delete] do
-	resources "/question_replies", QreplyController, only: [:edit, :update, :delete]
+      resources "/questions", QuestionController, only: [] do
 	put "/pin", QuestionController, :pin
       end
 
