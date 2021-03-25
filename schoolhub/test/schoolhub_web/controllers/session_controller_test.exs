@@ -15,6 +15,7 @@ defmodule SchoolhubWeb.SessionControllerTest do
 	       result: "some error"}
   @auth_client_first %{data: "n,,n=some username,r=80151d1f366758f3a5ea00191a565575"}
   @new_token %{refresh_token: "some token"}
+  @pw_email %{email: "some@email.com"}
 
   def fixture(:user) do
     {:ok, user} = Accounts.create_user(@user_attrs)
@@ -47,6 +48,20 @@ defmodule SchoolhubWeb.SessionControllerTest do
 
     test "deletes session", %{conn: conn} do
       conn = delete(conn, Routes.session_path(conn, :delete))
+      assert redirected_to(conn) == Routes.session_path(conn, :new)
+    end
+  end
+
+  describe "forgot password" do
+    test "renders form", %{conn: conn} do
+      conn = get(conn, Routes.session_path(conn, :forgot_pw))
+      assert html_response(conn, 200) =~ "Forgot password"
+    end
+  end
+
+  describe "send email to address" do
+    test "redirects to login page when email sent", %{conn: conn} do
+      conn = post(conn, Routes.session_path(conn, :send_email), @pw_email)
       assert redirected_to(conn) == Routes.session_path(conn, :new)
     end
   end

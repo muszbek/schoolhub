@@ -21,7 +21,7 @@ config :schoolhub, SchoolhubWeb.Endpoint,
   server: false
 
 config :schoolhub, Schoolhub.Mailer,
-  adapter: Schoolhub.SMTPTestAdapter
+  adapter: BambooSMTP.TestAdapter
 
 config :schoolhub, :xmpp,
   protocol: "ws",

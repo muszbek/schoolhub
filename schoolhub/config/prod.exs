@@ -13,6 +13,10 @@ config :schoolhub, SchoolhubWeb.Endpoint,
   url: [host: System.get_env("DOMAIN", "schoolhub.com"), port: 4000],
   cache_static_manifest: "priv/static/cache_manifest.json"
 
+# Configures SMTP email server
+config :schoolhub, Schoolhub.Mailer,
+  server: System.get_env("DOMAIN", "schoolhub.com")
+
 # Do not print debug messages in production
 config :logger, level: :info
 
