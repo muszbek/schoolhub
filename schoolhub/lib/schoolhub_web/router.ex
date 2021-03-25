@@ -52,6 +52,8 @@ defmodule SchoolhubWeb.Router do
     resources "/users", UserController, only: [:new, :create]
     resources "/sessions", SessionController, only: [:new, :create, :delete],
       singleton: true
+    get "/sessions/forgot_pw", SessionController, :forgot_pw
+    post "/sessions/forgot_pw", SessionController, :send_email
 
     pipe_through :session
     post "/token", SessionController, :renew_token

@@ -6,6 +6,8 @@
        value="<%= get_protocol() <> "://" <>  get_domain() <> ":" <> get_port() <> "/ws-xmpp" %>">
 <input type="hidden" id="domain" name="domain" value="10.3.2.1">
 
+<span><%= link "Forgot password", to: Routes.session_path(@conn, :forgot_pw) %></span>
+
 <%= form_for @conn, Routes.session_path(@conn, :create), [method: :post], fn _ -> %>
   <div>
     <input type="button" id="login_button" name="login_button" value="Login">  

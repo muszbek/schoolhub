@@ -34,6 +34,16 @@ defmodule SchoolhubWeb.SessionController do
     |> redirect(to: Routes.session_path(conn, :new))
   end
 
+  def forgot_pw(conn, _) do
+    render(conn, "forgot_pw.html")
+  end
+
+  def send_email(conn, _form_data = %{"email" => address}) do
+    conn
+    |> put_flash(:info, "Email sent")
+    |> redirect(to: Routes.session_path(conn, :new))
+  end
+
   
   def authenticate(conn, %{"data" => auth_data}) do
     AuthServer.authenticate(auth_data)
