@@ -53,6 +53,20 @@ services:
     env_file:
       - ./postgres/postgres.env
 
+
+  postfix:
+    container_name: schoolhub_postfix
+    image: boky/postfix
+    hostname: $DOMAIN
+    ports:
+      - "1587:587"
+    networks:
+      schoolhub_network:
+        ipv4_address: 10.3.0.2
+    restart: always
+    environment:
+      - ALLOWED_SENDER_DOMAINS=$DOMAIN
+
   
   postgres:
     container_name: schoolhub_postgres

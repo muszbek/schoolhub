@@ -20,7 +20,7 @@ defmodule Schoolhub.MixProject do
   def application do
     [
       mod: {Schoolhub.Application, []},
-      extra_applications: [:logger, :runtime_tools]
+      extra_applications: [:logger, :runtime_tools, :bamboo, :bamboo_smtp]
     ]
   end
 
@@ -45,6 +45,9 @@ defmodule Schoolhub.MixProject do
       {:gettext, "~> 0.11"},
       {:jason, "~> 1.0"},
       {:plug_cowboy, "~> 2.0"},
+      {:bamboo, "~> 2.0.1"},
+      {:bamboo_phoenix, "~> 1.0.0"},
+      {:bamboo_smtp, "~> 4.0.0"},
       {:morphix, "~> 0.8.0"},
       {:earmark, "~> 1.1"},
       {:scramerl, git: "https://github.com/erdemaksu/scramerl"}

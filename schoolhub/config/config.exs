@@ -19,6 +19,16 @@ config :schoolhub, SchoolhubWeb.Endpoint,
   pubsub_server: Schoolhub.PubSub,
   live_view: [signing_salt: "8UjvKI2x"]
 
+# Configures SMTP email server
+config :schoolhub, Schoolhub.Mailer,
+  adapter: Bamboo.SMTPAdapter,
+  server: "localhost",
+  port: 785,
+  ssl: false,
+  tls: :always,
+  retries: 1,
+  no_mx_lookups: false
+
 # Configures Elixir's Logger
 config :logger, :console,
   format: "$time $metadata[$level] $message\n",

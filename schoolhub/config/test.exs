@@ -20,6 +20,9 @@ config :schoolhub, SchoolhubWeb.Endpoint,
   http: [port: 4002],
   server: false
 
+config :schoolhub, Schoolhub.Mailer,
+  adapter: Schoolhub.SMTPTestAdapter
+
 config :schoolhub, :xmpp,
   protocol: "ws",
   port: "5280"
