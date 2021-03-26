@@ -2,7 +2,7 @@ defmodule Schoolhub.Email do
   use Bamboo.Phoenix, view: SchoolhubWeb.EmailView
 
   def forgot_pw_email(address) do
-    domain = System.get_env("DOMAIN", "schoolhub.com")
+    domain = System.get_env("DOMAIN", "localhost")
     
     new_email(
       to: address,

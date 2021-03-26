@@ -65,7 +65,7 @@ services:
         ipv4_address: 10.3.0.2
     restart: always
     environment:
-      - ALLOWED_SENDER_DOMAINS=$DOMAIN
+      - ALLOWED_SENDER_DOMAINS=$DOMAIN localhost
 
   
   postgres:

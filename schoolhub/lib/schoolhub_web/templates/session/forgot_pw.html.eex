@@ -1,6 +1,8 @@
 <h1>Forgot password</h1>
 
-<label>Enter your email address in the below field. If it exists in the database, an email will be sent to recover your profile.</label>
+<label>Enter your email address in the below field.</label>
+<label>If it exists in the database, an email will be sent shortly to the given address to recover your profile.</label>
+<label>Please check your spam folder.</label>
 
 <%= form_for @conn, Routes.session_path(@conn, :send_email), [method: :post], fn _ -> %>
   <input type="email" id="email" name="email" placeholder="Your email address" required>

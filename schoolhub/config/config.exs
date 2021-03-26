@@ -23,9 +23,9 @@ config :schoolhub, SchoolhubWeb.Endpoint,
 config :schoolhub, Schoolhub.Mailer,
   adapter: Bamboo.SMTPAdapter,
   server: "localhost",
-  port: 25,
+  port: 1587,
   ssl: false,
-  tls: :always,
+  tls: :if_available,
   retries: 1,
   no_mx_lookups: false
 
