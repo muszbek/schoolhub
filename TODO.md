@@ -26,3 +26,5 @@ implement confirm password, forgot password, email confirm reg
 session page is not relevant if you are logged in, login status should be clear
 
 force certain tags for questions? empty tag is invalid?
+
+email don't forget about tls and proxy?

@@ -58,8 +58,6 @@ services:
     container_name: schoolhub_postfix
     image: boky/postfix
     hostname: $DOMAIN
-    ports:
-      - "1587:587"
     networks:
       schoolhub_network:
         ipv4_address: 10.3.0.2
@@ -100,6 +98,7 @@ services:
     ports:
       - "80:80"
       - "443:443"
+      - "1587:1587"
       - "5280:5280"
       - "5285:5285"
     networks:
