@@ -50,6 +50,8 @@ defmodule SchoolhubWeb.Router do
     get "/", PageController, :index
     get "/phoenix", PageController, :phoenix
     resources "/users", UserController, only: [:new, :create]
+    get "/users/change_pw/:token", UserController, :change_pw
+    put "/users/change_pw/:token", UserController, :update_pw
     resources "/sessions", SessionController, only: [:new, :create, :delete],
       singleton: true
     get "/sessions/forgot_pw", SessionController, :forgot_pw

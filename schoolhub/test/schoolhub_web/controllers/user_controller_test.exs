@@ -96,6 +96,53 @@ defmodule SchoolhubWeb.UserControllerTest do
       #end
     end
   end
+
+  describe "change password" do
+    setup [:create_user]
+
+    test "correct token renders change pw page", %{conn: conn, user: user} do
+      username = user.credential.username
+      token = Accounts.create_token(username)
+      conn = get(conn, Routes.user_path(conn, :change_pw, token))
+      assert html_response(conn, 200) =~ username
+    end
+
+    test "invalid token redirects", %{conn: conn} do
+      token = "invalid_token"
+      conn = get(conn, Routes.user_path(conn, :change_pw, token))
+      assert redirected_to(conn) == Routes.session_path(conn, :new)
+    end
+  end
+
+  describe "update password" do
+    setup [:create_user]
+
+    test "correct token update redirects", %{conn: conn, user: user} do
+      username = user.credential.username
+      token = Accounts.create_token(username)
+      new_pw = "some updated password"
+      
+      conn = put(conn, Routes.user_path(conn, :update_pw, token), password: new_pw)
+      assert redirected_to(conn) == Routes.session_path(conn, :new)
+    end
+
+    test "invalid token update redirects", %{conn: conn} do
+      token = "invalid_token"
+      new_pw = "some updated password"
+
+      conn = put(conn, Routes.user_path(conn, :update_pw, token), password: new_pw)
+      assert redirected_to(conn) == Routes.session_path(conn, :new)
+    end
+
+    test "invalid password update redirects", %{conn: conn, user: user} do
+      username = user.credential.username
+      token = Accounts.create_token(username)
+      new_pw = nil
+      
+      conn = put(conn, Routes.user_path(conn, :update_pw, token), password: new_pw)
+      assert redirected_to(conn) == Routes.user_path(conn, :change_pw, token)
+    end
+  end
   
 
   defp create_user(_) do

@@ -60,4 +60,50 @@ defmodule SchoolhubWeb.UserController do
     |> configure_session(drop: true)
     |> redirect(to: Routes.session_path(conn, :new))
   end
+
+
+  def change_pw(conn, %{"token" => token}) do
+    token_result = Accounts.verify_token(token)
+
+    case token_result do
+      {:ok, username} ->
+	render(conn, "change_pw.html", token: token, username: username)
+      {:error, :invalid} ->
+	conn
+	|> put_flash(:error, "Change password token invalid!")
+	|> redirect(to:	Routes.session_path(conn, :new))
+      {:error, :expired} ->
+	conn
+	|> put_flash(:error, "Change password token expired!")
+	|> redirect(to:	Routes.session_path(conn, :new))
+    end	
+  end
+
+  def update_pw(conn, %{"token" => token, "password" => password}) do
+    token_result = Accounts.verify_token(token)
+
+    case token_result do
+      {:ok, username} ->
+	do_update_pw(conn, username, password, token)
+      {:error, _reason} ->
+	conn
+	|> put_flash(:error, "Update password token error")
+	|> redirect(to:	Routes.session_path(conn, :new))
+    end
+  end
+
+  defp do_update_pw(conn, username, password, token) do
+    cred = Accounts.get_credential!(username)
+
+    case Accounts.update_credential(cred, %{password: password}) do
+      {:ok, _cred} ->
+	conn
+	|> put_flash(:info, "Password successfully updated")
+	|> redirect(to: Routes.session_path(conn, :new))
+      {:error, %Ecto.Changeset{}} ->
+	conn
+	|> put_flash(:error, "New password is invalid!")
+	|> redirect(to: Routes.user_path(conn, :change_pw, token))
+    end
+  end
 end
