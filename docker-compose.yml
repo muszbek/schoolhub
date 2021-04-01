@@ -62,8 +62,11 @@ services:
       schoolhub_network:
         ipv4_address: 10.3.0.2
     restart: always
+    volumes:
+      - ./letsencrypt/DKIM:/etc/opendkim/keys
     environment:
       - ALLOWED_SENDER_DOMAINS=$DOMAIN localhost
+      - DKIM_AUTOGENERATE=true
 
   
   postgres:

@@ -5,6 +5,7 @@ defmodule Schoolhub.Accounts do
   
   import Ecto.Query, warn: false
   alias Schoolhub.Repo
+  alias Phoenix.Token
 
   alias Schoolhub.Accounts.{User, Credential}
   alias Schoolhub.Privileges.Privilege
@@ -221,6 +222,17 @@ defmodule Schoolhub.Accounts do
   """
   def change_credential(%Credential{} = credential, attrs \\ %{}) do
     Credential.changeset(credential, attrs)
+  end
+
+
+  def create_token(username) do
+    salt = Application.get_env(:schoolhub, __MODULE__)[:signing_salt]
+    _token = Token.sign(SchoolhubWeb.Endpoint, salt, username)
+  end
+
+  def verify_token(token, max_age \\ 86400) do
+    salt = Application.get_env(:schoolhub, __MODULE__)[:signing_salt]
+    Token.verify(SchoolhubWeb.Endpoint, salt, token, max_age: max_age)
   end
 
 

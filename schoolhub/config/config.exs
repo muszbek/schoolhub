@@ -29,6 +29,9 @@ config :schoolhub, Schoolhub.Mailer,
   retries: 1,
   no_mx_lookups: false
 
+config :schoolhub, Schoolhub.Accounts,
+  signing_salt: System.get_env("USER_SIGNING_SALT", "mKg5y9G6")
+
 # Configures Elixir's Logger
 config :logger, :console,
   format: "$time $metadata[$level] $message\n",

@@ -150,5 +150,23 @@ defmodule Schoolhub.AccountsTest do
       credential = credential_fixture()
       assert %Ecto.Changeset{} = Accounts.change_credential(credential)
     end
+
+    test "user token works" do
+      %{username: username} = credential_fixture()
+      token = Accounts.create_token(username)
+      assert {:ok, ^username} = Accounts.verify_token(token)
+    end
+
+    test "invalid user token returns error" do
+      token = "invalid_token"
+      assert {:error, :invalid} = Accounts.verify_token(token)
+    end
+
+    test "expired user token returns error" do
+      %{username: username} = credential_fixture()
+      token = Accounts.create_token(username)
+      Process.sleep(10)
+      assert {:error, :expired} = Accounts.verify_token(token, 0.001)
+    end
   end
 end
