@@ -1,0 +1,10 @@
+You receive this email because you signaled that you have forgotten your password.
+If it was not you, please ignore this email.
+
+Your email address is associated with the username "<%= @username %>".
+
+Follow this link to change your password:
+
+<%= @url_with_token %>
+
+<< Please do not reply to this email >>

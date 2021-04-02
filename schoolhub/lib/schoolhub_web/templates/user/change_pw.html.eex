@@ -2,7 +2,7 @@
 
 <input type="text" id="username" name="username" value="<%= @username %>" readonly>
 
-<%= form_for @conn, Routes.user_path(@conn, :update_pw, @token), [method: :post], fn _ -> %>  
+<%= form_for @conn, Routes.user_path(@conn, :update_pw, @token), [method: :put], fn _ -> %>  
   <input type="password" id="password" name="password" placeholder="Your new password">
 
   <div>

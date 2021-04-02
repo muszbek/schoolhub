@@ -15,7 +15,6 @@ defmodule SchoolhubWeb.SessionControllerTest do
 	       result: "some error"}
   @auth_client_first %{data: "n,,n=some username,r=80151d1f366758f3a5ea00191a565575"}
   @new_token %{refresh_token: "some token"}
-  @pw_email %{email: "some@email.com"}
 
   def fixture(:user) do
     {:ok, user} = Accounts.create_user(@user_attrs)
@@ -60,8 +59,17 @@ defmodule SchoolhubWeb.SessionControllerTest do
   end
 
   describe "send email to address" do
-    test "redirects to login page when email sent", %{conn: conn} do
-      conn = post(conn, Routes.session_path(conn, :send_email), @pw_email)
+    setup [:create_user]
+    
+    test "redirects to login page when email sent", %{conn: conn, user: user} do
+      email = %{email: user.email}
+      conn = post(conn, Routes.session_path(conn, :send_email), email)
+      assert redirected_to(conn) == Routes.session_path(conn, :new)
+    end
+
+    test "redirects to login page when email is wrong", %{conn: conn} do
+      email = %{email: "invalid email address"}
+      conn = post(conn, Routes.session_path(conn, :send_email), email)
       assert redirected_to(conn) == Routes.session_path(conn, :new)
     end
   end

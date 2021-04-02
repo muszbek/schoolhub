@@ -40,12 +40,20 @@ defmodule SchoolhubWeb.SessionController do
   end
 
   def send_email(conn, _form_data = %{"email" => address}) do
-    Email.forgot_pw_email(address)
-    |> Mailer.deliver_now!()
+    case Accounts.get_user_by_email(address) do
+      nil ->
+	conn
+	|> put_flash(:error, "Email address not found in database, please register")
+	|> redirect(to: Routes.session_path(conn, :new))
+	
+      user ->
+	Email.forgot_pw_email(user)
+	|> Mailer.deliver_now!()
     
-    conn
-    |> put_flash(:info, "Email sent")
-    |> redirect(to: Routes.session_path(conn, :new))
+	conn
+	|> put_flash(:info, "Email sent")
+	|> redirect(to: Routes.session_path(conn, :new))
+    end
   end
 
   
