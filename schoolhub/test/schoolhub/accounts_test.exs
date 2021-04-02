@@ -35,9 +35,19 @@ defmodule Schoolhub.AccountsTest do
       assert Accounts.get_user!(user.id) == user
     end
 
-    test "get_user_by_name/1 returns the user with given username" do
+    test "get_user_by_name!/1 returns the user with given username" do
       user = user_fixture()
       assert Accounts.get_user_by_name!(user.credential.username) == user
+    end
+
+    test "get_user_by_email/1 returns the user with given email" do
+      user = user_fixture()
+      assert Accounts.get_user_by_email(user.email) == user
+    end
+
+    test "get_user_by_email/1 returns nothing with wrong email" do
+      email = "some_invalid_email"
+      assert Accounts.get_user_by_email(email) == nil
     end
 
     test "create_user/1 with valid data creates a user" do

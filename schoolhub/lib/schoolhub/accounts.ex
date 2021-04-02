@@ -159,6 +159,14 @@ defmodule Schoolhub.Accounts do
     get_user!(credential.user_id)
   end
 
+  def get_user_by_email(email) do
+    User
+    |> where(email: ^email)
+    |> Repo.one()
+    |> Repo.preload(:credential)
+    |> Repo.preload(:privilege)
+  end
+
   @doc """
   Creates a credential.
 
