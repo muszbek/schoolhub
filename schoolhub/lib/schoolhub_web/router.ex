@@ -52,6 +52,7 @@ defmodule SchoolhubWeb.Router do
     resources "/users", UserController, only: [:new, :create]
     get "/users/change_pw/:token", UserController, :change_pw
     put "/users/change_pw/:token", UserController, :update_pw
+    post "/users/register/:token", UserController, :confirm
     resources "/sessions", SessionController, only: [:new, :create, :delete],
       singleton: true
     get "/sessions/forgot_pw", SessionController, :forgot_pw

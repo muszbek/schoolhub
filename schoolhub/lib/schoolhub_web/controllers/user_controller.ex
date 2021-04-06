@@ -3,6 +3,7 @@ defmodule SchoolhubWeb.UserController do
 
   alias Schoolhub.Accounts
   alias Schoolhub.Accounts.User
+  alias Schoolhub.{Mailer, Email}
 
   def index(conn, _params) do
     users = Accounts.list_users()
@@ -16,13 +17,47 @@ defmodule SchoolhubWeb.UserController do
 
   def create(conn, %{"user" => user_params}) do
     case Accounts.create_user(user_params) do
-      {:ok, _user} ->
+      {:ok, user} ->
+	## Add again when confirmed from email
+	## Adding now is necessary to detect changeset errors
+	Accounts.delete_user(user)
+
+	Email.confirm_reg_email(user_params)
+	|> Mailer.deliver_now!()
+	
         conn
-        |> put_flash(:info, "User created successfully.")
+        |> put_flash(:info, "Confiramtion email sent to register.")
         |> redirect(to: Routes.session_path(conn, :new))
 
       {:error, %Ecto.Changeset{} = changeset} ->
         render(conn, "new.html", changeset: changeset)
+    end
+  end
+
+  def confirm(conn, %{"token" => token}) do
+    token_result = Accounts.verify_token(token)
+
+    case token_result do
+      {:ok, user_params} ->
+	do_confirm(conn, user_params)
+      {:error, _reason} ->
+	conn
+	|> put_flash(:error, "Confirm registration token error")
+	|> redirect(to:	Routes.session_path(conn, :new))
+    end
+  end
+
+  defp do_confirm(conn, user_params) do
+    case Accounts.create_user(user_params) do
+      {:ok, _user} ->
+        conn
+        |> put_flash(:info, "User registration confirmed.")
+        |> redirect(to: Routes.session_path(conn, :new))
+
+      {:error, %Ecto.Changeset{}} ->
+        conn
+        |> put_flash(:error, "Something went wrong with user registration.")
+        |> redirect(to: Routes.session_path(conn, :new))
     end
   end
 

@@ -46,7 +46,7 @@ defmodule SchoolhubWeb.UserControllerTest do
   end
 
   describe "create user" do
-    test "redirects to show when data is valid", %{conn: conn} do
+    test "redirects to session when data is valid", %{conn: conn} do
       conn = post(conn, Routes.user_path(conn, :create), user: @create_attrs)
       assert redirected_to(conn) == Routes.session_path(conn, :new)
     end
@@ -54,6 +54,26 @@ defmodule SchoolhubWeb.UserControllerTest do
     test "renders errors when data is invalid", %{conn: conn} do
       conn = post(conn, Routes.user_path(conn, :create), user: @invalid_attrs)
       assert html_response(conn, 200) =~ "New User"
+    end
+  end
+
+  describe "confirm user" do
+    test "redirects to session when data is valid", %{conn: conn} do
+      token = Accounts.create_token(@create_attrs)
+      conn = post(conn, Routes.user_path(conn, :confirm, token))
+      assert redirected_to(conn) == Routes.session_path(conn, :new)
+    end
+
+    test "redirects to session when data is invalid", %{conn: conn} do
+      token = Accounts.create_token(@invalid_attrs)
+      conn = post(conn, Routes.user_path(conn, :confirm, token))
+      assert redirected_to(conn) == Routes.session_path(conn, :new)
+    end
+
+    test "redirects to session when token is invalid", %{conn: conn} do
+      token = "invalid_token"
+      conn = post(conn, Routes.user_path(conn, :confirm, token))
+      assert redirected_to(conn) == Routes.session_path(conn, :new)
     end
   end
 
