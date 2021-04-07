@@ -87,7 +87,27 @@ defmodule SchoolhubWeb.UserController do
   end
 
   def delete(conn, %{"id" => id}) do
-    user = Accounts.get_user!(id)
+    user_id = get_session(conn, :user_id)
+    id = String.to_integer(id)
+    
+    case user_id == id do
+      false ->
+	user = Accounts.get_user!(id)
+	{:ok, _user} = Accounts.delete_user(user)
+
+	conn
+	|> put_flash(:info, "User deleted successfully.")
+	|> redirect(to: Routes.user_path(conn, :index))
+      true ->
+	conn
+	|> put_flash(:error, "Cannot delete self this way.")
+	|> redirect(to: Routes.user_path(conn, :index))
+    end
+  end
+
+  def self_delete(conn, _params) do
+    user_id = get_session(conn, :user_id)
+    user = Accounts.get_user!(user_id)
     {:ok, _user} = Accounts.delete_user(user)
 
     conn

@@ -87,3 +87,4 @@ tailwind css
 
 secure invitation token somehow?
 sort questions by follows? and by creation time?
+delete users with references - forbid? delete all references? ask?

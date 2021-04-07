@@ -107,13 +107,24 @@ defmodule SchoolhubWeb.UserControllerTest do
 
   describe "delete user" do
     setup [:create_user]
+    setup [:enter_session]
 
-    test "deletes chosen user", %{conn: conn, user: user} do
+    test "deletes other user", %{conn: conn} do
+      {:ok, other_user} = Accounts.create_user(@update_attrs)
+      
+      conn = delete(conn, Routes.user_path(conn, :delete, other_user))
+      assert redirected_to(conn) == Routes.user_path(conn, :index)
+      assert_error_sent 404, fn ->
+        get(conn, Routes.user_path(conn, :show, other_user))
+      end
+    end
+    
+    test "fails to delete self user", %{conn: conn, user: user} do
       conn = delete(conn, Routes.user_path(conn, :delete, user))
-      assert redirected_to(conn) == Routes.session_path(conn, :new)
-      #assert_error_sent 404, fn ->
-      #  get(conn, Routes.user_path(conn, :show, user))
-      #end
+      assert redirected_to(conn) == Routes.user_path(conn, :index)
+
+      conn = get(conn, Routes.user_path(conn, :show, user))
+      assert html_response(conn, 200) =~ "some email"
     end
   end
 
