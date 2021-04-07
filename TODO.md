@@ -27,7 +27,4 @@ session page is not relevant if you are logged in, login status should be clear
 
 force certain tags for questions? empty tag is invalid?
 
-email don't forget about tls and proxy?
-
-test reg confirm email
-fix error when delete user
+fix error when delete user - foreign key constraint
