@@ -1,13 +1,28 @@
 <h1>Change password</h1>
 
+<label for="username">Username</label>
 <input type="text" id="username" name="username" value="<%= @username %>" readonly>
 
-<%= form_for @conn, Routes.user_path(@conn, :update_pw, @token), [method: :put], fn _ -> %>  
-  <input type="password" id="password" name="password" placeholder="Your new password">
+<%= form_for @conn, Routes.user_path(@conn, :update_pw, @token), [method: :put], fn _ -> %>
+  <label for="password">New password</label>
+  <input type="password" id="password" name="password" placeholder="Your new password" onchange='check_pass();'>
+  <label for="confirm_password">Confirm new password</label>
+  <input type="password" id="confirm_password" name="confirm_password" placeholder="Confirm password" onchange='check_pass();'>
 
   <div>
-    <%= submit "Change password" %>
+    <%= submit "Change password", [id: "submit", disabled: "true"] %>
   </div>
 <% end %>
 
 <span><%= link "Back", to: Routes.session_path(@conn, :new) %></span>
+
+<script>
+  function check_pass() {
+      if (document.getElementById('password').value ==
+	  document.getElementById('confirm_password').value) {
+	  document.getElementById('submit').disabled = false;
+      } else {
+	  document.getElementById('submit').disabled = true;
+      }
+  }
+</script>

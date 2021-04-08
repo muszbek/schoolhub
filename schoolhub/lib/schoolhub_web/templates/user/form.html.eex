@@ -20,12 +20,27 @@
       <%= error_tag cf, :username %>
 
       <%= label cf, :password %>
-      <%= password_input cf, :password %>
+      <%= password_input cf, :password, [onchange: "check_pass();"] %>
       <%= error_tag cf, :password %>
+
+      <%= label cf, :confirm_password %>
+      <%= password_input cf, :confirm_password, [onchange: "check_pass();"] %>
+      <%= error_tag cf, :confirm_password %>
     <% end %>
   </div>
   
   <div>
-    <%= submit "Save" %>
+    <%= submit "Save", [id: "submit", disabled: "true"] %>
   </div>
 <% end %>
+
+<script>
+  function check_pass() {
+      if (document.getElementById('user_credential_password').value ==
+	  document.getElementById('user_credential_confirm_password').value) {
+	  document.getElementById('submit').disabled = false;
+      } else {
+	  document.getElementById('submit').disabled = true;
+      }
+  }
+</script>
