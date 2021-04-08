@@ -20,7 +20,7 @@
       <%= error_tag cf, :username %>
 
       <%= label cf, :password %>
-      <%= text_input cf, :password %>
+      <%= password_input cf, :password %>
       <%= error_tag cf, :password %>
     <% end %>
   </div>

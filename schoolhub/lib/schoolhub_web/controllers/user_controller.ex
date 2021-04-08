@@ -4,7 +4,7 @@ defmodule SchoolhubWeb.UserController do
   alias Schoolhub.Accounts
   alias Schoolhub.Accounts.User
   alias Schoolhub.{Mailer, Email}
-
+  require Logger
   def index(conn, _params) do
     users = Accounts.list_users()
     render(conn, "index.html", users: users)
@@ -93,10 +93,9 @@ defmodule SchoolhubWeb.UserController do
     case user_id == id do
       false ->
 	user = Accounts.get_user!(id)
-	{:ok, _user} = Accounts.delete_user(user)
 
 	conn
-	|> put_flash(:info, "User deleted successfully.")
+	|> try_to_delete(user)
 	|> redirect(to: Routes.user_path(conn, :index))
       true ->
 	conn
@@ -108,12 +107,24 @@ defmodule SchoolhubWeb.UserController do
   def self_delete(conn, _params) do
     user_id = get_session(conn, :user_id)
     user = Accounts.get_user!(user_id)
-    {:ok, _user} = Accounts.delete_user(user)
 
     conn
-    |> put_flash(:info, "User deleted successfully.")
+    |> try_to_delete(user)
     |> configure_session(drop: true)
     |> redirect(to: Routes.session_path(conn, :new))
+  end
+
+  defp try_to_delete(conn, user) do
+    ## puts flash message but no redirection
+    try do
+      {:ok, _user} = Accounts.delete_user(user)
+      
+      conn
+      |> put_flash(:info, "User deleted successfully.")
+    rescue
+      Ecto.ConstraintError -> conn
+      |> put_flash(:error, "User cannot be deleted because of dependencies!")
+    end
   end
 
 
