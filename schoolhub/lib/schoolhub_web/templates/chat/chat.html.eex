@@ -6,7 +6,7 @@
 <input type="hidden" id="username" name="username" value="<%= @user.credential.username %>">
 <input type="hidden" id="xmpp_url" name="xmpp_url"
        value="<%= get_protocol() <> "://" <>  get_domain() <> ":" <> get_port() <> "/ws-xmpp" %>">
-<input type="hidden" id="domain" name="domain" value="10.3.2.1">
+<input type="hidden" id="domain" name="domain" value="mongooseim-1">
 <input type="hidden" id="self" name="self" value="<%= @self.credential.username %>">
 <input type="hidden" id="token" name="token" value="<%= @token %>">
 

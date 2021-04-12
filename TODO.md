@@ -29,3 +29,5 @@ fix error when delete user - foreign key constraint - how to fix?
 docker-compose hostnames instead of static IPs
 
 email tls don't forget
+
+email from remote doesn't work anymore
