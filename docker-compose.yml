@@ -57,7 +57,7 @@ services:
   postfix:
     container_name: schoolhub_postfix
     image: boky/postfix
-    hostname: $DOMAIN
+    hostname: postfix
     networks:
       schoolhub_network:
         ipv4_address: 10.3.0.2
@@ -72,7 +72,7 @@ services:
   postgres:
     container_name: schoolhub_postgres
     image: postgres
-    hostname: $DOMAIN
+    hostname: postgres
     expose:
       - "5432"
     networks:
@@ -95,7 +95,7 @@ services:
   haproxy:
     container_name: schoolhub_haproxy
     image: haproxy
-    hostname: $DOMAIN
+    hostname: haproxy
     expose:
       - "8404"
     ports:
@@ -117,7 +117,7 @@ services:
   phx_server:
     container_name: phx_server
     image: phx_server:v0.2.1
-    hostname: $DOMAIN
+    hostname: phoenix
     build:
       context: ./schoolhub
     expose:
