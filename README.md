@@ -36,7 +36,7 @@ In root directory:
 sudo ./get_cert.sh MYDOMAIN
 ```
 
-Your host has to be visible on the internet under MYDOMAIN, on ports 443, 5285, (80)
+Your host has to be visible on the internet under MYDOMAIN, on ports 443, 1587, 5285, (80)
 
 ## Running
 

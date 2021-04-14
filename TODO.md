@@ -26,8 +26,4 @@ session page is not relevant if you are logged in, login status should be clear
 force certain tags for questions? empty tag is invalid?
 fix error when delete user - foreign key constraint - how to fix?
 
-docker-compose hostnames instead of static IPs
-
-email tls don't forget
-
-email from remote doesn't work anymore
+what is the EHLO email restart message?

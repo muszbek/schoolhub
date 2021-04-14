@@ -9,7 +9,7 @@ config :schoolhub, Schoolhub.Repo,
   username: "schoolhub",
   password: "schoolhub",
   database: "schoolhub_test#{System.get_env("MIX_TEST_PARTITION")}",
-  hostname: "10.3.1.3",
+  hostname: "localhost",
   ssl: true,
   ssl_opts: [verify: :verify_none],
   pool: Ecto.Adapters.SQL.Sandbox
