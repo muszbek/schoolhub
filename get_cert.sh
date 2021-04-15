@@ -27,7 +27,7 @@ function get_selfsigned {
     mkdir -p letsencrypt/selfsigned/$DOMAIN/certs
     cd ./letsencrypt/selfsigned/$DOMAIN/certs
 
-    docker run --rm -v $PWD:/root/.local/share/mkcert --name mkcert_temp mkcert /bin/sh -c "mkcert -install && mkcert -cert-file cert.pem -key-file privkey.pem $DOMAIN"
+    docker run --rm -v $PWD:/root/.local/share/mkcert --name mkcert_temp brunopadz/mkcert-docker /bin/sh -c "mkcert -install && mkcert -cert-file /root/.local/share/mkcert/cert.pem -key-file /root/.local/share/mkcert/privkey.pem $DOMAIN"
 
     cat privkey.pem cert.pem | tee joined_cert.pem >/dev/null
     mv rootCA.pem chain.pem
