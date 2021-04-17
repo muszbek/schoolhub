@@ -66,6 +66,7 @@ services:
     environment:
       - ALLOWED_SENDER_DOMAINS=$DOMAIN localhost
       - DKIM_AUTOGENERATE=true
+      - INBOUND_DEBUGGING=
 
   
   postgres:
