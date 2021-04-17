@@ -22,6 +22,7 @@
       <td><%= affiliation.affiliation %></td>
 
       <td>
+	<span><%= link "Grades", to: Routes.course_affiliation_grade_path(@conn, :show, @course_id, affiliation, Schoolhub.Grades.get_grade_by_aff!(affiliation.id)) %></span>
         <span><%= link "Show", to: Routes.course_affiliation_path(@conn, :show, @course_id, affiliation) %></span>
         <span><%= link "Edit", to: Routes.course_affiliation_path(@conn, :edit, @course_id, affiliation) %></span>
         <span><%= link "Remove", to: Routes.course_affiliation_path(@conn, :delete, @course_id, affiliation), method: :delete, data: [confirm: "Are you sure?"] %></span>
