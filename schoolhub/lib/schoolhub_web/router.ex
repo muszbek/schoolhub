@@ -103,9 +103,6 @@ defmodule SchoolhubWeb.Router do
 
     pipe_through :course_self
     resources "/courses", CourseController, only: [] do
-      resources "/affiliations", AffiliationController, only: [] do
-	resources "/grades", GradeController, only: [:show]
-      end
       resources "/posts", PostController, only: [] do
 	resources "/replies", ReplyController, except: [:index, :show, :new, :create]
       end
@@ -137,6 +134,19 @@ defmodule SchoolhubWeb.Router do
       resources "/affiliations", AffiliationController, only: [:edit, :update]
     end
     
+  end
+
+  scope "/self/public", SchoolhubWeb do
+    pipe_through :browser
+    pipe_through :session
+    pipe_through :course_member
+    pipe_through :course_self
+    
+    resources "/courses", CourseController, only: [] do
+      resources "/affiliations", AffiliationController, only: [] do
+	resources "/grades", GradeController, only: [:show]
+      end
+    end
   end
 
   scope "/teacher", SchoolhubWeb do
