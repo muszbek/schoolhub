@@ -38,6 +38,10 @@ defmodule SchoolhubWeb.Router do
   pipeline :course_self do
     plug :need_self_aff
   end
+
+  pipeline :course_enabled do
+    plug :need_course_enabled
+  end
   
   pipeline :course_member do
     plug :need_aff
@@ -68,22 +72,33 @@ defmodule SchoolhubWeb.Router do
     
     pipe_through :course_member
     resources "/courses", CourseController, only: [:show] do
-      get "/chat", ChatController, :index
-      get "/chat/:user_id", ChatController, :chat
       resources "/affiliations", AffiliationController, only: [:index, :show]
       
-      resources "/posts", PostController, only: [:index, :show] do
-	resources "/replies", ReplyController, except: [:edit, :update, :delete]
+      resources "/posts/public", PostController, only: [:index, :show] do
+	resources "/replies", ReplyController, only: [:index, :show]
       end
       get "/questions/filters/:filters/:only_following", QuestionController, :filter
-      resources "/questions", QuestionController, except: [:edit, :update, :delete] do
-	resources "/question_replies", QreplyController, except: [:edit, :update, :delete]
-	post "/follow", FollowController, :follow
-	delete "/unfollow", FollowController, :unfollow
+      resources "/questions/public", QuestionController, only: [:index, :show] do
+	resources "/question_replies", QreplyController, only: [:index, :show]
       end
       
       resources "/files", FileController, only: [:index, :show]
       get "/files/download/:id", FileController, :download
+    end
+
+    pipe_through :course_enabled
+    resources "/courses", CourseController, only: [] do
+      get "/chat", ChatController, :index
+      get "/chat/:user_id", ChatController, :chat
+
+      resources "/posts", PostController, only: [] do
+	resources "/replies", ReplyController, only: [:new, :create]
+      end
+      resources "/questions", QuestionController, only: [:new, :create] do
+	resources "/question_replies", QreplyController, only: [:new, :create]
+	post "/follow", FollowController, :follow
+	delete "/unfollow", FollowController, :unfollow
+      end
     end
 
     pipe_through :course_self
@@ -92,10 +107,10 @@ defmodule SchoolhubWeb.Router do
 	resources "/grades", GradeController, only: [:show]
       end
       resources "/posts", PostController, only: [] do
-	resources "/replies", ReplyController, only: [:edit, :update, :delete]
+	resources "/replies", ReplyController, except: [:index, :show, :new, :create]
       end
-      resources "/questions", QuestionController, only: [:edit, :update, :delete] do
-	resources "/question_replies", QreplyController, only: [:edit, :update, :delete]
+      resources "/questions", QuestionController, except: [:index, :show, :new, :create] do
+	resources "/question_replies", QreplyController, except: [:index, :show, :new, :create]
       end
     end
 

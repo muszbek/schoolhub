@@ -138,6 +138,41 @@ defmodule SchoolhubWeb.Plugs do
     end
   end
 
+
+  def need_course_enabled(conn, _) do
+    course_id = get_course_id(conn)
+    user = %{id: user_id} = get_user(conn)
+
+    conn
+    |> check_if_admin(user)
+    |> check_if_owner_continue(course_id, user_id)
+    |> check_if_enabled(course_id)
+  end
+
+  defp check_if_owner_continue({:authorized, conn}, _course_id, _user_id), do: {:authorized, conn}
+  defp check_if_owner_continue({:check, conn}, course_id, user_id) do
+    %{affiliation: affiliation} = Courses.get_affiliation_by_user!(course_id, user_id)
+    
+    case affiliation do
+      "owner" -> {:authorized, conn}
+      _other -> {:check, conn}
+    end
+  end
+
+  defp check_if_enabled({:authorized, conn}, _course_id), do: conn
+  defp check_if_enabled({:check, conn}, course_id) do
+    %{active: active} = Courses.get_course!(course_id)
+
+    case active do
+      true -> conn
+      _other ->
+	conn
+	|> Phoenix.Controller.put_flash(:error, "This course has been disabled")
+	|> Phoenix.Controller.redirect(to: "/courses/" <> get_course_id(conn))
+	|> halt()
+    end
+  end
+
   
   def need_aff(conn, _) do
     course_id = get_course_id(conn)
