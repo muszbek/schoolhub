@@ -137,6 +137,24 @@ defmodule SchoolhubWeb.CourseControllerTest do
     end
   end
 
+  describe "disable post" do
+    setup [:enter_session]
+    setup [:create_course]
+
+    test "disables post", %{conn: conn, course: course} do
+      conn = put(conn, Routes.course_course_path(conn, :activate, course), to_activate: false)
+      assert redirected_to(conn) == Routes.course_path(conn, :show, course)
+
+      conn = get(conn, Routes.course_path(conn, :show, course))
+      assert html_response(conn, 200) =~ "disabled"
+    end
+
+    test "activates post", %{conn: conn, course: course} do
+      conn = put(conn, Routes.course_course_path(conn, :activate, course), to_activate: true)
+      assert redirected_to(conn) == Routes.course_path(conn, :show, course)
+    end
+  end
+
   
   defp create_course(%{conn: conn}) do
     course = fixture(:course, conn)

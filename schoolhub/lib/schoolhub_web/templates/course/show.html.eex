@@ -1,4 +1,5 @@
 <h1><%= @course.name %></h1>
+<h2><%= if @course.active == false, do: "<< Course disabled >>" %></h2>
 
 <span><%= link "View Members", to: Routes.course_affiliation_path(@conn, :index, @course.id) %></span>
 <span><%= link "View Posts", to: Routes.course_post_path(@conn, :index, @course.id) %></span>
@@ -8,6 +9,11 @@
 <span><%= link "My grades", to: Routes.course_affiliation_grade_path(@conn, :show, @course.id, get_self_aff(@conn, @course.id), get_self_grades(@conn, @course.id)) %></span>
 <span><%= link "Edit", to: Routes.course_path(@conn, :edit, @course) %></span>
 <span><%= link "New Token", to: Routes.course_course_path(@conn, :new_token, @course.id) %></span>
+<span><%= if @course.active, do:
+	  (link "Disable", to: Routes.course_course_path(@conn, :activate, @course.id, [to_activate: false]), method: :put),
+	  else:
+	  (link "Activate", to: Routes.course_course_path(@conn, :activate, @course.id, [to_activate: true]), method: :put)
+	  %></span>
 <span><%= link "Back", to: Routes.course_path(@conn, :index) %></span>
 
 <%= @course.description |> Earmark.as_html!() |> raw() %>

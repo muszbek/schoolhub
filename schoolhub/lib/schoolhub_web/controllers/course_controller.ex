@@ -79,4 +79,16 @@ defmodule SchoolhubWeb.CourseController do
     token = Courses.create_token(course.id)
     render(conn, "new_token.html", course: course, token: token)
   end
+
+  def activate(conn, %{"course_id" => id, "to_activate" => to_activate}) do
+    course = Courses.get_course!(id)
+    {:ok, _course} = Courses.update_course(course, %{active: to_activate})
+
+    msg = if to_activate == "true", do: "Course activated.", else: "Course disabled."
+
+    conn
+    |> put_flash(:info, msg)
+    |> redirect(to: Routes.course_path(conn, :show, id))
+  end
+  
 end

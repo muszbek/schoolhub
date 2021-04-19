@@ -139,13 +139,22 @@ defmodule SchoolhubWeb.Router do
   scope "/self/public", SchoolhubWeb do
     pipe_through :browser
     pipe_through :session
-    pipe_through :course_member
     pipe_through :course_self
     
     resources "/courses", CourseController, only: [] do
       resources "/affiliations", AffiliationController, only: [] do
 	resources "/grades", GradeController, only: [:show]
       end
+    end
+  end
+
+  scope "/activate", SchoolhubWeb do
+    pipe_through :browser
+    pipe_through :session
+    pipe_through :course_owner
+
+    resources "/courses", CourseController, only: [] do
+      put "/activate", CourseController, :activate
     end
   end
 
