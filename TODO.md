@@ -24,4 +24,3 @@ fix error when delete user - foreign key constraint - how to fix?
 what is the EHLO email restart message? related to openDKIM, maybe testing that it will work
 
 view tests
-more visibility to disabled course
