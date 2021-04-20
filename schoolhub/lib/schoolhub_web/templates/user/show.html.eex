@@ -24,7 +24,7 @@
 
 </ul>
 
-<%= if @logout_button do%>
+<%= if @self do%>
   <%= form_for @conn, Routes.session_path(@conn, :delete), [method: :delete], fn _ -> %>
     <div>
       <%= submit "Logout" %>
@@ -33,4 +33,8 @@
 <% end %>
 
 <span><%= link "Edit", to: Routes.user_path(@conn, :edit, @user) %></span>
-<span><%= link "Back", to: Routes.user_path(@conn, :index) %></span>
+<span><%= if @self, do:
+	  (link "Back", to: Routes.page_path(@conn, :index)),
+	  else:
+	  (link "Back", to: Routes.user_path(@conn, :index))
+	  %></span>

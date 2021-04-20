@@ -63,13 +63,13 @@ defmodule SchoolhubWeb.UserController do
 
   def show(conn, %{"id" => id}) do
     user = Accounts.get_user!(id)
-    render(conn, "show.html", user: user, logout_button: false)
+    render(conn, "show.html", user: user, self: false)
   end
 
   def show_self(conn, _) do
     id = get_session(conn, :user_id)
     user = Accounts.get_user!(id)
-    render(conn, "show.html", user: user, logout_button: true)
+    render(conn, "show.html", user: user, self: true)
   end
 
   def edit(conn, %{"id" => id}) do
