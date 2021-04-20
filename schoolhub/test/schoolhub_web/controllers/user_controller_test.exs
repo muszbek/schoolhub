@@ -77,6 +77,16 @@ defmodule SchoolhubWeb.UserControllerTest do
     end
   end
 
+  describe "show self user" do
+    setup [:create_user]
+    setup [:enter_session]
+
+    test "renders self user page", %{conn: conn, user: user} do
+      conn = get(conn, Routes.user_path(conn, :show_self))
+      assert html_response(conn, 200) =~ user.name
+    end
+  end
+
   describe "edit user" do
     setup [:create_user]
     setup [:enter_session]

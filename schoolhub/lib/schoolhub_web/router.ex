@@ -65,7 +65,7 @@ defmodule SchoolhubWeb.Router do
     pipe_through :session
     post "/token", SessionController, :renew_token
     delete "/users", UserController, :self_delete
-    resources "/users", UserController, only: [:show]
+    get "/users", UserController, :show_self
     resources "/courses", CourseController, only: [:index]
     resources "/course_token", TokenController, only: [:new, :create]
 
@@ -172,7 +172,7 @@ defmodule SchoolhubWeb.Router do
     pipe_through :admin
 
     resources "/privileges", PrivilegeController, except: [:new, :create, :delete]
-    resources "/users", UserController, except: [:new, :create, :show]
+    resources "/users", UserController, except: [:new, :create]
     get "/courses", CourseController, :admin_index
   end
 

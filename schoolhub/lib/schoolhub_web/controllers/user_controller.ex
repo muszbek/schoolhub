@@ -4,7 +4,7 @@ defmodule SchoolhubWeb.UserController do
   alias Schoolhub.Accounts
   alias Schoolhub.Accounts.User
   alias Schoolhub.{Mailer, Email}
-  require Logger
+  
   def index(conn, _params) do
     users = Accounts.list_users()
     render(conn, "index.html", users: users)
@@ -63,7 +63,13 @@ defmodule SchoolhubWeb.UserController do
 
   def show(conn, %{"id" => id}) do
     user = Accounts.get_user!(id)
-    render(conn, "show.html", user: user)
+    render(conn, "show.html", user: user, logout_button: false)
+  end
+
+  def show_self(conn, _) do
+    id = get_session(conn, :user_id)
+    user = Accounts.get_user!(id)
+    render(conn, "show.html", user: user, logout_button: true)
   end
 
   def edit(conn, %{"id" => id}) do
