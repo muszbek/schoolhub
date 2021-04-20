@@ -114,7 +114,7 @@ services:
 
   phx_server:
     container_name: phx_server
-    image: phx_server:v0.2.1
+    image: phx_server:v0.2.2
     hostname: phx_server
     build:
       context: ./schoolhub
