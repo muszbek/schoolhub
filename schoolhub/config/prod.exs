@@ -15,7 +15,8 @@ config :schoolhub, SchoolhubWeb.Endpoint,
 
 # Configures SMTP email server
 config :schoolhub, Schoolhub.Mailer,
-  server: System.get_env("DOMAIN", "schoolhub.com"),
+  server: "postfix",
+  port: 587,
   tls: :if_available
 
 # Do not print debug messages in production

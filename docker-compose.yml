@@ -56,8 +56,8 @@ services:
     container_name: schoolhub_postfix
     image: boky/postfix
     hostname: postfix
-    expose:
-      - "587"
+    ports:
+      - "1587:587"
     networks:
       - schoolhub_network
     restart: always
@@ -100,7 +100,6 @@ services:
     ports:
       - "80:80"
       - "443:443"
-      - "1587:1587"
       - "5280:5280"
       - "5285:5285"
     networks:
