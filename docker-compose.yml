@@ -81,14 +81,14 @@ services:
     shm_size: 256M
     volumes:
       - ./postgres/schema/pg.sql:/docker-entrypoint-initdb.d/pg.sql
-      - ./letsencrypt/selfsigned/$DOMAIN/certs/fullchain.pem:/var/lib/postgresql/fullchain.pem
-      - ./letsencrypt/selfsigned/$DOMAIN/certs/privkey.pem:/var/lib/postgresql/privkey.pem
+      - ./letsencrypt/selfsigned/$DOMAIN/certs/fullchain.pem:/etc/postgresql/ssl/fullchain.pem
+      - ./letsencrypt/selfsigned/$DOMAIN/certs/privkey.pem:/etc/postgresql/ssl/privkey.pem
       - ./postgres/data/data:/var/lib/postgresql/data
     env_file:
       - ./postgres/postgres.env
     command: -c ssl=on
-             -c ssl_cert_file=/var/lib/postgresql/fullchain.pem
-             -c ssl_key_file=/var/lib/postgresql/privkey.pem
+             -c ssl_cert_file=/etc/postgresql/ssl/fullchain.pem
+             -c ssl_key_file=/etc/postgresql/ssl/privkey.pem
 
 
   haproxy:

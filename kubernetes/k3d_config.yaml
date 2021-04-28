@@ -1,0 +1,12 @@
+apiVersion: k3d.io/v1alpha2
+kind: Simple
+agents: 1
+image: rancher/k3s:v1.20.6-k3s1
+ports:
+  - port: 5432:30432
+    nodeFilters:
+      - agent[*]
+volumes:
+  - volume: /home/tmuszbek/git/schoolhub:/volumes_data
+    nodeFilters:
+      - agent[*]
