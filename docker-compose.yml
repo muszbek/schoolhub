@@ -111,10 +111,10 @@ services:
       - ./letsencrypt/selfsigned/$DOMAIN/certs/chain.pem:/etc/cert/chain.pem
 
 
-  phx_server:
-    container_name: phx_server
+  phx-server:
+    container_name: phx-server
     image: phx_server:v0.2.2
-    hostname: phx_server
+    hostname: phx-server
     build:
       context: ./schoolhub
     expose:

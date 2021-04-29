@@ -1,0 +1,86 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: phx-server
+  labels:
+    app: phx-server
+spec:
+  ports:
+  - name: 4000-4000
+    nodePort: 30400
+    port: 4000
+    protocol: TCP
+    targetPort: 4000
+  - name: 4001-4001
+    nodePort: 30401
+    port: 4001
+    protocol: TCP
+    targetPort: 4001
+  selector:
+    app: phx-server
+  type: NodePort
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: schoolhub-phoenix
+  labels:
+    app: phx-server
+spec:
+  selector:
+    matchLabels:
+      app: phx-server
+  template:
+    metadata:
+      labels:
+        app: phx-server
+    spec:
+      containers:
+      - name: schoolhub-phoenix
+        image: phx_server:v0.2.2
+        env:
+        - name: MIX_ENV
+          value: prod
+        - name: DOMAIN
+          value: schoolhub.ddns.net
+        - name: POSTGRES_DB
+          valueFrom:
+            secretKeyRef:
+              name: postgres-creds
+              key: POSTGRES_DB
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: postgres-creds
+              key: POSTGRES_USER
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres-creds
+              key: POSTGRES_PASSWORD
+        - name: POSTGRES_HOST
+          valueFrom:
+            secretKeyRef:
+              name: postgres-creds
+              key: POSTGRES_HOST
+        ports:
+        - containerPort: 4000
+          name: http
+        - containerPort: 4001
+          name: https
+        volumeMounts:
+        - name: tls-secret
+          mountPath: /opt/app/priv/cert/
+      volumes:
+      - name: tls-secret
+        secret:
+          secretName: tls-selfsigned-secret
+          items:
+          - key: fullcert
+            path: fullchain.pem
+          - key: key
+            path: privkey.pem
+          - key: CA
+            path: chain.pem

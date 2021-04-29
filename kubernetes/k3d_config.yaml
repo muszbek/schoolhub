@@ -6,6 +6,12 @@ ports:
   - port: 5432:30432
     nodeFilters:
       - agent[*]
+  - port: 80:30400
+    nodeFilters:
+      - agent[*]
+  - port: 443:30401
+    nodeFilters:
+      - agent[*]
 volumes:
   - volume: /home/tmuszbek/git/schoolhub:/volumes_data
     nodeFilters:
