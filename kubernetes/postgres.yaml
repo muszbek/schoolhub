@@ -17,6 +17,21 @@ spec:
 
 ---
 
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-pvc
+  labels:
+    app: postgres
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100M
+
+---
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -55,6 +70,8 @@ spec:
         - containerPort: 5432
           name: postgres
         volumeMounts:
+        - name: postgres-data-pv
+          mountPath: /var/lib/postgresql/data
         - name: pg-schema
           mountPath: /docker-entrypoint-initdb.d/pg.sql
           readOnly: true
@@ -75,6 +92,9 @@ spec:
         - name: tls-secret-modified
           mountPath: /etc/postgresql/ssl/
       volumes:
+      - name: postgres-data-pv
+        persistentVolumeClaim:
+          claimName: postgres-pvc
       - name: pg-schema
         hostPath:
           path: /volumes_data/postgres/schema/pg.sql
