@@ -96,9 +96,8 @@ spec:
         persistentVolumeClaim:
           claimName: postgres-pvc
       - name: pg-schema
-        hostPath:
-          path: /volumes_data/postgres/schema/pg.sql
-          type: File
+        configMap:
+          name: postgres-schema
       - name: tls-secret
         secret:
           secretName: tls-selfsigned-secret
