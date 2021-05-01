@@ -107,8 +107,8 @@ services:
     restart: always
     volumes:
       - ./haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg
-      - ./letsencrypt/live/$DOMAIN/certs/joined_cert.pem:/etc/cert/joined_cert.pem
-      - ./letsencrypt/selfsigned/$DOMAIN/certs/chain.pem:/etc/cert/chain.pem
+      - ./letsencrypt/live/$DOMAIN/certs/joined_cert.pem:/etc/cert/live/joined_cert.pem
+      - ./letsencrypt/selfsigned/$DOMAIN/certs/chain.pem:/etc/cert/selfsigned/chain.pem
 
 
   phx-server:
