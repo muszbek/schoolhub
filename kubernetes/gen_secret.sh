@@ -8,5 +8,8 @@ kubectl create secret generic tls-selfsigned-secret \
 	--from-file=key=../letsencrypt/selfsigned/schoolhub.ddns.net/certs/privkey.pem \
 	--from-file=joined=../letsencrypt/selfsigned/schoolhub.ddns.net/certs/joined_cert.pem
 
+kubectl create secret generic tls-letsencrypt-secret \
+	--from-file=joined=../letsencrypt/live/schoolhub.ddns.net/certs/joined_cert.pem
+
 kubectl create secret generic postgres-creds \
 	--from-env-file=../postgres/postgres.env

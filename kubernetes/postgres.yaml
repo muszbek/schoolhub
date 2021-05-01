@@ -73,7 +73,7 @@ spec:
         - name: postgres-data-pv
           mountPath: /var/lib/postgresql/data
         - name: pg-schema
-          mountPath: /docker-entrypoint-initdb.d/pg.sql
+          mountPath: /docker-entrypoint-initdb.d/
           readOnly: true
         - name: tls-secret-modified
           mountPath: /etc/postgresql/ssl/
