@@ -66,7 +66,7 @@ RUN cd assets && \
 RUN cd assets/ && \
     npm run deploy && \
     cd - && \
-    MIX_ENV=prod mix do compile, phx.digest
+    MIX_ENV=prod mix phx.digest
 
 ENTRYPOINT ["./entrypoint.sh"]
 CMD ["./launcher.sh"]
