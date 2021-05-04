@@ -212,7 +212,7 @@ defmodule SchoolhubWeb.Plugs do
     check_by_route(conn, @self_controllable_contexts)
   end
 
-  #defp check_by_route(conn, []), do: {:error, :self_check_in_wrong_route}
+  defp check_by_route(_conn, []), do: {:error, :self_check_in_wrong_route}
   defp check_by_route(conn, [context | rest_contexts]) do
     route = conn.request_path
     
