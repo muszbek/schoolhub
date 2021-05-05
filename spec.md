@@ -88,3 +88,19 @@ tailwind css
 secure invitation token somehow?
 sort questions by follows? and by creation time?
 delete users with references - forbid? delete all references? ask?
+
+#After 2nd review with Antrea:
+
+be ready by august to at least give here a local test server
+also measure it
+
+style: wide, links separated, big letters
+pictures and icons for courses description and index
+
+links confusing: go back is confusing where it goes
+privileges confusing where it redirects to (it should stay on the page)
+difference between questions and posts ambiguous, question tags not evident
+questions filtering not responsive, html reloading - liveview maybe?
+what you follow not evident, what does follow mean?
+hover mouse explanations maybe?
+bug: new self grade crashes
