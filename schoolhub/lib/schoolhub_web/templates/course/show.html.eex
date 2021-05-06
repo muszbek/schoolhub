@@ -6,7 +6,7 @@
 <span><%= link "View Questions", to: Routes.course_question_path(@conn, :index, @course.id) %></span>
 <span><%= link "Chat", to: Routes.course_chat_path(@conn, :index, @course.id) %></span>
 <span><%= link "Files", to: Routes.course_file_path(@conn, :index, @course.id) %></span>
-<span><%= link "My grades", to: Routes.course_affiliation_grade_path(@conn, :show, @course.id, get_self_aff(@conn, @course.id), get_self_grades(@conn, @course.id)) %></span>
+<span><%= link "My grades", to: Routes.course_affiliation_grade_path(@conn, :show_self, @course.id, get_self_aff(@conn, @course.id)) %></span>
 <span><%= link "Edit", to: Routes.course_path(@conn, :edit, @course) %></span>
 <span><%= link "New Token", to: Routes.course_course_path(@conn, :new_token, @course.id) %></span>
 <span><%= if @course.active, do:

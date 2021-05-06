@@ -52,6 +52,12 @@ defmodule SchoolhubWeb.GradeController do
       course_id: course_id, affiliation_id: aff_id)
   end
 
+  def show_self(conn, %{"course_id" => course_id, "affiliation_id" => aff_id}) do
+    %{grade: grade} = Courses.get_affiliation!(aff_id)
+    grade_string = display_grade(grade)
+    render(conn, "show_self.html", grade: grade_string, course_id: course_id)
+  end
+
   def edit(conn, %{"course_id" => course_id, "affiliation_id" => aff_id, "id" => id}) do
     grade = Grades.get_grade!(id)
     grade_string = display_grade(grade)

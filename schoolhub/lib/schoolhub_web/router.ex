@@ -72,7 +72,9 @@ defmodule SchoolhubWeb.Router do
     
     pipe_through :course_member
     resources "/courses", CourseController, only: [:show] do
-      resources "/affiliations", AffiliationController, only: [:index, :show]
+      resources "/affiliations", AffiliationController, only: [:index, :show] do
+	get "/grades", GradeController, :show_self
+      end
       
       resources "/posts/public", PostController, only: [:index, :show] do
 	resources "/replies", ReplyController, only: [:index, :show]
@@ -84,6 +86,7 @@ defmodule SchoolhubWeb.Router do
       
       resources "/files", FileController, only: [:index, :show]
       get "/files/download/:id", FileController, :download
+      
     end
 
     pipe_through :course_enabled
@@ -116,7 +119,7 @@ defmodule SchoolhubWeb.Router do
       get "/token", CourseController, :new_token
       resources "/grades", GradeController, only: [:index]
       resources "/affiliations", AffiliationController, except: [:index, :show, :edit, :update] do
-	resources "/grades", GradeController, except: [:show, :index]
+	resources "/grades", GradeController, except: [:index]
       end
       
       resources "/posts", PostController, except: [:index, :show] do
@@ -134,18 +137,6 @@ defmodule SchoolhubWeb.Router do
       resources "/affiliations", AffiliationController, only: [:edit, :update]
     end
     
-  end
-
-  scope "/self/public", SchoolhubWeb do
-    pipe_through :browser
-    pipe_through :session
-    pipe_through :course_self
-    
-    resources "/courses", CourseController, only: [] do
-      resources "/affiliations", AffiliationController, only: [] do
-	resources "/grades", GradeController, only: [:show]
-      end
-    end
   end
 
   scope "/activate", SchoolhubWeb do

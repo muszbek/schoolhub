@@ -1,0 +1,13 @@
+<h1><%= link Schoolhub.Courses.get_course!(@course_id).name, to: Routes.course_path(@conn, :show, @course_id) %></h1>
+<h2>Show Grade</h2>
+
+<ul>
+
+  <li>
+    <strong>Grades:</strong>
+    <textarea disabled=true><%= @grade.grades %></textarea>
+  </li>
+
+</ul>
+
+<span><%= link "Back", to: Routes.course_path(@conn, :show, @course_id) %></span>

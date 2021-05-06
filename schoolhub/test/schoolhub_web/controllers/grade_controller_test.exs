@@ -115,6 +115,15 @@ defmodule SchoolhubWeb.GradeControllerTest do
     end
   end
 
+  describe "show own grade" do
+    setup [:create_affiliation]
+
+    test "shows own grade", %{conn: conn, course_id: course_id, affiliation_id: aff_id} do
+      conn = get(conn, Routes.course_affiliation_grade_path(conn, :show_self, course_id, aff_id))
+      assert html_response(conn, 200) =~ "Show Grade"
+    end
+  end
+
   
   defp create_affiliation(%{conn: conn}) do
     _aff_id = fixture(:affiliation, conn)

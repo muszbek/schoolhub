@@ -14,5 +14,4 @@
 	  @course_id, @affiliation_id) %></span>
 <span><%= link "Edit", to: Routes.course_affiliation_grade_path(@conn, :edit,
 	  @course_id, @affiliation_id, @grade) %></span>
-<span><%= link "Back", to: Routes.course_affiliation_path(@conn, :show,
-	  @course_id, @affiliation_id) %></span>
+<span><%= link "Back", to: Routes.course_affiliation_path(@conn, :index, @course_id) %></span>
