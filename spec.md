@@ -103,4 +103,3 @@ difference between questions and posts ambiguous, question tags not evident
 questions filtering not responsive, html reloading - liveview maybe?
 what you follow not evident, what does follow mean?
 hover mouse explanations maybe?
-bug: new self grade crashes

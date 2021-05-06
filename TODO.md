@@ -21,7 +21,6 @@ what is the EHLO email restart message? related to openDKIM, maybe testing that 
 
 view tests
 
-fix self grade new bug
 minimal style changes
 pictures to courses
 liveview filtering

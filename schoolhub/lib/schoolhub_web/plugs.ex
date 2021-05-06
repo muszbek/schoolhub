@@ -2,7 +2,7 @@ defmodule SchoolhubWeb.Plugs do
   use SchoolhubWeb, :router
   
   alias Schoolhub.{Accounts, Courses}
-  alias Schoolhub.{Grades, Questions, Posts}
+  alias Schoolhub.{Questions, Posts}
   
   def authenticate_user(conn, _) do
     case get_session(conn, :user_id) do
@@ -223,8 +223,7 @@ defmodule SchoolhubWeb.Plugs do
   end
 
   defp do_get_context_owner(conn, "/grades/") do
-    %{"id" => grade_id} = conn.path_params
-    %{affiliation_id: aff_id} = Grades.get_grade!(grade_id)
+    %{"affiliation_id" => aff_id} = conn.path_params
     %{user_id: user_id} = Courses.get_affiliation!(aff_id)
     user_id
   end
