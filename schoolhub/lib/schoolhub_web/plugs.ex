@@ -34,7 +34,7 @@ defmodule SchoolhubWeb.Plugs do
       _other ->
 	conn
 	|> Phoenix.Controller.put_flash(:error, "Admin privilige required")
-	|> Phoenix.Controller.redirect(to: "/")
+	|> redirect_to_referer()
 	|> halt()
     end
   end
@@ -48,7 +48,7 @@ defmodule SchoolhubWeb.Plugs do
       _other ->
 	conn
 	|> Phoenix.Controller.put_flash(:error, "Teacher privilige required")
-	|> Phoenix.Controller.redirect(to: "/courses")
+	|> redirect_to_referer()
 	|> halt()
     end
   end
@@ -78,7 +78,7 @@ defmodule SchoolhubWeb.Plugs do
       _other ->
 	conn
 	|> Phoenix.Controller.put_flash(:error, "Owner affiliation required")
-	|> Phoenix.Controller.redirect(to: "/courses/" <> get_course_id(conn))
+	|> redirect_to_referer()
 	|> halt()
     end
   end
@@ -103,7 +103,7 @@ defmodule SchoolhubWeb.Plugs do
       _other ->
 	conn
 	|> Phoenix.Controller.put_flash(:error, "Assistant affiliation required")
-	|> Phoenix.Controller.redirect(to: "/courses/" <> get_course_id(conn))
+	|> redirect_to_referer()
 	|> halt()
     end
   end
@@ -131,8 +131,7 @@ defmodule SchoolhubWeb.Plugs do
 	  _ ->
 	    conn
 	    |> Phoenix.Controller.put_flash(:error, "Assistant affiliation required")
-	    |> Phoenix.Controller.redirect(to: "/courses/" <> get_course_id(conn) <>
-	      "/affiliations")
+	    |> redirect_to_referer()
 	    |> halt()
 	end
     end
@@ -168,7 +167,7 @@ defmodule SchoolhubWeb.Plugs do
       _other ->
 	conn
 	|> Phoenix.Controller.put_flash(:error, "This course has been disabled")
-	|> Phoenix.Controller.redirect(to: "/courses/" <> get_course_id(conn))
+	|> redirect_to_referer()
 	|> halt()
     end
   end
@@ -241,6 +240,16 @@ defmodule SchoolhubWeb.Plugs do
     %{"id" => reply_id} = conn.path_params
     %{creator: user_id} = Posts.get_reply!(reply_id)
     user_id
+  end
+
+  defp redirect_to_referer(conn) do
+    Phoenix.Controller.redirect(conn, to: get_referer(conn))
+  end
+
+  defp get_referer(conn) do
+    %{req_headers: headers} = conn
+    [referer] = for {"referer", link} <- headers, do: link
+    _path = URI.parse(referer).path
   end
 
 end
