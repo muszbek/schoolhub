@@ -9,6 +9,15 @@ defmodule SchoolhubWeb.QuestionView do
     Enum.join(taglist, " ")
   end
 
+  def render_content(conn, question) do
+    content = question.content
+    |> SchoolhubWeb.Gettext.first_line()
+
+    follow_tag = if is_follow(conn, question), do: " << Following >> ", else: ""
+    
+    follow_tag <> content
+  end
+
   def is_follow(conn, question) do
     user_id = Conn.get_session(conn, :user_id)
     question_id = question.id

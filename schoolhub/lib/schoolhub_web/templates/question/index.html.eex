@@ -4,7 +4,7 @@
 <div id="filter">
   <input type="search" id="filter_field" name="filter_field" placeholder="Separate multiple tags by spaces" value="<%= render_tag(@filters) %>">
   <div>
-    <label for="only_following">Only followed</label>
+    <label for="only_following">Only list questions you follow</label>
     <input type="checkbox" id="only_following" name="only_following" <%= @only_following %>>
   </div>
   <input type="hidden" id="course_id" name="course_id" value="<%= @course_id %>">
@@ -34,7 +34,7 @@
   <tbody>
 <%= for question <- @questions do %>
     <tr>
-      <td><%= question.content |> SchoolhubWeb.Gettext.first_line() %></td>
+      <td><%= render_content(@conn, question) %></td>
       <td><%= Schoolhub.Courses.get_username!(question.creator, @course_id) %></td>
       <td><%= render_tag(question.tags) %></td>
       <td><%= Enum.count(question.qreply) %></td>
