@@ -113,9 +113,16 @@ defmodule SchoolhubWeb.Router do
 	resources "/question_replies", QreplyController, except: [:index, :show, :new, :create]
       end
     end
+  end
 
+  scope "/assistant", SchoolhubWeb do
+    pipe_through :browser
+    pipe_through :session
+    pipe_through :course_member
+    pipe_through :course_enabled
     pipe_through :course_assistant
-    resources "/courses/assistant", CourseController, except: [:index, :show, :new, :create, :delete] do
+
+    resources "/courses", CourseController, except: [:index, :show, :new, :create, :delete] do
       get "/token", CourseController, :new_token
       resources "/grades", GradeController, only: [:index]
       resources "/affiliations", AffiliationController, except: [:index, :show, :edit, :update] do
@@ -136,7 +143,6 @@ defmodule SchoolhubWeb.Router do
     resources "/courses/owner", CourseController, only: [:delete] do
       resources "/affiliations", AffiliationController, only: [:edit, :update]
     end
-    
   end
 
   scope "/activate", SchoolhubWeb do
