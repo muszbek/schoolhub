@@ -1,6 +1,7 @@
 defmodule SchoolhubWeb.CourseController do
   use SchoolhubWeb, :controller
 
+  alias File, as: BuiltinFile
   alias Schoolhub.Courses
   alias Schoolhub.Courses.Course
 
@@ -22,8 +23,15 @@ defmodule SchoolhubWeb.CourseController do
 
   def create(conn, %{"course" => course_params}) do
     user_id = get_session(conn, :user_id)
+    picture = Map.get(course_params, "picture", nil)
+    binary_content = case picture do
+		       nil -> nil
+		       file -> BuiltinFile.read!(file.path)
+		     end
+    
     course_params_with_creator = course_params
     |> Map.put("creator", user_id)
+    |> Map.put("picture", binary_content)
     |> Morphix.atomorphify!()
     
     case Courses.create_course(course_params_with_creator) do
@@ -53,8 +61,17 @@ defmodule SchoolhubWeb.CourseController do
 
   def update(conn, %{"id" => id, "course" => course_params}) do
     course = Courses.get_course!(id)
+    picture = Map.get(course_params, "picture", nil)
+    binary_content = case picture do
+		       nil -> nil
+		       file -> BuiltinFile.read!(file.path)
+		     end
+    
+    course_params_with_picture = course_params
+    |> Map.put("picture", binary_content)
+    |> Morphix.atomorphify!()
 
-    case Courses.update_course(course, course_params) do
+    case Courses.update_course(course, course_params_with_picture) do
       {:ok, course} ->
         conn
         |> put_flash(:info, "Course updated successfully.")

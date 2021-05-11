@@ -10,6 +10,7 @@ defmodule Schoolhub.Courses.Course do
   schema "courses" do
     field :description, :string
     field :name, :string
+    field :picture, :binary
     belongs_to :user, User,
       foreign_key: :creator
     field :active, :boolean,
@@ -24,7 +25,7 @@ defmodule Schoolhub.Courses.Course do
   @doc false
   def changeset(course, attrs) do
     course
-    |> cast(attrs, [:name, :description, :active, :creator])
+    |> cast(attrs, [:name, :description, :picture, :active, :creator])
     |> validate_required([:name, :description])
     |> foreign_key_constraint(:creator)
     |> unique_constraint(:name)
