@@ -73,9 +73,9 @@ defmodule SchoolhubWeb.FileControllerTest do
     end
 
     test "renders errors when data is invalid", %{conn: conn, course_id: course_id} do
-      file_attrs = %{course_id: course_id, data: create_upload()}
+      file_attrs = %{course_id: course_id}
       conn = post(conn, Routes.course_file_path(conn, :create, course_id), file: file_attrs)
-      assert html_response(conn, 200) =~ "New File"
+      assert redirected_to(conn) == Routes.course_file_path(conn, :new, course_id)
     end
   end
 
@@ -149,7 +149,6 @@ defmodule SchoolhubWeb.FileControllerTest do
     |> Morphix.atomorphify!()
   end
 
-  defp create_upload(), do: create_upload(nil)
   defp create_upload(filename) do
     %Plug.Upload{path: @test_path, filename: filename}
   end

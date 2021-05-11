@@ -37,6 +37,11 @@ defmodule SchoolhubWeb.FileController do
         render(conn, "new.html", changeset: changeset, course_id: course_id)
     end
   end
+  def create(conn, %{"course_id" => course_id, "file" => %{}}) do
+    conn
+    |> put_flash(:error, "No file selected!")
+    |> redirect(to: Routes.course_file_path(conn, :new, course_id))
+  end
 
   def show(conn, %{"course_id" => course_id, "id" => id}) do
     file = Files.get_file!(id)
