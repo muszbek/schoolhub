@@ -104,9 +104,6 @@ defmodule SchoolhubWeb.CourseController do
 
 
   defp put_picture(course_params, nil), do: course_params
-  defp put_picture(course_params, "remove") do
-    do_put_picture(course_params, nil)
-  end
   defp put_picture(course_params, file) do
     binary_content = BuiltinFile.read!(file.path)
     do_put_picture(course_params, binary_content)

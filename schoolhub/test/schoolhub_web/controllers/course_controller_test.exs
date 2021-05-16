@@ -120,16 +120,6 @@ defmodule SchoolhubWeb.CourseControllerTest do
       assert html_response(conn, 200) =~ "img"
     end
 
-    @tag :skip
-    test "remove image when specified to", %{conn: conn, course: course} do
-      update_attrs = Map.put(@update_attrs, :picture, "remove")
-      conn = put(conn, Routes.course_path(conn, :update, course), course: update_attrs)
-      assert redirected_to(conn) == Routes.course_path(conn, :show, course)
-
-      conn = get(conn, Routes.course_path(conn, :show, course))
-      assert html_response(conn, 200) =~ "img" == false
-    end
-
     test "renders errors when data is invalid", %{conn: conn, course: course} do
       conn = put(conn, Routes.course_path(conn, :update, course), course: @invalid_attrs)
       assert html_response(conn, 200) =~ "Edit Course"
