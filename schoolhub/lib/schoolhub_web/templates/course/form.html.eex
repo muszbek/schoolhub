@@ -16,7 +16,7 @@
 
   <%= label f, :picture %>
   (Displayed as foreground header)<br/>
-  <%= file_input f, :picture %>
+  <%= file_input f, :picture, accept: ".jpg,.png,.gif" %>
   <%= error_tag f, :picture %>
 
   <div>
