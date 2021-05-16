@@ -62,7 +62,7 @@ defmodule SchoolhubWeb.FileControllerTest do
     setup [:create_course]
     
     test "redirects to show when data is valid", %{conn: conn, course_id: course_id} do
-      file_attrs = %{course_id: course_id, data: create_upload(@test_filename)}
+      file_attrs = %{course_id: course_id, data: create_upload()}
       conn = post(conn, Routes.course_file_path(conn, :create, course_id), file: file_attrs)
 
       assert %{id: id} = redirected_params(conn)
@@ -149,7 +149,7 @@ defmodule SchoolhubWeb.FileControllerTest do
     |> Morphix.atomorphify!()
   end
 
-  defp create_upload(filename) do
-    %Plug.Upload{path: @test_path, filename: filename}
+  defp create_upload() do
+    %Plug.Upload{path: @test_path, filename: @test_filename}
   end
 end

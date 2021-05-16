@@ -13,9 +13,10 @@ defmodule Schoolhub.CoursesTest do
 			credential: %{username: "some username",
 				      password: "some password"}}
     
-    @valid_attrs %{description: "some description", name: "some name"}
-    @update_attrs %{description: "some updated description", name: "some updated name"}
-    @invalid_attrs %{description: nil, name: nil}
+    @valid_attrs %{description: "some description", name: "some name", picture: "some picture"}
+    @update_attrs %{description: "some updated description", name: "some updated name",
+		    picture: "some updated picture"}
+    @invalid_attrs %{description: nil, name: nil, picture: nil}
 
     def user_fixture() do
       {:ok, user} =

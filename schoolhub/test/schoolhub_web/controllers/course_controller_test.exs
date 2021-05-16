@@ -3,9 +3,12 @@ defmodule SchoolhubWeb.CourseControllerTest do
 
   alias Schoolhub.{Courses, Accounts, Privileges}
 
+  @test_pic_path "test/priv/test_picture.png"
+  @test_pic_filename "test_picture.png"
+  
   @create_attrs %{description: "some description", name: "some name"}
-  @update_attrs %{description: "some updated description", name: "some updated name"}
-  @invalid_attrs %{description: nil, name: nil}
+  @update_attrs %{description: "some updated description", name: "some updated name", picture: nil}
+  @invalid_attrs %{description: nil, name: nil, picture: nil}
 
   @create_user_attrs %{email: "some email",
 		       name: "some name",
@@ -67,7 +70,8 @@ defmodule SchoolhubWeb.CourseControllerTest do
     setup [:enter_session]
     
     test "redirects to show when data is valid", %{conn: conn} do
-      conn = post(conn, Routes.course_path(conn, :create), course: @create_attrs)
+      course_attrs = Map.put(@create_attrs, :picture, create_upload())
+      conn = post(conn, Routes.course_path(conn, :create), course: course_attrs)
 
       assert %{id: id} = redirected_params(conn)
       assert redirected_to(conn) == Routes.course_path(conn, :show, id)
@@ -137,11 +141,11 @@ defmodule SchoolhubWeb.CourseControllerTest do
     end
   end
 
-  describe "disable post" do
+  describe "disable course" do
     setup [:enter_session]
     setup [:create_course]
 
-    test "disables post", %{conn: conn, course: course} do
+    test "disables course", %{conn: conn, course: course} do
       conn = put(conn, Routes.course_course_path(conn, :activate, course), to_activate: false)
       assert redirected_to(conn) == Routes.course_path(conn, :show, course)
 
@@ -164,5 +168,10 @@ defmodule SchoolhubWeb.CourseControllerTest do
   defp enter_session(%{conn: conn}) do
     new_conn = fixture(:session, conn)
     %{conn: new_conn}
+  end
+
+
+  defp create_upload() do
+    %Plug.Upload{path: @test_pic_path, filename: @test_pic_filename}
   end
 end
