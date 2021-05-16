@@ -25,3 +25,5 @@ minimal style changes
 pictures to courses
 liveview filtering
 follow descriptive
+
+remove picture

@@ -1,6 +1,6 @@
 defmodule SchoolhubWeb.CourseController do
   use SchoolhubWeb, :controller
-
+  
   alias File, as: BuiltinFile
   alias Schoolhub.Courses
   alias Schoolhub.Courses.Course
@@ -62,15 +62,9 @@ defmodule SchoolhubWeb.CourseController do
   def update(conn, %{"id" => id, "course" => course_params}) do
     course = Courses.get_course!(id)
     picture = Map.get(course_params, "picture", nil)
-    binary_content = case picture do
-		       nil -> nil
-		       file -> BuiltinFile.read!(file.path)
-		     end
     
-    course_params_with_picture = course_params
-    |> Map.put("picture", binary_content)
-    |> Morphix.atomorphify!()
-
+    course_params_with_picture = put_picture(course_params, picture)
+    
     case Courses.update_course(course, course_params_with_picture) do
       {:ok, course} ->
         conn
@@ -106,6 +100,22 @@ defmodule SchoolhubWeb.CourseController do
     conn
     |> put_flash(:info, msg)
     |> redirect(to: Routes.course_path(conn, :show, id))
+  end
+
+
+  defp put_picture(course_params, nil), do: course_params
+  defp put_picture(course_params, "remove") do
+    do_put_picture(course_params, nil)
+  end
+  defp put_picture(course_params, file) do
+    binary_content = BuiltinFile.read!(file.path)
+    do_put_picture(course_params, binary_content)
+  end
+  
+  defp do_put_picture(course_params, binary_content) do
+    course_params
+    |> Map.put("picture", binary_content)
+    |> Morphix.atomorphify!()
   end
   
 end
