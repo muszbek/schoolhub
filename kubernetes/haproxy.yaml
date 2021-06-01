@@ -6,31 +6,31 @@ metadata:
     app: haproxy
 spec:
   ports:
-  - name: 80-80
+  - name: 80-1080
     nodePort: 30080
     port: 80
     protocol: TCP
-    targetPort: 80
-  - name: 443-443
+    targetPort: 1080
+  - name: 443-1443
     nodePort: 30443
     port: 443
     protocol: TCP
-    targetPort: 443
-  - name: 5280-5280
+    targetPort: 1443
+  - name: 5280-1280
     nodePort: 30280
     port: 5280
     protocol: TCP
-    targetPort: 5280
-  - name: 5285-5285
+    targetPort: 1280
+  - name: 5285-1285
     nodePort: 30285
     port: 5285
     protocol: TCP
-    targetPort: 5285
-  - name: 8404-8404
+    targetPort: 1285
+  - name: 8404-1404
     nodePort: 30404
     port: 8404
     protocol: TCP
-    targetPort: 8404
+    targetPort: 1404
   selector:
     app: haproxy
   type: NodePort
