@@ -82,11 +82,11 @@ spec:
         secret:
           secretName: tls-letsencrypt-secret
           items:
-          - key: joined
+          - key: joined_cert.pem
             path: joined_cert.pem
       - name: tls-secret-selfsigned-volume
         secret:
           secretName: tls-selfsigned-secret
           items:
-          - key: CA
+          - key: chain.pem
             path: chain.pem

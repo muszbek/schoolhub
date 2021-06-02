@@ -102,13 +102,13 @@ spec:
         secret:
           secretName: tls-selfsigned-secret
           items:
-          - key: fullcert
+          - key: fullchain.pem
             path: fullchain.pem
-          - key: key
+          - key: privkey.pem
             path: privkey.pem
-          - key: CA
+          - key: chain.pem
             path: chain.pem
-          - key: cert
+          - key: cert.pem
             path: cert.pem
-          - key: joined
+          - key: joined_cert.pem
             path: joined_cert.pem

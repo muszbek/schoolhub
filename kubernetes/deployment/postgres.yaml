@@ -102,9 +102,9 @@ spec:
         secret:
           secretName: tls-selfsigned-secret
           items:
-          - key: fullcert
+          - key: fullchain.pem
             path: fullchain.pem
-          - key: key
+          - key: privkey.pem
             path: privkey.pem
             mode: 0600
       - name: tls-secret-modified
