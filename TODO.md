@@ -27,3 +27,6 @@ liveview filtering
 follow descriptive
 
 remove picture
+
+mongooseim kubernetes clustering:
+Failed clustering mongooseim@schoolhub-mongooseim-56d8f4866f-gqqs6 with mongooseim@schoolhub-mongooseim-56d8f4866f-1

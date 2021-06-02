@@ -48,6 +48,8 @@ spec:
         env:
         - name: MONGOOSEIM_CONFIG_FORMAT
           value: cfg
+        - name: JOIN_CLUSTER
+          value: "false"
         - name: DOMAIN
           value: schoolhub.ddns.net
         - name: POSTGRES_DB
