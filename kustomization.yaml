@@ -1,0 +1,26 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - ./kubernetes/deployment/postgres.yaml
+  - ./kubernetes/deployment/mongooseim.yaml
+  - ./kubernetes/deployment/phoenix.yaml
+  - ./kubernetes/deployment/postfix.yaml
+  - ./kubernetes/deployment/haproxy.yaml
+
+configMapGenerator:
+  - name: postgres-schema
+    files:
+      - ./postgres/schema/pg.sql
+  - name: haproxy-config
+    files:
+      - ./haproxy/haproxy.cfg
+  - name: mongooseim-config
+    files:
+      - ./mongooseim/member/mongooseim.cfg
+      - ./mongooseim/member/app.config
+      - ./mongooseim/member/vm.args
+      - ./mongooseim/member/vm.dist.args
+  - name: mongooseim-entrypoint
+    files:
+      - ./mongooseim/entrypoint.sh
