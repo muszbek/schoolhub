@@ -7,6 +7,7 @@ resources:
   - ./kubernetes/deployment/phoenix.yaml
   - ./kubernetes/deployment/postfix.yaml
   - ./kubernetes/deployment/haproxy.yaml
+  - ./kubernetes/deployment/pg_data_pv.yaml
 
 configMapGenerator:
   - name: postgres-schema
@@ -24,3 +25,18 @@ configMapGenerator:
   - name: mongooseim-entrypoint
     files:
       - ./mongooseim/entrypoint.sh
+
+secretGenerator:
+  - name: postgres-creds
+    envs:
+      - ./postgres/postgres.env
+  - name: tls-selfsigned-secret
+    files:
+      - ./letsencrypt/selfsigned/schoolhub.ddns.net/certs/chain.pem
+      - ./letsencrypt/selfsigned/schoolhub.ddns.net/certs/cert.pem
+      - ./letsencrypt/selfsigned/schoolhub.ddns.net/certs/fullchain.pem
+      - ./letsencrypt/selfsigned/schoolhub.ddns.net/certs/privkey.pem
+      - ./letsencrypt/selfsigned/schoolhub.ddns.net/certs/joined_cert.pem
+  - name: tls-letsencrypt-secret
+    files:
+      - ./letsencrypt/live/schoolhub.ddns.net/certs/joined_cert.pem
