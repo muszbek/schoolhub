@@ -10,6 +10,9 @@ resources:
   - ./kubernetes/deployment/pg_data_pv.yaml
 
 configMapGenerator:
+  - name: domain-address
+    envs:
+      - ./.env
   - name: postgres-schema
     files:
       - ./postgres/schema/pg.sql

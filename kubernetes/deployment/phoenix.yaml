@@ -44,7 +44,10 @@ spec:
         - name: MIX_ENV
           value: prod
         - name: DOMAIN
-          value: schoolhub.ddns.net
+          valueFrom:
+            configMapKeyRef:
+              name: domain-address
+              key: DOMAIN
         - name: POSTGRES_DB
           valueFrom:
             secretKeyRef:

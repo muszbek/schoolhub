@@ -51,7 +51,10 @@ spec:
         - name: JOIN_CLUSTER
           value: "false"
         - name: DOMAIN
-          value: schoolhub.ddns.net
+          valueFrom:
+            configMapKeyRef:
+              name: domain-address
+              key: DOMAIN
         - name: POSTGRES_DB
           valueFrom:
             secretKeyRef:
