@@ -15,7 +15,7 @@ config :schoolhub, SchoolhubWeb.Endpoint,
 
 # Configures SMTP email server
 config :schoolhub, Schoolhub.Mailer,
-  server: "postfix",
+  server: System.get_env("POSTFIX_HOST", "postfix"),
   port: 587,
   tls: :if_available
 
@@ -57,6 +57,7 @@ config :logger, level: :info
 # Check `Plug.SSL` for all available options in `force_ssl`.
 
 config :schoolhub, :xmpp,
+  host: System.get_env("MONGOOSEIM_HOST", "mongooseim-1"),
   protocol: "wss",
   port: "5285"
 

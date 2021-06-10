@@ -57,6 +57,7 @@ config :schoolhub, SchoolhubWeb.Endpoint,
 # different ports.
 
 config :schoolhub, :xmpp,
+  host: System.get_env("MONGOOSEIM_HOST", "mongooseim-1"),
   protocol: "ws",
   port: "5280"
 
