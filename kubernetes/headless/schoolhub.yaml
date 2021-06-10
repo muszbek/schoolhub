@@ -1,0 +1,260 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: schoolhub
+  labels:
+    app: schoolhub
+spec:
+  ports:
+  - name: http
+    port: 1080
+  - name: https
+    port: 1443
+  - name: bosh-tls
+    port: 1285
+  - name: smtp
+    port: 587
+  - name: haproxy-monitor
+    port: 1404
+  clusterIP: None
+  selector:
+    app: schoolhub
+
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-pvc
+  labels:
+    app: postgres
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100M
+
+---
+
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: schoolhub-instance
+  labels:
+    app: schoolhub
+spec:
+  serviceName: "schoolhub"
+  selector:
+    matchLabels:
+      app: schoolhub
+  template:
+    metadata:
+      labels:
+        app: schoolhub
+    spec:
+      initContainers:
+      - name: volume-mount-hack
+        image: busybox
+        command: ["sh", "-c"]
+        args: ["cp /secret/* /etc/postgresql/ssl/;
+                chown -R 999:999 /etc/postgresql/ssl/privkey.pem"]
+        volumeMounts:
+        - name: tls-secret-selfsigned-volume
+          mountPath: /secret/
+        - name: tls-secret-modified
+          mountPath: /etc/postgresql/ssl/
+          
+      containers:
+      - name: schoolhub-postgres
+        image: postgres
+        env:
+        - name: POSTGRES_DB
+          valueFrom:
+            secretKeyRef:
+              name: postgres-creds
+              key: POSTGRES_DB
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: postgres-creds
+              key: POSTGRES_USER
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres-creds
+              key: POSTGRES_PASSWORD
+        ports:
+        - containerPort: 5432
+          name: postgres
+        volumeMounts:
+        - name: postgres-data-pv
+          mountPath: /var/lib/postgresql/data
+        - name: pg-schema
+          mountPath: /docker-entrypoint-initdb.d/
+          readOnly: true
+        - name: tls-secret-modified
+          mountPath: /etc/postgresql/ssl/
+        args: ["-c", "ssl=on",
+               "-c", "ssl_cert_file=/etc/postgresql/ssl/fullchain.pem",
+               "-c", "ssl_key_file=/etc/postgresql/ssl/privkey.pem"]
+               
+      - name: schoolhub-mongooseim
+        image: mongooseim/mongooseim:3.7.1
+        env:
+        - name: MONGOOSEIM_CONFIG_FORMAT
+          value: cfg
+        - name: JOIN_CLUSTER
+          value: "false"
+        - name: DOMAIN
+          value: schoolhub.ddns.net
+        - name: POSTGRES_DB
+          valueFrom:
+            secretKeyRef:
+              name: postgres-creds
+              key: POSTGRES_DB
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: postgres-creds
+              key: POSTGRES_USER
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres-creds
+              key: POSTGRES_PASSWORD
+        - name: POSTGRES_HOST
+          valueFrom:
+            secretKeyRef:
+              name: postgres-creds
+              key: POSTGRES_HOST
+        ports:
+        - containerPort: 5222
+          name: xmpp
+        - containerPort: 5280
+          name: bosh
+        - containerPort: 5285
+          name: bosh-tls
+        volumeMounts:
+        - name: mongooseim-cfg
+          mountPath: /config_temp/
+          readOnly: true
+        - name: entrypoint
+          mountPath: /entrypoint_temp/
+        - name: tls-secret-selfsigned-volume
+          mountPath: /usr/lib/mongooseim/priv/ssl
+        command: ["sh", "-c"]
+        args: ["cp /entrypoint_temp/entrypoint.sh /;
+                chmod +x /entrypoint.sh;
+                /entrypoint.sh"]
+
+      - name: schoolhub-phoenix
+        image: phx_server:v0.2.2
+        env:
+        - name: MIX_ENV
+          value: prod
+        - name: DOMAIN
+          value: schoolhub.ddns.net
+        - name: POSTGRES_DB
+          valueFrom:
+            secretKeyRef:
+              name: postgres-creds
+              key: POSTGRES_DB
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: postgres-creds
+              key: POSTGRES_USER
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres-creds
+              key: POSTGRES_PASSWORD
+        - name: POSTGRES_HOST
+          valueFrom:
+            secretKeyRef:
+              name: postgres-creds
+              key: POSTGRES_HOST
+        ports:
+        - containerPort: 4000
+          name: http
+        - containerPort: 4001
+          name: https
+        volumeMounts:
+        - name: tls-secret-selfsigned-volume
+          mountPath: /opt/app/priv/cert/
+
+      - name: schoolhub-haproxy
+        image: haproxy
+        ports:
+        - containerPort: 1080
+          name: http
+        - containerPort: 1443
+          name: https
+        - containerPort: 1280
+          name: bosh
+        - containerPort: 1285
+          name: bosh-tls
+        - containerPort: 1404
+          name: monitor
+        volumeMounts:
+        - name: hap-config
+          mountPath: /usr/local/etc/haproxy/
+          readOnly: true
+        - name: tls-secret-letsencrypt-volume
+          mountPath: /etc/cert/live/
+        - name: tls-secret-selfsigned-volume
+          mountPath: /etc/cert/selfsigned/
+
+      - name: schoolhub-postfix
+        image: boky/postfix
+        env:
+        - name: ALLOWED_SENDER_DOMAINS
+          value: "schoolhub.ddns.net localhost"
+        - name: DKIM_AUTOGENERATE
+          value: "true"
+        - name: INBOUND_DEBUGGING
+          value: ""
+        ports:
+        - containerPort: 587
+          name: smtp
+      
+      volumes:
+      - name: postgres-data-pv
+        persistentVolumeClaim:
+          claimName: postgres-pvc
+      - name: pg-schema
+        configMap:
+          name: postgres-schema
+      - name: tls-secret-selfsigned-volume
+        secret:
+          secretName: tls-selfsigned-secret
+          items:
+          - key: fullchain.pem
+            path: fullchain.pem
+          - key: privkey.pem
+            path: privkey.pem
+            mode: 0600
+          - key: chain.pem
+            path: chain.pem
+          - key: cert.pem
+            path: cert.pem
+          - key: joined_cert.pem
+            path: joined_cert.pem
+      - name: tls-secret-modified
+        emptyDir: {}
+      - name: mongooseim-cfg
+        configMap:
+          name: mongooseim-config
+      - name: entrypoint
+        configMap:
+          name: mongooseim-entrypoint
+      - name: hap-config
+        configMap:
+          name: haproxy-config
+      - name: tls-secret-letsencrypt-volume
+        secret:
+          secretName: tls-letsencrypt-secret
+          items:
+          - key: joined_cert.pem
+            path: joined_cert.pem

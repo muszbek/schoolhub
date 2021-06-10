@@ -18,6 +18,9 @@ ports:
   - port: 1587:30587
     nodeFilters:
       - agent[*]
+  - port: 8404:30404
+    nodeFilters:
+      - agent[*]
 volumes:
   - volume: /home/tmuszbek/git/schoolhub:/volumes_data
     nodeFilters:
