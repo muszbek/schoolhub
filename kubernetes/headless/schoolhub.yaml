@@ -220,7 +220,10 @@ spec:
         image: boky/postfix
         env:
         - name: ALLOWED_SENDER_DOMAINS
-          value: "schoolhub.ddns.net localhost"
+          valueFrom:
+            configMapKeyRef:
+              name: domain-address
+              key: DOMAIN
         - name: DKIM_AUTOGENERATE
           value: "true"
         - name: INBOUND_DEBUGGING
