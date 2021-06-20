@@ -30,3 +30,15 @@ remove picture
 
 mongooseim kubernetes clustering:
 Failed clustering mongooseim@schoolhub-mongooseim-56d8f4866f-gqqs6 with mongooseim@schoolhub-mongooseim-56d8f4866f-1
+
+domain name should not be hardcoded in kustomization in the tls certificate path
+
+- remove containerports from not exposed ports? only after I can test functionality
+- dynamically generate new service with all pod?
+- explore other ways to proxy directly to specific pods via subdomain? otherwise services...
+- anyway how to access internal network by ip?
+
+nslookup schoolhub
+telnet schoolhub-instance-1.schoolhub.default.svc.cluster.local 1080
+
+specify version number for postgres image (and others)

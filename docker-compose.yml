@@ -24,7 +24,7 @@ services:
       - MONGOOSEIM_CONFIG_FORMAT=cfg
       - DOMAIN=$DOMAIN
     env_file:
-      - ./postgres/postgres.env
+      - ./postgres/postgres_single.env
 
   mongooseim-2:
     container_name: mongooseim-2
@@ -49,7 +49,7 @@ services:
       - MONGOOSEIM_CONFIG_FORMAT=cfg
       - DOMAIN=$DOMAIN
     env_file:
-      - ./postgres/postgres.env
+      - ./postgres/postgres_single.env
 
 
   postfix:
@@ -85,7 +85,7 @@ services:
       - ./letsencrypt/selfsigned/$DOMAIN/certs/privkey.pem:/etc/postgresql/ssl/privkey.pem
       - ./postgres/data/data:/var/lib/postgresql/data
     env_file:
-      - ./postgres/postgres.env
+      - ./postgres/postgres_single.env
     command: -c ssl=on
              -c ssl_cert_file=/etc/postgresql/ssl/fullchain.pem
              -c ssl_key_file=/etc/postgresql/ssl/privkey.pem
@@ -107,7 +107,7 @@ services:
       - schoolhub_network
     restart: always
     volumes:
-      - ./haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg
+      - ./haproxy/haproxy_single.cfg:/usr/local/etc/haproxy/haproxy.cfg
       - ./letsencrypt/live/$DOMAIN/certs/joined_cert.pem:/etc/cert/live/joined_cert.pem
       - ./letsencrypt/selfsigned/$DOMAIN/certs/chain.pem:/etc/cert/selfsigned/chain.pem
 
@@ -133,7 +133,7 @@ services:
       - MIX_ENV=prod
       - DOMAIN=$DOMAIN
     env_file:
-      - ./postgres/postgres.env
+      - ./postgres/postgres_single.env
       
     
 networks:

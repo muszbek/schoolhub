@@ -8,7 +8,7 @@ kubectl create configmap postgres-schema \
 	--from-file=../postgres/schema/pg.sql
 
 kubectl create configmap haproxy-config \
-	--from-file=../haproxy/haproxy.cfg
+	--from-file=../haproxy/haproxy_instance.cfg
 
 kubectl create configmap mongooseim-config \
 	--from-file=../mongooseim/member/mongooseim.cfg \

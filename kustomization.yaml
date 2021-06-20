@@ -18,7 +18,7 @@ configMapGenerator:
       - ./postgres/schema/pg.sql
   - name: haproxy-config
     files:
-      - ./haproxy/haproxy.cfg
+      - ./haproxy/haproxy_single.cfg
   - name: mongooseim-config
     files:
       - ./mongooseim/member/mongooseim.cfg
@@ -32,7 +32,7 @@ configMapGenerator:
 secretGenerator:
   - name: postgres-creds
     envs:
-      - ./postgres/postgres.env
+      - ./postgres/postgres_single.env
   - name: tls-selfsigned-secret
     files:
       - ./letsencrypt/selfsigned/schoolhub.ddns.net/certs/chain.pem
