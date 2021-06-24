@@ -40,5 +40,3 @@ domain name should not be hardcoded in kustomization in the tls certificate path
 
 nslookup schoolhub
 telnet schoolhub-instance-1.schoolhub.default.svc.cluster.local 1080
-
-specify version number for postgres image (and others)

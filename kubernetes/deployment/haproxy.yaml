@@ -54,7 +54,7 @@ spec:
     spec:
       containers:
       - name: schoolhub-haproxy
-        image: haproxy
+        image: haproxy:2.4
         ports:
         - containerPort: 80
           name: http

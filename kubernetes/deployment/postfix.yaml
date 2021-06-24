@@ -34,7 +34,7 @@ spec:
     spec:
       containers:
       - name: schoolhub-postfix
-        image: boky/postfix
+        image: boky/postfix:v3.3.0
         env:
         - name: ALLOWED_SENDER_DOMAINS
           valueFrom:

@@ -54,7 +54,7 @@ services:
 
   postfix:
     container_name: schoolhub_postfix
-    image: boky/postfix
+    image: boky/postfix:v3.3.0
     hostname: postfix
     ports:
       - "1587:587"
@@ -71,7 +71,7 @@ services:
   
   postgres:
     container_name: schoolhub_postgres
-    image: postgres
+    image: postgres:13.3
     hostname: postgres
     ports:
       - "5432:5432"
@@ -93,7 +93,7 @@ services:
 
   haproxy:
     container_name: schoolhub_haproxy
-    image: haproxy
+    image: haproxy:2.4
     hostname: haproxy
     expose:
       - "8404"

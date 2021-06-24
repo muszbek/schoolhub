@@ -67,7 +67,7 @@ spec:
           
       containers:
       - name: schoolhub-postgres
-        image: postgres
+        image: postgres:13.3
         env:
         - name: POSTGRES_DB
           valueFrom:
@@ -195,7 +195,7 @@ spec:
           mountPath: /opt/app/priv/cert/
 
       - name: schoolhub-haproxy
-        image: haproxy
+        image: haproxy:2.4
         ports:
         - containerPort: 1080
           name: http
@@ -217,7 +217,7 @@ spec:
           mountPath: /etc/cert/selfsigned/
 
       - name: schoolhub-postfix
-        image: boky/postfix
+        image: boky/postfix:v3.3.0
         env:
         - name: ALLOWED_SENDER_DOMAINS
           valueFrom:
