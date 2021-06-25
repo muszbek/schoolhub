@@ -1,0 +1,92 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: haproxy
+  labels:
+    app: haproxy
+spec:
+  ports:
+  - name: 80-1080
+    nodePort: 30080
+    port: 80
+    protocol: TCP
+    targetPort: 1080
+  - name: 443-1443
+    nodePort: 30443
+    port: 443
+    protocol: TCP
+    targetPort: 1443
+  - name: 5280-1280
+    nodePort: 30280
+    port: 5280
+    protocol: TCP
+    targetPort: 1280
+  - name: 5285-1285
+    nodePort: 30285
+    port: 5285
+    protocol: TCP
+    targetPort: 1285
+  - name: 8404-1404
+    nodePort: 30404
+    port: 8404
+    protocol: TCP
+    targetPort: 1404
+  selector:
+    app: haproxy
+  type: NodePort
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: router-haproxy
+  labels:
+    app: haproxy
+spec:
+  selector:
+    matchLabels:
+      app: haproxy
+  template:
+    metadata:
+      labels:
+        app: haproxy
+    spec:
+      containers:
+      - name: router-haproxy
+        image: haproxy:2.4
+        ports:
+        - containerPort: 80
+          name: http
+        - containerPort: 443
+          name: https
+        - containerPort: 5280
+          name: bosh
+        - containerPort: 5285
+          name: bosh-tls
+        - containerPort: 8404
+          name: monitor
+        volumeMounts:
+        - name: hap-router-config
+          mountPath: /usr/local/etc/haproxy/
+          readOnly: true
+        - name: tls-secret-letsencrypt-volume
+          mountPath: /etc/cert/live/
+        - name: tls-secret-selfsigned-volume
+          mountPath: /etc/cert/selfsigned/
+      volumes:
+      - name: hap-router-config
+        configMap:
+          name: haproxy-router-config
+      - name: tls-secret-letsencrypt-volume
+        secret:
+          secretName: tls-letsencrypt-secret
+          items:
+          - key: joined_cert.pem
+            path: joined_cert.pem
+      - name: tls-secret-selfsigned-volume
+        secret:
+          secretName: tls-selfsigned-secret
+          items:
+          - key: chain.pem
+            path: chain.pem

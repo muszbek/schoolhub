@@ -6,19 +6,19 @@ ports:
   - port: 5432:30432
     nodeFilters:
       - agent[*]
-  - port: 80:1080
+  - port: 80:30080
     nodeFilters:
       - agent[*]
-  - port: 443:1443
+  - port: 443:30443
     nodeFilters:
       - agent[*]
-  - port: 5285:1285
+  - port: 5285:30285
     nodeFilters:
       - agent[*]
-  - port: 1587:587
+  - port: 1587:30587
     nodeFilters:
       - agent[*]
-  - port: 8404:1404
+  - port: 8404:30404
     nodeFilters:
       - agent[*]
 volumes:
