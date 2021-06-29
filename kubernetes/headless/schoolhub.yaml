@@ -55,7 +55,7 @@ spec:
     spec:
       initContainers:
       - name: volume-mount-hack
-        image: busybox
+        image: busybox:1.33
         command: ["sh", "-c"]
         args: ["cp /secret/* /etc/postgresql/ssl/;
                 chown -R 999:999 /etc/postgresql/ssl/privkey.pem"]
