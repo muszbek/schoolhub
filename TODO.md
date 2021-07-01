@@ -40,3 +40,11 @@ domain name should not be hardcoded in kustomization in the tls certificate path
 
 nslookup schoolhub
 telnet schoolhub-instance-1.schoolhub.default.svc.cluster.local 1080
+
+[NOTICE]   (1) : haproxy version is 2.4.0-6cbbecf
+[NOTICE]   (1) : path to executable is /usr/local/sbin/haproxy
+[ALERT]    (1) : parsing [/usr/local/etc/haproxy/haproxy.cfg:22] : The 'reqrep' directive is not supported anymore since HAProxy 2.1. Use 'http-request replace-path', 'http-request replace-uri' or 'http-request replace-header' instead.
+[ALERT]    (1) : Error(s) found in configuration file : /usr/local/etc/haproxy/haproxy.cfg
+[ALERT]    (1) : Fatal errors found in configuration.
+
+ports in uri are changed by haproxy regex?
