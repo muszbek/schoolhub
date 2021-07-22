@@ -20,7 +20,7 @@ defmodule SchoolhubWeb.ChatController do
       nil ->
 	conn
         |> put_flash(:error, "Token missing for XMPP authentication, please authenticate again")
-        |> redirect(to: Routes.session_path(conn, :new))
+        |> redirect(to: Routing.route(:session_path, conn, [:new]))
       _ ->
 	render(conn, "chat.html", course_id: course_id, user: user, self: self,
 	  token: refresh_token)

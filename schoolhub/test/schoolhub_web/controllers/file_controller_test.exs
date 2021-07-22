@@ -44,7 +44,7 @@ defmodule SchoolhubWeb.FileControllerTest do
     setup [:create_course]
     
     test "lists all files", %{conn: conn, course_id: course_id} do
-      conn = get(conn, Routes.course_file_path(conn, :index, course_id))
+      conn = get(conn, Routing.route(:course_file_path, conn, [:index, course_id]))
       assert html_response(conn, 200) =~ "Listing Files"
     end
   end
@@ -53,7 +53,7 @@ defmodule SchoolhubWeb.FileControllerTest do
     setup [:create_course]
     
     test "renders form", %{conn: conn, course_id: course_id} do
-      conn = get(conn, Routes.course_file_path(conn, :new, course_id))
+      conn = get(conn, Routing.route(:course_file_path, conn, [:new, course_id]))
       assert html_response(conn, 200) =~ "New File"
     end
   end
@@ -63,19 +63,19 @@ defmodule SchoolhubWeb.FileControllerTest do
     
     test "redirects to show when data is valid", %{conn: conn, course_id: course_id} do
       file_attrs = %{course_id: course_id, data: create_upload()}
-      conn = post(conn, Routes.course_file_path(conn, :create, course_id), file: file_attrs)
+      conn = post(conn, Routing.route(:course_file_path, conn, [:create, course_id]), file: file_attrs)
 
       assert %{id: id} = redirected_params(conn)
-      assert redirected_to(conn) == Routes.course_file_path(conn, :show, course_id, id)
+      assert redirected_to(conn) == Routing.route(:course_file_path, conn, [:show, course_id, id])
 
-      conn = get(conn, Routes.course_file_path(conn, :show, course_id, id))
+      conn = get(conn, Routing.route(:course_file_path, conn, [:show, course_id, id]))
       assert html_response(conn, 200) =~ "Show File"
     end
 
     test "renders errors when data is invalid", %{conn: conn, course_id: course_id} do
       file_attrs = %{course_id: course_id}
-      conn = post(conn, Routes.course_file_path(conn, :create, course_id), file: file_attrs)
-      assert redirected_to(conn) == Routes.course_file_path(conn, :new, course_id)
+      conn = post(conn, Routing.route(:course_file_path, conn, [:create, course_id]), file: file_attrs)
+      assert redirected_to(conn) == Routing.route(:course_file_path, conn, [:new, course_id])
     end
   end
 
@@ -84,7 +84,7 @@ defmodule SchoolhubWeb.FileControllerTest do
     setup [:create_file]
 
     test "renders form for editing chosen file", %{conn: conn, course_id: course_id, course_file: file} do
-      conn = get(conn, Routes.course_file_path(conn, :edit, course_id, file))
+      conn = get(conn, Routing.route(:course_file_path, conn, [:edit, course_id, file]))
       assert html_response(conn, 200) =~ "Edit File"
     end
   end
@@ -94,15 +94,15 @@ defmodule SchoolhubWeb.FileControllerTest do
     setup [:create_file]
 
     test "redirects when data is valid", %{conn: conn, course_id: course_id, course_file: file} do
-      conn = put(conn, Routes.course_file_path(conn, :update, course_id, file), file: @update_attrs)
-      assert redirected_to(conn) == Routes.course_file_path(conn, :show, course_id, file)
+      conn = put(conn, Routing.route(:course_file_path, conn, [:update, course_id, file]), file: @update_attrs)
+      assert redirected_to(conn) == Routing.route(:course_file_path, conn, [:show, course_id, file])
 
-      conn = get(conn, Routes.course_file_path(conn, :show, course_id, file))
+      conn = get(conn, Routing.route(:course_file_path, conn, [:show, course_id, file]))
       assert html_response(conn, 200) =~ "some updated filename"
     end
 
     test "renders errors when data is invalid", %{conn: conn, course_id: course_id, course_file: file} do
-      conn = put(conn, Routes.course_file_path(conn, :update, course_id, file), file: @invalid_attrs)
+      conn = put(conn, Routing.route(:course_file_path, conn, [:update, course_id, file]), file: @invalid_attrs)
       assert html_response(conn, 200) =~ "Edit File"
     end
   end
@@ -112,10 +112,10 @@ defmodule SchoolhubWeb.FileControllerTest do
     setup [:create_file]
 
     test "deletes chosen file", %{conn: conn, course_id: course_id, course_file: file} do
-      conn = delete(conn, Routes.course_file_path(conn, :delete, course_id, file))
-      assert redirected_to(conn) == Routes.course_file_path(conn, :index, course_id)
+      conn = delete(conn, Routing.route(:course_file_path, conn, [:delete, course_id, file]))
+      assert redirected_to(conn) == Routing.route(:course_file_path, conn, [:index, course_id])
       assert_error_sent 404, fn ->
-        get(conn, Routes.course_file_path(conn, :show, course_id, file))
+        get(conn, Routing.route(:course_file_path, conn, [:show, course_id, file]))
       end
     end
   end
@@ -125,7 +125,7 @@ defmodule SchoolhubWeb.FileControllerTest do
     setup [:create_file]
 
     test "downloads chosen file", %{conn: conn, course_id: course_id, course_file: file} do
-      conn = get(conn, Routes.course_file_path(conn, :download, course_id, file))
+      conn = get(conn, Routing.route(:course_file_path, conn, [:download, course_id, file]))
       ## TODO: check more explicitely for content type: application/octet-stream
       assert response(conn, 200) =~ "some data"
     end

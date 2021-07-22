@@ -1,4 +1,4 @@
-<h1><%= link Schoolhub.Courses.get_course!(@course_id).name, to: Routes.course_path(@conn, :show, @course_id) %></h1>
+<h1><%= link Schoolhub.Courses.get_course!(@course_id).name, to: Routing.route(:course_path, @conn, [:show, @course_id]) %></h1>
 <h2>Listing Questions</h2>
 
 <div id="filter">
@@ -11,12 +11,12 @@
   <input type="button" onclick="filter()" value="Filter">
 </div>
 
-<span><%= link "New Question", to: Routes.course_question_path(@conn, :new, @course_id) %></span>
+<span><%= link "New Question", to: Routing.route(:course_question_path, @conn, [:new, @course_id]) %></span>
 <%= if @question_limit !== -1 do %>
-<span><%= link "More", to: Routes.course_question_path(@conn, :index, @course_id,
-	  [limit: String.to_integer(@question_limit) + 5, only_following: @only_following]) %></span>
+<span><%= link "More", to: Routing.route(:course_question_path, @conn, [:index, @course_id,
+	  [limit: String.to_integer(@question_limit) + 5, only_following: @only_following]]) %></span>
 <% end %>
-<span><%= link "Back", to: Routes.course_path(@conn, :show, @course_id) %></span>
+<span><%= link "Back", to: Routing.route(:course_path, @conn, [:show, @course_id]) %></span>
 
 <table>
   <thead>
@@ -42,22 +42,22 @@
       <td><%= if question.pinned, do: "pinned" %></td>
 
       <td>
-        <span><%= link "Show", to: Routes.course_question_path(@conn, :show, @course_id, question) %></span>
-        <span><%= link "Edit", to: Routes.course_question_path(@conn, :edit, @course_id, question) %></span>
+        <span><%= link "Show", to: Routing.route(:course_question_path, @conn, [:show, @course_id, question]) %></span>
+        <span><%= link "Edit", to: Routing.route(:course_question_path, @conn, [:edit, @course_id, question]) %></span>
 	
 	<span><%= if is_follow(@conn, question), do:
-		  (link "Unfollow", to: Routes.course_question_follow_path(@conn, :unfollow, @course_id, question), method: :delete),
+		  (link "Unfollow", to: Routing.route(:course_question_follow_path, @conn, [:unfollow, @course_id, question]), method: :delete),
 		  else:
-		  (link "Follow", to: Routes.course_question_follow_path(@conn, :follow, @course_id, question), method: :post)
+		  (link "Follow", to: Routing.route(:course_question_follow_path, @conn, [:follow, @course_id, question]), method: :post)
 		  %></span>
 	
 	<span><%= if question.pinned, do:
-		  (link "Unpin", to: Routes.course_question_question_path(@conn, :pin, @course_id, question, [to_pin: false]), method: :put),
+		  (link "Unpin", to: Routing.route(:course_question_question_path, @conn, [:pin, @course_id, question, [to_pin: false]]), method: :put),
 		  else:
-		  (link "Pin", to: Routes.course_question_question_path(@conn, :pin, @course_id, question, [to_pin: true]), method: :put)
+		  (link "Pin", to: Routing.route(:course_question_question_path, @conn, [:pin, @course_id, question, [to_pin: true]]), method: :put)
 		  %></span>
 	
-        <span><%= link "Delete", to: Routes.course_question_path(@conn, :delete, @course_id, question), method: :delete, data: [confirm: "Are you sure?"] %></span>
+        <span><%= link "Delete", to: Routing.route(:course_question_path, @conn, [:delete, @course_id, question]), method: :delete, data: [confirm: "Are you sure?"] %></span>
       </td>
     </tr>
 <% end %>

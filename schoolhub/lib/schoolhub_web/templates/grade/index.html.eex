@@ -1,4 +1,4 @@
-<h1><%= link Schoolhub.Courses.get_course!(@course_id).name, to: Routes.course_path(@conn, :show, @course_id) %></h1>
+<h1><%= link Schoolhub.Courses.get_course!(@course_id).name, to: Routing.route(:course_path, @conn, [:show, @course_id]) %></h1>
 <h2>Listing Grades</h2>
 
 <table>
@@ -17,9 +17,9 @@
       <td><%= grade.grades %></td>
 
       <td>
-        <span><%= link "Show", to: Routes.course_affiliation_grade_path(@conn, :show, @course_id, grade.affiliation_id, grade) %></span>
-        <span><%= link "Edit", to: Routes.course_affiliation_grade_path(@conn, :edit, @course_id, grade.affiliation_id, grade) %></span>
-        <span><%= link "Delete", to: Routes.course_affiliation_grade_path(@conn, :delete, @course_id, grade.affiliation_id, grade), method: :delete, data: [confirm: "Are you sure?"] %></span>
+        <span><%= link "Show", to: Routing.route(:course_affiliation_grade_path, @conn, [:show, @course_id, grade.affiliation_id, grade]) %></span>
+        <span><%= link "Edit", to: Routing.route(:course_affiliation_grade_path, @conn, [:edit, @course_id, grade.affiliation_id, grade]) %></span>
+        <span><%= link "Delete", to: Routing.route(:course_affiliation_grade_path, @conn, [:delete, @course_id, grade.affiliation_id, grade]), method: :delete, data: [confirm: "Are you sure?"] %></span>
       </td>
     </tr>
 <% end %>

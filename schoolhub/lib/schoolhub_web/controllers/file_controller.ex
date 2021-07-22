@@ -31,7 +31,7 @@ defmodule SchoolhubWeb.FileController do
       {:ok, file} ->
         conn
         |> put_flash(:info, "File created successfully.")
-        |> redirect(to: Routes.course_file_path(conn, :show, course_id, file))
+        |> redirect(to: Routing.route(:course_file_path, conn, [:show, course_id, file]))
 
       {:error, %Ecto.Changeset{} = changeset} ->
         render(conn, "new.html", changeset: changeset, course_id: course_id)
@@ -40,7 +40,7 @@ defmodule SchoolhubWeb.FileController do
   def create(conn, %{"course_id" => course_id, "file" => %{}}) do
     conn
     |> put_flash(:error, "No file selected!")
-    |> redirect(to: Routes.course_file_path(conn, :new, course_id))
+    |> redirect(to: Routing.route(:course_file_path, conn, [:new, course_id]))
   end
 
   def show(conn, %{"course_id" => course_id, "id" => id}) do
@@ -61,7 +61,7 @@ defmodule SchoolhubWeb.FileController do
       {:ok, file} ->
         conn
         |> put_flash(:info, "File updated successfully.")
-        |> redirect(to: Routes.course_file_path(conn, :show, course_id, file))
+        |> redirect(to: Routing.route(:course_file_path, conn, [:show, course_id, file]))
 
       {:error, %Ecto.Changeset{} = changeset} ->
         render(conn, "edit.html", file: file, changeset: changeset, course_id: course_id)
@@ -74,7 +74,7 @@ defmodule SchoolhubWeb.FileController do
 
     conn
     |> put_flash(:info, "File deleted successfully.")
-    |> redirect(to: Routes.course_file_path(conn, :index, course_id))
+    |> redirect(to: Routing.route(:course_file_path, conn, [:index, course_id]))
   end
 
 

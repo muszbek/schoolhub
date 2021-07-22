@@ -31,7 +31,7 @@ defmodule SchoolhubWeb.PostController do
       {:ok, post} ->
         conn
         |> put_flash(:info, "Post created successfully.")
-        |> redirect(to: Routes.course_post_path(conn, :show, course_id, post))
+        |> redirect(to: Routing.route(:course_post_path, conn, [:show, course_id, post]))
 
       {:error, %Ecto.Changeset{} = changeset} ->
         render(conn, "new.html", changeset: changeset, course_id: course_id)
@@ -56,7 +56,7 @@ defmodule SchoolhubWeb.PostController do
       {:ok, post} ->
         conn
         |> put_flash(:info, "Post updated successfully.")
-        |> redirect(to: Routes.course_post_path(conn, :show, course_id, post))
+        |> redirect(to: Routing.route(:course_post_path, conn, [:show, course_id, post]))
 
       {:error, %Ecto.Changeset{} = changeset} ->
         render(conn, "edit.html", post: post, changeset: changeset, course_id: course_id)
@@ -69,7 +69,7 @@ defmodule SchoolhubWeb.PostController do
 
     conn
     |> put_flash(:info, "Post deleted successfully.")
-    |> redirect(to: Routes.course_post_path(conn, :index, course_id))
+    |> redirect(to: Routing.route(:course_post_path, conn, [:index, course_id]))
   end
 
   def pin(conn, %{"course_id" => course_id, "post_id" => id, "to_pin" => to_pin}) do
@@ -81,7 +81,7 @@ defmodule SchoolhubWeb.PostController do
     
     conn
     |> put_flash(:info, msg)
-    |> redirect(to: Routes.course_post_path(conn, :index, course_id))
+    |> redirect(to: Routing.route(:course_post_path, conn, [:index, course_id]))
   end
     
 end

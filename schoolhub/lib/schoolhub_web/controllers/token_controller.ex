@@ -18,7 +18,7 @@ defmodule SchoolhubWeb.TokenController do
 
 	conn
 	|> put_flash(:info, "Succesfully joined course")
-	|> redirect(to: Routes.course_path(conn, :show, course_id))
+	|> redirect(to: Routing.route(:course_path, conn, [:show, course_id]))
 	
       {:error, %Ecto.Changeset{changes: %{course_id: course_id},
 			       errors: [{:course_id,
@@ -28,12 +28,12 @@ defmodule SchoolhubWeb.TokenController do
 	
 	conn
 	|> put_flash(:info, "Already member")
-	|> redirect(to: Routes.course_path(conn, :show, course_id))
+	|> redirect(to: Routing.route(:course_path, conn, [:show, course_id]))
 	
       {:error, reason} ->
 	conn
 	|> put_flash(:error, "Token error: " <> inspect(reason))
-	|> redirect(to: Routes.token_path(conn, :new))
+	|> redirect(to: Routing.route(:token_path, conn, [:new]))
     end
     
   end

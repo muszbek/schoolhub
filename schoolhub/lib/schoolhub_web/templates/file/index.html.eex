@@ -1,8 +1,8 @@
-<h1><%= link Schoolhub.Courses.get_course!(@course_id).name, to: Routes.course_path(@conn, :show, @course_id) %></h1>
+<h1><%= link Schoolhub.Courses.get_course!(@course_id).name, to: Routing.route(:course_path, @conn, [:show, @course_id]) %></h1>
 <h2>Listing Files</h2>
 
-<span><%= link "New File", to: Routes.course_file_path(@conn, :new, @course_id) %></span>
-<span><%= link "Back", to: Routes.course_path(@conn, :show, @course_id) %></span>
+<span><%= link "New File", to: Routing.route(:course_file_path, @conn, [:new, @course_id]) %></span>
+<span><%= link "Back", to: Routing.route(:course_path, @conn, [:show, @course_id]) %></span>
 
 <table>
   <thead>
@@ -22,9 +22,9 @@
       <td><%= Schoolhub.Files.display_size(file.size) %></td>
 
       <td>
-        <span><%= link "Show", to: Routes.course_file_path(@conn, :show, @course_id, file) %></span>
-	<span><%= link "Download", to: Routes.course_file_path(@conn, :download, @course_id, file) %></span>
-        <span><%= link "Delete", to: Routes.course_file_path(@conn, :delete, @course_id, file), method: :delete, data: [confirm: "Are you sure?"] %></span>
+        <span><%= link "Show", to: Routing.route(:course_file_path, @conn, [:show, @course_id, file]) %></span>
+	<span><%= link "Download", to: Routing.route(:course_file_path, @conn, [:download, @course_id, file]) %></span>
+        <span><%= link "Delete", to: Routing.route(:course_file_path, @conn, [:delete, @course_id, file]), method: :delete, data: [confirm: "Are you sure?"] %></span>
       </td>
     </tr>
 <% end %>

@@ -23,7 +23,7 @@ defmodule SchoolhubWeb do
 
       import Plug.Conn
       import SchoolhubWeb.Gettext
-      alias SchoolhubWeb.Router.Helpers, as: Routes
+      alias SchoolhubWeb.Routing
     end
   end
 
@@ -68,7 +68,7 @@ defmodule SchoolhubWeb do
 
       import SchoolhubWeb.ErrorHelpers
       import SchoolhubWeb.Gettext
-      alias SchoolhubWeb.Router.Helpers, as: Routes
+      alias SchoolhubWeb.Routing
     end
   end
 

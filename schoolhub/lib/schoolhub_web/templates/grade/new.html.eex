@@ -1,9 +1,9 @@
-<h1><%= link Schoolhub.Courses.get_course!(@course_id).name, to: Routes.course_path(@conn, :show, @course_id) %></h1>
+<h1><%= link Schoolhub.Courses.get_course!(@course_id).name, to: Routing.route(:course_path, @conn, [:show, @course_id]) %></h1>
 <h2>New Grade</h2>
 
 <%= render "form.html", Map.put(assigns, :action,
-    Routes.course_affiliation_grade_path(@conn, :create, @course_id, @affiliation_id)) %>
+    Routing.route(:course_affiliation_grade_path, @conn, [:create, @course_id, @affiliation_id])) %>
 
-<span><%= link "Back", to: Routes.course_affiliation_grade_path(@conn, :show,
+<span><%= link "Back", to: Routing.route(:course_affiliation_grade_path, @conn, [:show,
 	  @course_id, @affiliation_id,
-	  Schoolhub.Courses.get_affiliation!(@affiliation_id).grade.id) %></span>
+	  Schoolhub.Courses.get_affiliation!(@affiliation_id).grade.id]) %></span>

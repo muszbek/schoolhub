@@ -1,4 +1,4 @@
-<h1><%= link Schoolhub.Courses.get_course!(@course_id).name, to: Routes.course_path(@conn, :show, @course_id) %></h1>
+<h1><%= link Schoolhub.Courses.get_course!(@course_id).name, to: Routing.route(:course_path, @conn, [:show, @course_id]) %></h1>
 <h2>Show Grade</h2>
 
 <ul>
@@ -10,4 +10,4 @@
 
 </ul>
 
-<span><%= link "Back", to: Routes.course_path(@conn, :show, @course_id) %></span>
+<span><%= link "Back", to: Routing.route(:course_path, @conn, [:show, @course_id]) %></span>

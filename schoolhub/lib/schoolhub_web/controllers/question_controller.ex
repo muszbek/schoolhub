@@ -47,7 +47,7 @@ defmodule SchoolhubWeb.QuestionController do
       {:ok, question} ->
         conn
         |> put_flash(:info, "Question created successfully.")
-        |> redirect(to: Routes.course_question_path(conn, :show, course_id, question))
+        |> redirect(to: Routing.route(:course_question_path, conn, [:show, course_id, question]))
 
       {:error, %Ecto.Changeset{} = changeset} ->
         render(conn, "new.html", changeset: changeset, course_id: course_id)
@@ -75,7 +75,7 @@ defmodule SchoolhubWeb.QuestionController do
       {:ok, question} ->
         conn
         |> put_flash(:info, "Question updated successfully.")
-        |> redirect(to: Routes.course_question_path(conn, :show, course_id, question))
+        |> redirect(to: Routing.route(:course_question_path, conn, [:show, course_id, question]))
 
       {:error, %Ecto.Changeset{} = changeset} ->
         render(conn, "edit.html", question: question, changeset: changeset, course_id: course_id)
@@ -88,7 +88,7 @@ defmodule SchoolhubWeb.QuestionController do
 
     conn
     |> put_flash(:info, "Question deleted successfully.")
-    |> redirect(to: Routes.course_question_path(conn, :index, course_id))
+    |> redirect(to: Routing.route(:course_question_path, conn, [:index, course_id]))
   end
 
   def pin(conn, %{"course_id" => course_id, "question_id" => id, "to_pin" => to_pin}) do
@@ -100,7 +100,7 @@ defmodule SchoolhubWeb.QuestionController do
     
     conn
     |> put_flash(:info, msg)
-    |> redirect(to: Routes.course_question_path(conn, :index, course_id))
+    |> redirect(to: Routing.route(:course_question_path, conn, [:index, course_id]))
   end
 
 

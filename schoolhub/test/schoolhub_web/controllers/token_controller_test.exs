@@ -34,7 +34,7 @@ defmodule SchoolhubWeb.TokenControllerTest do
     setup [:create_course]
     
     test "renders form", %{conn: conn} do
-      conn = get(conn, Routes.token_path(conn, :new))
+      conn = get(conn, Routing.route(:token_path, conn, [:new]))
       assert html_response(conn, 200) =~ "token"
     end
   end
@@ -44,13 +44,13 @@ defmodule SchoolhubWeb.TokenControllerTest do
     
     test "redirects to course when token is valid", %{conn: conn, course_id: course_id} do
       token = Courses.create_token(course_id)
-      conn = post(conn, Routes.token_path(conn, :create), token: token)
-      assert redirected_to(conn) == Routes.course_path(conn, :show, course_id)
+      conn = post(conn, Routing.route(:token_path, conn, [:create]), token: token)
+      assert redirected_to(conn) == Routing.route(:course_path, conn, [:show, course_id])
     end
 
     test "renders errors when token is invalid", %{conn: conn} do
-      conn = post(conn, Routes.token_path(conn, :create), token: "invalid_token")
-      assert redirected_to(conn) == Routes.token_path(conn, :new)
+      conn = post(conn, Routing.route(:token_path, conn, [:create]), token: "invalid_token")
+      assert redirected_to(conn) == Routing.route(:token_path, conn, [:new])
     end
   end
 
@@ -60,13 +60,13 @@ defmodule SchoolhubWeb.TokenControllerTest do
     
     test "redirects to course when token is valid", %{conn: conn, course_id: course_id} do
       token = Courses.create_token(course_id)
-      conn = post(conn, Routes.token_path(conn, :create), token: token)
-      assert redirected_to(conn) == Routes.course_path(conn, :show, course_id)
+      conn = post(conn, Routing.route(:token_path, conn, [:create]), token: token)
+      assert redirected_to(conn) == Routing.route(:course_path, conn, [:show, course_id])
     end
 
     test "renders errors when token is invalid", %{conn: conn} do
-      conn = post(conn, Routes.token_path(conn, :create), token: "invalid_token")
-      assert redirected_to(conn) == Routes.token_path(conn, :new)
+      conn = post(conn, Routing.route(:token_path, conn, [:create]), token: "invalid_token")
+      assert redirected_to(conn) == Routing.route(:token_path, conn, [:new])
     end
   end
 

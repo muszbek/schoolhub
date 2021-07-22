@@ -1,7 +1,7 @@
-<h1><%= link Schoolhub.Courses.get_course!(@course_id).name, to: Routes.course_path(@conn, :show, @course_id) %></h1>
+<h1><%= link Schoolhub.Courses.get_course!(@course_id).name, to: Routing.route(:course_path, @conn, [:show, @course_id]) %></h1>
 <h2>Listing Users</h2>
 
-<span><%= link "Back", to: Routes.course_path(@conn, :show, @course_id) %></span>
+<span><%= link "Back", to: Routing.route(:course_path, @conn, [:show, @course_id]) %></span>
 
 <table>
   <thead>
@@ -17,7 +17,7 @@
       <td><%= Schoolhub.Courses.get_username!(aff.user_id, @course_id) %></td>
 
       <td>
-        <span><%= link "Chat", to: Routes.course_chat_path(@conn, :chat, @course_id, aff.user_id) %></span>
+        <span><%= link "Chat", to: Routing.route(:course_chat_path, @conn, [:chat, @course_id, aff.user_id]) %></span>
       </td>
     </tr>
 <% end %>

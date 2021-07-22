@@ -3,8 +3,8 @@
 <strong>Username:</strong>
 <%= Schoolhub.Accounts.get_user!(@privilege.user_id).credential.username %>
 
-<%= render "form.html", Map.put(assigns, :action, Routes.privilege_path(@conn, :update, @privilege)) %>
+<%= render "form.html", Map.put(assigns, :action, Routing.route(:privilege_path, @conn, [:update, @privilege])) %>
 
 <%= render "explanation.html" %>
 
-<span><%= link "Back", to: Routes.privilege_path(@conn, :index) %></span>
+<span><%= link "Back", to: Routing.route(:privilege_path, @conn, [:index]) %></span>

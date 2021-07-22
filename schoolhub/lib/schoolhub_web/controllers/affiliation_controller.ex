@@ -27,7 +27,7 @@ defmodule SchoolhubWeb.AffiliationController do
       {:ok, affiliation} ->
         conn
         |> put_flash(:info, "Affiliation created successfully.")
-        |> redirect(to: Routes.course_affiliation_path(conn, :show, course_id, affiliation))
+        |> redirect(to: Routing.route(:course_affiliation_path, conn, [:show, course_id, affiliation]))
 
       {:error, %Ecto.Changeset{} = changeset} ->
         render(conn, "new.html", changeset: changeset,
@@ -61,7 +61,7 @@ defmodule SchoolhubWeb.AffiliationController do
       "owner" ->
 	conn
         |> put_flash(:error, "You can only change the owner by promoting another member!")
-        |> redirect(to: Routes.course_affiliation_path(conn, :show, course_id, affiliation))
+        |> redirect(to: Routing.route(:course_affiliation_path, conn, [:show, course_id, affiliation]))
       _other ->
 	do_update(conn, course_id, affiliation, affiliation_params)
     end
@@ -69,7 +69,7 @@ defmodule SchoolhubWeb.AffiliationController do
 
   defp change_owner(conn, course_id, "owner", affiliation, _affiliation_params) do
     conn
-    |> redirect(to: Routes.course_affiliation_path(conn, :show, course_id, affiliation))
+    |> redirect(to: Routing.route(:course_affiliation_path, conn, [:show, course_id, affiliation]))
   end
   defp change_owner(conn, course_id, _other_aff_level, affiliation, affiliation_params) do
     try do
@@ -89,7 +89,7 @@ defmodule SchoolhubWeb.AffiliationController do
       {:ok, affiliation} ->
         conn
         |> put_flash(:info, "Affiliation updated successfully.")
-        |> redirect(to: Routes.course_affiliation_path(conn, :show, course_id, affiliation))
+        |> redirect(to: Routing.route(:course_affiliation_path, conn, [:show, course_id, affiliation]))
 
       {:error, %Ecto.Changeset{} = changeset} ->
         conn
@@ -111,13 +111,13 @@ defmodule SchoolhubWeb.AffiliationController do
       "owner" ->
 	conn
 	|> put_flash(:error, "Cannot remove the owner of the course!")
-	|> redirect(to: Routes.course_affiliation_path(conn, :index, course_id))
+	|> redirect(to: Routing.route(:course_affiliation_path, conn, [:index, course_id]))
       _other ->
 	{:ok, _affiliation} = Courses.delete_affiliation(affiliation)
 
 	conn
 	|> put_flash(:info, "Affiliation deleted successfully.")
-	|> redirect(to: Routes.course_affiliation_path(conn, :index, course_id))
+	|> redirect(to: Routing.route(:course_affiliation_path, conn, [:index, course_id]))
     end
   end
 end

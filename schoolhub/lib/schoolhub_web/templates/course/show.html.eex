@@ -1,20 +1,20 @@
 <h1><%= @course.name %></h1>
 <h2><%= if @course.active == false, do: "<< Course disabled >>" %></h2>
 
-<span><%= link "View Members", to: Routes.course_affiliation_path(@conn, :index, @course.id) %></span>
-<span><%= link "View Posts", to: Routes.course_post_path(@conn, :index, @course.id) %></span>
-<span><%= link "View Questions", to: Routes.course_question_path(@conn, :index, @course.id) %></span>
-<span><%= link "Chat", to: Routes.course_chat_path(@conn, :index, @course.id) %></span>
-<span><%= link "Files", to: Routes.course_file_path(@conn, :index, @course.id) %></span>
-<span><%= link "My grades", to: Routes.course_affiliation_grade_path(@conn, :show_self, @course.id, get_self_aff(@conn, @course.id)) %></span>
-<span><%= link "Edit", to: Routes.course_path(@conn, :edit, @course) %></span>
-<span><%= link "New Token", to: Routes.course_course_path(@conn, :new_token, @course.id) %></span>
+<span><%= link "View Members", to: Routing.route(:course_affiliation_path, @conn, [:index, @course.id]) %></span>
+<span><%= link "View Posts", to: Routing.route(:course_post_path, @conn, [:index, @course.id]) %></span>
+<span><%= link "View Questions", to: Routing.route(:course_question_path, @conn, [:index, @course.id]) %></span>
+<span><%= link "Chat", to: Routing.route(:course_chat_path, @conn, [:index, @course.id]) %></span>
+<span><%= link "Files", to: Routing.route(:course_file_path, @conn, [:index, @course.id]) %></span>
+<span><%= link "My grades", to: Routing.route(:course_affiliation_grade_path, @conn, [:show_self, @course.id, get_self_aff(@conn, @course.id)]) %></span>
+<span><%= link "Edit", to: Routing.route(:course_path, @conn, [:edit, @course]) %></span>
+<span><%= link "New Token", to: Routing.route(:course_course_path, @conn, [:new_token, @course.id]) %></span>
 <span><%= if @course.active, do:
-	  (link "Disable", to: Routes.course_course_path(@conn, :activate, @course.id, [to_activate: false]), method: :put),
+	  (link "Disable", to: Routing.route(:course_course_path, @conn, [:activate, @course.id, [to_activate: false]]), method: :put),
 	  else:
-	  (link "Activate", to: Routes.course_course_path(@conn, :activate, @course.id, [to_activate: true]), method: :put)
+	  (link "Activate", to: Routing.route(:course_course_path, @conn, [:activate, @course.id, [to_activate: true]]), method: :put)
 	  %></span>
-<span><%= link "Back", to: Routes.course_path(@conn, :index) %></span>
+<span><%= link "Back", to: Routing.route(:course_path, @conn, [:index]) %></span>
 
 <%= if @course.picture != nil do %>
   <br/><img src="<%= render_picture_source(@course.picture) %>"><br/>

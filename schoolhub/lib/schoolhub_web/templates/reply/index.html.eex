@@ -14,13 +14,13 @@
       <td><%= Schoolhub.Courses.get_username!(reply.creator, @course_id) %></td>
 
       <td>
-        <span><%= link "Show", to: Routes.course_post_reply_path(@conn, :show, @course_id, @post_id, reply) %></span>
-        <span><%= link "Edit", to: Routes.course_post_reply_path(@conn, :edit, @course_id, @post_id, reply) %></span>
-        <span><%= link "Delete", to: Routes.course_post_reply_path(@conn, :delete, @course_id, @post_id, reply), method: :delete, data: [confirm: "Are you sure?"] %></span>
+        <span><%= link "Show", to: Routing.route(:course_post_reply_path, @conn, [:show, @course_id, @post_id, reply]) %></span>
+        <span><%= link "Edit", to: Routing.route(:course_post_reply_path, @conn, [:edit, @course_id, @post_id, reply]) %></span>
+        <span><%= link "Delete", to: Routing.route(:course_post_reply_path, @conn, [:delete, @course_id, @post_id, reply]), method: :delete, data: [confirm: "Are you sure?"] %></span>
       </td>
     </tr>
 <% end %>
   </tbody>
 </table>
 
-<span><%= link "New Reply", to: Routes.course_post_reply_path(@conn, :new, @course_id, @post_id) %></span>
+<span><%= link "New Reply", to: Routing.route(:course_post_reply_path, @conn, [:new, @course_id, @post_id]) %></span>

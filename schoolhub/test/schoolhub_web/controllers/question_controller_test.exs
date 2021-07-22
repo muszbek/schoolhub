@@ -42,7 +42,7 @@ defmodule SchoolhubWeb.QuestionControllerTest do
     setup [:create_course]
     
     test "lists all questions", %{conn: conn, course_id: course_id} do
-      conn = get(conn, Routes.course_question_path(conn, :index, course_id))
+      conn = get(conn, Routing.route(:course_question_path, conn, [:index, course_id]))
       assert html_response(conn, 200) =~ "Listing Questions"
     end
   end
@@ -51,14 +51,14 @@ defmodule SchoolhubWeb.QuestionControllerTest do
     setup [:create_course]
 
     test "lists all questions", %{conn: conn, course_id: course_id} do
-      conn = get(conn, Routes.course_question_path(conn, :filter, course_id,
-	    "@", "all"))
+      conn = get(conn, Routing.route(:course_question_path, conn, [:filter, course_id,
+	    "@", "all"]))
       assert html_response(conn, 200) =~ "Listing Questions"
     end
     
     test "lists no questions", %{conn: conn, course_id: course_id} do
-      conn = get(conn, Routes.course_question_path(conn, :filter, course_id,
-	    "invalid_filter", "only_following"))
+      conn = get(conn, Routing.route(:course_question_path, conn, [:filter, course_id,
+	    "invalid_filter", "only_following"]))
       assert html_response(conn, 200) =~ "Listing Questions"
     end
   end
@@ -67,7 +67,7 @@ defmodule SchoolhubWeb.QuestionControllerTest do
     setup [:create_course]
     
     test "renders form", %{conn: conn, course_id: course_id} do
-      conn = get(conn, Routes.course_question_path(conn, :new, course_id))
+      conn = get(conn, Routing.route(:course_question_path, conn, [:new, course_id]))
       assert html_response(conn, 200) =~ "New Question"
     end
   end
@@ -78,17 +78,17 @@ defmodule SchoolhubWeb.QuestionControllerTest do
     test "redirects to show when data is valid", %{conn: conn, course_id: course_id} do
       creator = get_session(conn, :user_id)
       question_attrs = create_valid_attrs(@create_attrs, course_id, creator)
-      conn = post(conn, Routes.course_question_path(conn, :create, course_id), question: question_attrs)
+      conn = post(conn, Routing.route(:course_question_path, conn, [:create, course_id]), question: question_attrs)
 
       assert %{id: id} = redirected_params(conn)
-      assert redirected_to(conn) == Routes.course_question_path(conn, :show, course_id, id)
+      assert redirected_to(conn) == Routing.route(:course_question_path, conn, [:show, course_id, id])
 
-      conn = get(conn, Routes.course_question_path(conn, :show, course_id, id))
+      conn = get(conn, Routing.route(:course_question_path, conn, [:show, course_id, id]))
       assert html_response(conn, 200) =~ "Show Question"
     end
 
     test "renders errors when data is invalid", %{conn: conn, course_id: course_id} do
-      conn = post(conn, Routes.course_question_path(conn, :create, course_id), question: @invalid_attrs)
+      conn = post(conn, Routing.route(:course_question_path, conn, [:create, course_id]), question: @invalid_attrs)
       assert html_response(conn, 200) =~ "New Question"
     end
   end
@@ -98,7 +98,7 @@ defmodule SchoolhubWeb.QuestionControllerTest do
     setup [:create_question]
 
     test "renders form for editing chosen question", %{conn: conn, course_id: course_id, question: question} do
-      conn = get(conn, Routes.course_question_path(conn, :edit, course_id, question))
+      conn = get(conn, Routing.route(:course_question_path, conn, [:edit, course_id, question]))
       assert html_response(conn, 200) =~ "Edit Question"
     end
   end
@@ -108,15 +108,15 @@ defmodule SchoolhubWeb.QuestionControllerTest do
     setup [:create_question]
 
     test "redirects when data is valid", %{conn: conn, course_id: course_id, question: question} do
-      conn = put(conn, Routes.course_question_path(conn, :update, course_id, question), question: @update_attrs)
-      assert redirected_to(conn) == Routes.course_question_path(conn, :show, course_id, question)
+      conn = put(conn, Routing.route(:course_question_path, conn, [:update, course_id, question]), question: @update_attrs)
+      assert redirected_to(conn) == Routing.route(:course_question_path, conn, [:show, course_id, question])
 
-      conn = get(conn, Routes.course_question_path(conn, :show, course_id, question))
+      conn = get(conn, Routing.route(:course_question_path, conn, [:show, course_id, question]))
       assert html_response(conn, 200) =~ "some updated content"
     end
 
     test "renders errors when data is invalid", %{conn: conn, course_id: course_id, question: question} do
-      conn = put(conn, Routes.course_question_path(conn, :update, course_id, question), question: @invalid_attrs)
+      conn = put(conn, Routing.route(:course_question_path, conn, [:update, course_id, question]), question: @invalid_attrs)
       assert html_response(conn, 200) =~ "Edit Question"
     end
   end
@@ -126,10 +126,10 @@ defmodule SchoolhubWeb.QuestionControllerTest do
     setup [:create_question]
 
     test "deletes chosen question", %{conn: conn, course_id: course_id, question: question} do
-      conn = delete(conn, Routes.course_question_path(conn, :delete, course_id, question))
-      assert redirected_to(conn) == Routes.course_question_path(conn, :index, course_id)
+      conn = delete(conn, Routing.route(:course_question_path, conn, [:delete, course_id, question]))
+      assert redirected_to(conn) == Routing.route(:course_question_path, conn, [:index, course_id])
       assert_error_sent 404, fn ->
-        get(conn, Routes.course_question_path(conn, :show, course_id, question))
+        get(conn, Routing.route(:course_question_path, conn, [:show, course_id, question]))
       end
     end
   end
@@ -139,18 +139,18 @@ defmodule SchoolhubWeb.QuestionControllerTest do
     setup [:create_question]
 
     test "pins question", %{conn: conn, course_id: course_id, question: question} do
-      conn = put(conn, Routes.course_question_question_path(conn, :pin, course_id, question), to_pin: true)
-      assert redirected_to(conn) == Routes.course_question_path(conn, :index, course_id)
+      conn = put(conn, Routing.route(:course_question_question_path, conn, [:pin, course_id, question]), to_pin: true)
+      assert redirected_to(conn) == Routing.route(:course_question_path, conn, [:index, course_id])
 
-      conn = get(conn, Routes.course_question_path(conn, :show, course_id, question))
+      conn = get(conn, Routing.route(:course_question_path, conn, [:show, course_id, question]))
       assert html_response(conn, 200) =~ "true"
     end
 
     test "unpins question", %{conn: conn, course_id: course_id, question: question} do
-      conn = put(conn, Routes.course_question_question_path(conn, :pin, course_id, question), to_pin: false)
-      assert redirected_to(conn) == Routes.course_question_path(conn, :index, course_id)
+      conn = put(conn, Routing.route(:course_question_question_path, conn, [:pin, course_id, question]), to_pin: false)
+      assert redirected_to(conn) == Routing.route(:course_question_path, conn, [:index, course_id])
 
-      conn = get(conn, Routes.course_question_path(conn, :show, course_id, question))
+      conn = get(conn, Routing.route(:course_question_path, conn, [:show, course_id, question]))
       assert html_response(conn, 200) =~ "false"
     end
   end

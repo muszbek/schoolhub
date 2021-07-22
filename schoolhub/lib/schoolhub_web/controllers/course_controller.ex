@@ -41,7 +41,7 @@ defmodule SchoolhubWeb.CourseController do
 	
         conn
         |> put_flash(:info, "Course created successfully.")
-        |> redirect(to: Routes.course_path(conn, :show, course))
+        |> redirect(to: Routing.route(:course_path, conn, [:show, course]))
 
       {:error, %Ecto.Changeset{} = changeset} ->
         render(conn, "new.html", changeset: changeset)
@@ -69,7 +69,7 @@ defmodule SchoolhubWeb.CourseController do
       {:ok, course} ->
         conn
         |> put_flash(:info, "Course updated successfully.")
-        |> redirect(to: Routes.course_path(conn, :show, course))
+        |> redirect(to: Routing.route(:course_path, conn, [:show, course]))
 
       {:error, %Ecto.Changeset{} = changeset} ->
         render(conn, "edit.html", course: course, changeset: changeset)
@@ -82,7 +82,7 @@ defmodule SchoolhubWeb.CourseController do
 
     conn
     |> put_flash(:info, "Course deleted successfully.")
-    |> redirect(to: Routes.course_path(conn, :index))
+    |> redirect(to: Routing.route(:course_path, conn, [:index]))
   end
 
   def new_token(conn, %{"course_id" => id}) do
@@ -99,7 +99,7 @@ defmodule SchoolhubWeb.CourseController do
 
     conn
     |> put_flash(:info, msg)
-    |> redirect(to: Routes.course_path(conn, :show, id))
+    |> redirect(to: Routing.route(:course_path, conn, [:show, id]))
   end
 
 

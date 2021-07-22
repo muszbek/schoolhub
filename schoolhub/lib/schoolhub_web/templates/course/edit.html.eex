@@ -1,6 +1,6 @@
-<h1><%= link @course.name, to: Routes.course_path(@conn, :show, @course.id) %></h1>
+<h1><%= link @course.name, to: Routing.route(:course_path, @conn, [:show, @course.id]) %></h1>
 <h2>Edit Course</h2>
 
-<%= render "form.html", Map.put(assigns, :action, Routes.course_path(@conn, :update, @course)) %>
+<%= render "form.html", Map.put(assigns, :action, Routing.route(:course_path, @conn, [:update, @course])) %>
 
-<span><%= link "Back", to: Routes.course_path(@conn, :show, @course.id) %></span>
+<span><%= link "Back", to: Routing.route(:course_path, @conn, [:show, @course.id]) %></span>

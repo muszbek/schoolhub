@@ -33,7 +33,7 @@ defmodule SchoolhubWeb.ChatControllerTest do
     setup [:create_course]
 
     test "list affiliated users", %{conn: conn, course_id: course_id} do
-      conn = get(conn, Routes.course_chat_path(conn, :index, course_id))
+      conn = get(conn, Routing.route(:course_chat_path, conn, [:index, course_id]))
       assert html_response(conn, 200) =~ "Listing Users"
     end
   end
@@ -43,13 +43,13 @@ defmodule SchoolhubWeb.ChatControllerTest do
 
     test "show chat page", %{conn: conn, course_id: course_id, user_id: user_id} do
       conn = add_tokens(conn)
-      conn = get(conn, Routes.course_chat_path(conn, :chat, course_id, user_id))
+      conn = get(conn, Routing.route(:course_chat_path, conn, [:chat, course_id, user_id]))
       assert html_response(conn, 200) =~ "Chat"
     end
 
     test "no token redirect", %{conn: conn, course_id: course_id, user_id: user_id} do
-      conn = get(conn, Routes.course_chat_path(conn, :chat, course_id, user_id))
-      assert redirected_to(conn) == Routes.session_path(conn, :new)
+      conn = get(conn, Routing.route(:course_chat_path, conn, [:chat, course_id, user_id]))
+      assert redirected_to(conn) == Routing.route(:session_path, conn, [:new])
     end
   end
 

@@ -39,7 +39,7 @@ defmodule SchoolhubWeb.CourseControllerTest do
     setup [:enter_session]
     
     test "lists affiliated courses", %{conn: conn} do
-      conn = get(conn, Routes.course_path(conn, :index))
+      conn = get(conn, Routing.route(:course_path, conn, [:index]))
       assert html_response(conn, 200) =~ "Listing Courses"
     end
   end
@@ -52,7 +52,7 @@ defmodule SchoolhubWeb.CourseControllerTest do
       user = Accounts.get_user!(user_id)
       Privileges.update_privilege(user.privilege, @admin_attrs)
       
-      conn = get(conn, Routes.course_path(conn, :admin_index))
+      conn = get(conn, Routing.route(:course_path, conn, [:admin_index]))
       assert html_response(conn, 200) =~ "Listing Courses"
     end
   end
@@ -61,7 +61,7 @@ defmodule SchoolhubWeb.CourseControllerTest do
     setup [:enter_session]
     
     test "renders form", %{conn: conn} do
-      conn = get(conn, Routes.course_path(conn, :new))
+      conn = get(conn, Routing.route(:course_path, conn, [:new]))
       assert html_response(conn, 200) =~ "New Course"
     end
   end
@@ -71,21 +71,21 @@ defmodule SchoolhubWeb.CourseControllerTest do
     
     test "redirects to show when data is valid", %{conn: conn} do
       course_attrs = Map.put(@create_attrs, :picture, create_upload())
-      conn = post(conn, Routes.course_path(conn, :create), course: course_attrs)
+      conn = post(conn, Routing.route(:course_path, conn, [:create]), course: course_attrs)
 
       assert %{id: id} = redirected_params(conn)
-      assert redirected_to(conn) == Routes.course_path(conn, :show, id)
+      assert redirected_to(conn) == Routing.route(:course_path, conn, [:show, id])
 
-      conn = get(conn, Routes.course_path(conn, :show, id))
+      conn = get(conn, Routing.route(:course_path, conn, [:show, id]))
       assert html_response(conn, 200) =~ "Back"
 
       [_owner_aff = %{id: aff_id}] = Courses.list_course_affiliations(id)
-      conn = get(conn, Routes.course_affiliation_path(conn, :show, id, aff_id))
+      conn = get(conn, Routing.route(:course_affiliation_path, conn, [:show, id, aff_id]))
       assert html_response(conn, 200) =~ "Show Affiliation"
     end
 
     test "renders errors when data is invalid", %{conn: conn} do
-      conn = post(conn, Routes.course_path(conn, :create), course: @invalid_attrs)
+      conn = post(conn, Routing.route(:course_path, conn, [:create]), course: @invalid_attrs)
       assert html_response(conn, 200) =~ "New Course"
     end
   end
@@ -95,7 +95,7 @@ defmodule SchoolhubWeb.CourseControllerTest do
     setup [:create_course]
 
     test "renders form for editing chosen course", %{conn: conn, course: course} do
-      conn = get(conn, Routes.course_path(conn, :edit, course))
+      conn = get(conn, Routing.route(:course_path, conn, [:edit, course]))
       assert html_response(conn, 200) =~ "Edit Course"
     end
   end
@@ -105,23 +105,23 @@ defmodule SchoolhubWeb.CourseControllerTest do
     setup [:create_course]
 
     test "redirects when data is valid", %{conn: conn, course: course} do
-      conn = put(conn, Routes.course_path(conn, :update, course), course: @update_attrs)
-      assert redirected_to(conn) == Routes.course_path(conn, :show, course)
+      conn = put(conn, Routing.route(:course_path, conn, [:update, course]), course: @update_attrs)
+      assert redirected_to(conn) == Routing.route(:course_path, conn, [:show, course])
 
-      conn = get(conn, Routes.course_path(conn, :show, course))
+      conn = get(conn, Routing.route(:course_path, conn, [:show, course]))
       assert html_response(conn, 200) =~ "some updated description"
     end
 
     test "does not remove image when unspecified", %{conn: conn, course: course} do
-      conn = put(conn, Routes.course_path(conn, :update, course), course: @update_attrs)
-      assert redirected_to(conn) == Routes.course_path(conn, :show, course)
+      conn = put(conn, Routing.route(:course_path, conn, [:update, course]), course: @update_attrs)
+      assert redirected_to(conn) == Routing.route(:course_path, conn, [:show, course])
 
-      conn = get(conn, Routes.course_path(conn, :show, course))
+      conn = get(conn, Routing.route(:course_path, conn, [:show, course]))
       assert html_response(conn, 200) =~ "img"
     end
 
     test "renders errors when data is invalid", %{conn: conn, course: course} do
-      conn = put(conn, Routes.course_path(conn, :update, course), course: @invalid_attrs)
+      conn = put(conn, Routing.route(:course_path, conn, [:update, course]), course: @invalid_attrs)
       assert html_response(conn, 200) =~ "Edit Course"
     end
   end
@@ -131,10 +131,10 @@ defmodule SchoolhubWeb.CourseControllerTest do
     setup [:create_course]
 
     test "deletes chosen course", %{conn: conn, course: course} do
-      conn = delete(conn, Routes.course_path(conn, :delete, course))
-      assert redirected_to(conn) == Routes.course_path(conn, :index)
+      conn = delete(conn, Routing.route(:course_path, conn, [:delete, course]))
+      assert redirected_to(conn) == Routing.route(:course_path, conn, [:index])
       assert_error_sent 404, fn ->
-        get(conn, Routes.course_path(conn, :show, course))
+        get(conn, Routing.route(:course_path, conn, [:show, course]))
       end
     end
   end
@@ -144,7 +144,7 @@ defmodule SchoolhubWeb.CourseControllerTest do
     setup [:create_course]
 
     test "creates new invitation token", %{conn: conn, course: course} do
-      conn = get(conn, Routes.course_course_path(conn, :new_token, course))
+      conn = get(conn, Routing.route(:course_course_path, conn, [:new_token, course]))
       assert html_response(conn, 200) =~ "Token"
     end
   end
@@ -154,16 +154,16 @@ defmodule SchoolhubWeb.CourseControllerTest do
     setup [:create_course]
 
     test "disables course", %{conn: conn, course: course} do
-      conn = put(conn, Routes.course_course_path(conn, :activate, course), to_activate: false)
-      assert redirected_to(conn) == Routes.course_path(conn, :show, course)
+      conn = put(conn, Routing.route(:course_course_path, conn, [:activate, course]), to_activate: false)
+      assert redirected_to(conn) == Routing.route(:course_path, conn, [:show, course])
 
-      conn = get(conn, Routes.course_path(conn, :show, course))
+      conn = get(conn, Routing.route(:course_path, conn, [:show, course]))
       assert html_response(conn, 200) =~ "disabled"
     end
 
     test "activates post", %{conn: conn, course: course} do
-      conn = put(conn, Routes.course_course_path(conn, :activate, course), to_activate: true)
-      assert redirected_to(conn) == Routes.course_path(conn, :show, course)
+      conn = put(conn, Routing.route(:course_course_path, conn, [:activate, course]), to_activate: true)
+      assert redirected_to(conn) == Routing.route(:course_path, conn, [:show, course])
     end
   end
 

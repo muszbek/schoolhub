@@ -39,12 +39,12 @@ defmodule SchoolhubWeb.PostControllerTest do
     setup [:create_course]
     
     test "lists some posts", %{conn: conn, course_id: course_id} do
-      conn = get(conn, Routes.course_post_path(conn, :index, course_id))
+      conn = get(conn, Routing.route(:course_post_path, conn, [:index, course_id]))
       assert html_response(conn, 200) =~ "Listing Posts"
     end
 
     test "lists some posts with limit", %{conn: conn, course_id: course_id} do
-      conn = get(conn, Routes.course_post_path(conn, :index, course_id, [post_limit: 5]))
+      conn = get(conn, Routing.route(:course_post_path, conn, [:index, course_id, [post_limit: 5]]))
       assert html_response(conn, 200) =~ "Listing Posts"
     end
   end
@@ -53,7 +53,7 @@ defmodule SchoolhubWeb.PostControllerTest do
     setup [:create_course]
     
     test "renders form", %{conn: conn, course_id: course_id} do
-      conn = get(conn, Routes.course_post_path(conn, :new, course_id))
+      conn = get(conn, Routing.route(:course_post_path, conn, [:new, course_id]))
       assert html_response(conn, 200) =~ "New Post"
     end
   end
@@ -64,17 +64,17 @@ defmodule SchoolhubWeb.PostControllerTest do
     test "redirects to show when data is valid", %{conn: conn, course_id: course_id} do
       creator = get_session(conn, :user_id)
       post_attrs = create_valid_attrs(@create_attrs, course_id, creator)
-      conn = post(conn, Routes.course_post_path(conn, :create, course_id), post: post_attrs)
+      conn = post(conn, Routing.route(:course_post_path, conn, [:create, course_id]), post: post_attrs)
 
       assert %{id: id} = redirected_params(conn)
-      assert redirected_to(conn) == Routes.course_post_path(conn, :show, course_id, id)
+      assert redirected_to(conn) == Routing.route(:course_post_path, conn, [:show, course_id, id])
 
-      conn = get(conn, Routes.course_post_path(conn, :show, course_id, id))
+      conn = get(conn, Routing.route(:course_post_path, conn, [:show, course_id, id]))
       assert html_response(conn, 200) =~ "Show Post"
     end
 
     test "renders errors when data is invalid", %{conn: conn, course_id: course_id} do
-      conn = post(conn, Routes.course_post_path(conn, :create, course_id), post: @invalid_attrs)
+      conn = post(conn, Routing.route(:course_post_path, conn, [:create, course_id]), post: @invalid_attrs)
       assert html_response(conn, 200) =~ "New Post"
     end
   end
@@ -84,7 +84,7 @@ defmodule SchoolhubWeb.PostControllerTest do
     setup [:create_post]
 
     test "renders form for editing chosen post", %{conn: conn, course_id: course_id, post: post} do
-      conn = get(conn, Routes.course_post_path(conn, :edit, course_id, post))
+      conn = get(conn, Routing.route(:course_post_path, conn, [:edit, course_id, post]))
       assert html_response(conn, 200) =~ "Edit Post"
     end
   end
@@ -94,15 +94,15 @@ defmodule SchoolhubWeb.PostControllerTest do
     setup [:create_post]
 
     test "redirects when data is valid", %{conn: conn, course_id: course_id, post: post} do
-      conn = put(conn, Routes.course_post_path(conn, :update, course_id, post), post: @update_attrs)
-      assert redirected_to(conn) == Routes.course_post_path(conn, :show, course_id, post)
+      conn = put(conn, Routing.route(:course_post_path, conn, [:update, course_id, post]), post: @update_attrs)
+      assert redirected_to(conn) == Routing.route(:course_post_path, conn, [:show, course_id, post])
 
-      conn = get(conn, Routes.course_post_path(conn, :show, course_id, post))
+      conn = get(conn, Routing.route(:course_post_path, conn, [:show, course_id, post]))
       assert html_response(conn, 200) =~ "some updated content"
     end
 
     test "renders errors when data is invalid", %{conn: conn, course_id: course_id, post: post} do
-      conn = put(conn, Routes.course_post_path(conn, :update, course_id, post), post: @invalid_attrs)
+      conn = put(conn, Routing.route(:course_post_path, conn, [:update, course_id, post]), post: @invalid_attrs)
       assert html_response(conn, 200) =~ "Edit Post"
     end
   end
@@ -112,10 +112,10 @@ defmodule SchoolhubWeb.PostControllerTest do
     setup [:create_post]
 
     test "deletes chosen post", %{conn: conn, course_id: course_id, post: post} do
-      conn = delete(conn, Routes.course_post_path(conn, :delete, course_id, post))
-      assert redirected_to(conn) == Routes.course_post_path(conn, :index, course_id)
+      conn = delete(conn, Routing.route(:course_post_path, conn, [:delete, course_id, post]))
+      assert redirected_to(conn) == Routing.route(:course_post_path, conn, [:index, course_id])
       assert_error_sent 404, fn ->
-        get(conn, Routes.course_post_path(conn, :show, course_id, post))
+        get(conn, Routing.route(:course_post_path, conn, [:show, course_id, post]))
       end
     end
   end
@@ -125,18 +125,18 @@ defmodule SchoolhubWeb.PostControllerTest do
     setup [:create_post]
 
     test "pins post", %{conn: conn, course_id: course_id, post: post} do
-      conn = put(conn, Routes.course_post_post_path(conn, :pin, course_id, post), to_pin: true)
-      assert redirected_to(conn) == Routes.course_post_path(conn, :index, course_id)
+      conn = put(conn, Routing.route(:course_post_post_path, conn, [:pin, course_id, post]), to_pin: true)
+      assert redirected_to(conn) == Routing.route(:course_post_path, conn, [:index, course_id])
 
-      conn = get(conn, Routes.course_post_path(conn, :show, course_id, post))
+      conn = get(conn, Routing.route(:course_post_path, conn, [:show, course_id, post]))
       assert html_response(conn, 200) =~ "true"
     end
 
     test "unpins post", %{conn: conn, course_id: course_id, post: post} do
-      conn = put(conn, Routes.course_post_post_path(conn, :pin, course_id, post), to_pin: false)
-      assert redirected_to(conn) == Routes.course_post_path(conn, :index, course_id)
+      conn = put(conn, Routing.route(:course_post_post_path, conn, [:pin, course_id, post]), to_pin: false)
+      assert redirected_to(conn) == Routing.route(:course_post_path, conn, [:index, course_id])
 
-      conn = get(conn, Routes.course_post_path(conn, :show, course_id, post))
+      conn = get(conn, Routing.route(:course_post_path, conn, [:show, course_id, post]))
       assert html_response(conn, 200) =~ "false"
     end
   end

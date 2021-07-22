@@ -1,4 +1,4 @@
-<h1><%= link Schoolhub.Courses.get_course!(@course_id).name, to: Routes.course_path(@conn, :show, @course_id) %></h1>
+<h1><%= link Schoolhub.Courses.get_course!(@course_id).name, to: Routing.route(:course_path, @conn, [:show, @course_id]) %></h1>
 <h2>Show Affiliation</h2>
 
 <ul>
@@ -22,6 +22,6 @@
 
 <%= render "explanation.html" %>
 
-<span><%= link "Show Grades", to: Routes.course_affiliation_grade_path(@conn, :show, @course_id, @affiliation, Schoolhub.Grades.get_grade_by_aff!(@affiliation.id)) %></span>
-<span><%= link "Edit", to: Routes.course_affiliation_path(@conn, :edit, @course_id, @affiliation) %></span>
-<span><%= link "Back", to: Routes.course_affiliation_path(@conn, :index, @course_id) %></span>
+<span><%= link "Show Grades", to: Routing.route(:course_affiliation_grade_path, @conn, [:show, @course_id, @affiliation, Schoolhub.Grades.get_grade_by_aff!(@affiliation.id)]) %></span>
+<span><%= link "Edit", to: Routing.route(:course_affiliation_path, @conn, [:edit, @course_id, @affiliation]) %></span>
+<span><%= link "Back", to: Routing.route(:course_affiliation_path, @conn, [:index, @course_id]) %></span>

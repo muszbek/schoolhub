@@ -38,7 +38,7 @@ defmodule SchoolhubWeb.GradeControllerTest do
     setup [:create_affiliation]
     
     test "lists all grades", %{conn: conn, course_id: course_id} do
-      conn = get(conn, Routes.course_grade_path(conn, :index, course_id))
+      conn = get(conn, Routing.route(:course_grade_path, conn, [:index, course_id]))
       assert html_response(conn, 200) =~ "Listing Grades"
     end
   end
@@ -47,7 +47,7 @@ defmodule SchoolhubWeb.GradeControllerTest do
     setup [:create_affiliation]
     
     test "renders form", %{conn: conn, course_id: course_id, affiliation_id: aff_id} do
-      conn = get(conn, Routes.course_affiliation_grade_path(conn, :new, course_id, aff_id))
+      conn = get(conn, Routing.route(:course_affiliation_grade_path, conn, [:new, course_id, aff_id]))
       assert html_response(conn, 200) =~ "New Grade"
     end
   end
@@ -58,13 +58,13 @@ defmodule SchoolhubWeb.GradeControllerTest do
     test "redirects to show when data is valid",
       %{conn: conn, course_id: course_id, affiliation_id: aff_id} do
       
-      conn = post(conn, Routes.course_affiliation_grade_path(conn, :create, course_id, aff_id),
+      conn = post(conn, Routing.route(:course_affiliation_grade_path, conn, [:create, course_id, aff_id]),
 	@create_attrs)
 
       assert %{id: id} = redirected_params(conn)
-      assert redirected_to(conn) == Routes.course_affiliation_grade_path(conn, :show, course_id, aff_id, id)
+      assert redirected_to(conn) == Routing.route(:course_affiliation_grade_path, conn, [:show, course_id, aff_id, id])
 
-      conn = get(conn, Routes.course_affiliation_grade_path(conn, :show, course_id, aff_id, id))
+      conn = get(conn, Routing.route(:course_affiliation_grade_path, conn, [:show, course_id, aff_id, id]))
       assert html_response(conn, 200) =~ "Show Grade"
     end
   end
@@ -75,7 +75,7 @@ defmodule SchoolhubWeb.GradeControllerTest do
     test "renders form for editing chosen grade",
       %{conn: conn, course_id: course_id, affiliation_id: aff_id, grade: grade} do
       
-      conn = get(conn, Routes.course_affiliation_grade_path(conn, :edit, course_id, aff_id, grade))
+      conn = get(conn, Routing.route(:course_affiliation_grade_path, conn, [:edit, course_id, aff_id, grade]))
       assert html_response(conn, 200) =~ "Edit Grade"
     end
   end
@@ -86,17 +86,17 @@ defmodule SchoolhubWeb.GradeControllerTest do
     test "redirects when data is valid",
       %{conn: conn, course_id: course_id, affiliation_id: aff_id, grade: grade} do
       
-      conn = put(conn, Routes.course_affiliation_grade_path(conn, :update, course_id, aff_id, grade), grade: @update_attrs)
-      assert redirected_to(conn) == Routes.course_affiliation_grade_path(conn, :show, course_id, aff_id, grade)
+      conn = put(conn, Routing.route(:course_affiliation_grade_path, conn, [:update, course_id, aff_id, grade]), grade: @update_attrs)
+      assert redirected_to(conn) == Routing.route(:course_affiliation_grade_path, conn, [:show, course_id, aff_id, grade])
 
-      conn = get(conn, Routes.course_affiliation_grade_path(conn, :show, course_id, aff_id, grade))
+      conn = get(conn, Routing.route(:course_affiliation_grade_path, conn, [:show, course_id, aff_id, grade]))
       assert html_response(conn, 200)
     end
 
     test "renders errors when data is invalid",
       %{conn: conn, course_id: course_id, affiliation_id: aff_id, grade: grade} do
       
-      conn = put(conn, Routes.course_affiliation_grade_path(conn, :update, course_id, aff_id, grade), grade: @invalid_attrs)
+      conn = put(conn, Routing.route(:course_affiliation_grade_path, conn, [:update, course_id, aff_id, grade]), grade: @invalid_attrs)
       assert html_response(conn, 200) =~ "Edit Grade"
     end
   end
@@ -107,10 +107,10 @@ defmodule SchoolhubWeb.GradeControllerTest do
     test "deletes chosen grade",
       %{conn: conn, course_id: course_id, affiliation_id: aff_id, grade: grade} do
       
-      conn = delete(conn, Routes.course_affiliation_grade_path(conn, :delete, course_id, aff_id, grade))
-      assert redirected_to(conn) == Routes.course_grade_path(conn, :index, course_id)
+      conn = delete(conn, Routing.route(:course_affiliation_grade_path, conn, [:delete, course_id, aff_id, grade]))
+      assert redirected_to(conn) == Routing.route(:course_grade_path, conn, [:index, course_id])
 
-      conn = get(conn, Routes.course_affiliation_grade_path(conn, :show, course_id, aff_id, grade))
+      conn = get(conn, Routing.route(:course_affiliation_grade_path, conn, [:show, course_id, aff_id, grade]))
       assert html_response(conn, 200)
     end
   end
@@ -119,7 +119,7 @@ defmodule SchoolhubWeb.GradeControllerTest do
     setup [:create_affiliation]
 
     test "shows own grade", %{conn: conn, course_id: course_id, affiliation_id: aff_id} do
-      conn = get(conn, Routes.course_affiliation_grade_path(conn, :show_self, course_id, aff_id))
+      conn = get(conn, Routing.route(:course_affiliation_grade_path, conn, [:show_self, course_id, aff_id]))
       assert html_response(conn, 200) =~ "Show Grade"
     end
   end

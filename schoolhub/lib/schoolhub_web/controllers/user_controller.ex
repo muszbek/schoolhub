@@ -27,7 +27,7 @@ defmodule SchoolhubWeb.UserController do
 	
         conn
         |> put_flash(:info, "Confiramtion email sent to register.")
-        |> redirect(to: Routes.session_path(conn, :new))
+        |> redirect(to: Routing.route(:session_path, conn, [:new]))
 
       {:error, %Ecto.Changeset{} = changeset} ->
         render(conn, "new.html", changeset: changeset)
@@ -43,7 +43,7 @@ defmodule SchoolhubWeb.UserController do
       {:error, _reason} ->
 	conn
 	|> put_flash(:error, "Confirm registration token error")
-	|> redirect(to:	Routes.session_path(conn, :new))
+	|> redirect(to:	Routing.route(:session_path, conn, [:new]))
     end
   end
 
@@ -52,12 +52,12 @@ defmodule SchoolhubWeb.UserController do
       {:ok, _user} ->
         conn
         |> put_flash(:info, "User registration confirmed.")
-        |> redirect(to: Routes.session_path(conn, :new))
+        |> redirect(to: Routing.route(:session_path, conn, [:new]))
 
       {:error, %Ecto.Changeset{}} ->
         conn
         |> put_flash(:error, "Something went wrong with user registration.")
-        |> redirect(to: Routes.session_path(conn, :new))
+        |> redirect(to: Routing.route(:session_path, conn, [:new]))
     end
   end
 
@@ -85,7 +85,7 @@ defmodule SchoolhubWeb.UserController do
       {:ok, user} ->
         conn
         |> put_flash(:info, "User updated successfully.")
-        |> redirect(to: Routes.user_path(conn, :show, user))
+        |> redirect(to: Routing.route(:user_path, conn, [:show, user]))
 
       {:error, %Ecto.Changeset{} = changeset} ->
         render(conn, "edit.html", user: user, changeset: changeset)
@@ -102,11 +102,11 @@ defmodule SchoolhubWeb.UserController do
 
 	conn
 	|> try_to_delete(user)
-	|> redirect(to: Routes.user_path(conn, :index))
+	|> redirect(to: Routing.route(:user_path, conn, [:index]))
       true ->
 	conn
 	|> put_flash(:error, "Cannot delete self this way.")
-	|> redirect(to: Routes.user_path(conn, :index))
+	|> redirect(to: Routing.route(:user_path, conn, [:index]))
     end
   end
 
@@ -117,7 +117,7 @@ defmodule SchoolhubWeb.UserController do
     conn
     |> try_to_delete(user)
     |> configure_session(drop: true)
-    |> redirect(to: Routes.session_path(conn, :new))
+    |> redirect(to: Routing.route(:session_path, conn, [:new]))
   end
 
   defp try_to_delete(conn, user) do
@@ -143,11 +143,11 @@ defmodule SchoolhubWeb.UserController do
       {:error, :invalid} ->
 	conn
 	|> put_flash(:error, "Change password token invalid!")
-	|> redirect(to:	Routes.session_path(conn, :new))
+	|> redirect(to:	Routing.route(:session_path, conn, [:new]))
       {:error, :expired} ->
 	conn
 	|> put_flash(:error, "Change password token expired!")
-	|> redirect(to:	Routes.session_path(conn, :new))
+	|> redirect(to:	Routing.route(:session_path, conn, [:new]))
     end	
   end
 
@@ -160,7 +160,7 @@ defmodule SchoolhubWeb.UserController do
       {:error, _reason} ->
 	conn
 	|> put_flash(:error, "Update password token error")
-	|> redirect(to:	Routes.session_path(conn, :new))
+	|> redirect(to:	Routing.route(:session_path, conn, [:new]))
     end
   end
 
@@ -171,11 +171,11 @@ defmodule SchoolhubWeb.UserController do
       {:ok, _cred} ->
 	conn
 	|> put_flash(:info, "Password successfully updated")
-	|> redirect(to: Routes.session_path(conn, :new))
+	|> redirect(to: Routing.route(:session_path, conn, [:new]))
       {:error, %Ecto.Changeset{}} ->
 	conn
 	|> put_flash(:error, "New password is invalid!")
-	|> redirect(to: Routes.user_path(conn, :change_pw, token))
+	|> redirect(to: Routing.route(:user_path, conn, [:change_pw, token]))
     end
   end
 end

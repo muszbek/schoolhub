@@ -5,7 +5,7 @@ defmodule SchoolhubWeb.QreplyController do
   alias Schoolhub.Questions.Qreply
 
   def index(conn, %{"course_id" => course_id, "question_id" => question_id}) do
-    redirect(conn, to: Routes.course_question_path(conn, :show, course_id, question_id))
+    redirect(conn, to: Routing.route(:course_question_path, conn, [:show, course_id, question_id]))
   end
 
   def new(conn, %{"course_id" => course_id, "question_id" => question_id}) do
@@ -25,7 +25,7 @@ defmodule SchoolhubWeb.QreplyController do
       {:ok, qreply} ->
         conn
         |> put_flash(:info, "Reply created successfully.")
-        |> redirect(to: Routes.course_question_qreply_path(conn, :show, course_id, question_id, qreply))
+        |> redirect(to: Routing.route(:course_question_qreply_path, conn, [:show, course_id, question_id, qreply]))
 
       {:error, %Ecto.Changeset{} = changeset} ->
         render(conn, "new.html", changeset: changeset,
@@ -53,7 +53,7 @@ defmodule SchoolhubWeb.QreplyController do
       {:ok, qreply} ->
         conn
         |> put_flash(:info, "Reply updated successfully.")
-        |> redirect(to: Routes.course_question_qreply_path(conn, :show, course_id, question_id, qreply))
+        |> redirect(to: Routing.route(:course_question_qreply_path, conn, [:show, course_id, question_id, qreply]))
 
       {:error, %Ecto.Changeset{} = changeset} ->
         render(conn, "edit.html", qreply: qreply, changeset: changeset,
@@ -67,6 +67,6 @@ defmodule SchoolhubWeb.QreplyController do
 
     conn
     |> put_flash(:info, "Reply deleted successfully.")
-    |> redirect(to: Routes.course_question_qreply_path(conn, :index, course_id, question_id))
+    |> redirect(to: Routing.route(:course_question_qreply_path, conn, [:index, course_id, question_id]))
   end
 end

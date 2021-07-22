@@ -1,4 +1,4 @@
-<h1><%= link Schoolhub.Courses.get_course!(@course_id).name, to: Routes.course_path(@conn, :show, @course_id) %></h1>
+<h1><%= link Schoolhub.Courses.get_course!(@course_id).name, to: Routing.route(:course_path, @conn, [:show, @course_id]) %></h1>
 <h2>Chat</h2>
 
 <strong><%= Schoolhub.Courses.get_username!(@user.id, @course_id) %></strong>
@@ -14,6 +14,6 @@
 <textarea id="sendbox" name="sendbox" placeholder="Type here to send a message"></textarea>
 <button type="button" id="send_button" name="send_button">Send</button>
 
-<span><%= link "Back", to: Routes.course_chat_path(@conn, :index, @course_id) %></span>
+<span><%= link "Back", to: Routing.route(:course_chat_path, @conn, [:index, @course_id]) %></span>
   
-<script type="text/javascript" src='<%= Routes.static_path(@conn, "/js/chat.js") %>'></script>
+<script type="text/javascript" src='<%= Routing.route(:static_path, @conn, ["/js/chat.js"]) %>'></script>

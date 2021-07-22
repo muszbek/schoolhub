@@ -23,7 +23,7 @@ defmodule SchoolhubWeb.SessionControllerTest do
 
   describe "new session" do
     test "renders form", %{conn: conn} do
-      conn = get(conn, Routes.session_path(conn, :new))
+      conn = get(conn, Routing.route(:session_path, conn, [:new]))
       assert html_response(conn, 200) =~ "Sign in"
     end
   end
@@ -32,13 +32,13 @@ defmodule SchoolhubWeb.SessionControllerTest do
     setup [:create_user]
 
     test "redirects to main page when authenticated", %{conn: conn} do
-      conn = post(conn, Routes.session_path(conn, :create), @auth_success)
-      assert redirected_to(conn) == Routes.page_path(conn, :index)
+      conn = post(conn, Routing.route(:session_path, conn, [:create]), @auth_success)
+      assert redirected_to(conn) == Routing.route(:page_path, conn, [:index])
     end
 
     test "renders errors when authentication fails", %{conn: conn} do
-      conn = post(conn, Routes.session_path(conn, :create), @auth_fail)
-      assert redirected_to(conn) == Routes.session_path(conn, :new)
+      conn = post(conn, Routing.route(:session_path, conn, [:create]), @auth_fail)
+      assert redirected_to(conn) == Routing.route(:session_path, conn, [:new])
     end
   end
 
@@ -46,14 +46,14 @@ defmodule SchoolhubWeb.SessionControllerTest do
     setup [:create_user]
 
     test "deletes session", %{conn: conn} do
-      conn = delete(conn, Routes.session_path(conn, :delete))
-      assert redirected_to(conn) == Routes.session_path(conn, :new)
+      conn = delete(conn, Routing.route(:session_path, conn, [:delete]))
+      assert redirected_to(conn) == Routing.route(:session_path, conn, [:new])
     end
   end
 
   describe "forgot password" do
     test "renders form", %{conn: conn} do
-      conn = get(conn, Routes.session_path(conn, :forgot_pw))
+      conn = get(conn, Routing.route(:session_path, conn, [:forgot_pw]))
       assert html_response(conn, 200) =~ "Forgot password"
     end
   end
@@ -63,14 +63,14 @@ defmodule SchoolhubWeb.SessionControllerTest do
     
     test "redirects to login page when email sent", %{conn: conn, user: user} do
       email = %{email: user.email}
-      conn = post(conn, Routes.session_path(conn, :send_email), email)
-      assert redirected_to(conn) == Routes.session_path(conn, :new)
+      conn = post(conn, Routing.route(:session_path, conn, [:send_email]), email)
+      assert redirected_to(conn) == Routing.route(:session_path, conn, [:new])
     end
 
     test "redirects to login page when email is wrong", %{conn: conn} do
       email = %{email: "invalid email address"}
-      conn = post(conn, Routes.session_path(conn, :send_email), email)
-      assert redirected_to(conn) == Routes.session_path(conn, :new)
+      conn = post(conn, Routing.route(:session_path, conn, [:send_email]), email)
+      assert redirected_to(conn) == Routing.route(:session_path, conn, [:new])
     end
   end
 
@@ -78,7 +78,7 @@ defmodule SchoolhubWeb.SessionControllerTest do
     setup [:create_user]
 
     test "authenticate first message ok", %{conn: conn} do
-      conn = post(conn, Routes.session_path(conn, :authenticate), @auth_client_first)
+      conn = post(conn, Routing.route(:session_path, conn, [:authenticate]), @auth_client_first)
       assert json_response(conn, 200)
     end
   end
@@ -91,7 +91,7 @@ defmodule SchoolhubWeb.SessionControllerTest do
       |> Plug.Test.init_test_session(user_id: nil)
       |> SchoolhubWeb.SessionController.enter_session(user)
       
-      conn = post(conn, Routes.session_path(conn, :renew_token), @new_token)
+      conn = post(conn, Routing.route(:session_path, conn, [:renew_token]), @new_token)
       assert response(conn, 200)
     end
   end

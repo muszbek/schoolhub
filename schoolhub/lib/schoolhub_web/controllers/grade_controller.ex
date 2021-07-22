@@ -37,7 +37,7 @@ defmodule SchoolhubWeb.GradeController do
       {:ok, grade} ->
         conn
         |> put_flash(:info, "Grade created successfully.")
-        |> redirect(to: Routes.course_affiliation_grade_path(conn, :show, course_id, aff_id, grade))
+        |> redirect(to: Routing.route(:course_affiliation_grade_path, conn, [:show, course_id, aff_id, grade]))
 
       {:error, %Ecto.Changeset{} = changeset} ->
         render(conn, "new.html", changeset: changeset,
@@ -80,7 +80,7 @@ defmodule SchoolhubWeb.GradeController do
       {:ok, grade} ->
         conn
         |> put_flash(:info, "Grade updated successfully.")
-        |> redirect(to: Routes.course_affiliation_grade_path(conn, :show, course_id, aff_id, grade))
+        |> redirect(to: Routing.route(:course_affiliation_grade_path, conn, [:show, course_id, aff_id, grade]))
 
       {:error, %Ecto.Changeset{} = changeset} ->
         render(conn, "edit.html", grade: grade, changeset: changeset,
@@ -104,7 +104,7 @@ defmodule SchoolhubWeb.GradeController do
 
     conn
     |> put_flash(:info, "Grade deleted successfully.")
-    |> redirect(to: Routes.course_grade_path(conn, :index, course_id))
+    |> redirect(to: Routing.route(:course_grade_path, conn, [:index, course_id]))
   end
 
 

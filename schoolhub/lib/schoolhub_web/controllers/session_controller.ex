@@ -24,7 +24,7 @@ defmodule SchoolhubWeb.SessionController do
       {:error, :unauthorized} ->
         conn
         |> put_flash(:error, "Bad username/password combination")
-        |> redirect(to: Routes.session_path(conn, :new))
+        |> redirect(to: Routing.route(:session_path, conn, [:new]))
     end
   end
 
@@ -32,7 +32,7 @@ defmodule SchoolhubWeb.SessionController do
     conn
     |> put_flash(:info, "Logged out")
     |> configure_session(drop: true)
-    |> redirect(to: Routes.session_path(conn, :new))
+    |> redirect(to: Routing.route(:session_path, conn, [:new]))
   end
 
   def forgot_pw(conn, _) do
@@ -44,7 +44,7 @@ defmodule SchoolhubWeb.SessionController do
       nil ->
 	conn
 	|> put_flash(:error, "Email address not found in database, please register")
-	|> redirect(to: Routes.session_path(conn, :new))
+	|> redirect(to: Routing.route(:session_path, conn, [:new]))
 	
       user ->
 	Email.forgot_pw_email(user)
@@ -52,7 +52,7 @@ defmodule SchoolhubWeb.SessionController do
     
 	conn
 	|> put_flash(:info, "Email sent")
-	|> redirect(to: Routes.session_path(conn, :new))
+	|> redirect(to: Routing.route(:session_path, conn, [:new]))
     end
   end
 

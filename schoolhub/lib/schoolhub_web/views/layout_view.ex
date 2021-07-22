@@ -7,8 +7,8 @@ defmodule SchoolhubWeb.LayoutView do
   
   def get_session_url(conn) do
     case Conn.get_session(conn, :user_id) do
-      nil -> Routes.session_path(conn, :new)
-      _id -> Routes.user_path(conn, :show_self)
+      nil -> Routing.route(:session_path, conn, [:new])
+      _id -> Routing.route(:user_path, conn, [:show_self])
     end
   end
 

@@ -16,5 +16,5 @@
 
 <%= render "explanation.html" %>
 
-<span><%= link "Edit", to: Routes.privilege_path(@conn, :edit, @privilege) %></span>
-<span><%= link "Back", to: Routes.privilege_path(@conn, :index) %></span>
+<span><%= link "Edit", to: Routing.route(:privilege_path, @conn, [:edit, @privilege]) %></span>
+<span><%= link "Back", to: Routing.route(:privilege_path, @conn, [:index]) %></span>

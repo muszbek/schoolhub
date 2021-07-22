@@ -1,6 +1,6 @@
 <h1>Listing Users</h1>
 
-<span><%= link "Back", to: Routes.page_path(@conn, :index) %></span>
+<span><%= link "Back", to: Routing.route(:page_path, @conn, [:index]) %></span>
 
 <table>
   <thead>
@@ -20,9 +20,9 @@
       <td><%= user.credential.username %></td>
 
       <td>
-        <span><%= link "Show", to: Routes.user_path(@conn, :show, user) %></span>
-        <span><%= link "Edit", to: Routes.user_path(@conn, :edit, user) %></span>
-        <span><%= link "Delete", to: Routes.user_path(@conn, :delete, user), method: :delete, data: [confirm: "Are you sure?"] %></span>
+        <span><%= link "Show", to: Routing.route(:user_path, @conn, [:show, user]) %></span>
+        <span><%= link "Edit", to: Routing.route(:user_path, @conn, [:edit, user]) %></span>
+        <span><%= link "Delete", to: Routing.route(:user_path, @conn, [:delete, user]), method: :delete, data: [confirm: "Are you sure?"] %></span>
       </td>
     </tr>
 <% end %>

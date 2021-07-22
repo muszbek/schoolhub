@@ -25,16 +25,16 @@
 </ul>
 
 <%= if @self do%>
-  <%= form_for @conn, Routes.session_path(@conn, :delete), [method: :delete], fn _ -> %>
+  <%= form_for @conn, Routing.route(:session_path, @conn, [:delete]), [method: :delete], fn _ -> %>
     <div>
       <%= submit "Logout" %>
     </div>
   <% end %>
 <% end %>
 
-<span><%= link "Edit", to: Routes.user_path(@conn, :edit, @user) %></span>
+<span><%= link "Edit", to: Routing.route(:user_path, @conn, [:edit, @user]) %></span>
 <span><%= if @self, do:
-	  (link "Back", to: Routes.page_path(@conn, :index)),
+	  (link "Back", to: Routing.route(:page_path, @conn, [:index])),
 	  else:
-	  (link "Back", to: Routes.user_path(@conn, :index))
+	  (link "Back", to: Routing.route(:user_path, @conn, [:index]))
 	  %></span>

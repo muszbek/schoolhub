@@ -5,7 +5,7 @@ defmodule SchoolhubWeb.ReplyController do
   alias Schoolhub.Posts.Reply
 
   def index(conn, %{"course_id" => course_id, "post_id" => post_id}) do
-    redirect(conn, to: Routes.course_post_path(conn, :show, course_id, post_id))
+    redirect(conn, to: Routing.route(:course_post_path, conn, [:show, course_id, post_id]))
   end
 
   def new(conn, %{"course_id" => course_id, "post_id" => post_id}) do
@@ -24,7 +24,7 @@ defmodule SchoolhubWeb.ReplyController do
       {:ok, reply} ->
         conn
         |> put_flash(:info, "Reply created successfully.")
-        |> redirect(to: Routes.course_post_reply_path(conn, :show, course_id, post_id, reply))
+        |> redirect(to: Routing.route(:course_post_reply_path, conn, [:show, course_id, post_id, reply]))
 
       {:error, %Ecto.Changeset{} = changeset} ->
         render(conn, "new.html", changeset: changeset, course_id: course_id, post_id: post_id)
@@ -51,7 +51,7 @@ defmodule SchoolhubWeb.ReplyController do
       {:ok, reply} ->
         conn
         |> put_flash(:info, "Reply updated successfully.")
-        |> redirect(to: Routes.course_post_reply_path(conn, :show, course_id, post_id, reply))
+        |> redirect(to: Routing.route(:course_post_reply_path, conn, [:show, course_id, post_id, reply]))
 
       {:error, %Ecto.Changeset{} = changeset} ->
         render(conn, "edit.html", reply: reply, changeset: changeset,
@@ -65,6 +65,6 @@ defmodule SchoolhubWeb.ReplyController do
 
     conn
     |> put_flash(:info, "Reply deleted successfully.")
-    |> redirect(to: Routes.course_post_reply_path(conn, :index, course_id, post_id))
+    |> redirect(to: Routing.route(:course_post_reply_path, conn, [:index, course_id, post_id]))
   end
 end

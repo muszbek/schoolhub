@@ -48,7 +48,7 @@ defmodule SchoolhubWeb.AffiliationControllerTest do
     setup [:create_course]
     
     test "lists all course_affiliations", %{conn: conn, course_id: course_id} do
-      conn = get(conn, Routes.course_affiliation_path(conn, :index, course_id))
+      conn = get(conn, Routing.route(:course_affiliation_path, conn, [:index, course_id]))
       assert html_response(conn, 200) =~ "Listing Course affiliations"
     end
   end
@@ -57,7 +57,7 @@ defmodule SchoolhubWeb.AffiliationControllerTest do
     setup [:create_course]
     
     test "renders form", %{conn: conn, course_id: course_id} do
-      conn = get(conn, Routes.course_affiliation_path(conn, :new, course_id))
+      conn = get(conn, Routing.route(:course_affiliation_path, conn, [:new, course_id]))
       assert html_response(conn, 200) =~ "Add Member"
     end
   end
@@ -69,13 +69,13 @@ defmodule SchoolhubWeb.AffiliationControllerTest do
 						   other_username: username} do
       attrs = create_valid_attrs(@create_attrs, course_id, username)
       ## controller needs username as user_id
-      conn = post(conn, Routes.course_affiliation_path(conn, :create, course_id),
+      conn = post(conn, Routing.route(:course_affiliation_path, conn, [:create, course_id]),
 	affiliation: attrs)
 
       assert %{id: id} = redirected_params(conn)
-      assert redirected_to(conn) == Routes.course_affiliation_path(conn, :show, course_id, id)
+      assert redirected_to(conn) == Routing.route(:course_affiliation_path, conn, [:show, course_id, id])
 
-      conn = get(conn, Routes.course_affiliation_path(conn, :show, course_id, id))
+      conn = get(conn, Routing.route(:course_affiliation_path, conn, [:show, course_id, id]))
       assert html_response(conn, 200) =~ "Show Affiliation"
     end
 
@@ -83,7 +83,7 @@ defmodule SchoolhubWeb.AffiliationControllerTest do
 						  other_username: username} do
       invalid_attrs = create_valid_attrs(@invalid_attrs, course_id, username)
       ## controller needs username as user_id
-      conn = post(conn, Routes.course_affiliation_path(conn, :create, course_id),
+      conn = post(conn, Routing.route(:course_affiliation_path, conn, [:create, course_id]),
 	affiliation: invalid_attrs)
       assert html_response(conn, 200) =~ "Add Member"
     end
@@ -94,7 +94,7 @@ defmodule SchoolhubWeb.AffiliationControllerTest do
 
     test "renders form for editing chosen affiliation", %{conn: conn, affiliation: affiliation,
 							  course_id: course_id} do
-      conn = get(conn, Routes.course_affiliation_path(conn, :edit, course_id, affiliation))
+      conn = get(conn, Routing.route(:course_affiliation_path, conn, [:edit, course_id, affiliation]))
       assert html_response(conn, 200) =~ "Change Affiliation"
     end
   end
@@ -105,17 +105,17 @@ defmodule SchoolhubWeb.AffiliationControllerTest do
 
     test "redirects when data is valid", %{conn: conn, other_affiliation: affiliation,
 					   course_id: course_id} do
-      conn = put(conn, Routes.course_affiliation_path(conn, :update, course_id, affiliation),
+      conn = put(conn, Routing.route(:course_affiliation_path, conn, [:update, course_id, affiliation]),
 	affiliation: @update_attrs)
-      assert redirected_to(conn) == Routes.course_affiliation_path(conn, :show, course_id, affiliation)
+      assert redirected_to(conn) == Routing.route(:course_affiliation_path, conn, [:show, course_id, affiliation])
 
-      conn = get(conn, Routes.course_affiliation_path(conn, :show, course_id, affiliation))
+      conn = get(conn, Routing.route(:course_affiliation_path, conn, [:show, course_id, affiliation]))
       assert html_response(conn, 200) =~ "assistant"
     end
 
     test "renders errors when data is invalid", %{conn: conn, other_affiliation: affiliation,
 						  course_id: course_id} do
-      conn = put(conn, Routes.course_affiliation_path(conn, :update, course_id, affiliation),
+      conn = put(conn, Routing.route(:course_affiliation_path, conn, [:update, course_id, affiliation]),
 	affiliation: @invalid_attrs)
       assert html_response(conn, 200) =~ "Change Affiliation"
     end
@@ -125,11 +125,11 @@ defmodule SchoolhubWeb.AffiliationControllerTest do
 
       Courses.update_affiliation(affiliation, @create_attrs)
       
-      conn = put(conn, Routes.course_affiliation_path(conn, :update, course_id, affiliation),
+      conn = put(conn, Routing.route(:course_affiliation_path, conn, [:update, course_id, affiliation]),
 	affiliation: @owner_attrs)
-      assert redirected_to(conn) == Routes.course_affiliation_path(conn, :show, course_id, affiliation)
+      assert redirected_to(conn) == Routing.route(:course_affiliation_path, conn, [:show, course_id, affiliation])
 
-      conn = get(conn, Routes.course_affiliation_path(conn, :show, course_id, affiliation))
+      conn = get(conn, Routing.route(:course_affiliation_path, conn, [:show, course_id, affiliation]))
       assert html_response(conn, 200) =~ "owner"
     end
   end
@@ -141,22 +141,22 @@ defmodule SchoolhubWeb.AffiliationControllerTest do
     test "cannot change self if owner", %{conn: conn, affiliation: affiliation,
 					  course_id: course_id} do
       
-      conn = put(conn, Routes.course_affiliation_path(conn, :update, course_id, affiliation),
+      conn = put(conn, Routing.route(:course_affiliation_path, conn, [:update, course_id, affiliation]),
 	affiliation: @update_attrs)
-      assert redirected_to(conn) == Routes.course_affiliation_path(conn, :show, course_id, affiliation)
+      assert redirected_to(conn) == Routing.route(:course_affiliation_path, conn, [:show, course_id, affiliation])
 
-      conn = get(conn, Routes.course_affiliation_path(conn, :show, course_id, affiliation))
+      conn = get(conn, Routing.route(:course_affiliation_path, conn, [:show, course_id, affiliation]))
       assert html_response(conn, 200) =~ "owner"
     end
 
     test "change owner to owner nothing happens", %{conn: conn, affiliation: affiliation,
 						    course_id: course_id} do
       
-      conn = put(conn, Routes.course_affiliation_path(conn, :update, course_id, affiliation),
+      conn = put(conn, Routing.route(:course_affiliation_path, conn, [:update, course_id, affiliation]),
 	affiliation: @owner_attrs)
-      assert redirected_to(conn) == Routes.course_affiliation_path(conn, :show, course_id, affiliation)
+      assert redirected_to(conn) == Routing.route(:course_affiliation_path, conn, [:show, course_id, affiliation])
 
-      conn = get(conn, Routes.course_affiliation_path(conn, :show, course_id, affiliation))
+      conn = get(conn, Routing.route(:course_affiliation_path, conn, [:show, course_id, affiliation]))
       assert html_response(conn, 200) =~ "owner"
     end
 
@@ -164,14 +164,14 @@ defmodule SchoolhubWeb.AffiliationControllerTest do
 						       other_affiliation: other_aff,
 						       course_id: course_id} do
       
-      conn = put(conn, Routes.course_affiliation_path(conn, :update, course_id, other_aff),
+      conn = put(conn, Routing.route(:course_affiliation_path, conn, [:update, course_id, other_aff]),
 	affiliation: @owner_attrs)
-      assert redirected_to(conn) == Routes.course_affiliation_path(conn, :show, course_id, other_aff)
+      assert redirected_to(conn) == Routing.route(:course_affiliation_path, conn, [:show, course_id, other_aff])
 
-      conn = get(conn, Routes.course_affiliation_path(conn, :show, course_id, other_aff))
+      conn = get(conn, Routing.route(:course_affiliation_path, conn, [:show, course_id, other_aff]))
       assert html_response(conn, 200) =~ "owner"
 
-      conn = get(conn, Routes.course_affiliation_path(conn, :show, course_id, affiliation))
+      conn = get(conn, Routing.route(:course_affiliation_path, conn, [:show, course_id, affiliation]))
       assert html_response(conn, 200) =~ "assistant"
     end
   end
@@ -183,20 +183,20 @@ defmodule SchoolhubWeb.AffiliationControllerTest do
     test "deletes chosen affiliation", %{conn: conn, course_id: course_id,
 					 other_affiliation: affiliation} do
       
-      conn = delete(conn, Routes.course_affiliation_path(conn, :delete, course_id, affiliation))
-      assert redirected_to(conn) == Routes.course_affiliation_path(conn, :index, course_id)
+      conn = delete(conn, Routing.route(:course_affiliation_path, conn, [:delete, course_id, affiliation]))
+      assert redirected_to(conn) == Routing.route(:course_affiliation_path, conn, [:index, course_id])
       assert_error_sent 404, fn ->
-        get(conn, Routes.course_affiliation_path(conn, :show, course_id, affiliation))
+        get(conn, Routing.route(:course_affiliation_path, conn, [:show, course_id, affiliation]))
       end
     end
 
     test "cannot delete owner", %{conn: conn, affiliation: affiliation,
 				  course_id: course_id} do
       
-      conn = delete(conn, Routes.course_affiliation_path(conn, :delete, course_id, affiliation))
-      assert redirected_to(conn) == Routes.course_affiliation_path(conn, :index, course_id)
+      conn = delete(conn, Routing.route(:course_affiliation_path, conn, [:delete, course_id, affiliation]))
+      assert redirected_to(conn) == Routing.route(:course_affiliation_path, conn, [:index, course_id])
 
-      conn = get(conn, Routes.course_affiliation_path(conn, :show, course_id, affiliation))
+      conn = get(conn, Routing.route(:course_affiliation_path, conn, [:show, course_id, affiliation]))
       assert html_response(conn, 200) =~ "owner"
     end
   end

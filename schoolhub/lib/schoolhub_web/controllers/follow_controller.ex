@@ -16,7 +16,7 @@ defmodule SchoolhubWeb.FollowController do
 
     conn
     |> put_flash(:info, msg)
-    |> redirect(to: Routes.course_question_path(conn, :index, course_id))
+    |> redirect(to: Routing.route(:course_question_path, conn, [:index, course_id]))
   end
 
   def unfollow(conn, %{"course_id" => course_id, "question_id" => question_id}) do
@@ -32,7 +32,7 @@ defmodule SchoolhubWeb.FollowController do
 
     conn
     |> put_flash(:info, msg)
-    |> redirect(to: Routes.course_question_path(conn, :index, course_id))
+    |> redirect(to: Routing.route(:course_question_path, conn, [:index, course_id]))
   end
 
   

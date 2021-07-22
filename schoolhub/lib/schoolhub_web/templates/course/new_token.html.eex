@@ -1,8 +1,8 @@
-<h1><%= link @course.name, to: Routes.course_path(@conn, :show, @course.id) %></h1>
+<h1><%= link @course.name, to: Routing.route(:course_path, @conn, [:show, @course.id]) %></h1>
 <h2>Invitation Token</h2>
 
 Users are able to join this course using this token within one week:</br>
 
 <code><%= @token %></code></br>
 
-<span><%= link "Back", to: Routes.course_path(@conn, :show, @course.id) %></span>
+<span><%= link "Back", to: Routing.route(:course_path, @conn, [:show, @course.id]) %></span>

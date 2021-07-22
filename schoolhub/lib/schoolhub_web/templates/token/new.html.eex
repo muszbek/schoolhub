@@ -1,6 +1,6 @@
 <h1>Join course with token</h1>
 
-<%= form_for @conn, Routes.token_path(@conn, :create), [method: :post], fn _ -> %>
+<%= form_for @conn, Routing.route(:token_path, @conn, [:create]), [method: :post], fn _ -> %>
   <label for="token">Insert invitation token received from teacher:</label>
   <input type="text" id="token" name="token" placeholder="Copy token here">
   

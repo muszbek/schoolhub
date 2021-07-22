@@ -41,15 +41,15 @@ defmodule SchoolhubWeb.FollowControllerTest do
     setup [:create_question]
 
     test "follows question", %{conn: conn, course_id: course_id, question_id: question_id} do
-      conn = post(conn, Routes.course_question_follow_path(conn, :follow, course_id, question_id))
-      assert redirected_to(conn) == Routes.course_question_path(conn, :index, course_id)
+      conn = post(conn, Routing.route(:course_question_follow_path, conn, [:follow, course_id, question_id]))
+      assert redirected_to(conn) == Routing.route(:course_question_path, conn, [:index, course_id])
     end
 
     test "wrongly unfollows question", %{conn: conn,
 					 course_id: course_id, question_id: question_id} do
-      conn = delete(conn, Routes.course_question_follow_path(conn, :unfollow,
-	    course_id, question_id))
-      assert redirected_to(conn) == Routes.course_question_path(conn, :index, course_id)
+      conn = delete(conn, Routing.route(:course_question_follow_path, conn, [:unfollow,
+	    course_id, question_id]))
+      assert redirected_to(conn) == Routing.route(:course_question_path, conn, [:index, course_id])
     end
   end
 
@@ -58,15 +58,15 @@ defmodule SchoolhubWeb.FollowControllerTest do
     setup [:create_follow]
 
     test "unfollows question", %{conn: conn, course_id: course_id, question_id: question_id} do
-      conn = delete(conn, Routes.course_question_follow_path(conn, :unfollow,
-	    course_id, question_id))
-      assert redirected_to(conn) == Routes.course_question_path(conn, :index, course_id)
+      conn = delete(conn, Routing.route(:course_question_follow_path, conn, [:unfollow,
+	    course_id, question_id]))
+      assert redirected_to(conn) == Routing.route(:course_question_path, conn, [:index, course_id])
     end
 
     test "wrongly follows question", %{conn: conn,
 				       course_id: course_id, question_id: question_id} do
-      conn = post(conn, Routes.course_question_follow_path(conn, :follow, course_id, question_id))
-      assert redirected_to(conn) == Routes.course_question_path(conn, :index, course_id)
+      conn = post(conn, Routing.route(:course_question_follow_path, conn, [:follow, course_id, question_id]))
+      assert redirected_to(conn) == Routing.route(:course_question_path, conn, [:index, course_id])
     end
   end
 

@@ -24,7 +24,7 @@ defmodule SchoolhubWeb.ConnCase do
       import Phoenix.ConnTest
       import SchoolhubWeb.ConnCase
 
-      alias SchoolhubWeb.Router.Helpers, as: Routes
+      alias SchoolhubWeb.Routing
 
       # The default endpoint for testing
       @endpoint SchoolhubWeb.Endpoint

@@ -1,6 +1,6 @@
-<h1><%= link Schoolhub.Courses.get_course!(@course_id).name, to: Routes.course_path(@conn, :show, @course_id) %></h1>
+<h1><%= link Schoolhub.Courses.get_course!(@course_id).name, to: Routing.route(:course_path, @conn, [:show, @course_id]) %></h1>
 <h2>Edit Post</h2>
 
-<%= render "form.html", Map.put(assigns, :action, Routes.course_post_path(@conn, :update, @course_id, @post)) %>
+<%= render "form.html", Map.put(assigns, :action, Routing.route(:course_post_path, @conn, [:update, @course_id, @post])) %>
 
-<span><%= link "Back", to: Routes.course_post_path(@conn, :index, @course_id) %></span>
+<span><%= link "Back", to: Routing.route(:course_post_path, @conn, [:index, @course_id]) %></span>

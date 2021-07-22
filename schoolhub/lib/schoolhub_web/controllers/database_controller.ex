@@ -7,7 +7,7 @@ defmodule SchoolhubWeb.DatabaseController do
 
     conn
     |> put_flash(:info, "Database cleaned")
-    |> redirect(to: Routes.session_path(conn, :new))
+    |> redirect(to: Routing.route(:session_path, conn, [:new]))
   end
 
   def demo(conn, _) do
@@ -15,6 +15,6 @@ defmodule SchoolhubWeb.DatabaseController do
 
     conn
     |> put_flash(:info, "Database seeded with demo data")
-    |> redirect(to: Routes.session_path(conn, :new))
+    |> redirect(to: Routing.route(:session_path, conn, [:new]))
   end
 end

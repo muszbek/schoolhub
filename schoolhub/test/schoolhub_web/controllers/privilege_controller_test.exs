@@ -29,7 +29,7 @@ defmodule SchoolhubWeb.PrivilegeControllerTest do
     setup [:enter_session]
     
     test "lists all privileges", %{conn: conn} do
-      conn = get(conn, Routes.privilege_path(conn, :index))
+      conn = get(conn, Routing.route(:privilege_path, conn, [:index]))
       assert html_response(conn, 200) =~ "Listing Privileges"
     end
   end
@@ -39,7 +39,7 @@ defmodule SchoolhubWeb.PrivilegeControllerTest do
     setup [:enter_session]
 
     test "renders form for editing chosen privilege", %{conn: conn, privilege: privilege} do
-      conn = get(conn, Routes.privilege_path(conn, :edit, privilege))
+      conn = get(conn, Routing.route(:privilege_path, conn, [:edit, privilege]))
       assert html_response(conn, 200) =~ "Change Privilege"
     end
   end
@@ -49,15 +49,15 @@ defmodule SchoolhubWeb.PrivilegeControllerTest do
     setup [:enter_session]
 
     test "redirects when data is valid", %{conn: conn, privilege: privilege} do
-      conn = put(conn, Routes.privilege_path(conn, :update, privilege), privilege: @update_attrs)
-      assert redirected_to(conn) == Routes.privilege_path(conn, :show, privilege)
+      conn = put(conn, Routing.route(:privilege_path, conn, [:update, privilege]), privilege: @update_attrs)
+      assert redirected_to(conn) == Routing.route(:privilege_path, conn, [:show, privilege])
 
-      conn = get(conn, Routes.privilege_path(conn, :show, privilege))
+      conn = get(conn, Routing.route(:privilege_path, conn, [:show, privilege]))
       assert html_response(conn, 200) =~ "admin"
     end
 
     test "renders errors when data is invalid", %{conn: conn, privilege: privilege} do
-      conn = put(conn, Routes.privilege_path(conn, :update, privilege), privilege: @invalid_attrs)
+      conn = put(conn, Routing.route(:privilege_path, conn, [:update, privilege]), privilege: @invalid_attrs)
       assert html_response(conn, 200) =~ "Change Privilege"
     end
   end

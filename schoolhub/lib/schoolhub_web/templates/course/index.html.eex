@@ -1,7 +1,7 @@
 <h1>Listing Courses</h1>
 
-<span><%= link "New Course", to: Routes.course_path(@conn, :new) %></span>
-<span><%= link "Back", to: Routes.page_path(@conn, :index) %></span>
+<span><%= link "New Course", to: Routing.route(:course_path, @conn, [:new]) %></span>
+<span><%= link "Back", to: Routing.route(:page_path, @conn, [:index]) %></span>
 
 <table>
   <thead>
@@ -19,9 +19,9 @@
       <td><%= if course.active == false, do: "< disabled >" %></td>
 
       <td>
-        <span><%= link "Show", to: Routes.course_path(@conn, :show, course) %></span>
-        <span><%= link "Edit", to: Routes.course_path(@conn, :edit, course) %></span>
-        <span><%= link "Delete", to: Routes.course_path(@conn, :delete, course), method: :delete, data: [confirm: "Are you sure?"] %></span>
+        <span><%= link "Show", to: Routing.route(:course_path, @conn, [:show, course]) %></span>
+        <span><%= link "Edit", to: Routing.route(:course_path, @conn, [:edit, course]) %></span>
+        <span><%= link "Delete", to: Routing.route(:course_path, @conn, [:delete, course]), method: :delete, data: [confirm: "Are you sure?"] %></span>
       </td>
     </tr>
 <% end %>

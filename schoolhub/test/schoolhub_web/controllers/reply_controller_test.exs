@@ -46,9 +46,9 @@ defmodule SchoolhubWeb.ReplyControllerTest do
     setup [:create_post]
     
     test "lists all post_replies", %{conn: conn, course_id: course_id, parent_post: post_id} do
-      conn = get(conn, Routes.course_post_reply_path(conn, :index, course_id, post_id))
-      assert redirected_to(conn) == Routes.course_post_path(conn, :show,
-	course_id, post_id)
+      conn = get(conn, Routing.route(:course_post_reply_path, conn, [:index, course_id, post_id]))
+      assert redirected_to(conn) == Routing.route(:course_post_path, conn, [:show,
+	course_id, post_id])
     end
   end
 
@@ -56,7 +56,7 @@ defmodule SchoolhubWeb.ReplyControllerTest do
     setup [:create_post]
     
     test "renders form", %{conn: conn, course_id: course_id, parent_post: post_id} do
-      conn = get(conn, Routes.course_post_reply_path(conn, :new, course_id, post_id))
+      conn = get(conn, Routing.route(:course_post_reply_path, conn, [:new, course_id, post_id]))
       assert html_response(conn, 200) =~ "New Reply"
     end
   end
@@ -66,20 +66,20 @@ defmodule SchoolhubWeb.ReplyControllerTest do
     
     test "redirects to show when data is valid", %{conn: conn,
 						   course_id: course_id, parent_post: post_id} do
-      conn = post(conn, Routes.course_post_reply_path(conn, :create, course_id, post_id),
+      conn = post(conn, Routing.route(:course_post_reply_path, conn, [:create, course_id, post_id]),
 	reply: @create_attrs)
 
       assert %{id: id} = redirected_params(conn)
-      assert redirected_to(conn) == Routes.course_post_reply_path(conn, :show,
-	course_id, post_id, id)
+      assert redirected_to(conn) == Routing.route(:course_post_reply_path, conn, [:show,
+	course_id, post_id, id])
 
-      conn = get(conn, Routes.course_post_reply_path(conn, :show, course_id, post_id, id))
+      conn = get(conn, Routing.route(:course_post_reply_path, conn, [:show, course_id, post_id, id]))
       assert html_response(conn, 200) =~ "Show Reply"
     end
 
     test "renders errors when data is invalid", %{conn: conn,
 						  course_id: course_id, parent_post: post_id} do
-      conn = post(conn, Routes.course_post_reply_path(conn, :create, course_id, post_id),
+      conn = post(conn, Routing.route(:course_post_reply_path, conn, [:create, course_id, post_id]),
 	reply: @invalid_attrs)
       assert html_response(conn, 200) =~ "New Reply"
     end
@@ -91,7 +91,7 @@ defmodule SchoolhubWeb.ReplyControllerTest do
 
     test "renders form for editing chosen reply", %{conn: conn, course_id: course_id,
 						    parent_post: post_id, reply: reply} do
-      conn = get(conn, Routes.course_post_reply_path(conn, :edit, course_id, post_id, reply))
+      conn = get(conn, Routing.route(:course_post_reply_path, conn, [:edit, course_id, post_id, reply]))
       assert html_response(conn, 200) =~ "Edit Reply"
     end
   end
@@ -102,18 +102,18 @@ defmodule SchoolhubWeb.ReplyControllerTest do
 
     test "redirects when data is valid", %{conn: conn, course_id: course_id,
 					   parent_post: post_id, reply: reply} do
-      conn = put(conn, Routes.course_post_reply_path(conn, :update, course_id, post_id, reply),
+      conn = put(conn, Routing.route(:course_post_reply_path, conn, [:update, course_id, post_id, reply]),
 	reply: @update_attrs)
-      assert redirected_to(conn) == Routes.course_post_reply_path(conn, :show,
-	course_id, post_id, reply)
+      assert redirected_to(conn) == Routing.route(:course_post_reply_path, conn, [:show,
+	course_id, post_id, reply])
 
-      conn = get(conn, Routes.course_post_reply_path(conn, :show, course_id, post_id, reply))
+      conn = get(conn, Routing.route(:course_post_reply_path, conn, [:show, course_id, post_id, reply]))
       assert html_response(conn, 200) =~ "some updated content"
     end
 
     test "renders errors when data is invalid", %{conn: conn, course_id: course_id,
 						  parent_post: post_id, reply: reply} do
-      conn = put(conn, Routes.course_post_reply_path(conn, :update, course_id, post_id, reply),
+      conn = put(conn, Routing.route(:course_post_reply_path, conn, [:update, course_id, post_id, reply]),
 	reply: @invalid_attrs)
       assert html_response(conn, 200) =~ "Edit Reply"
     end
@@ -125,10 +125,10 @@ defmodule SchoolhubWeb.ReplyControllerTest do
 
     test "deletes chosen reply", %{conn: conn, course_id: course_id,
 				   parent_post: post_id, reply: reply} do
-      conn = delete(conn, Routes.course_post_reply_path(conn, :delete, course_id, post_id, reply))
-      assert redirected_to(conn) == Routes.course_post_reply_path(conn, :index, course_id, post_id)
+      conn = delete(conn, Routing.route(:course_post_reply_path, conn, [:delete, course_id, post_id, reply]))
+      assert redirected_to(conn) == Routing.route(:course_post_reply_path, conn, [:index, course_id, post_id])
       assert_error_sent 404, fn ->
-        get(conn, Routes.course_post_reply_path(conn, :show, course_id, post_id, reply))
+        get(conn, Routing.route(:course_post_reply_path, conn, [:show, course_id, post_id, reply]))
       end
     end
   end

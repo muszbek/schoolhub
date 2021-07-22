@@ -6,15 +6,15 @@
 
 <ul>
   <li>
-    <%= link "Courses", to: Routes.course_path(@conn, :index) %>
+    <%= link "Courses", to: Routing.route(:course_path, @conn, [:index]) %>
   </li>
   <li>
-    <%= link "Join course with token", to: Routes.token_path(@conn, :new) %>
+    <%= link "Join course with token", to: Routing.route(:token_path, @conn, [:new]) %>
   </li>
   <li>
-    <%= link "Users", to: Routes.user_path(@conn, :index) %>
+    <%= link "Users", to: Routing.route(:user_path, @conn, [:index]) %>
   </li>
   <li>
-    <%= link "Privileges", to: Routes.privilege_path(@conn, :index) %>
+    <%= link "Privileges", to: Routing.route(:privilege_path, @conn, [:index]) %>
   </li>
 </ul>

@@ -47,9 +47,9 @@ defmodule SchoolhubWeb.QreplyControllerTest do
     
     test "lists all question_replies", %{conn: conn, course_id: course_id,
 					 parent_question: question_id} do
-      conn = get(conn, Routes.course_question_qreply_path(conn, :index, course_id, question_id))
-      assert redirected_to(conn) == Routes.course_question_path(conn, :show,
-	course_id, question_id)
+      conn = get(conn, Routing.route(:course_question_qreply_path, conn, [:index, course_id, question_id]))
+      assert redirected_to(conn) == Routing.route(:course_question_path, conn, [:show,
+	course_id, question_id])
     end
   end
 
@@ -58,7 +58,7 @@ defmodule SchoolhubWeb.QreplyControllerTest do
     
     test "renders form", %{conn: conn, course_id: course_id,
 			   parent_question: question_id} do
-      conn = get(conn, Routes.course_question_qreply_path(conn, :new, course_id, question_id))
+      conn = get(conn, Routing.route(:course_question_qreply_path, conn, [:new, course_id, question_id]))
       assert html_response(conn, 200) =~ "New Reply"
     end
   end
@@ -68,20 +68,20 @@ defmodule SchoolhubWeb.QreplyControllerTest do
     
     test "redirects to show when data is valid", %{conn: conn, course_id: course_id,
 						   parent_question: question_id} do
-      conn = post(conn, Routes.course_question_qreply_path(conn, :create, course_id, question_id),
+      conn = post(conn, Routing.route(:course_question_qreply_path, conn, [:create, course_id, question_id]),
 	qreply: @create_attrs)
 
       assert %{id: id} = redirected_params(conn)
-      assert redirected_to(conn) == Routes.course_question_qreply_path(conn, :show,
-	course_id, question_id, id)
+      assert redirected_to(conn) == Routing.route(:course_question_qreply_path, conn, [:show,
+	course_id, question_id, id])
 
-      conn = get(conn, Routes.course_question_qreply_path(conn, :show, course_id, question_id, id))
+      conn = get(conn, Routing.route(:course_question_qreply_path, conn, [:show, course_id, question_id, id]))
       assert html_response(conn, 200) =~ "Show Reply"
     end
 
     test "renders errors when data is invalid", %{conn: conn, course_id: course_id,
 						  parent_question: question_id} do
-      conn = post(conn, Routes.course_question_qreply_path(conn, :create, course_id, question_id),
+      conn = post(conn, Routing.route(:course_question_qreply_path, conn, [:create, course_id, question_id]),
 	qreply: @invalid_attrs)
       assert html_response(conn, 200) =~ "New Reply"
     end
@@ -93,8 +93,8 @@ defmodule SchoolhubWeb.QreplyControllerTest do
 
     test "renders form for editing chosen qreply", %{conn: conn, course_id: course_id,
 						     parent_question: question_id, qreply: qreply} do
-      conn = get(conn, Routes.course_question_qreply_path(conn, :edit,
-	    course_id, question_id, qreply))
+      conn = get(conn, Routing.route(:course_question_qreply_path, conn, [:edit,
+	    course_id, question_id, qreply]))
       assert html_response(conn, 200) =~ "Edit Reply"
     end
   end
@@ -105,20 +105,20 @@ defmodule SchoolhubWeb.QreplyControllerTest do
 
     test "redirects when data is valid", %{conn: conn, course_id: course_id,
 					   parent_question: question_id, qreply: qreply} do
-      conn = put(conn, Routes.course_question_qreply_path(conn, :update,
-	    course_id, question_id, qreply), qreply: @update_attrs)
-      assert redirected_to(conn) == Routes.course_question_qreply_path(conn, :show,
-	course_id, question_id, qreply)
+      conn = put(conn, Routing.route(:course_question_qreply_path, conn, [:update,
+	    course_id, question_id, qreply]), qreply: @update_attrs)
+      assert redirected_to(conn) == Routing.route(:course_question_qreply_path, conn, [:show,
+	course_id, question_id, qreply])
 
-      conn = get(conn, Routes.course_question_qreply_path(conn, :show,
-	    course_id, question_id, qreply))
+      conn = get(conn, Routing.route(:course_question_qreply_path, conn, [:show,
+	    course_id, question_id, qreply]))
       assert html_response(conn, 200) =~ "some updated content"
     end
 
     test "renders errors when data is invalid", %{conn: conn, course_id: course_id,
 						  parent_question: question_id, qreply: qreply} do
-      conn = put(conn, Routes.course_question_qreply_path(conn, :update,
-	    course_id, question_id, qreply), qreply: @invalid_attrs)
+      conn = put(conn, Routing.route(:course_question_qreply_path, conn, [:update,
+	    course_id, question_id, qreply]), qreply: @invalid_attrs)
       assert html_response(conn, 200) =~ "Edit Reply"
     end
   end
@@ -129,12 +129,12 @@ defmodule SchoolhubWeb.QreplyControllerTest do
 
     test "deletes chosen qreply", %{conn: conn, course_id: course_id,
 				    parent_question: question_id, qreply: qreply} do
-      conn = delete(conn, Routes.course_question_qreply_path(conn, :delete,
-	    course_id, question_id, qreply))
-      assert redirected_to(conn) == Routes.course_question_qreply_path(conn, :index,
-	course_id, question_id)
+      conn = delete(conn, Routing.route(:course_question_qreply_path, conn, [:delete,
+	    course_id, question_id, qreply]))
+      assert redirected_to(conn) == Routing.route(:course_question_qreply_path, conn, [:index,
+	course_id, question_id])
       assert_error_sent 404, fn ->
-        get(conn, Routes.course_question_qreply_path(conn, :show, course_id, question_id, qreply))
+        get(conn, Routing.route(:course_question_qreply_path, conn, [:show, course_id, question_id, qreply]))
       end
     end
   end

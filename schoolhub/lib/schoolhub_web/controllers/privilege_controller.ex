@@ -19,7 +19,7 @@ defmodule SchoolhubWeb.PrivilegeController do
       {:ok, privilege} ->
         conn
         |> put_flash(:info, "Privilege created successfully.")
-        |> redirect(to: Routes.privilege_path(conn, :show, privilege))
+        |> redirect(to: Routing.route(:privilege_path, conn, [:show, privilege]))
 
       {:error, %Ecto.Changeset{} = changeset} ->
         render(conn, "new.html", changeset: changeset)
@@ -44,7 +44,7 @@ defmodule SchoolhubWeb.PrivilegeController do
       {:ok, privilege} ->
         conn
         |> put_flash(:info, "Privilege updated successfully.")
-        |> redirect(to: Routes.privilege_path(conn, :show, privilege))
+        |> redirect(to: Routing.route(:privilege_path, conn, [:show, privilege]))
 
       {:error, %Ecto.Changeset{} = changeset} ->
         render(conn, "edit.html", privilege: privilege, changeset: changeset)
@@ -57,6 +57,6 @@ defmodule SchoolhubWeb.PrivilegeController do
 
     conn
     |> put_flash(:info, "Privilege deleted successfully.")
-    |> redirect(to: Routes.privilege_path(conn, :index))
+    |> redirect(to: Routing.route(:privilege_path, conn, [:index]))
   end
 end
