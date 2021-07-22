@@ -67,7 +67,7 @@ defmodule Schoolhub.Accounts.ScramLib do
   end
 
   defp client_key(hash_type, salted_password) do
-    :crypto.hmac(hash_type, salted_password, "Client Key")
+    :crypto.mac(:hmac, hash_type, salted_password, "Client Key")
   end
   
   defp stored_key(hash_type, client_key) do
@@ -75,7 +75,7 @@ defmodule Schoolhub.Accounts.ScramLib do
   end
 
   defp server_key(hash_type, salted_password) do
-    :crypto.hmac(hash_type, salted_password, "Server Key")
+    :crypto.mac(:hmac, hash_type, salted_password, "Server Key")
   end
 
   defp serialize(%{stored_key: stored_key,
@@ -90,19 +90,19 @@ defmodule Schoolhub.Accounts.ScramLib do
   ## source: https://github.com/pundunlabs/scramerl/blob/master/src/scramerl_lib.erl
   defp hi(str, salt, i, sha) when is_list(str), do: hi(to_string(str), salt, i, sha)
   defp hi(str, salt, i, sha) when is_list(salt), do: hi(str, to_string(salt), i, sha)
-  defp hi(str, salt, 1, sha), do: :crypto.hmac(sha, str, <<salt :: binary, 0, 0, 0, 1>>)
+  defp hi(str, salt, 1, sha), do: :crypto.mac(:hmac, sha, str, <<salt :: binary, 0, 0, 0, 1>>)
   defp hi(str, salt, i, sha) when is_integer(i) and i > 1 do
-    u1 = :crypto.hmac(sha, str, <<salt :: binary, 0, 0, 0, 1>>)
+    u1 = :crypto.mac(:hmac, sha, str, <<salt :: binary, 0, 0, 0, 1>>)
     hi(str, [u1], i, 1, sha)
   end
 
   defp hi(str, [uy], i, 1, sha) do
-    ux = :crypto.hmac(sha, str, uy)
+    ux = :crypto.mac(:hmac, sha, str, uy)
     hi(str, [ux, uy], i, 2, sha)
   end
   defp hi(_str, [uy, uz], i , i, _sha), do: :crypto.exor(uy, uz)
   defp hi(str, [uy, uz], i, n, sha) do
-    ux = :crypto.hmac(sha, str, uy)
+    ux = :crypto.mac(:hmac, sha, str, uy)
     exor = :crypto.exor(uy, uz)
     hi(str, [ux, exor], i, n+1, sha)
   end

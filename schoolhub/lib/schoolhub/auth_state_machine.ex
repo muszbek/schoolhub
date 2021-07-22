@@ -203,7 +203,7 @@ defmodule Schoolhub.AuthStateMachine do
   end
   
   defp reproduce_client_key({stored_key, auth_msg, proof}) do
-    client_signature = :crypto.hmac(:sha, stored_key, auth_msg)
+    client_signature = :crypto.mac(:hmac, :sha, stored_key, auth_msg)
     _client_key = :crypto.exor(proof, client_signature)
   end
 
@@ -223,7 +223,7 @@ defmodule Schoolhub.AuthStateMachine do
 
   defp create_server_signature(:ok, server_key, auth_msg) do
     server_key = :base64.decode(server_key)
-    :crypto.hmac(:sha, server_key, auth_msg)
+    :crypto.mac(:hmac, :sha, server_key, auth_msg)
     |> :base64.encode()
     |> charlist()
   end
