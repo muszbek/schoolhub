@@ -3,7 +3,8 @@ import { Mechanism } from './xoauth.js';
 
 document.getElementById("send_button").addEventListener("click", send_msg, false);
 
-const tokenUrl = window.location.origin.concat("/token");
+const internalHost = document.getElementById("internal_host").value;
+const tokenUrl = window.location.origin.concat(internalHost).concat("/token");
 const csrfToken = document.head.querySelector("[name~=csrf-token][content]").content;
 
 const {client, xml} = require("@xmpp/client");
@@ -87,7 +88,8 @@ function sendHttp(targetUrl, body_data) {
 	method: "POST",
 	headers: {
 	    "Content-Type": "application/json",
-	    "X-CSRF-Token": csrfToken
+	    "X-CSRF-Token": csrfToken,
+	    "X-Internal-Host": internalHost
 	},
 	body: body_data
     })

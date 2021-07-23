@@ -3,7 +3,8 @@ import "regenerator-runtime/runtime"
 document.getElementById("login_button").addEventListener("click", login, false);
 
 const form = document.forms[0];
-const authUrl = window.location.origin.concat("/auth");
+const internalHost = document.getElementById("internal_host").value;
+const authUrl = window.location.origin.concat(internalHost).concat("/auth");
 const csrfToken = document.head.querySelector("[name~=csrf-token][content]").content;
 
 const {client, xml} = require("@xmpp/client");
@@ -69,7 +70,8 @@ function sendHttp(targetUrl, body_data) {
 	method: "POST",
 	headers: {
 	    "Content-Type": "application/json",
-	    "X-CSRF-Token": csrfToken
+	    "X-CSRF-Token": csrfToken,
+	    "X-Internal-Host": internalHost
 	},
 	body: body_data
     })
