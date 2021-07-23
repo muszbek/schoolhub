@@ -6,10 +6,17 @@ defmodule SchoolhubWeb.Routing do
   """
 
   import Plug.Conn
-
+  
   @routes_module "Elixir.SchoolhubWeb.Router.Helpers"
 
   def route(fun_name, conn, args) do
-    Kernel.apply(String.to_existing_atom(@routes_module), fun_name, [conn] ++ args)
+    internal_host = get_req_header(conn, "x-internal-host")
+    route_prefix = case internal_host do
+		     [] -> ""
+		     [hostname] -> "/" <> hostname
+		   end
+    
+    path = Kernel.apply(String.to_existing_atom(@routes_module), fun_name, [conn] ++ args)
+    route_prefix <> path
   end
 end
