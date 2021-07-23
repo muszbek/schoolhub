@@ -7,7 +7,9 @@ defmodule SchoolhubWeb.Routing do
 
   import Plug.Conn
 
+  @routes_module "Elixir.SchoolhubWeb.Router.Helpers"
+
   def route(fun_name, conn, args) do
-    apply(String.to_existing_atom("Elixir.SchoolhubWeb.Router.Helpers"), fun_name, [conn] ++ args)
+    Kernel.apply(String.to_existing_atom(@routes_module), fun_name, [conn] ++ args)
   end
 end
