@@ -68,7 +68,8 @@ spec:
           name: monitor
         volumeMounts:
         - name: hap-config
-          mountPath: /usr/local/etc/haproxy/
+          mountPath: /usr/local/etc/haproxy/haproxy.cfg
+          subPath: haproxy_single.cfg
           readOnly: true
         - name: tls-secret-letsencrypt-volume
           mountPath: /etc/cert/live/
