@@ -20,7 +20,7 @@ defmodule SchoolhubWeb.SessionController do
 	|> enter_session(user)
 	|> add_access_token(form_data)
 	|> add_refresh_token(form_data)
-        |> redirect(to: "/")
+        |> redirect(to: Routing.route(:page_path, conn, [:index]))
       {:error, :unauthorized} ->
         conn
         |> put_flash(:error, "Bad username/password combination")
