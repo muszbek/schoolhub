@@ -33,14 +33,4 @@ Failed clustering mongooseim@schoolhub-mongooseim-56d8f4866f-gqqs6 with mongoose
 
 domain name should not be hardcoded in kustomization in the tls certificate path
 
-- remove containerports from not exposed ports? only after I can test functionality
-- dynamically generate new service with all pod?
-- explore other ways to proxy directly to specific pods via subdomain? otherwise services...
-- anyway how to access internal network by ip?
-
-nslookup schoolhub
-telnet schoolhub-instance-1.schoolhub.default.svc.cluster.local 1080
-
-ports in uri are changed by haproxy regex?
-
 k3d image import phx_server:v0.2.2 mongooseim/mongooseim:3.7.1 postgres:13.3 haproxy:2.4 boky/postfix:v3.3.0 busybox:1.33
