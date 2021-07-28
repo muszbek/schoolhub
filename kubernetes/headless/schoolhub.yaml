@@ -84,9 +84,6 @@ spec:
             secretKeyRef:
               name: postgres-creds
               key: POSTGRES_PASSWORD
-        ports:
-        - containerPort: 5432
-          name: postgres
         volumeMounts:
         - name: postgres-data-pv
           mountPath: /var/lib/postgresql/data
@@ -131,13 +128,6 @@ spec:
             secretKeyRef:
               name: postgres-creds
               key: POSTGRES_HOST
-        ports:
-        - containerPort: 5222
-          name: xmpp
-        - containerPort: 5280
-          name: bosh
-        - containerPort: 5285
-          name: bosh-tls
         volumeMounts:
         - name: mongooseim-cfg
           mountPath: /config_temp/
@@ -185,11 +175,6 @@ spec:
             secretKeyRef:
               name: postgres-creds
               key: POSTGRES_HOST
-        ports:
-        - containerPort: 4000
-          name: http
-        - containerPort: 4001
-          name: https
         volumeMounts:
         - name: tls-secret-selfsigned-volume
           mountPath: /opt/app/priv/cert/
