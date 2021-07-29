@@ -21,7 +21,7 @@ defmodule SchoolhubWeb.Plugs do
   defp redirect_to_login(conn) do
     conn
     |> Phoenix.Controller.put_flash(:error, "Login required")
-    |> Phoenix.Controller.redirect(to: "/sessions/new")
+    |> Phoenix.Controller.redirect(to: Routing.route(:session_path, conn, [:new]))
     |> halt()
   end
 
