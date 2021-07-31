@@ -22,21 +22,6 @@ spec:
 
 ---
 
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: postgres-pvc
-  labels:
-    app: postgres
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 100M
-
----
-
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -218,9 +203,6 @@ spec:
           name: smtp
       
       volumes:
-      - name: postgres-data-pv
-        persistentVolumeClaim:
-          claimName: postgres-pvc
       - name: pg-schema
         configMap:
           name: postgres-schema
@@ -256,3 +238,13 @@ spec:
           items:
           - key: joined_cert.pem
             path: joined_cert.pem
+
+  volumeClaimTemplates:
+  - metadata:
+      name: postgres-data-pv
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      storageClassName: nfs-storageclass
+      resources:
+        requests:
+          storage: 50M

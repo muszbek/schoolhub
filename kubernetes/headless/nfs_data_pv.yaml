@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: nfs-pv
+  labels:
+    type: local
+spec:
+  accessModes:
+    - ReadWriteOnce
+  capacity:
+    storage: 500M
+  storageClassName: local-path
+  hostPath:
+    path: /volumes_data/kubernetes/persistent_volume
+    type: DirectoryOrCreate

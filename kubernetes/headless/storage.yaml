@@ -1,0 +1,114 @@
+kind: ServiceAccount
+apiVersion: v1
+metadata:
+  name: nfs-provisioner-sa
+
+---
+
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: nfs-provisioner-clusterRole
+rules:
+  - apiGroups: [""]
+    resources: ["persistentvolumes"]
+    verbs: ["get", "list", "watch", "create", "delete"]
+  - apiGroups: [""]
+    resources: ["persistentvolumeclaims"]
+    verbs: ["get", "list", "watch", "update"]
+  - apiGroups: ["storage.k8s.io"]
+    resources: ["storageclasses"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: [""]
+    resources: ["events"]
+    verbs: ["create", "update", "patch"]
+
+---
+
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: nfs-provisioner-rolebinding
+subjects:
+  - kind: ServiceAccount
+    name: nfs-provisioner-sa
+    namespace: default
+roleRef:
+  kind: ClusterRole
+  name: nfs-provisioner-clusterRole
+  apiGroup: rbac.authorization.k8s.io
+
+---
+
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: nfs-provisioner-otherRoles
+rules:
+  - apiGroups: [""]
+    resources: ["endpoints"]
+    verbs: ["get", "list", "watch", "create", "update", "patch"]
+
+---
+
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: nfs-provisioner-otherRoles
+subjects:
+  - kind: ServiceAccount
+    name: nfs-provisioner-sa
+    namespace: default
+roleRef:
+  kind: Role
+  name: nfs-provisioner-otherRoles
+  apiGroup: rbac.authorization.k8s.io
+
+---
+
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: nfs-storageclass
+provisioner: nfs-provisioner
+parameters:
+  archiveOnDelete: "false"
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nfs-client
+  labels:
+    app: nfs-client
+spec:
+  selector:
+    matchLabels:
+      app: nfs-client
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: nfs-client
+    spec:
+      serviceAccountName: nfs-provisioner-sa
+      containers:
+        - name: nfs-client
+          image: quay.io/external_storage/nfs-client-provisioner:latest
+          volumeMounts:
+            - name: nfs-client-v
+              mountPath: /persistentvolumes
+          env:
+            - name: PROVISIONER_NAME
+              value: nfs-provisioner
+            - name: NFS_SERVER
+              value: nfs-server
+            - name: NFS_PATH
+              value: /nfsshare
+      volumes:
+        - name: nfs-client-v
+          nfs:
+            server: nfs-server
+            path: /nfsshare
