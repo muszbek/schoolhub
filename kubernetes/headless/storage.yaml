@@ -106,9 +106,9 @@ spec:
             - name: NFS_SERVER
               value: nfs-server
             - name: NFS_PATH
-              value: /nfsshare
+              value: /exports
       volumes:
         - name: nfs-client-v
           nfs:
             server: nfs-server
-            path: /nfsshare
+            path: /exports
