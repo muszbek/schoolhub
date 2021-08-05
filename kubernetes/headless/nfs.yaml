@@ -5,25 +5,14 @@ metadata:
   labels:
     app: nfs-server
 spec:
+  clusterIP: 10.43.10.10
   ports:
-  - name: 2049-tcp
+  - name: nfs
     port: 2049
-    protocol: TCP
-  - name: 111-tcp
-    port: 111
-    protocol: TCP
-  - name: 20048-tcp
+  - name: mountd
     port: 20048
-    protocol: TCP
-  - name: 2049-udp
-    port: 2049
-    protocol: UDP
-  - name: 111-udp
+  - name: rpcbind
     port: 111
-    protocol: UDP
-  - name: 20048-udp
-    port: 20048
-    protocol: UDP
   selector:
     app: nfs-server
   
@@ -51,6 +40,7 @@ metadata:
   labels:
     app: nfs-server
 spec:
+  replicas: 3
   selector:
     matchLabels:
       app: nfs-server
@@ -61,36 +51,20 @@ spec:
     spec:
       containers:
       - name: nfs-server
-        image: cpuguy83/nfs-server
-        env:
-        - name: SHARED_DIRECTORY
-          value: /exports
+        image: gcr.io/google-samples/nfs-server:1.1
         ports:
-        - containerPort: 2049
-          name: nfs-tcp
-          protocol: TCP
-        - containerPort: 2049
-          name: nfs-udp
-          protocol: UDP
-        - containerPort: 111
-          name: rpcbind-tcp
-          protocol: TCP
-        - containerPort: 111
-          name: rpcbind-udp
-          protocol: UDP
-        - containerPort: 20048
-          name: mountd-tcp
-          protocol: TCP
-        - containerPort: 20048
-          name: mountd-udp
-          protocol: UDP
-        #volumeMounts:
-        #- name: nfs-data-pv
-        #  mountPath: /exports
+        - name: nfs
+          containerPort: 2049
+        - name: mountd
+          containerPort: 20048
+        - name: rpcbind
+          containerPort: 111
+        volumeMounts:
+        - name: nfs-data-pv
+          mountPath: /exports
         securityContext:
           privileged: true
-        args: ["/exports"]
-      #volumes:
-      #- name: nfs-data-pv
-      #  persistentVolumeClaim:
-      #    claimName: nfs-pvc
+      volumes:
+      - name: nfs-data-pv
+        persistentVolumeClaim:
+          claimName: nfs-pvc
