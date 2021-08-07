@@ -1,0 +1,89 @@
+version: '3.4'
+services:
+
+  postfix:
+    container_name: schoolhub_router_postfix
+    image: boky/postfix:v3.3.0
+    hostname: postfix
+    ports:
+      - "1587:587"
+    networks:
+      - schoolhub_router_network
+    restart: always
+    volumes:
+      - ./letsencrypt/DKIM:/etc/opendkim/keys
+    environment:
+      - ALLOWED_SENDER_DOMAINS=$DOMAIN localhost
+      - DKIM_AUTOGENERATE=true
+      - INBOUND_DEBUGGING=
+
+  
+  postgres:
+    container_name: schoolhub_router_postgres
+    image: postgres:13.3
+    hostname: postgres
+    ports:
+      - "5432:5432"
+    networks:
+      - schoolhub_router_network
+    restart: always
+    shm_size: 256M
+    volumes:
+      - ./letsencrypt/selfsigned/$DOMAIN/certs/fullchain.pem:/etc/postgresql/ssl/fullchain.pem
+      - ./letsencrypt/selfsigned/$DOMAIN/certs/privkey.pem:/etc/postgresql/ssl/privkey.pem
+      - ./postgres/data/router_data:/var/lib/postgresql/data
+    env_file:
+      - ./postgres/postgres_router.env
+    command: -c ssl=on
+             -c ssl_cert_file=/etc/postgresql/ssl/fullchain.pem
+             -c ssl_key_file=/etc/postgresql/ssl/privkey.pem
+
+
+  haproxy:
+    container_name: schoolhub_router_haproxy
+    image: haproxy:2.4
+    hostname: haproxy
+    expose:
+      - "8404"
+    ports:
+      - "80:1080"
+      - "443:1443"
+      - "5280:1280"
+      - "5285:1285"
+      - "8404:1404"
+    networks:
+      - schoolhub_router_network
+    restart: always
+    volumes:
+      - ./haproxy/haproxy_router.cfg:/usr/local/etc/haproxy/haproxy.cfg
+      - ./letsencrypt/live/$DOMAIN/certs/joined_cert.pem:/etc/cert/live/joined_cert.pem
+      - ./letsencrypt/selfsigned/$DOMAIN/certs/chain.pem:/etc/cert/selfsigned/chain.pem
+
+
+  phx-server:
+    container_name: schoolhub_router_phoenix
+    image: router_phx_server:v0.1.0
+    hostname: phx-server
+    build:
+      context: ./router
+    expose:
+      - "4000"
+      - "4001"
+    networks:
+      - schoolhub_router_network
+    restart: on-failure
+    depends_on:
+      - postgres
+    volumes:
+      - ./router/lib:/opt/app/lib
+      - ./letsencrypt/selfsigned/$DOMAIN/certs:/opt/app/priv/cert
+    environment:
+      - MIX_ENV=prod
+      - DOMAIN=$DOMAIN
+    env_file:
+      - ./postgres/postgres_router.env
+      
+    
+networks:
+  schoolhub_router_network:
+    

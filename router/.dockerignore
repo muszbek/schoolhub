@@ -1,0 +1,7 @@
+#build
+_build
+deps
+assets/node_modules
+
+#test
+test
