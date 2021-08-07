@@ -1,114 +1,164 @@
-kind: ServiceAccount
 apiVersion: v1
+kind: Namespace
 metadata:
-  name: nfs-provisioner-sa
+  name: local-path-storage
 
 ---
 
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: local-path-provisioner-service-account
+  namespace: local-path-storage
+
+---
+
+apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
-apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  name: nfs-provisioner-clusterRole
+  name: local-path-provisioner-role
 rules:
-  - apiGroups: [""]
-    resources: ["persistentvolumes"]
-    verbs: ["get", "list", "watch", "create", "delete"]
-  - apiGroups: [""]
-    resources: ["persistentvolumeclaims"]
-    verbs: ["get", "list", "watch", "update"]
-  - apiGroups: ["storage.k8s.io"]
-    resources: ["storageclasses"]
-    verbs: ["get", "list", "watch"]
-  - apiGroups: [""]
-    resources: ["events"]
-    verbs: ["create", "update", "patch"]
+  - apiGroups: [ "" ]
+    resources: [ "nodes", "persistentvolumeclaims", "configmaps" ]
+    verbs: [ "get", "list", "watch" ]
+  - apiGroups: [ "" ]
+    resources: [ "endpoints", "persistentvolumes", "pods" ]
+    verbs: [ "*" ]
+  - apiGroups: [ "" ]
+    resources: [ "events" ]
+    verbs: [ "create", "patch" ]
+  - apiGroups: [ "storage.k8s.io" ]
+    resources: [ "storageclasses" ]
+    verbs: [ "get", "list", "watch" ]
 
 ---
 
+apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
-apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  name: nfs-provisioner-rolebinding
-subjects:
-  - kind: ServiceAccount
-    name: nfs-provisioner-sa
-    namespace: default
+  name: local-path-provisioner-bind
 roleRef:
+  apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: nfs-provisioner-clusterRole
-  apiGroup: rbac.authorization.k8s.io
-
----
-
-kind: Role
-apiVersion: rbac.authorization.k8s.io/v1
-metadata:
-  name: nfs-provisioner-otherRoles
-rules:
-  - apiGroups: [""]
-    resources: ["endpoints"]
-    verbs: ["get", "list", "watch", "create", "update", "patch"]
-
----
-
-kind: RoleBinding
-apiVersion: rbac.authorization.k8s.io/v1
-metadata:
-  name: nfs-provisioner-otherRoles
+  name: local-path-provisioner-role
 subjects:
   - kind: ServiceAccount
-    name: nfs-provisioner-sa
-    namespace: default
-roleRef:
-  kind: Role
-  name: nfs-provisioner-otherRoles
-  apiGroup: rbac.authorization.k8s.io
-
----
-
-apiVersion: storage.k8s.io/v1
-kind: StorageClass
-metadata:
-  name: nfs-storageclass
-provisioner: nfs-provisioner
-parameters:
-  archiveOnDelete: "false"
+    name: local-path-provisioner-service-account
+    namespace: local-path-storage
 
 ---
 
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: nfs-client
-  labels:
-    app: nfs-client
+  name: local-path-provisioner
+  namespace: local-path-storage
 spec:
+  replicas: 1
   selector:
     matchLabels:
-      app: nfs-client
-  strategy:
-    type: Recreate
+      app: local-path-provisioner
   template:
     metadata:
       labels:
-        app: nfs-client
+        app: local-path-provisioner
     spec:
-      serviceAccountName: nfs-provisioner-sa
+      serviceAccountName: local-path-provisioner-service-account
       containers:
-        - name: nfs-client
-          image: quay.io/external_storage/nfs-client-provisioner:latest
+        - name: local-path-provisioner
+          image: rancher/local-path-provisioner:v0.0.20
+          imagePullPolicy: IfNotPresent
+          command:
+            - local-path-provisioner
+            - --debug
+            - start
+            - --config
+            - /etc/config/config.json
           volumeMounts:
-            - name: nfs-client-v
-              mountPath: /persistentvolumes
+            - name: config-volume
+              mountPath: /etc/config/
           env:
-            - name: PROVISIONER_NAME
-              value: nfs-provisioner
-            - name: NFS_SERVER
-              value: nfs-server
-            - name: NFS_PATH
-              value: /exports
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
       volumes:
-        - name: nfs-client-v
-          nfs:
-            server: nfs-server
-            path: /exports
+        - name: config-volume
+          configMap:
+            name: local-path-config
+
+---
+
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: local-path
+provisioner: rancher.io/local-path
+volumeBindingMode: WaitForFirstConsumer
+reclaimPolicy: Delete
+
+---
+
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: local-path-config
+  namespace: local-path-storage
+data:
+  config.json: |-
+    {
+            "nodePathMap":[
+            {
+                    "node":"DEFAULT_PATH_FOR_NON_LISTED_NODES",
+                    "paths":["/volumes_data/kubernetes/persistent_volume"]
+            }
+            ]
+    }
+  setup: |-
+    #!/bin/sh
+    while getopts "m:s:p:" opt
+    do
+        case $opt in
+            p)
+            absolutePath=$OPTARG
+            ;;
+            s)
+            sizeInBytes=$OPTARG
+            ;;
+            m)
+            volMode=$OPTARG
+            ;;
+        esac
+    done
+
+    mkdir -m 0777 -p ${absolutePath}
+  teardown: |-
+    #!/bin/sh
+    while getopts "m:s:p:" opt
+    do
+        case $opt in
+            p)
+            absolutePath=$OPTARG
+            ;;
+            s)
+            sizeInBytes=$OPTARG
+            ;;
+            m)
+            volMode=$OPTARG
+            ;;
+        esac
+    done
+
+    rm -rf ${absolutePath}
+  helperPod.yaml: |-
+    apiVersion: v1
+    kind: Pod
+    metadata:
+      name: helper-pod
+    spec:
+      containers:
+      - name: helper-pod
+        image: busybox
+        imagePullPolicy: IfNotPresent
+
+

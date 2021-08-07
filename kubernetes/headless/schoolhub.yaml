@@ -244,7 +244,7 @@ spec:
       name: postgres-data-pv
     spec:
       accessModes: ["ReadWriteOnce"]
-      storageClassName: nfs-storageclass
+      storageClassName: local-path
       resources:
         requests:
-          storage: 50M
+          storage: 50Mi
