@@ -12,5 +12,6 @@ defmodule SchoolhubRouter.Repo.Migrations.CreateServers do
     end
 
     create unique_index(:servers, [:name])
+    create unique_index(:servers, [:address])
   end
 end

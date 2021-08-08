@@ -1,8 +1,15 @@
 defmodule SchoolhubRouterWeb.ServerControllerTest do
   use SchoolhubRouterWeb.ConnCase
 
-  @create_attrs %{address: "some address", name: "some name"}
+  alias SchoolhubRouter.Instances
+
+  @create_attrs %{address: "some_address", name: "some_name"}
   @invalid_attrs %{active: nil, address: nil, name: nil}
+
+  def fixture(:server) do
+    {:ok, server} = Instances.create_server(@create_attrs)
+    server
+  end
 
   
   describe "index" do
@@ -22,12 +29,7 @@ defmodule SchoolhubRouterWeb.ServerControllerTest do
   describe "create server" do
     test "redirects to show when data is valid", %{conn: conn} do
       conn = post(conn, Routes.server_path(conn, :create), server: @create_attrs)
-
-      assert %{id: id} = redirected_params(conn)
-      assert redirected_to(conn) == Routes.server_path(conn, :show, id)
-
-      conn = get(conn, Routes.server_path(conn, :show, id))
-      assert html_response(conn, 200) =~ "Show Server"
+      assert redirected_to(conn) == Routes.page_path(conn, :index)
     end
 
     test "renders errors when data is invalid", %{conn: conn} do
@@ -36,4 +38,23 @@ defmodule SchoolhubRouterWeb.ServerControllerTest do
     end
   end
 
+  describe "redirect to instance" do
+    setup [:create_server]
+    
+    test "redirects to main page when server does not exist", %{conn: conn} do
+      conn = post(conn, Routes.server_path(conn, :to_instance), server_name: "some_invalid_name")
+      assert redirected_to(conn) == Routes.page_path(conn, :index)
+    end
+
+    test "redirects to server address when server exists", %{conn: conn, server: server} do
+      conn = post(conn, Routes.server_path(conn, :to_instance), server_name: server.name)
+      assert redirected_to(conn) == "/" <> server.address <> "/"
+    end
+  end
+
+
+  defp create_server(_) do
+    server = fixture(:server)
+    %{server: server}
+  end
 end

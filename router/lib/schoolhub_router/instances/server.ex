@@ -17,5 +17,6 @@ defmodule SchoolhubRouter.Instances.Server do
     |> cast(attrs, [:name, :address, :active])
     |> validate_required([:name, :address])
     |> unique_constraint(:name)
+    |> unique_constraint(:address)
   end
 end

@@ -1,0 +1,9 @@
+<%= form_for @conn, Routes.server_path(@conn, :to_instance), [method: :post], fn _ -> %>
+  <label for="server_name">Enter the name of your server to redirect:</label>
+  <input type="text" id="server_name" name="server_name"
+	 placeholder="The name of your server instance">
+  
+  <div>
+    <%= submit "Redirect" %>
+  </div>
+<% end %>
