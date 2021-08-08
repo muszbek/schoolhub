@@ -20,7 +20,7 @@
             <% end %>
           </ul>
         </nav>
-        <a href="<%= Routing.route(:page_path, @conn, [:index]) %>" class="phx-logo">
+        <a href="<%= Routing.route(:page_path, @conn, [:index]) %>" class="schoolhub-logo">
           <img src="<%= Routing.route(:static_path, @conn, ["/images/schoolhub.png"]) %>" alt="Schoolhub Logo"/>
         </a>
       </section>

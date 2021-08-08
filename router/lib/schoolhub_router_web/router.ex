@@ -13,7 +13,7 @@ defmodule SchoolhubRouterWeb.Router do
     plug :accepts, ["json"]
   end
 
-  scope "/", SchoolhubRouterWeb do
+  scope "/router", SchoolhubRouterWeb do
     pipe_through :browser
 
     get "/", PageController, :index
