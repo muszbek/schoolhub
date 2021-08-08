@@ -1,0 +1,102 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  labels:
+    app: postgres
+spec:
+  ports:
+  - name: 5432-5432
+    port: 5432
+    targetPort: 5432
+  selector:
+    app: postgres
+
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-pvc
+  labels:
+    app: postgres
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100M
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: schoolhub-router-postgres
+  labels:
+    app: postgres
+spec:
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+      - name: schoolhub-router-postgres
+        image: postgres:13.3
+        env:
+        - name: POSTGRES_DB
+          valueFrom:
+            secretKeyRef:
+              name: postgres-router-creds
+              key: POSTGRES_DB
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: postgres-router-creds
+              key: POSTGRES_USER
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres-router-creds
+              key: POSTGRES_PASSWORD
+        ports:
+        - containerPort: 5432
+          name: postgres
+        volumeMounts:
+        - name: postgres-data-pv
+          mountPath: /var/lib/postgresql/data
+        - name: tls-secret-modified
+          mountPath: /etc/postgresql/ssl/
+        args: ["-c", "ssl=on",
+               "-c", "ssl_cert_file=/etc/postgresql/ssl/fullchain.pem",
+               "-c", "ssl_key_file=/etc/postgresql/ssl/privkey.pem"]
+      initContainers:
+      - name: volume-mount-hack
+        image: busybox:1.33
+        command: ["sh", "-c"]
+        args: ["cp /secret/* /etc/postgresql/ssl/;
+                chown -R 999:999 /etc/postgresql/ssl/privkey.pem"]
+        volumeMounts:
+        - name: tls-secret
+          mountPath: /secret/
+        - name: tls-secret-modified
+          mountPath: /etc/postgresql/ssl/
+      volumes:
+      - name: postgres-data-pv
+        persistentVolumeClaim:
+          claimName: postgres-pvc
+      - name: tls-secret
+        secret:
+          secretName: tls-selfsigned-secret
+          items:
+          - key: fullchain.pem
+            path: fullchain.pem
+          - key: privkey.pem
+            path: privkey.pem
+            mode: 0600
+      - name: tls-secret-modified
+        emptyDir: {}

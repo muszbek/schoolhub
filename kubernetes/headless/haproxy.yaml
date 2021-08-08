@@ -40,7 +40,7 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: router-haproxy
+  name: schoolhub-router-haproxy
   labels:
     app: haproxy
 spec:
@@ -53,7 +53,7 @@ spec:
         app: haproxy
     spec:
       containers:
-      - name: router-haproxy
+      - name: schoolhub-router-haproxy
         image: haproxy:2.4
         ports:
         - containerPort: 80

@@ -15,3 +15,6 @@ kubectl create secret generic tls-letsencrypt-secret \
 
 kubectl create secret generic postgres-creds \
 	--from-env-file=../postgres/postgres.env
+
+kubectl create secret generic postgres-router-creds \
+	--from-env-file=../postgres/postgres_router.env
