@@ -17,6 +17,8 @@ defmodule SchoolhubRouterWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :index
+    get "/phoenix", PageController, :phoenix
+    resources "/servers", ServerController, only: [:index, :show, :new, :create]
   end
 
   # Other scopes may use custom stacks.

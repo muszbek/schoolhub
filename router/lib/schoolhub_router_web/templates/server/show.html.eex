@@ -1,0 +1,22 @@
+<h1>Show Server</h1>
+
+<ul>
+
+  <li>
+    <strong>Name:</strong>
+    <%= @server.name %>
+  </li>
+
+  <li>
+    <strong>Address:</strong>
+    <%= @server.address %>
+  </li>
+
+  <li>
+    <strong>Active:</strong>
+    <%= @server.active %>
+  </li>
+
+</ul>
+
+<span><%= link "Back", to: Routes.server_path(@conn, :index) %></span>
