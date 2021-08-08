@@ -1,6 +1,7 @@
 defmodule SchoolhubWeb.Plugs do
   use SchoolhubWeb, :router
-  
+
+  alias SchoolhubWeb.Routing
   alias Schoolhub.{Accounts, Courses}
   alias Schoolhub.{Questions, Posts}
   
