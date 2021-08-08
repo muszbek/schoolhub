@@ -68,7 +68,8 @@ spec:
           name: monitor
         volumeMounts:
         - name: hap-router-config
-          mountPath: /usr/local/etc/haproxy/
+          mountPath: /usr/local/etc/haproxy/haproxy.cfg
+          subPath: haproxy_router.cfg
           readOnly: true
         - name: tls-secret-letsencrypt-volume
           mountPath: /etc/cert/live/

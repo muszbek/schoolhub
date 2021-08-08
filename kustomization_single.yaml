@@ -2,13 +2,12 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
 resources:
-  - ./kubernetes/headless/postgres.yaml
-  - ./kubernetes/headless/router_phoenix.yaml
-  - ./kubernetes/headless/postfix.yaml
-  - ./kubernetes/headless/haproxy.yaml
-  - ./kubernetes/headless/pg_data_pv.yaml
-  - ./kubernetes/headless/storage.yaml
-  - ./kubernetes/headless/schoolhub.yaml
+  - ./kubernetes/deployment/postgres.yaml
+  - ./kubernetes/deployment/mongooseim.yaml
+  - ./kubernetes/deployment/phoenix.yaml
+  - ./kubernetes/deployment/postfix.yaml
+  - ./kubernetes/deployment/haproxy.yaml
+  - ./kubernetes/deployment/pg_data_pv.yaml
 
 configMapGenerator:
   - name: domain-address
@@ -19,10 +18,7 @@ configMapGenerator:
       - ./postgres/schema/pg.sql
   - name: haproxy-config
     files:
-      - ./haproxy/haproxy_instance.cfg
-  - name: haproxy-router-config
-    files:
-      - ./haproxy/haproxy_router.cfg
+      - ./haproxy/haproxy_single.cfg
   - name: mongooseim-config
     files:
       - ./mongooseim/member/mongooseim.cfg
@@ -36,10 +32,7 @@ configMapGenerator:
 secretGenerator:
   - name: postgres-creds
     envs:
-      - ./postgres/postgres.env
-  - name: postgres-router-creds
-    envs:
-      - ./postgres/postgres_router.env
+      - ./postgres/postgres_single.env
   - name: tls-selfsigned-secret
     files:
       - ./letsencrypt/selfsigned/schoolhub.ddns.net/certs/chain.pem
