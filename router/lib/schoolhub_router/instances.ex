@@ -7,6 +7,7 @@ defmodule SchoolhubRouter.Instances do
   alias SchoolhubRouter.Repo
 
   alias SchoolhubRouter.Instances.Server
+  alias SchoolhubRouter.Instances.K8sLib
 
   @doc """
   Returns the list of servers.
@@ -19,6 +20,11 @@ defmodule SchoolhubRouter.Instances do
   """
   def list_servers do
     Repo.all(Server)
+  end
+
+  def count_servers do
+    servers = list_servers()
+    Enum.count(servers)
   end
 
   @doc """

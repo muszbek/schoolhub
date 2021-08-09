@@ -3,7 +3,7 @@ defmodule SchoolhubRouterWeb.ServerController do
 
   alias SchoolhubRouter.Instances
   alias SchoolhubRouter.Instances.Server
-  require Logger
+  
   def index(conn, _params) do
     servers = Instances.list_servers()
     render(conn, "index.html", servers: servers)
@@ -20,6 +20,11 @@ defmodule SchoolhubRouterWeb.ServerController do
         conn
         |> put_flash(:info, "Server created successfully.")
         |> redirect(to: Routes.page_path(conn, :index))
+
+      {:error, %K8s.Client.APIError{}} ->
+	conn
+        |> put_flash(:error, "Server cannot be created due to internal error.")
+        |> redirect(to: Routes.server_path(conn, :new))
 
       {:error, %Ecto.Changeset{} = changeset} ->
         render(conn, "new.html", changeset: changeset)
