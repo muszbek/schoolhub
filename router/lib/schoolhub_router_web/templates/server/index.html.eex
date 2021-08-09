@@ -18,7 +18,7 @@
       <td><%= server.active %></td>
 
       <td>
-        <span><%= link "Show", to: Routes.server_path(@conn, :show, server) %></span>%></span>
+        <span><%= link "Show", to: Routes.server_path(@conn, :show, server) %></span>
       </td>
     </tr>
 <% end %>

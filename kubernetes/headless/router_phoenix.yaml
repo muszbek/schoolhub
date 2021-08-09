@@ -17,6 +17,38 @@ spec:
 
 ---
 
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: instance-creator
+
+---
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: statefulset-scale-role
+rules:
+  - apiGroups: ["", "extensions", "apps"]
+    resources: ["statefulsets", "statefulsets/scale"]
+    verbs: ["create", "patch", "update", "get", "list", "watch"]
+
+---
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: statefulset-scale-rb
+subjects:
+  - kind: ServiceAccount
+    name: instance-creator
+roleRef:
+  kind: Role
+  name: statefulset-scale-role
+  apiGroup: ""
+
+---
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -32,6 +64,7 @@ spec:
       labels:
         app: phx-server
     spec:
+      serviceAccountName: instance-creator
       containers:
       - name: schoolhub-router-phoenix
         image: router_phx_server:v0.1.0
