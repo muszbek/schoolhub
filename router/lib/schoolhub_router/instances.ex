@@ -67,6 +67,31 @@ defmodule SchoolhubRouter.Instances do
     |> Repo.insert()
   end
 
+  def create_server_with_k8s(attrs \\ %{}) do
+    count = count_servers()
+    ## server index starts with zero, so the count gives the index of the new one
+    address = "schoolhub-instance-" <> to_string(count) <> ".schoolhub.default.svc.cluster.local"
+
+    attrs_with_address = attrs
+    |> Map.put(:address, address)
+    |> Morphix.atomorphify!()
+
+    case create_server(attrs_with_address) do
+      {:ok, server} ->
+	K8sLib.connect()
+	|> K8sLib.scale(count+1)
+	|> validate_server(server)
+      {:error, error} ->  
+	{:error, error}
+    end
+  end
+
+  defp validate_server({:ok, scale}, _server), do: {:ok, scale}
+  defp validate_server({:error, error}, server) do
+    delete_server(server)
+    {:error, error}
+  end
+
   @doc """
   Updates a server.
 

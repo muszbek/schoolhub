@@ -6,14 +6,15 @@ defmodule SchoolhubRouter.InstancesTest do
   describe "servers" do
     alias SchoolhubRouter.Instances.Server
 
-    @valid_attrs %{active: true, address: "some address", name: "some name"}
-    @update_attrs %{active: false, address: "some updated address", name: "some updated name"}
+    @valid_attrs %{name: "some_name"}
+    @valid_raw_attrs %{active: true, address: "some_address", name: "some_name"}
+    @update_attrs %{active: false, address: "some_updated_address", name: "some_updated_name"}
     @invalid_attrs %{active: nil, address: nil, name: nil}
 
     def server_fixture(attrs \\ %{}) do
       {:ok, server} =
         attrs
-        |> Enum.into(@valid_attrs)
+        |> Enum.into(@valid_raw_attrs)
         |> Instances.create_server()
 
       server
@@ -22,6 +23,11 @@ defmodule SchoolhubRouter.InstancesTest do
     test "list_servers/0 returns all servers" do
       server = server_fixture()
       assert Instances.list_servers() == [server]
+    end
+
+    test "count_servers/0 returns one" do
+      _server = server_fixture()
+      assert Instances.count_servers() == 1
     end
 
     test "get_server!/1 returns the server with given id" do
@@ -35,22 +41,26 @@ defmodule SchoolhubRouter.InstancesTest do
     end
 
     test "create_server/1 with valid data creates a server" do
-      assert {:ok, %Server{} = server} = Instances.create_server(@valid_attrs)
+      assert {:ok, %Server{} = server} = Instances.create_server(@valid_raw_attrs)
       assert server.active == true
-      assert server.address == "some address"
-      assert server.name == "some name"
+      assert server.address == "some_address"
+      assert server.name == "some_name"
     end
 
     test "create_server/1 with invalid data returns error changeset" do
       assert {:error, %Ecto.Changeset{}} = Instances.create_server(@invalid_attrs)
     end
 
+    test "create_server_with_k8s/1 with valid data returns error cannot connect to k8s" do
+      assert {:error, :enoent} = Instances.create_server_with_k8s(@valid_attrs)
+    end
+
     test "update_server/2 with valid data updates the server" do
       server = server_fixture()
       assert {:ok, %Server{} = server} = Instances.update_server(server, @update_attrs)
       assert server.active == false
-      assert server.address == "some updated address"
-      assert server.name == "some updated name"
+      assert server.address == "some_updated_address"
+      assert server.name == "some_updated_name"
     end
 
     test "update_server/2 with invalid data returns error changeset" do

@@ -15,7 +15,7 @@ defmodule SchoolhubRouterWeb.ServerController do
   end
 
   def create(conn, %{"server" => server_params}) do
-    case Instances.create_server(server_params) do
+    case Instances.create_server_with_k8s(server_params) do
       {:ok, _server} ->
         conn
         |> put_flash(:info, "Server created successfully.")
@@ -28,6 +28,11 @@ defmodule SchoolhubRouterWeb.ServerController do
 
       {:error, %Ecto.Changeset{} = changeset} ->
         render(conn, "new.html", changeset: changeset)
+
+      {:error, _error} ->
+	conn
+        |> put_flash(:error, "Cannot connect to Kubernetes.")
+        |> redirect(to: Routes.server_path(conn, :new))
     end
   end
 
