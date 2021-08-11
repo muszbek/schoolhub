@@ -55,6 +55,11 @@ defmodule SchoolhubRouter.InstancesTest do
       assert {:error, :enoent} = Instances.create_server_with_k8s(@valid_attrs)
     end
 
+    test "synchronize_with_k8s/0 returns error cannot connect to k8s" do
+      _server = server_fixture()
+      assert {:error, :enoent} = Instances.synchronize_with_k8s()
+    end
+
     test "update_server/2 with valid data updates the server" do
       server = server_fixture()
       assert {:ok, %Server{} = server} = Instances.update_server(server, @update_attrs)

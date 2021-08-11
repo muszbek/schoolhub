@@ -14,9 +14,10 @@ defmodule SchoolhubRouter.Application do
       # Start the PubSub system
       {Phoenix.PubSub, name: SchoolhubRouter.PubSub},
       # Start the Endpoint (http/https)
-      SchoolhubRouterWeb.Endpoint
+      SchoolhubRouterWeb.Endpoint,
       # Start a worker by calling: SchoolhubRouter.Worker.start_link(arg)
       # {SchoolhubRouter.Worker, arg}
+      Task.child_spec(fn -> SchoolhubRouter.Instances.synchronize_with_k8s() end)
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

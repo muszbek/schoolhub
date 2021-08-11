@@ -92,6 +92,13 @@ defmodule SchoolhubRouter.Instances do
     {:error, error}
   end
 
+  def synchronize_with_k8s() do
+    count = count_servers()
+
+    K8sLib.connect()
+    |> K8sLib.scale(count)
+  end
+
   @doc """
   Updates a server.
 
