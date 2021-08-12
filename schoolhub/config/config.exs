@@ -32,6 +32,12 @@ config :schoolhub, Schoolhub.Mailer,
 config :schoolhub, Schoolhub.Accounts,
   signing_salt: System.get_env("USER_SIGNING_SALT", "mKg5y9G6")
 
+config :schoolhub, Schoolhub.AdminLib,
+  self_pod_name: System.get_env("POD_NAME", "schoolhub-instance-0"),
+  router_host: "phx-server",
+  router_port: 4001,
+  ssl_opts: [cacertfile: "priv/cert/chain.pem"]
+
 # Configures Elixir's Logger
 config :logger, :console,
   format: "$time $metadata[$level] $message\n",

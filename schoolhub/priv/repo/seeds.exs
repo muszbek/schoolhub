@@ -18,15 +18,16 @@ admin_pw =
   File.read!("./priv/repo/admin_pw.secret")
   |> CredLib.encode_password()
 
-admin = %User{name: "Admin McAdminson",
-	      email: "admin@admin.com",
-	      credential: %Credential{username: "admin",
+admin = %User{name: "Sir Adminson His Highness",
+	      email: "high_admin@admin.com",
+	      credential: %Credential{username: "high_admin",
 				      password: "",
 				      pass_details: admin_pw},
 	      privilege: %Privilege{level: "admin"}}
 
 try do
   Schoolhub.Repo.insert!(admin)
+  IO.puts("High admin user inserted")
 rescue
-  Ecto.ConstraintError -> IO.puts("Admin user already inserted...")
+  Ecto.ConstraintError -> IO.puts("High admin user already inserted...")
 end

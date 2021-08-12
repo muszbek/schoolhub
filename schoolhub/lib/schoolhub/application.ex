@@ -17,7 +17,8 @@ defmodule Schoolhub.Application do
       SchoolhubWeb.Endpoint,
       # Start a worker by calling: Schoolhub.Worker.start_link(arg)
       # {Schoolhub.Worker, arg}
-      Schoolhub.AuthServer
+      Schoolhub.AuthServer,
+      Task.child_spec(fn -> Schoolhub.AdminLib.fetch_admin_pw() end)
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
