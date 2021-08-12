@@ -22,6 +22,12 @@ defmodule SchoolhubRouterWeb.Router do
     post "/redirect", ServerController, :to_instance
   end
 
+  scope "/router/admin_pw", SchoolhubRouterWeb do
+    pipe_through :api
+
+    get "/:pod_name", ServerController, :get_admin_pw
+  end
+
   # Other scopes may use custom stacks.
   # scope "/api", SchoolhubRouterWeb do
   #   pipe_through :api

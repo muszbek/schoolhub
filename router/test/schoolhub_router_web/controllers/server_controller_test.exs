@@ -3,8 +3,10 @@ defmodule SchoolhubRouterWeb.ServerControllerTest do
 
   alias SchoolhubRouter.Instances
 
+  @pod_address_suffix ".schoolhub.default.svc.cluster.local"
   @create_attrs %{name: "some_name", admin_pw: "some_pw"}
-  @create_raw_attrs %{name: "some_name", address: "some_address", admin_pw: "some_pw"}
+  @create_raw_attrs %{name: "some_name", address: "some_address" <> @pod_address_suffix,
+		      admin_pw: "some_pw"}
   @invalid_attrs %{name: nil, admin_pw: nil}
 
   def fixture(:server) do
@@ -55,6 +57,20 @@ defmodule SchoolhubRouterWeb.ServerControllerTest do
     test "redirects to server address when server exists", %{conn: conn, server: server} do
       conn = post(conn, Routes.server_path(conn, :to_instance), server_name: server.name)
       assert redirected_to(conn) == "/" <> server.address <> "/"
+    end
+  end
+
+  describe "get admin password" do
+    setup [:create_server]
+
+    test "gets admin password and then gets nothing", %{conn: conn, server: server} do
+      conn = get(conn, Routes.server_path(conn, :get_admin_pw, "some_address"))
+      assert json_response(conn, 200)["already_injected"] == false
+      assert json_response(conn, 200)["admin_pw"] == server.admin_pw
+
+      conn = get(conn, Routes.server_path(conn, :get_admin_pw, "some_address"))
+      assert json_response(conn, 200)["already_injected"] == true
+      assert json_response(conn, 200)["admin_pw"] == nil
     end
   end
 

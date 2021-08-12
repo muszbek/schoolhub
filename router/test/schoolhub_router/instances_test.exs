@@ -41,6 +41,19 @@ defmodule SchoolhubRouter.InstancesTest do
       server = server_fixture()
       assert Instances.get_server_by_name(server.name) == server
     end
+    
+    test "get_server_by_name/1 returns nothing" do
+      assert Instances.get_server_by_name("non_existing_name") == nil
+    end
+
+    test "get_server_by_address/1 returns the server with given address" do
+      server = server_fixture()
+      assert Instances.get_server_by_address(server.address) == server
+    end
+    
+    test "get_server_by_address/1 returns nothing" do
+      assert Instances.get_server_by_address("non_existing_address") == nil
+    end
 
     test "create_server/1 with valid data creates a server" do
       assert {:ok, %Server{} = server} = Instances.create_server(@valid_raw_attrs)

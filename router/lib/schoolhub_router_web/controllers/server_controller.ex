@@ -3,6 +3,8 @@ defmodule SchoolhubRouterWeb.ServerController do
 
   alias SchoolhubRouter.Instances
   alias SchoolhubRouter.Instances.Server
+
+  @pod_address_suffix ".schoolhub.default.svc.cluster.local"
   
   def index(conn, _params) do
     servers = Instances.list_servers()
@@ -51,6 +53,18 @@ defmodule SchoolhubRouterWeb.ServerController do
 	path = "/" <> server.address <> "/"
 	redirect(conn, to: path)
     end
+  end
+
+  def get_admin_pw(conn, %{"pod_name" => pod_name}) do
+    address = pod_name <> @pod_address_suffix
+    server = Instances.get_server_by_address(address)
+
+    ## The first time somebody asks for the password
+    ## (it can be only the corresponding server)
+    ## delete the data
+    Instances.update_server(server, %{admin_pw: nil})
+    
+    render(conn, "admin_pw.json", admin_pw: server.admin_pw)
   end
 
 end

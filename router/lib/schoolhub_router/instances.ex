@@ -9,6 +9,8 @@ defmodule SchoolhubRouter.Instances do
   alias SchoolhubRouter.Instances.Server
   alias SchoolhubRouter.Instances.K8sLib
 
+  @pod_address_suffix ".schoolhub.default.svc.cluster.local"
+  
   @doc """
   Returns the list of servers.
 
@@ -49,6 +51,12 @@ defmodule SchoolhubRouter.Instances do
     |> Repo.one()
   end
 
+  def get_server_by_address(address) do
+    Server
+    |> where(address: ^address)
+    |> Repo.one()
+  end
+
   @doc """
   Creates a server.
 
@@ -70,7 +78,7 @@ defmodule SchoolhubRouter.Instances do
   def create_server_with_k8s(attrs \\ %{}) do
     count = count_servers()
     ## server index starts with zero, so the count gives the index of the new one
-    address = "schoolhub-instance-" <> to_string(count) <> ".schoolhub.default.svc.cluster.local"
+    address = "schoolhub-instance-" <> to_string(count) <> @pod_address_suffix
 
     attrs_with_address = attrs
     |> Map.put(:address, address)
