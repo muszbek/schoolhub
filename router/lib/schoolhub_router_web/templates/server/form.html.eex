@@ -6,14 +6,32 @@
   <% end %>
 
   <%= label f, :name %>
+  This is how you and your guests will refer to the server before redirection.
   <%= text_input f, :name %>
   <%= error_tag f, :name %>
 
-  <%= label f, :admin_pw %>
-  <%= text_input f, :admin_pw %>
+  <label>Admin password</label>
+  This is the credential you will use to excercise admin rights on your server.</br>
+  It will only be stored in your own database in unintelligable form. Do not forget it!
+  <%= password_input f, :admin_pw, [onchange: "check_pass();"] %>
   <%= error_tag f, :admin_pw %>
 
+  <label>Confirm admin password</label>
+  <%= password_input f, :confirm_admin_pw, [onchange: "check_pass();"] %>
+  <%= error_tag f, :confirm_admin_pw %>
+
   <div>
-    <%= submit "Save" %>
+    <%= submit "Save", [id: "submit", disabled: "true"] %>
   </div>
 <% end %>
+
+<script>
+  function check_pass() {
+      if (document.getElementById('server_admin_pw').value ==
+	  document.getElementById('server_confirm_admin_pw').value) {
+	  document.getElementById('submit').disabled = false;
+      } else {
+	  document.getElementById('submit').disabled = true;
+      }
+  }
+</script>
