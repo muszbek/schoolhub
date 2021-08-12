@@ -136,6 +136,10 @@ spec:
             configMapKeyRef:
               name: domain-address
               key: DOMAIN
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
         - name: POSTFIX_HOST
           value: localhost
         - name: MONGOOSEIM_HOST
