@@ -5,6 +5,7 @@ defmodule SchoolhubRouter.Instances.Server do
   schema "servers" do
     field :name, :string
     field :address, :string
+    field :admin_pw, :string
     field :active, :boolean,
       default: true
 
@@ -14,7 +15,7 @@ defmodule SchoolhubRouter.Instances.Server do
   @doc false
   def changeset(server, attrs) do
     server
-    |> cast(attrs, [:name, :address, :active])
+    |> cast(attrs, [:name, :address, :admin_pw, :active])
     |> validate_required([:name, :address])
     |> unique_constraint(:name)
     |> unique_constraint(:address)

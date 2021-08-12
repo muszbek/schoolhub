@@ -3,9 +3,9 @@ defmodule SchoolhubRouterWeb.ServerControllerTest do
 
   alias SchoolhubRouter.Instances
 
-  @create_attrs %{name: "some_name"}
-  @create_raw_attrs %{name: "some_name", address: "some_address"}
-  @invalid_attrs %{name: nil}
+  @create_attrs %{name: "some_name", admin_pw: "some_pw"}
+  @create_raw_attrs %{name: "some_name", address: "some_address", admin_pw: "some_pw"}
+  @invalid_attrs %{name: nil, admin_pw: nil}
 
   def fixture(:server) do
     {:ok, server} = Instances.create_server(@create_raw_attrs)

@@ -7,9 +7,11 @@ defmodule SchoolhubRouter.InstancesTest do
     alias SchoolhubRouter.Instances.Server
 
     @valid_attrs %{name: "some_name"}
-    @valid_raw_attrs %{active: true, address: "some_address", name: "some_name"}
-    @update_attrs %{active: false, address: "some_updated_address", name: "some_updated_name"}
-    @invalid_attrs %{active: nil, address: nil, name: nil}
+    @valid_raw_attrs %{address: "some_address", name: "some_name",
+		       admin_pw: "some_pw"}
+    @update_attrs %{active: false, address: "some_updated_address", name: "some_updated_name",
+		    admin_pw: nil}
+    @invalid_attrs %{active: nil, address: nil, name: nil, admin_pw: nil}
 
     def server_fixture(attrs \\ %{}) do
       {:ok, server} =
@@ -45,6 +47,7 @@ defmodule SchoolhubRouter.InstancesTest do
       assert server.active == true
       assert server.address == "some_address"
       assert server.name == "some_name"
+      assert server.admin_pw == "some_pw"
     end
 
     test "create_server/1 with invalid data returns error changeset" do
@@ -66,6 +69,7 @@ defmodule SchoolhubRouter.InstancesTest do
       assert server.active == false
       assert server.address == "some_updated_address"
       assert server.name == "some_updated_name"
+      assert server.admin_pw == nil
     end
 
     test "update_server/2 with invalid data returns error changeset" do
