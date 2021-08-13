@@ -19,17 +19,12 @@ fix error when delete user - foreign key constraint - how to fix?
 
 what is the EHLO email restart message? related to openDKIM, maybe testing that it will work
 
-view tests
-
 minimal style changes
 pictures to courses
 liveview filtering
 follow descriptive
 
 remove picture
-
-mongooseim kubernetes clustering:
-Failed clustering mongooseim@schoolhub-mongooseim-56d8f4866f-gqqs6 with mongooseim@schoolhub-mongooseim-56d8f4866f-1
 
 domain name should not be hardcoded in kustomization in the tls certificate path
 

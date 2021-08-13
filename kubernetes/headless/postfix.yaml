@@ -9,6 +9,9 @@ spec:
   - name: 1587-587
     port: 1587
     targetPort: 587
+  - name: 25-25
+    port: 25
+    targetPort: 25
   selector:
     app: postfix
 
@@ -45,3 +48,5 @@ spec:
         ports:
         - containerPort: 587
           name: smtp
+        - containerPort: 25
+          name: smtp-relay

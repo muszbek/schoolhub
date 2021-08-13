@@ -202,6 +202,8 @@ spec:
             configMapKeyRef:
               name: domain-address
               key: DOMAIN
+        - name: RELAYHOST
+          value: postfix.default.svc.cluster.local
         - name: DKIM_AUTOGENERATE
           value: "true"
         - name: INBOUND_DEBUGGING
@@ -209,7 +211,7 @@ spec:
         ports:
         - containerPort: 587
           name: smtp
-      
+            
       volumes:
       - name: pg-schema
         configMap:
