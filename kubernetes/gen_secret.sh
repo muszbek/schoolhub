@@ -13,6 +13,9 @@ kubectl create secret generic tls-selfsigned-secret \
 kubectl create secret generic tls-letsencrypt-secret \
 	--from-file=../letsencrypt/live/$DOMAIN/certs/joined_cert.pem
 
+kubectl create secret generic admin-password \
+	--from-file=../schoolhub/priv/repo/admin_pw.secret
+
 kubectl create secret generic postgres-creds \
 	--from-env-file=../postgres/postgres.env
 

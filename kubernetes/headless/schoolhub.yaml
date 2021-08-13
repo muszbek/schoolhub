@@ -167,6 +167,9 @@ spec:
         volumeMounts:
         - name: tls-secret-selfsigned-volume
           mountPath: /opt/app/priv/cert/
+        - name: admin-password-volume
+          mountPath: /opt/app/priv/repo/admin_pw.secret
+          subPath: admin_pw.secret
 
       - name: schoolhub-haproxy
         image: haproxy:2.4
@@ -243,6 +246,12 @@ spec:
           items:
           - key: joined_cert.pem
             path: joined_cert.pem
+      - name: admin-password-volume
+        secret:
+          secretName: admin-password
+          items:
+          - key: admin_pw.secret
+            path: admin_pw.secret
 
   volumeClaimTemplates:
   - metadata:

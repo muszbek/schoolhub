@@ -50,3 +50,6 @@ secretGenerator:
   - name: tls-letsencrypt-secret
     files:
       - ./letsencrypt/live/schoolhub.ddns.net/certs/joined_cert.pem
+  - name: admin-password
+    files:
+      - ./schoolhub/priv/repo/admin_pw.secret
