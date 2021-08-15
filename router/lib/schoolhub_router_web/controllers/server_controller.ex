@@ -51,7 +51,9 @@ defmodule SchoolhubRouterWeb.ServerController do
 	|> redirect(to: Routes.page_path(conn, :index))
       server ->
 	path = "/" <> server.address <> "/"
-	redirect(conn, to: path)
+	conn
+	|> put_resp_cookie("server-name", server_name)
+	|> redirect(to: path)
     end
   end
 

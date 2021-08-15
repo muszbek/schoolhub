@@ -1,6 +1,6 @@
 <section class="phx-hero">
   <h1><%= gettext "Welcome to %{name}!", name: "Schoolhub" %></h1>
-  <p>Keep in touch with your students or teachers</p>
+  <p><%= get_server_name(@conn) %></p>
 </section>
 
 
