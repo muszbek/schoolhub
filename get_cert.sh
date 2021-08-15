@@ -8,7 +8,8 @@ if [ $(id --user) != 0 ]; then
     exit 1
 fi
 
-DOMAIN=schoolhub.com
+# load DOMAIN from file:
+source ./.env
 if [ $# -eq 1 ]
 then
     DOMAIN=$1
