@@ -53,6 +53,7 @@ defmodule SchoolhubWeb.Router do
 
     get "/", PageController, :index
     get "/phoenix", PageController, :phoenix
+    get "/router", PageController, :router
     resources "/users", UserController, only: [:new, :create]
     get "/users/change_pw/:token", UserController, :change_pw
     put "/users/change_pw/:token", UserController, :update_pw
