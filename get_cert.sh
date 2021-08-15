@@ -16,11 +16,10 @@ fi
 
 echo "Domain name is $DOMAIN ..."
 
+ROOT_DIR=$PWD
 
 function get_selfsigned {
     echo "Creating self-signed certificates..."
-    
-    ROOT_DIR=$PWD
     
     docker build -t mkcert -f Dockerfile_dev_ssl .
 
@@ -65,3 +64,15 @@ cat privkey.pem fullchain.pem | tee joined_cert.pem >/dev/null
 
 chown 999:999 privkey.pem
 chmod 0600 privkey.pem
+
+cd $ROOT_DIR
+
+echo "Updating domain name in kustomization.yaml..."
+
+CONFIG_PATH="./kustomization.yaml"
+put_variable()
+{
+    sed -i "s/$1/$2/" $CONFIG_PATH
+}
+
+put_variable %DOMAIN% $DOMAIN

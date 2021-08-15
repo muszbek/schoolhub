@@ -42,14 +42,14 @@ secretGenerator:
       - ./postgres/postgres_router.env
   - name: tls-selfsigned-secret
     files:
-      - ./letsencrypt/selfsigned/schoolhub.ddns.net/certs/chain.pem
-      - ./letsencrypt/selfsigned/schoolhub.ddns.net/certs/cert.pem
-      - ./letsencrypt/selfsigned/schoolhub.ddns.net/certs/fullchain.pem
-      - ./letsencrypt/selfsigned/schoolhub.ddns.net/certs/privkey.pem
-      - ./letsencrypt/selfsigned/schoolhub.ddns.net/certs/joined_cert.pem
+      - ./letsencrypt/selfsigned/%DOMAIN%/certs/chain.pem
+      - ./letsencrypt/selfsigned/%DOMAIN%/certs/cert.pem
+      - ./letsencrypt/selfsigned/%DOMAIN%/certs/fullchain.pem
+      - ./letsencrypt/selfsigned/%DOMAIN%/certs/privkey.pem
+      - ./letsencrypt/selfsigned/%DOMAIN%/certs/joined_cert.pem
   - name: tls-letsencrypt-secret
     files:
-      - ./letsencrypt/live/schoolhub.ddns.net/certs/joined_cert.pem
+      - ./letsencrypt/live/%DOMAIN%/certs/joined_cert.pem
   - name: admin-password
     files:
       - ./schoolhub/priv/repo/admin_pw.secret
