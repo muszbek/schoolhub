@@ -31,5 +31,3 @@ k3d image import phx_server:v0.2.2 router_phx_server:v0.1.0 mongooseim/mongoosei
 make it possible to reset database from api
 
 why two admin pw requests?
-
-js files 404 from the other computer (big problem!)
