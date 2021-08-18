@@ -26,7 +26,7 @@ follow descriptive
 
 remove picture
 
-k3d image import phx_server:v0.2.2 router_phx_server:v0.1.0 mongooseim/mongooseim:3.7.1 postgres:13.3 haproxy:2.4 boky/postfix:v3.3.0 busybox:1.33
+k3d image import phx_server:v0.3 router_phx_server:v0.2 mongooseim/mongooseim:3.7.1 postgres:13.3 haproxy:2.4 boky/postfix:v3.3.0 busybox:1.33
 
 make it possible to reset database from api
 
