@@ -1,1 +1,53 @@
-description blabla
+Schoolhub is a social paltform intended to facilitate communication between teachers and their students.</br>
+
+Teachers are able to create isolated spaces for their courses, with the following functionalities, as for the moment:
+
+<ul>
+  <li>Invite members with a secret token</li>
+  <li>Access rights - teacher / assistant / student</li>
+  <li>Course description with header picture</li>
+  <li>Message wall</li>
+  <li>Questions and answers</li>
+  <li>Instant messaging between members</li>
+  <li>Upload files</li>
+  <li>Give grades</li>
+</ul>
+
+<h2>How to start</h2>
+
+<h3>If you are a teacher:</h3>
+
+<ol type="1">
+  <li>Subscribe for your own isolated server instance
+    <ul>
+      <li>Specify a server name - this is how everyone who knows the name will find your server</li>
+      <li>Specify an admin password - this is how you can excercise admin rights in your server</li>
+      <li>Pay the monthly subscription fee</li>
+    </ul>
+  </li>
+  <li>Redirect to your server from the root page using the server name</li>
+  <li>Create a new user for yourself, receive confirmation via email</li>
+  <li>Authenticate as an admin
+    <ul>
+      <li>Username: admin</li>
+      <li>Password: the admin password you specified upon creation</li>
+    </ul>
+  </li>
+  <li>As an admin, give "teacher" or "admin" rights to your newly created account</li>
+  <li>Create a course, fill it with content (you can have multiple courses on the same server)</li>
+  <li>Create an invitation token from your course</li>
+  <li>Diffuse your server name and the course invitation token to your students via your own means</li>
+</ol>
+
+<h3>If you are a student:</h3>
+
+<ol type="1">
+  <li>Receive the server name from your teacher</li>
+  <li>Redirect to the server from the root page using the server name</li>
+  <li>Create a new user for yourself, receive confirmation via email</li>
+  <li>Receive an invitation token from your teacher</li>
+  <li>Join a course using the invitation token</li>
+</ol>
+
+If you have any questions, feel free to contact me on my email address:</br>
+<span>autodelete@spam.com</span></br>
