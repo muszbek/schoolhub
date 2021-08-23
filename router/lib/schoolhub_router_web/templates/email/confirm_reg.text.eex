@@ -1,0 +1,11 @@
+You have successfully created a server instance in Schoolhub, with the name "<%= @name %>"!
+It should be up and running within a few minutes.
+
+Enter the server name on the root page any time to redirect to your server.
+
+Also here is a direct link:
+<%= @url %>
+
+Log in with the username "admin", and the password you specified upon registration.
+
+<< Please do not reply to this email >>

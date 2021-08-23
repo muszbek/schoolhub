@@ -2,7 +2,7 @@ defmodule Schoolhub.Email do
   use Bamboo.Phoenix, view: SchoolhubWeb.EmailView
 
   alias Schoolhub.Accounts
-  require Logger
+  
   def forgot_pw_email(user) do
     domain = System.get_env("DOMAIN", "localhost")
     
