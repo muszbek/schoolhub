@@ -14,7 +14,8 @@ alias SchoolhubRouter.Instances.Server
 
 demo_server = %Server{name: "demo",
 		      address: "schoolhub-instance-0.schoolhub.default.svc.cluster.local",
-		      admin_pw: "admin"}
+		      admin_pw: "admin",
+		      owner_email: "muszbektamas@gmail.com"}
 
 try do
   SchoolhubRouter.Repo.insert!(demo_server)

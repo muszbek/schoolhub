@@ -6,12 +6,12 @@ defmodule SchoolhubRouter.InstancesTest do
   describe "servers" do
     alias SchoolhubRouter.Instances.Server
 
-    @valid_attrs %{name: "some_name"}
+    @valid_attrs %{name: "some_name", admin_pw: "some_pw", owner_email: "some_email"}
     @valid_raw_attrs %{address: "some_address", name: "some_name",
-		       admin_pw: "some_pw"}
+		       admin_pw: "some_pw", owner_email: "some_email"}
     @update_attrs %{active: false, address: "some_updated_address", name: "some_updated_name",
-		    admin_pw: nil}
-    @invalid_attrs %{active: nil, address: nil, name: nil, admin_pw: nil}
+		    owner_email: "some_updated_email", admin_pw: nil}
+    @invalid_attrs %{active: nil, address: nil, name: nil, owner_email: nil, admin_pw: nil}
 
     def server_fixture(attrs \\ %{}) do
       {:ok, server} =
@@ -60,6 +60,7 @@ defmodule SchoolhubRouter.InstancesTest do
       assert server.active == true
       assert server.address == "some_address"
       assert server.name == "some_name"
+      assert server.owner_email == "some_email"
       assert server.admin_pw == "some_pw"
     end
 
@@ -82,6 +83,7 @@ defmodule SchoolhubRouter.InstancesTest do
       assert server.active == false
       assert server.address == "some_updated_address"
       assert server.name == "some_updated_name"
+      assert server.owner_email == "some_updated_email"
       assert server.admin_pw == nil
     end
 

@@ -5,10 +5,14 @@
     </div>
   <% end %>
 
-  <%= label f, :name %>
+  <label>Server name</label>
   This is how you and your guests will refer to the server before redirection.
   <%= text_input f, :name %>
   <%= error_tag f, :name %>
+
+  <label>Email</label>
+  <%= email_input f, :owner_email %>
+  <%= error_tag f, :owner_email %>
 
   <label>Admin password</label>
   This is the credential you will use to excercise admin rights on your server.</br>
