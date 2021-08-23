@@ -19,6 +19,7 @@ defmodule SchoolhubRouterWeb.Router do
     get "/", PageController, :index
     get "/phoenix", PageController, :phoenix
     get "/description", DescriptionController, :index
+    get "/contact", DescriptionController, :contact
     resources "/servers", ServerController, only: [:index, :show, :new, :create]
     post "/redirect", ServerController, :to_instance
   end

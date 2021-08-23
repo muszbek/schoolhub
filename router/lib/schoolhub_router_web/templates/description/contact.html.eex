@@ -1,0 +1,9 @@
+<h1>Contact</h1>
+
+My real email address:</br>
+
+<span>muszbektamas@gmail.com</span></br>
+
+Feel free to contact me with any questions, requests or complaints!</br>
+
+<span><%= link "Back", to: Routes.description_path(@conn, :index) %></span>

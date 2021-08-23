@@ -50,4 +50,4 @@ Teachers are able to create isolated spaces for their courses, with the followin
 </ol>
 
 If you have any questions, feel free to contact me on my email address:</br>
-<span>autodelete@spam.com</span></br>
+<span><%= link "autodelete@spam.com", to: Routes.description_path(@conn, :contact) %></span></br>
