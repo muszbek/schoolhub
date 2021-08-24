@@ -1,0 +1,7 @@
+Following this link you can finalize unsubscribing your server "<%= @name %>"!
+
+<%= @url_with_token %>
+
+Note that the server will become unacessible and all data on it will be lost!
+
+<< Please do not reply to this email >>

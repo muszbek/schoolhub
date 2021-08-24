@@ -89,8 +89,9 @@ defmodule SchoolhubRouterWeb.ServerController do
   end
 
   defp check_authorization(conn, server, email) do
-    if server.email == email do
-      # send out email
+    if server.owner_email == email do
+      Email.unsubscribe_email(server.name, email)
+      |> Mailer.deliver_now!()
 
       conn
       |> put_flash(:info, "Email sent to unsubscribe.")

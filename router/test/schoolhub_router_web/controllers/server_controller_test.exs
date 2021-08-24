@@ -81,6 +81,28 @@ defmodule SchoolhubRouterWeb.ServerControllerTest do
     end
   end
 
+  describe "unsubscribe server form" do
+    setup [:create_server]
+    
+    test "valid credentials pass", %{conn: conn, server: server} do
+      conn = post(conn, Routes.server_path(conn, :email_unsubscribe),
+	name: server.name, email: server.owner_email)
+      assert redirected_to(conn) == Routes.page_path(conn, :index)
+    end
+
+    test "invalid name does not pass", %{conn: conn} do
+      conn = post(conn, Routes.server_path(conn, :email_unsubscribe),
+	name: "some_invalid_name", email: nil)
+      assert redirected_to(conn) == Routes.server_path(conn, :unsubscribe)
+    end
+
+    test "not matching email does not pass", %{conn: conn, server: server} do
+      conn = post(conn, Routes.server_path(conn, :email_unsubscribe),
+	name: server.name, email: "some_invalid_email")
+      assert redirected_to(conn) == Routes.server_path(conn, :unsubscribe)
+    end
+  end
+
 
   defp create_server(_) do
     server = fixture(:server)

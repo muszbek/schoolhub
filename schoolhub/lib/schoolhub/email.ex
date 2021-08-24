@@ -2,14 +2,16 @@ defmodule Schoolhub.Email do
   use Bamboo.Phoenix, view: SchoolhubWeb.EmailView
 
   alias Schoolhub.Accounts
+  alias SchoolhubWeb.Routing
   
-  def forgot_pw_email(user) do
+  def forgot_pw_email(conn, user) do
     domain = System.get_env("DOMAIN", "localhost")
+    internal_host = Routing.internal_host(conn)
     
     username = user.credential.username
     address = user.email
     token = Accounts.create_token(username)
-    url = url_prefix() <> domain <> "/users/change_pw/" <> token
+    url = url_prefix() <> domain <> internal_host <> "/users/change_pw/" <> token
     
     new_email()
     |> to(address)
@@ -20,12 +22,13 @@ defmodule Schoolhub.Email do
     |> render("forgot_pw.text")
   end
   
-  def confirm_reg_email(attrs) do
+  def confirm_reg_email(conn, attrs) do
     domain = System.get_env("DOMAIN", "localhost")
+    internal_host = Routing.internal_host(conn)
 
     %{"email" => address, "credential" => %{"username" => username}} = attrs
     token = Accounts.create_token(attrs)
-    url = url_prefix() <> domain <> "/users/register/" <> token
+    url = url_prefix() <> domain <> internal_host <> "/users/register/" <> token
     
     new_email()
     |> to(address)

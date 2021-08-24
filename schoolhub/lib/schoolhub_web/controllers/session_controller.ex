@@ -45,9 +45,10 @@ defmodule SchoolhubWeb.SessionController do
 	conn
 	|> put_flash(:error, "Email address not found in database, please register")
 	|> redirect(to: Routing.route(:session_path, conn, [:new]))
-	
+
       user ->
-	Email.forgot_pw_email(user)
+	conn
+	|> Email.forgot_pw_email(user)
 	|> Mailer.deliver_now!()
     
 	conn

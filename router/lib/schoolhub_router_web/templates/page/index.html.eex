@@ -6,4 +6,4 @@
 <%= render "redirect_form.html", conn: @conn %>
 
 <span><%= link "New server", to: Routes.server_path(@conn, :new) %></span></br>
-<span><%= link "Unsubscribe from server", to: Routes.server_path(@conn, :unsubscribe) %></span>
+<span><%= link "Unsubscribe server", to: Routes.server_path(@conn, :unsubscribe) %></span>

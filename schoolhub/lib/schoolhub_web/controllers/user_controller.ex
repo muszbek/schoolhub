@@ -22,7 +22,8 @@ defmodule SchoolhubWeb.UserController do
 	## Adding now is necessary to detect changeset errors
 	Accounts.delete_user(user)
 
-	Email.confirm_reg_email(user_params)
+	conn
+	|> Email.confirm_reg_email(user_params)
 	|> Mailer.deliver_now!()
 	
         conn
