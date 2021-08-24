@@ -103,6 +103,25 @@ defmodule SchoolhubRouterWeb.ServerControllerTest do
     end
   end
 
+  describe "unsubscribe server token" do
+    setup [:create_server]
+
+    test "correct token update redirects", %{conn: conn, server: server} do
+      server_name = server.name
+      token = Instances.create_token(server_name)
+      
+      conn = get(conn, Routes.server_path(conn, :token_unsubscribe, token))
+      assert redirected_to(conn) == Routes.page_path(conn, :index)
+    end
+
+    test "invalid token update redirects", %{conn: conn} do
+      token = "invalid_token"
+
+      conn = get(conn, Routes.server_path(conn, :token_unsubscribe, token))
+      assert redirected_to(conn) == Routes.server_path(conn, :unsubscribe)
+    end
+  end
+
 
   defp create_server(_) do
     server = fixture(:server)

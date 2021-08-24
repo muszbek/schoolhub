@@ -32,6 +32,5 @@ make it possible to reset database from api
 
 why two admin pw requests?
 
-finish email reg
 unreg with email
 proxy whitelist database routes

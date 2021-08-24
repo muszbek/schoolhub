@@ -6,6 +6,7 @@ defmodule SchoolhubRouter.Instances do
   import Ecto.Query, warn: false
   alias SchoolhubRouter.Repo
 
+  alias Phoenix.Token
   alias SchoolhubRouter.Instances.Server
   alias SchoolhubRouter.Instances.K8sLib
 

@@ -22,10 +22,10 @@ defmodule SchoolhubRouter.Email do
     domain = System.get_env("DOMAIN", "localhost")
     
     token = Instances.create_token(name)
-    url = url_prefix() <> domain <> "/router/server/unsubscribe/" <> token
+    url = url_prefix() <> domain <> "/router/servers/unsubscribe/" <> token
     
     new_email()
-    |> to(address)
+    |> to(email_address)
     |> from("noreply@" <> domain)
     |> subject("Unsubscribe server")
     |> assign(:name, name)

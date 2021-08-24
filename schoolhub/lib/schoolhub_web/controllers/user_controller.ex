@@ -149,7 +149,7 @@ defmodule SchoolhubWeb.UserController do
 	conn
 	|> put_flash(:error, "Change password token expired!")
 	|> redirect(to:	Routing.route(:session_path, conn, [:new]))
-    end	
+    end
   end
 
   def update_pw(conn, %{"token" => token, "password" => password}) do

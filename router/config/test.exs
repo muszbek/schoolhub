@@ -18,5 +18,8 @@ config :schoolhub_router, SchoolhubRouterWeb.Endpoint,
   http: [port: 4002],
   server: false
 
+config :schoolhub_router, SchoolhubRouter.Mailer,
+  adapter: BambooSMTP.TestAdapter
+
 # Print only warnings and errors during test
 config :logger, level: :warn

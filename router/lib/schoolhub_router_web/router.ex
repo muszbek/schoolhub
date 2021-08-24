@@ -23,6 +23,7 @@ defmodule SchoolhubRouterWeb.Router do
     
     get "/servers/unsubscribe", ServerController, :unsubscribe
     post "/servers/unsubscribe", ServerController, :email_unsubscribe
+    get "/servers/unsubscribe/:token", ServerController, :token_unsubscribe
     resources "/servers", ServerController, only: [:index, :show, :new, :create]
     post "/redirect", ServerController, :to_instance
   end
