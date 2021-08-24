@@ -74,6 +74,13 @@ defmodule SchoolhubRouterWeb.ServerControllerTest do
     end
   end
 
+  describe "unsubscribe page" do
+    test "renders form", %{conn: conn} do
+      conn = get(conn, Routes.server_path(conn, :unsubscribe))
+      assert html_response(conn, 200) =~ "Unsubscribe"
+    end
+  end
+
 
   defp create_server(_) do
     server = fixture(:server)

@@ -1,0 +1,15 @@
+<h1>Unsubscribe from server</h1>
+
+<%= form_for @conn, Routes.server_path(@conn, :email_unsubscribe), [method: :post], fn _ -> %>
+  <label for="name">Server name:</label>
+  <input type="text" id="name" name="name" required="required">
+  
+  <label for="email">Your email address:</label>
+  <input type="email" id="email" name="email" required="required">
+  
+  <div>
+    <%= submit "Submit" %>
+  </div>
+<% end %>
+
+<span><%= link "Back", to: Routes.page_path(@conn, :index) %></span>

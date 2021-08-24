@@ -3,6 +3,7 @@ defmodule SchoolhubRouterWeb.ServerController do
 
   alias SchoolhubRouter.Instances
   alias SchoolhubRouter.Instances.Server
+  alias SchoolhubRouter.{Mailer, Email}
 
   @pod_address_suffix ".schoolhub.default.svc.cluster.local"
   
@@ -18,7 +19,10 @@ defmodule SchoolhubRouterWeb.ServerController do
 
   def create(conn, %{"server" => server_params}) do
     case Instances.create_server_with_k8s(server_params) do
-      {:ok, _server} ->
+      {:ok, server} ->
+	Email.confirm_reg_email(server)
+	|> Mailer.deliver_now!()
+	
         conn
         |> put_flash(:info, "Server created successfully.")
         |> redirect(to: Routes.page_path(conn, :index))
@@ -67,6 +71,35 @@ defmodule SchoolhubRouterWeb.ServerController do
     Instances.update_server(server, %{admin_pw: nil})
     
     render(conn, "admin_pw.json", admin_pw: server.admin_pw)
+  end
+
+  def unsubscribe(conn, _params) do
+    render(conn, "delete.html")
+  end
+
+  def email_unsubscribe(conn, %{"name" => server_name, "email" => owner_email}) do
+    case Instances.get_server_by_name(server_name) do
+      nil ->
+	conn
+	|> put_flash(:error, "No server found under that name.")
+	|> redirect(to: Routes.server_path(conn, :unsubscribe))
+      server ->
+	check_authorization(conn, server, owner_email)
+    end
+  end
+
+  defp check_authorization(conn, server, email) do
+    if server.email == email do
+      # send out email
+
+      conn
+      |> put_flash(:info, "Email sent to unsubscribe.")
+      |> redirect(to: Routes.page_path(conn, :index))
+    else
+      conn
+      |> put_flash(:error, "Email address does not match the owner of this server.")
+      |> redirect(to: Routes.server_path(conn, :unsubscribe))
+    end
   end
 
 end

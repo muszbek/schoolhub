@@ -13,6 +13,11 @@
   </li>
 
   <li>
+    <strong>Owner email:</strong>
+    <%= @server.owner_email %>
+  </li>
+
+  <li>
     <strong>Active:</strong>
     <%= @server.active %>
   </li>

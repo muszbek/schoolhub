@@ -5,6 +5,7 @@
     <tr>
       <th>Name</th>
       <th>Address</th>
+      <th>Owner email</th>
       <th>Active</th>
 
       <th></th>
@@ -15,6 +16,7 @@
     <tr>
       <td><%= server.name %></td>
       <td><%= server.address %></td>
+      <td><%= server.owner_email %></td>
       <td><%= server.active %></td>
 
       <td>
