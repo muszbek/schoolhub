@@ -21,23 +21,25 @@ defmodule SchoolhubRouter.RecycleLib do
   
   defp clean_database(address) when is_binary(address) do
     http_impl = Application.get_env(:schoolhub_router, __MODULE__)[:http_impl]
+    phx_port = Application.get_env(:schoolhub_router, __MODULE__)[:phx_port] |> to_string()
     ssl_opts = Application.get_env(:schoolhub_router, __MODULE__)[:ssl_opts]
     
-    url = "https://" <> address <> "/database/clean"
+    url = "https://" <> address <> ":" <> phx_port <> "/database/clean"
     options = [ssl: ssl_opts]
     
     case http_impl.get(url, [], options) do
       {:ok, response} -> handle_response(response.status_code)
-      {:error, %HTTPoison.Error{}} -> :error
+      {:error, err = %HTTPoison.Error{}} -> :error
     end
   end
 
   defp handle_response(200), do: :ok
-  defp handle_response(_), do: :error
+  defp handle_response(302), do: :ok
+  defp handle_response(code), do: :error
 
   defp reset_server(:error), do: :error
   defp reset_server(server) do
-    reset_attrs = %{name: nil, owner_email: nil, admin_pw: nil, active: false}
+    reset_attrs = %{active: false}
     {:ok, _server} = Instances.update_server(server, reset_attrs)
     :ok
   end

@@ -10,6 +10,7 @@ defmodule SchoolhubWeb.PageView do
     
     case server_name do
       nil -> "Keep in touch with your students or teachers"
+      "decomissioned" -> "This server is decomissioned!"
       name -> "You are on server \"" <> name <> "\""
     end
   end

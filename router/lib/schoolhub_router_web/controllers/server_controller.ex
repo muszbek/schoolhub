@@ -56,9 +56,19 @@ defmodule SchoolhubRouterWeb.ServerController do
 	|> redirect(to: Routes.page_path(conn, :index))
       server ->
 	path = "/" <> server.address <> "/"
+	server_name_to_send = get_server_name(server)
+	
 	conn
-	|> put_resp_cookie("server-name", server_name)
+	|> put_resp_cookie("server-name", server_name_to_send)
 	|> redirect(to: path)
+    end
+  end
+
+  defp get_server_name(server) do
+    if server.active do
+      server.name
+    else
+      "decomissioned"
     end
   end
 

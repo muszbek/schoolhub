@@ -33,6 +33,7 @@ config :schoolhub_router, SchoolhubRouter.Instances,
 
 config :schoolhub_router, SchoolhubRouter.RecycleLib,
   http_impl: HTTPoison,
+  phx_port: 1443,
   ssl_opts: [cacertfile: "priv/cert/chain.pem"]
 
 # Configures Elixir's Logger
