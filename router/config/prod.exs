@@ -16,7 +16,7 @@ config :schoolhub_router, SchoolhubRouterWeb.Endpoint,
 # Configures SMTP email server
 config :schoolhub_router, SchoolhubRouter.Mailer,
   server: System.get_env("POSTFIX_HOST", "postfix"),
-  port: 587,
+  port: 1587,
   tls: :if_available
 
 # Do not print debug messages in production

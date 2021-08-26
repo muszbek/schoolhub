@@ -8,7 +8,7 @@ defmodule SchoolhubRouter.Email do
     domain = System.get_env("DOMAIN", "localhost")
 
     %{name: name, address: address, owner_email: email_address} = server
-    url = url_prefix() <> domain <> "/" <> address
+    url = url_prefix() <> domain <> "/" <> address <> "/"
     
     new_email()
     |> to(email_address)
