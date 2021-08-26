@@ -2,11 +2,12 @@ defmodule SchoolhubRouter.Email do
   use Bamboo.Phoenix, view: SchoolhubRouterWeb.EmailView
 
   alias SchoolhubRouter.Instances
+  require Logger
   
   def confirm_reg_email(server) do
     domain = System.get_env("DOMAIN", "localhost")
 
-    %{"name" => name, "address" => address, "owner_email" => email_address} = server
+    %{name: name, address: address, owner_email: email_address} = server
     url = url_prefix() <> domain <> "/" <> address
     
     new_email()
@@ -23,6 +24,7 @@ defmodule SchoolhubRouter.Email do
     
     token = Instances.create_token(name)
     url = url_prefix() <> domain <> "/router/servers/unsubscribe/" <> token
+    Logger.info("Email sent out to unsubscribe, referring to url: " <> url)
     
     new_email()
     |> to(email_address)

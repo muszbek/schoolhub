@@ -4,6 +4,7 @@ defmodule SchoolhubRouterWeb.ServerController do
   alias SchoolhubRouter.Instances
   alias SchoolhubRouter.Instances.Server
   alias SchoolhubRouter.{Mailer, Email}
+  alias SchoolhubRouter.RecycleLib
 
   @pod_address_suffix ".schoolhub.default.svc.cluster.local"
   
@@ -109,10 +110,6 @@ defmodule SchoolhubRouterWeb.ServerController do
     case token_result do
       {:ok, name} ->
 	do_unsubscribe(conn, name)
-	
-	conn
-	|> put_flash(:info, "Email sent to unsubscribe.")
-	|> redirect(to: Routes.page_path(conn, :index))
       {:error, :invalid} ->
 	conn
 	|> put_flash(:error, "Unsubscribe token invalid!")
@@ -125,7 +122,27 @@ defmodule SchoolhubRouterWeb.ServerController do
   end
 
   defp do_unsubscribe(conn, name) do
-    :ok
+    case Instances.get_server_by_name(name) do
+      nil ->
+	conn
+	|> put_flash(:error, "No server found under that name.")
+	|> redirect(to: Routes.page_path(conn, :index))
+      server ->
+	recycle_server(conn, server)
+    end
+  end
+
+  defp recycle_server(conn, server) do
+    case RecycleLib.recycle_server(server) do
+      :ok ->
+	conn
+	|> put_flash(:info, "Successfully unsubscribed.")
+	|> redirect(to: Routes.page_path(conn, :index))
+      :error ->
+	conn
+	|> put_flash(:error, "Could not recycle server.")
+	|> redirect(to: Routes.page_path(conn, :index))
+    end
   end
 
 end

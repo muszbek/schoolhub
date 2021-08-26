@@ -21,5 +21,8 @@ config :schoolhub_router, SchoolhubRouterWeb.Endpoint,
 config :schoolhub_router, SchoolhubRouter.Mailer,
   adapter: BambooSMTP.TestAdapter
 
+config :schoolhub_router, SchoolhubRouter.RecycleLib,
+  http_impl: SchoolhubRouterWeb.HttpMock
+
 # Print only warnings and errors during test
 config :logger, level: :warn

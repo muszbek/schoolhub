@@ -31,6 +31,10 @@ config :schoolhub_router, SchoolhubRouter.Mailer,
 config :schoolhub_router, SchoolhubRouter.Instances,
   signing_salt: System.get_env("SERVER_SIGNING_SALT", "6MVU0xcD")
 
+config :schoolhub_router, SchoolhubRouter.RecycleLib,
+  http_impl: HTTPoison,
+  ssl_opts: [cacertfile: "priv/cert/chain.pem"]
+
 # Configures Elixir's Logger
 config :logger, :console,
   format: "$time $metadata[$level] $message\n",

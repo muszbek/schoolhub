@@ -45,6 +45,7 @@ defmodule SchoolhubRouter.MixProject do
       {:gettext, "~> 0.11"},
       {:jason, "~> 1.0"},
       {:plug_cowboy, "~> 2.0"},
+      {:httpoison, "~> 1.8"},
       {:bamboo, "~> 2.0.1"},
       {:bamboo_phoenix, "~> 1.0.0"},
       {:bamboo_smtp, "~> 4.0.0"},

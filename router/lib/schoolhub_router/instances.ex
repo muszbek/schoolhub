@@ -85,14 +85,22 @@ defmodule SchoolhubRouter.Instances do
     |> Map.put(:address, address)
     |> Morphix.atomorphify!()
 
-    case create_server(attrs_with_address) do
-      {:ok, server} ->
-	K8sLib.connect()
-	|> K8sLib.scale(count+1)
-	|> validate_server(server)
-      {:error, error} ->  
-	{:error, error}
+    create_server(attrs_with_address)
+    |> do_create_server_with_k8s(count)
+  end
+
+  defp do_create_server_with_k8s({:ok, server}, count) do
+    case k8s_scale(server, count) do
+      {:ok, %{"kind" => "Scale"}} -> {:ok, server}
+      {:error, error} -> {:error, error}
     end
+  end
+  defp do_create_server_with_k8s({:error, error}, _count), do: {:error, error}
+
+  defp k8s_scale(server, count) do
+    K8sLib.connect()
+    |> K8sLib.scale(count+1)
+    |> validate_server(server)
   end
 
   defp validate_server({:ok, scale}, _server), do: {:ok, scale}
