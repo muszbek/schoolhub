@@ -182,8 +182,6 @@ defmodule SchoolhubWeb.Router do
 
   scope "/database", SchoolhubWeb do
     pipe_through :browser
-    pipe_through :session
-    pipe_through :admin
 
     get "/clean", DatabaseController, :clean
     get "/demo", DatabaseController, :demo
