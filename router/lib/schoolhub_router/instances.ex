@@ -76,6 +76,34 @@ defmodule SchoolhubRouter.Instances do
     |> Repo.insert()
   end
 
+  def commission_server(attrs \\ %{}) do
+    case get_inactive_server() do
+      nil -> create_server_with_k8s(attrs)
+      server -> recycle_server(server, attrs)
+    end
+  end
+  
+  def get_inactive_server() do
+    case get_inactive_servers() do
+      [] -> nil
+      [first | _rest] -> first
+    end
+  end
+  
+  def get_inactive_servers() do
+    Server
+    |> where(active: false)
+    |> Repo.all()
+  end
+
+  def recycle_server(%Server{} = server, attrs \\ %{}) do
+    attrs_with_active = attrs
+    |> Map.put(:active, true)
+    |> Morphix.atomorphify!()
+
+    update_server(server, attrs_with_active)
+  end
+
   def create_server_with_k8s(attrs \\ %{}) do
     count = count_servers()
     ## server index starts with zero, so the count gives the index of the new one

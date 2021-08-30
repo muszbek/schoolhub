@@ -29,13 +29,13 @@ defmodule SchoolhubRouter.RecycleLib do
     
     case http_impl.get(url, [], options) do
       {:ok, response} -> handle_response(response.status_code)
-      {:error, err = %HTTPoison.Error{}} -> :error
+      {:error, %HTTPoison.Error{}} -> :error
     end
   end
 
   defp handle_response(200), do: :ok
   defp handle_response(302), do: :ok
-  defp handle_response(code), do: :error
+  defp handle_response(_code), do: :error
 
   defp reset_server(:error), do: :error
   defp reset_server(server) do

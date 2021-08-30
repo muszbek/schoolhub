@@ -19,7 +19,7 @@ defmodule SchoolhubRouterWeb.ServerController do
   end
 
   def create(conn, %{"server" => server_params}) do
-    case Instances.create_server_with_k8s(server_params) do
+    case Instances.commission_server(server_params) do
       {:ok, server} ->
 	Email.confirm_reg_email(server)
 	|> Mailer.deliver_now!()
