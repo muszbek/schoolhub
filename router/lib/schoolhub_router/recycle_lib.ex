@@ -43,4 +43,16 @@ defmodule SchoolhubRouter.RecycleLib do
     {:ok, _server} = Instances.update_server(server, reset_attrs)
     :ok
   end
+
+  
+  def insert_admin(server = %Server{}) do
+    http_impl = Application.get_env(:schoolhub_router, __MODULE__)[:http_impl]
+    phx_port = Application.get_env(:schoolhub_router, __MODULE__)[:phx_port] |> to_string()
+    ssl_opts = Application.get_env(:schoolhub_router, __MODULE__)[:ssl_opts]
+    
+    url = "https://" <> server.address <> ":" <> phx_port <> "/database/insert_admin"
+    options = [ssl: ssl_opts]
+    
+    http_impl.get(url, [], options)
+  end
 end

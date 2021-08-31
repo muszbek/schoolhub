@@ -1,6 +1,8 @@
 defmodule SchoolhubWeb.DatabaseController do
   use SchoolhubWeb, :controller
 
+  alias Schoolhub.AdminLib
+
   def clean(conn, _) do
     Code.require_file("priv/repo/unseed.exs")
     Code.require_file("priv/repo/seeds.exs")
@@ -15,6 +17,14 @@ defmodule SchoolhubWeb.DatabaseController do
 
     conn
     |> put_flash(:info, "Database seeded with demo data")
+    |> redirect(to: Routing.route(:session_path, conn, [:new]))
+  end
+
+  def insert_admin(conn, _) do
+    spawn(fn -> AdminLib.fetch_admin_pw() end)
+
+    conn
+    |> put_flash(:info, "Request sent to fetch admin password from router.")
     |> redirect(to: Routing.route(:session_path, conn, [:new]))
   end
 end

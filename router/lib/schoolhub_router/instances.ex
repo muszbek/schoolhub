@@ -9,6 +9,7 @@ defmodule SchoolhubRouter.Instances do
   alias Phoenix.Token
   alias SchoolhubRouter.Instances.Server
   alias SchoolhubRouter.Instances.K8sLib
+  alias SchoolhubRouter.RecycleLib
 
   @pod_address_suffix ".schoolhub.default.svc.cluster.local"
   
@@ -102,7 +103,15 @@ defmodule SchoolhubRouter.Instances do
     |> Morphix.atomorphify!()
 
     update_server(server, attrs_with_active)
+    |> insert_admin()
   end
+
+  defp insert_admin({:ok, server}) do
+    spawn(fn -> RecycleLib.insert_admin(server) end)
+    {:ok, server}
+  end
+  defp insert_admin({:error, error}), do: {:error, error}
+
 
   def create_server_with_k8s(attrs \\ %{}) do
     count = count_servers()

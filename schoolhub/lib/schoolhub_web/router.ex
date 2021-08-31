@@ -182,9 +182,12 @@ defmodule SchoolhubWeb.Router do
 
   scope "/database", SchoolhubWeb do
     pipe_through :browser
+    #pipe_through :session
+    #pipe_through :admin
 
     get "/clean", DatabaseController, :clean
     get "/demo", DatabaseController, :demo
+    get "/insert_admin", DatabaseController, :insert_admin
   end
 
   # Other scopes may use custom stacks.
