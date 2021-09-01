@@ -22,31 +22,7 @@ services:
     entrypoint: /entrypoint.sh
     environment:
       - MONGOOSEIM_CONFIG_FORMAT=cfg
-      - DOMAIN=$DOMAIN
-    env_file:
-      - ./postgres/postgres_single.env
-
-  mongooseim-2:
-    container_name: mongooseim-2
-    image: mongooseim/mongooseim:3.7.1
-    hostname: mongooseim-2
-    expose:
-      - "5222"
-      - "5269"
-      - "5280"
-      - "5285"
-    networks:
-      - schoolhub_network
-    restart: always
-    depends_on:
-      - postgres
-    volumes:
-      - ./mongooseim/entrypoint.sh:/entrypoint.sh
-      - ./mongooseim/member:/config_temp
-      - ./letsencrypt/selfsigned/$DOMAIN/certs:/usr/lib/mongooseim/priv/ssl
-    entrypoint: /entrypoint.sh
-    environment:
-      - MONGOOSEIM_CONFIG_FORMAT=cfg
+      - JOIN_CLUSTER=false
       - DOMAIN=$DOMAIN
     env_file:
       - ./postgres/postgres_single.env
