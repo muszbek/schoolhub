@@ -4,7 +4,7 @@
     <meta charset="utf-8"/>
     <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Schoolhub Router</title>
+    <title>Katedra Router</title>
     <link rel="stylesheet" href="<%= Routes.static_path(@conn, "/css/app.css") %>"/>
     <script defer type="text/javascript" src="<%= Routes.static_path(@conn, "/js/app.js") %>"></script>
   </head>
@@ -13,14 +13,14 @@
       <section class="container">
         <nav role="navigation">
           <ul>
-	    <li><%= link "What is Schoolhub?", to: Routes.description_path(@conn, :index) %></a></li>
+	    <li><%= link "What is Katedra?", to: Routes.description_path(@conn, :index) %></a></li>
             <%= if function_exported?(Routes, :live_dashboard_path, 2) do %>
               <li><%= link "LiveDashboard", to: Routes.live_dashboard_path(@conn, :home) %></li>
             <% end %>
           </ul>
         </nav>
         <a href="<%= Routes.page_path(@conn, :index) %>" class="schoolhub-logo">
-          <img src="<%= Routes.static_path(@conn, "/images/schoolhub.png") %>" alt="Phoenix Framework Logo"/>
+          <img src="<%= Routes.static_path(@conn, "/images/katedra.png") %>" alt="Phoenix Framework Logo"/>
         </a>
       </section>
     </header>

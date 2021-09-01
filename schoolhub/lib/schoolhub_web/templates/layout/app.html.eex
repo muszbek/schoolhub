@@ -5,7 +5,7 @@
     <meta charset="utf-8"/>
     <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Schoolhub</title>
+    <title>Katedra</title>
     <link rel="stylesheet" href="<%= Routing.route(:static_path, @conn, ["/css/app.css"]) %>"/>
     <script defer type="text/javascript" src="<%= Routing.route(:static_path, @conn, ["/js/app.js"]) %>"></script>
   </head>
@@ -22,7 +22,7 @@
           </ul>
         </nav>
         <a href="<%= Routing.route(:page_path, @conn, [:index]) %>" class="schoolhub-logo">
-          <img src="<%= Routing.route(:static_path, @conn, ["/images/schoolhub.png"]) %>" alt="Schoolhub Logo"/>
+          <img src="<%= Routing.route(:static_path, @conn, ["/images/katedra.png"]) %>" alt="Schoolhub Logo"/>
         </a>
       </section>
     </header>
