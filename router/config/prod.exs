@@ -10,7 +10,7 @@ use Mix.Config
 # which you should run after static files are built and
 # before starting your production server.
 config :schoolhub_router, SchoolhubRouterWeb.Endpoint,
-  url: [host: System.get_env("DOMAIN", "schoolhub.com"), port: 4001],
+  url: [host: System.get_env("DOMAIN", "katedra.fr"), port: 4001],
   cache_static_manifest: "priv/static/cache_manifest.json"
 
 # Configures SMTP email server

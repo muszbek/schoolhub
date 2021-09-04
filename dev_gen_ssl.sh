@@ -8,7 +8,7 @@ if [ $(id --user) != 0 ]; then
     exit 1
 fi
 
-DOMAIN=schoolhub.com
+DOMAIN=katedra.fr
 if [ $# -eq 1 ]
 then
     DOMAIN=$1

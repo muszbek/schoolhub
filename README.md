@@ -26,7 +26,7 @@ In the root directory:
 sudo ./dev_gen_ssl.sh
 ```
 
-Have the address `schoolhub.com` evaluate to `127.0.0.1` in `/etc/hosts`
+Have the address `katedra.fr` evaluate to `127.0.0.1` in `/etc/hosts`
 
 ### In production:
 
@@ -49,7 +49,7 @@ docker-compose up
 Now you can access the webpage:
 
 ```
-https://schoolhub.com
+https://katedra.fr
 
 https://MYDOMAIN
 ```
