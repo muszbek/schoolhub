@@ -19,6 +19,9 @@ config :schoolhub, SchoolhubWeb.Endpoint,
   pubsub_server: Schoolhub.PubSub,
   live_view: [signing_salt: "8UjvKI2x"]
 
+config :schoolhub, Schoolhub.Email,
+  email_backend: System.get_env("EMAIL_USE_API", "")
+
 # Configures SMTP email server
 config :schoolhub, Schoolhub.Mailer,
   adapter: Bamboo.SMTPAdapter,
@@ -28,6 +31,10 @@ config :schoolhub, Schoolhub.Mailer,
   tls: :if_available,
   retries: 1,
   no_mx_lookups: false
+
+# Configures MailJet email API
+config :schoolhub, Schoolhub.Email.Http,
+  mailjet_creds: System.get_env("MAILJET_CREDS", "dummy:dummy")
 
 config :schoolhub, Schoolhub.Accounts,
   signing_salt: System.get_env("USER_SIGNING_SALT", "mKg5y9G6")

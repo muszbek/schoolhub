@@ -2,9 +2,9 @@ defmodule Schoolhub.Email do
 
   alias Schoolhub.Accounts
   alias SchoolhubWeb.Routing
-  alias Schoolhub.Email.Smtp
   
   def forgot_pw_email(conn, user) do
+    backend = email_backend()
     domain = System.get_env("DOMAIN", "localhost")
     internal_host = Routing.internal_host(conn)
     
@@ -19,10 +19,11 @@ defmodule Schoolhub.Email do
       username_assign: username,
       url_assign: url,
       template: "forgot_pw.text"}
-    |> Smtp.send_email()
+    |> backend.send_email()
   end
   
   def confirm_reg_email(conn, attrs) do
+    backend = email_backend()
     domain = System.get_env("DOMAIN", "localhost")
     internal_host = Routing.internal_host(conn)
 
@@ -36,7 +37,7 @@ defmodule Schoolhub.Email do
       username_assign: username,
       url_assign: url,
       template: "confirm_reg.text"}
-    |> Smtp.send_email()
+    |> backend.send_email()
   end
 
 
@@ -44,6 +45,13 @@ defmodule Schoolhub.Email do
     case Mix.env() do
       :prod -> "https://"
       _other -> "http://"
+    end
+  end
+
+  defp email_backend() do
+    case Application.get_env(:schoolhub, __MODULE__)[:email_backend] do
+      "" -> Schoolhub.Email.Smtp
+      _ -> Schoolhub.Email.Http
     end
   end
 end

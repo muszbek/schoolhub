@@ -1,5 +1,5 @@
 defmodule SchoolhubRouter.Email.Smtp do
-  use Bamboo.Phoenix, view: SchoolhubWeb.EmailView
+  use Bamboo.Phoenix, view: SchoolhubRouterWeb.EmailView
 
   alias SchoolhubRouter.Mailer
 

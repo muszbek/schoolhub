@@ -5,6 +5,7 @@ defmodule SchoolhubRouter.Email do
   require Logger
   
   def confirm_reg_email(server) do
+    backend = email_backend()
     domain = System.get_env("DOMAIN", "localhost")
 
     %{name: name, address: address, owner_email: email_address} = server
@@ -16,10 +17,11 @@ defmodule SchoolhubRouter.Email do
       name_assign: name,
       url_assign: url,
       template: "confirm_reg.text"}
-    |> Smtp.send_email()
+    |> backend.send_email()
   end
 
   def unsubscribe_email(name, email_address) do
+    backend = email_backend()
     domain = System.get_env("DOMAIN", "localhost")
     
     token = Instances.create_token(name)
@@ -32,7 +34,7 @@ defmodule SchoolhubRouter.Email do
       name_assign: name,
       url_assign: url,
       template: "unsubscribe.text"}
-    |> Smtp.send_email()
+    |> backend.send_email()
   end
   
 
@@ -40,6 +42,13 @@ defmodule SchoolhubRouter.Email do
     case Mix.env() do
       :prod -> "https://"
       _other -> "http://"
+    end
+  end
+
+  defp email_backend() do
+    case Application.get_env(:schoolhub_router, __MODULE__)[:email_backend] do
+      "" -> SchoolhubRouter.Email.Smtp
+      _ -> SchoolhubRouter.Email.Http
     end
   end
 end

@@ -18,6 +18,9 @@ config :schoolhub_router, SchoolhubRouterWeb.Endpoint,
   pubsub_server: SchoolhubRouter.PubSub,
   live_view: [signing_salt: "OQMmELra"]
 
+config :schoolhub_router, SchoolhubRouter.Email,
+  email_backend: System.get_env("EMAIL_USE_API", "")
+
 # Configures SMTP email server
 config :schoolhub_router, SchoolhubRouter.Mailer,
   adapter: Bamboo.SMTPAdapter,
@@ -27,6 +30,10 @@ config :schoolhub_router, SchoolhubRouter.Mailer,
   tls: :if_available,
   retries: 1,
   no_mx_lookups: false
+
+# Configures MailJet email API
+config :schoolhub_router, SchoolhubRouter.Email.Http,
+  mailjet_creds: System.get_env("MAILJET_CREDS", "dummy:dummy")
 
 config :schoolhub_router, SchoolhubRouter.Instances,
   signing_salt: System.get_env("SERVER_SIGNING_SALT", "6MVU0xcD")
