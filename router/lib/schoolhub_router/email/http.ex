@@ -21,7 +21,7 @@ defmodule SchoolhubRouter.Email.Http do
       name: name_assign, url: url_assign)
       
     %{"Messages" => [
-      %{"From" => %{"From" => from},
+      %{"From" => %{"Email" => from},
 	"To" => [%{"Email" => to}],
 	"Subject" => subject,
 	"TextPart" => text}

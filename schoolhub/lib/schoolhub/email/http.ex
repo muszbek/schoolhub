@@ -21,7 +21,7 @@ defmodule Schoolhub.Email.Http do
       username: username_assign, url_with_token: url_assign)
       
     %{"Messages" => [
-      %{"From" => %{"From" => from},
+      %{"From" => %{"Email" => from},
 	"To" => [%{"Email" => to}],
 	"Subject" => subject,
 	"TextPart" => text}
