@@ -1,4 +1,4 @@
-You receive this email in order to confirm your registration to Schoolhub.
+You receive this email in order to confirm your registration to Katedra.
 If it was not you, please ignore this email.
 
 You are trying to register with the username "<%= @username %>".

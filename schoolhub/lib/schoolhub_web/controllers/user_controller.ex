@@ -3,7 +3,7 @@ defmodule SchoolhubWeb.UserController do
 
   alias Schoolhub.Accounts
   alias Schoolhub.Accounts.User
-  alias Schoolhub.{Mailer, Email}
+  alias Schoolhub.Email
   
   def index(conn, _params) do
     users = Accounts.list_users()
@@ -24,7 +24,6 @@ defmodule SchoolhubWeb.UserController do
 
 	conn
 	|> Email.confirm_reg_email(user_params)
-	|> Mailer.deliver_now!()
 	
         conn
         |> put_flash(:info, "Confiramtion email sent to register.")

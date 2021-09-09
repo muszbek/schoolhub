@@ -3,7 +3,7 @@ defmodule SchoolhubWeb.SessionController do
   
   alias Schoolhub.Accounts
   alias Schoolhub.AuthServer
-  alias Schoolhub.{Mailer, Email}
+  alias Schoolhub.Email
   
   @http_response_timeout 1_000
   
@@ -49,7 +49,6 @@ defmodule SchoolhubWeb.SessionController do
       user ->
 	conn
 	|> Email.forgot_pw_email(user)
-	|> Mailer.deliver_now!()
     
 	conn
 	|> put_flash(:info, "Email sent")

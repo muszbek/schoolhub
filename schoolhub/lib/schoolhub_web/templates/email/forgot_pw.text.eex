@@ -1,4 +1,4 @@
-You receive this email because you signaled that you have forgotten your password at Schoolhub.
+You receive this email because you signaled that you have forgotten your password at Katedra.
 If it was not you, please ignore this email.
 
 Your email address is associated with the username "<%= @username %>".

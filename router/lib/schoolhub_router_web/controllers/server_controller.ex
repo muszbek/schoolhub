@@ -3,7 +3,7 @@ defmodule SchoolhubRouterWeb.ServerController do
 
   alias SchoolhubRouter.Instances
   alias SchoolhubRouter.Instances.Server
-  alias SchoolhubRouter.{Mailer, Email}
+  alias SchoolhubRouter.Email
   alias SchoolhubRouter.RecycleLib
 
   @pod_address_suffix ".schoolhub.default.svc.cluster.local"
@@ -22,7 +22,6 @@ defmodule SchoolhubRouterWeb.ServerController do
     case Instances.commission_server(server_params) do
       {:ok, server} ->
 	Email.confirm_reg_email(server)
-	|> Mailer.deliver_now!()
 	
         conn
         |> put_flash(:info, "Server created successfully.")
@@ -102,7 +101,6 @@ defmodule SchoolhubRouterWeb.ServerController do
   defp check_authorization(conn, server, email) do
     if server.owner_email == email do
       Email.unsubscribe_email(server.name, email)
-      |> Mailer.deliver_now!()
 
       conn
       |> put_flash(:info, "Email sent to unsubscribe.")

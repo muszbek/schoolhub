@@ -1,8 +1,8 @@
 defmodule Schoolhub.Email do
-  use Bamboo.Phoenix, view: SchoolhubWeb.EmailView
 
   alias Schoolhub.Accounts
   alias SchoolhubWeb.Routing
+  alias Schoolhub.Email.Smtp
   
   def forgot_pw_email(conn, user) do
     domain = System.get_env("DOMAIN", "localhost")
@@ -12,14 +12,14 @@ defmodule Schoolhub.Email do
     address = user.email
     token = Accounts.create_token(username)
     url = url_prefix() <> domain <> internal_host <> "/users/change_pw/" <> token
-    
-    new_email()
-    |> to(address)
-    |> from("noreply@" <> domain)
-    |> subject("Forgot password")
-    |> assign(:username, username)
-    |> assign(:url_with_token, url)
-    |> render("forgot_pw.text")
+
+    %{to: address,
+      from: "noreply@" <> domain,
+      subject: "Forgot password",
+      username_assign: username,
+      url_assign: url,
+      template: "forgot_pw.text"}
+    |> Smtp.send_email()
   end
   
   def confirm_reg_email(conn, attrs) do
@@ -29,15 +29,16 @@ defmodule Schoolhub.Email do
     %{"email" => address, "credential" => %{"username" => username}} = attrs
     token = Accounts.create_token(attrs)
     url = url_prefix() <> domain <> internal_host <> "/users/register/" <> token
-    
-    new_email()
-    |> to(address)
-    |> from("noreply@" <> domain)
-    |> subject("Confirm registration")
-    |> assign(:username, username)
-    |> assign(:url_with_token, url)
-    |> render("confirm_reg.text")
+
+    %{to: address,
+      from: "noreply@" <> domain,
+      subject: "Confirm registration",
+      username_assign: username,
+      url_assign: url,
+      template: "confirm_reg.text"}
+    |> Smtp.send_email()
   end
+
 
   defp url_prefix() do
     case Mix.env() do

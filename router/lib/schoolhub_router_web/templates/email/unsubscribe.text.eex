@@ -1,6 +1,6 @@
 Following this link you can finalize unsubscribing your server "<%= @name %>"!
 
-<%= @url_with_token %>
+<%= @url %>
 
 Note that the server will become unacessible and all data on it will be lost!
 

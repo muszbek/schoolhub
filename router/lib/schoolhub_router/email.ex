@@ -1,7 +1,7 @@
 defmodule SchoolhubRouter.Email do
-  use Bamboo.Phoenix, view: SchoolhubRouterWeb.EmailView
-
+  
   alias SchoolhubRouter.Instances
+  alias SchoolhubRouter.Email.Smtp
   require Logger
   
   def confirm_reg_email(server) do
@@ -9,14 +9,14 @@ defmodule SchoolhubRouter.Email do
 
     %{name: name, address: address, owner_email: email_address} = server
     url = url_prefix() <> domain <> "/" <> address <> "/"
-    
-    new_email()
-    |> to(email_address)
-    |> from("noreply@" <> domain)
-    |> subject("Confirm server creation")
-    |> assign(:name, name)
-    |> assign(:url, url)
-    |> render("confirm_reg.text")
+
+    %{to: email_address,
+      from: "noreply@" <> domain,
+      subject: "Confirm server creation",
+      name_assign: name,
+      url_assign: url,
+      template: "confirm_reg.text"}
+    |> Smtp.send_email()
   end
 
   def unsubscribe_email(name, email_address) do
@@ -25,14 +25,14 @@ defmodule SchoolhubRouter.Email do
     token = Instances.create_token(name)
     url = url_prefix() <> domain <> "/router/servers/unsubscribe/" <> token
     Logger.info("Email sent out to unsubscribe, referring to url: " <> url)
-    
-    new_email()
-    |> to(email_address)
-    |> from("noreply@" <> domain)
-    |> subject("Unsubscribe server")
-    |> assign(:name, name)
-    |> assign(:url_with_token, url)
-    |> render("unsubscribe.text")
+
+    %{to: email_address,
+      from: "noreply@" <> domain,
+      subject: "Unsubscribe server",
+      name_assign: name,
+      url_assign: url,
+      template: "unsubscribe.text"}
+    |> Smtp.send_email()
   end
   
 

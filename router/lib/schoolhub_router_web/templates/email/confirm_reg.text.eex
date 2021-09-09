@@ -1,4 +1,4 @@
-You have successfully created a server instance in Schoolhub, with the name "<%= @name %>"!
+You have successfully created a server instance in Katedra, with the name "<%= @name %>"!
 It should be up and running within a few minutes.
 
 Enter the server name on the root page any time to redirect to your server.
