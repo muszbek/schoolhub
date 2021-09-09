@@ -1,7 +1,6 @@
 defmodule SchoolhubRouter.Email do
   
   alias SchoolhubRouter.Instances
-  alias SchoolhubRouter.Email.Smtp
   require Logger
   
   def confirm_reg_email(server) do
