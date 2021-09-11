@@ -1,6 +1,8 @@
 defmodule SchoolhubRouterWeb.Router do
   use SchoolhubRouterWeb, :router
 
+  import SchoolhubRouterWeb.Plugs
+  
   pipeline :browser do
     plug :accepts, ["html"]
     plug :fetch_session
@@ -12,6 +14,11 @@ defmodule SchoolhubRouterWeb.Router do
   pipeline :api do
     plug :accepts, ["json"]
   end
+
+  pipeline :admin do
+    plug :authorize_admin
+  end
+  
 
   scope "/router", SchoolhubRouterWeb do
     pipe_through :browser
@@ -26,6 +33,16 @@ defmodule SchoolhubRouterWeb.Router do
     get "/servers/unsubscribe/:token", ServerController, :token_unsubscribe
     resources "/servers", ServerController, only: [:index, :show, :new, :create]
     post "/redirect", ServerController, :to_instance
+
+    get "/admin_authorization", AdminController, :index
+    post "/admin_authorization", AdminController, :verify
+  end
+
+  scope "/admin_panel", SchoolhubRouterWeb do
+    pipe_through :browser
+    pipe_through :admin
+    
+    get "/", AdminController, :panel
   end
 
   scope "/router/admin_pw", SchoolhubRouterWeb do

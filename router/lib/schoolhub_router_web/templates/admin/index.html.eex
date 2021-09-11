@@ -1,0 +1,12 @@
+<h1>Admin authorization</h1>
+
+<%= form_for @conn, Routes.admin_path(@conn, :verify), [method: :post], fn _ -> %>
+  <label for="admin_auth">Admin password:</label>
+  <input type="text" id="admin_auth" name="admin_auth" required="required">
+  
+  <div>
+    <%= submit "Verify" %>
+  </div>
+<% end %>
+
+<span><%= link "Back", to: Routes.page_path(@conn, :index) %></span>

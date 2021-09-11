@@ -21,6 +21,9 @@ config :schoolhub_router, SchoolhubRouterWeb.Endpoint,
 config :schoolhub_router, SchoolhubRouter.Mailer,
   adapter: BambooSMTP.TestAdapter
 
+config :schoolhub_router, SchoolhubRouter.AdminLib,
+  admin_password: "test_password"
+
 config :schoolhub_router, SchoolhubRouter.RecycleLib,
   http_impl: SchoolhubRouterWeb.HttpMock
 
