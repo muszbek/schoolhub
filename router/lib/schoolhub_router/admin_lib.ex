@@ -21,13 +21,14 @@ defmodule SchoolhubRouter.AdminLib do
     Token.verify(SchoolhubRouterWeb.Endpoint, salt, token, max_age: max_age)
   end
 
-  defp verify_password({:ok, password}) do
+  def verify_password({:error, error}), do: {:error, error}
+  def verify_password({:ok, password}) do
     admin_password = Application.get_env(:schoolhub_router, __MODULE__)[:admin_password]
+    
     case password do
       ^admin_password -> :ok
       _other -> {:error, :wrong_password}
     end
   end
-  defp verify_password({:error, error}), do: {:error, error}
   
 end

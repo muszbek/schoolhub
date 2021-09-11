@@ -8,11 +8,18 @@ defmodule SchoolhubRouterWeb.AdminController do
   end
 
   def verify(conn, %{"admin_auth" => password}) do
-    admin_token = AdminLib.create_token(password)
-    
-    conn
-    |> put_req_header("admin_token", admin_token)
-    |> redirect(to: Routes.admin_path(conn, :panel))
+    case AdminLib.verify_password({:ok, password}) do
+      :ok ->
+	admin_token = AdminLib.create_token(password)
+	
+	conn
+	|> put_resp_cookie("admin_token", admin_token)
+	|> redirect(to: Routes.admin_path(conn, :panel))
+      {:error, _error} ->
+	conn
+	|> Phoenix.Controller.put_flash(:error, "Admin authorization failed")
+	|> Phoenix.Controller.redirect(to: Routes.page_path(conn, :index))
+    end
   end
 
   def panel(conn, _params) do

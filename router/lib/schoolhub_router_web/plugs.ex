@@ -4,7 +4,7 @@ defmodule SchoolhubRouterWeb.Plugs do
   alias SchoolhubRouter.AdminLib
 
   def authorize_admin(conn, _) do
-    case verify_header(conn) do
+    case verify_cookie(conn) do
       :ok -> conn
       {:error, _error} ->
 	conn
@@ -14,10 +14,18 @@ defmodule SchoolhubRouterWeb.Plugs do
     end
   end
 
-  defp verify_header(conn) do
-    case get_req_header(conn, "admin_auth") do
-      [] -> {:error, :no_token}
-      [token] -> AdminLib.verify_token(token)
+  defp verify_cookie(conn) do
+    case token_from_cookie(conn) do
+      nil -> {:error, :no_token}
+      "" -> {:error, :no_token}
+      token -> AdminLib.verify_token(token)
     end
+  end
+
+  defp token_from_cookie(conn) do
+    conn
+    |> fetch_cookies()
+    |> Map.from_struct()
+    |> get_in([:cookies, "admin_token"])
   end
 end

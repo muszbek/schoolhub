@@ -38,7 +38,7 @@ defmodule SchoolhubRouterWeb.Router do
     post "/admin_authorization", AdminController, :verify
   end
 
-  scope "/admin_panel", SchoolhubRouterWeb do
+  scope "/router/admin_panel", SchoolhubRouterWeb do
     pipe_through :browser
     pipe_through :admin
     

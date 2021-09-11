@@ -5,10 +5,16 @@ defmodule SchoolhubRouterWeb.PageController do
   
   def index(conn, _params) do
     case server_name_from_cookie(conn) do
-      nil -> render(conn, "index.html")
-      "" -> render(conn, "index.html")
+      nil -> render_root(conn)
+      "" -> render_root(conn)
       name -> Server.to_instance(conn, %{"server_name" => name})
     end  
+  end
+
+  defp render_root(conn) do
+    conn
+    |> put_resp_cookie("admin_auth", "")
+    |> render("index.html")
   end
 
   def phoenix(conn, _params) do

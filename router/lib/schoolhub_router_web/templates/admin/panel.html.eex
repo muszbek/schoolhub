@@ -4,4 +4,4 @@ This is the admin panel.
 It is intended to bypass payment- or password securized routes by me.
 Once I get around to fill the page with components.
 
-<span><%= link "Back", to: Routes.page_path(@conn, :index) %></span>
+</br><span><%= link "Back", to: Routes.page_path(@conn, :index) %></span>
