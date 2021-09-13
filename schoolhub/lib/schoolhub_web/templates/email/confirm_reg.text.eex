@@ -3,7 +3,7 @@ If it was not you, please ignore this email.
 
 You are trying to register with the username "<%= @username %>".
 
-Follow this link to congirm:
+Follow this link to confirm:
 
 <%= @url_with_token %>
 
