@@ -2,7 +2,7 @@
 
 <%= form_for @conn, Routes.admin_path(@conn, :verify), [method: :post], fn _ -> %>
   <label for="admin_auth">Admin password:</label>
-  <input type="text" id="admin_auth" name="admin_auth" required="required">
+  <input type="password" id="admin_auth" name="admin_auth" required="required">
   
   <div>
     <%= submit "Verify" %>

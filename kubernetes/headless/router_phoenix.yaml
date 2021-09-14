@@ -76,6 +76,11 @@ spec:
             configMapKeyRef:
               name: domain-address
               key: DOMAIN
+        - name: ADMIN_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: admin-password
+              key: admin_pw.secret
         - name: POSTGRES_DB
           valueFrom:
             secretKeyRef:
