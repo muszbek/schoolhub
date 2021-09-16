@@ -21,8 +21,6 @@ ROOT_DIR=$PWD
 
 function get_selfsigned {
     echo "Creating self-signed certificates..."
-    
-    docker build -t mkcert -f Dockerfile_dev_ssl .
 
     mkdir -p letsencrypt/selfsigned/$DOMAIN/certs
     cd ./letsencrypt/selfsigned/$DOMAIN/certs
