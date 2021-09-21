@@ -1,10 +1,8 @@
-FROM golang
+ARG ARCH=
+FROM ${ARCH}golang:1.17.1-alpine
 
-RUN apt-get update && \
-    apt-get install -y git libnss3-tools
+RUN apk --no-cache add git
 
-RUN go get -u github.com/FiloSottile/mkcert
-
-WORKDIR /root/.local/share/mkcert
+RUN go get -u filippo.io/mkcert
 
 CMD ["mkcert"]
