@@ -1,4 +1,4 @@
-FROM erlang:23.2.4-alpine AS phoenix
+FROM erlang:23-alpine AS phoenix
 
 ## based on image elixir
 
