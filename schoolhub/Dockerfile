@@ -38,7 +38,7 @@ RUN \
       inotify-tools \
       postgresql-client \
       nodejs \
-      nodejs-npm && \
+      npm && \
     npm install npm -g --no-progress && \
     update-ca-certificates --fresh && \
     rm -rf /var/cache/apk/*
