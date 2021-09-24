@@ -1,6 +1,7 @@
 FROM bitwalker/alpine-elixir-phoenix:1.11.4
 
 RUN apk --no-cache --update add \
+    	python2 \
 	postgresql-client && \
     rm -rf /var/cache/apk/*
 
