@@ -13,6 +13,20 @@ Teachers are able to create isolated spaces for their courses, with the followin
   <li>Give grades</li>
 </ul>
 
+<h2>Try Katedra on a demo server</h2>
+
+<ul>
+  <li>Redirect to the server "demo" from the root page</li>
+  <li>Authenticate as an admin
+    <ul>
+      <li>Username: admin</li>
+      <li>Password: admin</li>
+    </ul>
+  </li>
+  <li>Alternatively: create your own user</li>
+  <li>Everyone is free to try all the functionalities on this demo server</li>
+</ul>
+
 <h2>How to start</h2>
 
 <h3>If you are a teacher:</h3>
