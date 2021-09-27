@@ -66,4 +66,4 @@ Teachers are able to create isolated spaces for their courses, with the followin
 If you have any questions, feel free to contact me on my email address:</br>
 <span><%= link "autodelete@spam.com", to: Routes.description_path(@conn, :contact) %></span></br>
 
-Logo by: Rafael Farias Leão, The Noun Project, cc-by license</br>
+</br>Logo by: Rafael Farias Leão, The Noun Project, cc-by license</br>

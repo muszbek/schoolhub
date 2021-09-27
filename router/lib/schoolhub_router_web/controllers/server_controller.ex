@@ -129,7 +129,7 @@ defmodule SchoolhubRouterWeb.ServerController do
     end
   end
 
-  defp do_unsubscribe(conn, name) do
+  def do_unsubscribe(conn, name) do
     case Instances.get_server_by_name(name) do
       nil ->
 	conn

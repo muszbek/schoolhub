@@ -25,7 +25,7 @@
   <%= error_tag f, :confirm_admin_pw %>
 
   <div>
-    <%= submit "Save", [id: "submit", disabled: "true"] %>
+    <%= submit "Create Server", [id: "submit", disabled: "true"] %>
   </div>
 <% end %>
 

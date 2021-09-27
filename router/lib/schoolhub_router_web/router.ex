@@ -43,6 +43,8 @@ defmodule SchoolhubRouterWeb.Router do
     pipe_through :admin
     
     get "/", AdminController, :panel
+    post "/servers", AdminController, :create
+    post "/unsubscribe", AdminController, :admin_unsubscribe
   end
 
   scope "/router/admin_pw", SchoolhubRouterWeb do

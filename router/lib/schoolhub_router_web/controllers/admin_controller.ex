@@ -2,6 +2,9 @@ defmodule SchoolhubRouterWeb.AdminController do
   use SchoolhubRouterWeb, :controller
 
   alias SchoolhubRouter.AdminLib
+  alias SchoolhubRouter.Instances
+  alias SchoolhubRouter.Instances.Server
+  alias SchoolhubRouterWeb.ServerController
   
   def index(conn, _params) do
     render(conn, "index.html")
@@ -23,6 +26,16 @@ defmodule SchoolhubRouterWeb.AdminController do
   end
 
   def panel(conn, _params) do
-    render(conn, "panel.html")
+    changeset = Instances.change_server(%Server{})
+    render(conn, "panel.html", changeset: changeset)
+  end
+
+  def create(conn, %{"server" => server_params}) do
+    ## TODO: once payment system is installed, review this
+    ServerController.create(conn, %{"server" => server_params})
+  end
+  
+  def admin_unsubscribe(conn, %{"name" => server_name}) do
+    ServerController.do_unsubscribe(conn, server_name)
   end
 end

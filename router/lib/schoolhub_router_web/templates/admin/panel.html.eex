@@ -1,7 +1,17 @@
 <h1>Admin panel</h1>
 
-This is the admin panel.
-It is intended to bypass payment- or password securized routes by me.
-Once I get around to fill the page with components.
+This is the admin panel.</br>
+It is intended to bypass payment- or password securized routes by me.</br>
+
+<%= render SchoolhubRouterWeb.ServerView, "form.html", Map.put(assigns, :action, Routes.admin_path(@conn, :create)) %>
+
+<%= form_for @conn, Routes.admin_path(@conn, :admin_unsubscribe), [method: :post], fn _ -> %>
+  <label for="name">Server name:</label>
+  <input type="text" id="name" name="name" required="required">
+  
+  <div>
+    <%= submit "Delete server" %>
+  </div>
+<% end %>
 
 </br><span><%= link "Back", to: Routes.page_path(@conn, :index) %></span>
