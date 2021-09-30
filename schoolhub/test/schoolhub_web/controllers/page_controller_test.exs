@@ -8,6 +8,6 @@ defmodule SchoolhubWeb.PageControllerTest do
 
   test "GET /", %{conn: conn} do
     conn = get(conn, Routing.route(:page_path, conn, [:index]))
-    assert html_response(conn, 200) =~ "Welcome to Schoolhub!"
+    assert html_response(conn, 200) =~ "Welcome to Katedra!"
   end
 end
