@@ -5,7 +5,7 @@ defmodule SchoolhubRouter.Email do
   
   def confirm_reg_email(server) do
     backend = email_backend()
-    domain = System.get_env("DOMAIN", "localhost")
+    [host: domain] = Application.get_env(:schoolhub_router, SchoolhubRouterWeb.Endpoint)[:url]
 
     %{name: name, address: address, owner_email: email_address} = server
     url = url_prefix() <> domain <> "/" <> address <> "/"
@@ -21,7 +21,7 @@ defmodule SchoolhubRouter.Email do
 
   def unsubscribe_email(name, email_address) do
     backend = email_backend()
-    domain = System.get_env("DOMAIN", "localhost")
+    [host: domain] = Application.get_env(:schoolhub_router, SchoolhubRouterWeb.Endpoint)[:url]
     
     token = Instances.create_token(name)
     url = url_prefix() <> domain <> "/router/servers/unsubscribe/" <> token
