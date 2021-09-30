@@ -50,7 +50,8 @@ defmodule SchoolhubRouter.MixProject do
       {:bamboo_phoenix, "~> 1.0.0"},
       {:bamboo_smtp, "~> 4.0.0"},
       {:morphix, "~> 0.8.0"},
-      {:k8s, "~> 1.0"}
+      {:k8s, "~> 1.0"},
+      {:stripity_stripe, "~> 2.10"}
     ]
   end
 

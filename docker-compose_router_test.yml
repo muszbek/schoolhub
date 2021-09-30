@@ -82,6 +82,18 @@ services:
       - DOMAIN=$DOMAIN
     env_file:
       - ./postgres/postgres_router.env
+
+
+  stripe-mock:
+    container_name: schoolhub_router_stripe
+    image: stripemock/stripe-mock:v0.110.0
+    hostname: stripe-mock
+    expose:
+      - "12111"
+      - "12112"
+    networks:
+      - schoolhub_router_network
+    restart: on-failure
       
     
 networks:

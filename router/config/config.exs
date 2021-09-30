@@ -47,6 +47,11 @@ config :schoolhub_router, SchoolhubRouter.RecycleLib,
   phx_port: 1443,
   ssl_opts: [cacertfile: "priv/cert/chain.pem"]
 
+# Configures Stripe
+config :stripity_stripe,
+  api_key: System.get_env("STRIPE_SECRET",
+    "sk_test_51JfMahI0DC66QfKH5ZFJbyCRpehvusCSCwntEjlPLvuYBgEHcaEQ8GLuYFimTXnlAMSKxoH3bowXlpJa0dVrlX2z00qyKC7ie4")
+
 # Configures Elixir's Logger
 config :logger, :console,
   format: "$time $metadata[$level] $message\n",
