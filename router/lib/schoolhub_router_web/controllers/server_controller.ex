@@ -5,6 +5,7 @@ defmodule SchoolhubRouterWeb.ServerController do
   alias SchoolhubRouter.Instances.Server
   alias SchoolhubRouter.Email
   alias SchoolhubRouter.RecycleLib
+  alias SchoolhubRouter.StripeLib
 
   @pod_address_suffix ".schoolhub.default.svc.cluster.local"
   
@@ -21,6 +22,7 @@ defmodule SchoolhubRouterWeb.ServerController do
   def create(conn, %{"server" => server_params}) do
     case Instances.validate_server(server_params) do
       {:ok, ^server_params} ->
+	#StripeLib.create_session(conn, server_params)
 	do_create(conn, %{"server" => server_params})
       {:error, %Ecto.Changeset{} = changeset} ->
         render(conn, "new.html", changeset: changeset)
