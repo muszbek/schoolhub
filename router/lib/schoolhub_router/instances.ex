@@ -5,7 +5,7 @@ defmodule SchoolhubRouter.Instances do
 
   import Ecto.Query, warn: false
   alias SchoolhubRouter.Repo
-
+  
   alias Phoenix.Token
   alias SchoolhubRouter.Instances.Server
   alias SchoolhubRouter.Instances.K8sLib
@@ -75,6 +75,17 @@ defmodule SchoolhubRouter.Instances do
     %Server{}
     |> Server.changeset(attrs)
     |> Repo.insert()
+  end
+
+  def validate_server(attrs \\ %{}) do
+    changeset = %Server{}
+    |> Server.validate_changeset(attrs)
+
+    if changeset.valid? do
+      {:ok, attrs}
+    else
+      {:error, changeset}
+    end
   end
 
   def commission_server(attrs \\ %{}) do

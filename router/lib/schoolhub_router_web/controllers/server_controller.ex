@@ -19,6 +19,15 @@ defmodule SchoolhubRouterWeb.ServerController do
   end
 
   def create(conn, %{"server" => server_params}) do
+    case Instances.validate_server(server_params) do
+      {:ok, ^server_params} ->
+	do_create(conn, %{"server" => server_params})
+      {:error, %Ecto.Changeset{} = changeset} ->
+        render(conn, "new.html", changeset: changeset)
+    end
+  end
+
+  def do_create(conn, %{"server" => server_params}) do
     case Instances.commission_server(server_params) do
       {:ok, server} ->
 	Email.confirm_reg_email(server)

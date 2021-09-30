@@ -21,4 +21,11 @@ defmodule SchoolhubRouter.Instances.Server do
     |> unique_constraint(:name)
     |> unique_constraint(:address)
   end
+
+  def validate_changeset(server, attrs) do
+    server
+    |> cast(attrs, [:name, :admin_pw, :owner_email])
+    |> validate_required([:name, :owner_email])
+    |> unique_constraint(:name)
+  end
 end

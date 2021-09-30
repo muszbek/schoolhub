@@ -81,6 +81,14 @@ defmodule SchoolhubRouter.InstancesTest do
       assert {:error, %Ecto.Changeset{}} = Instances.create_server(@invalid_attrs)
     end
 
+    test "validate_server/1 with valid data returns ok" do
+      assert {:ok, @valid_attrs} = Instances.validate_server(@valid_attrs)
+    end
+
+    test "validate_server/1 with invalid data returns error and changeset" do
+      assert {:error, %Ecto.Changeset{}} = Instances.validate_server(@invalid_attrs)
+    end
+
     test "recycle_server/2 with valid data recycles a server" do
       some_server = server_fixture()
       {:ok, inactive_server} = Instances.update_server(some_server, %{active: false})

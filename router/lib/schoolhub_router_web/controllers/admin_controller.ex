@@ -31,8 +31,7 @@ defmodule SchoolhubRouterWeb.AdminController do
   end
 
   def create(conn, %{"server" => server_params}) do
-    ## TODO: once payment system is installed, review this
-    ServerController.create(conn, %{"server" => server_params})
+    ServerController.do_create(conn, %{"server" => server_params})
   end
   
   def admin_unsubscribe(conn, %{"name" => server_name}) do
