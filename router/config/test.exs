@@ -16,7 +16,8 @@ config :schoolhub_router, SchoolhubRouter.Repo,
 # you can enable the server option below.
 config :schoolhub_router, SchoolhubRouterWeb.Endpoint,
   http: [port: 4002],
-  server: false
+  server: false,
+  stripe_webhook_secret: "test_stripe_wk_secret"
 
 config :schoolhub_router, SchoolhubRouter.Mailer,
   adapter: BambooSMTP.TestAdapter

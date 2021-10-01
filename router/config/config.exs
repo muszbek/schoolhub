@@ -13,10 +13,12 @@ config :schoolhub_router,
 # Configures the endpoint
 config :schoolhub_router, SchoolhubRouterWeb.Endpoint,
   url: [host: "localhost"],
-  secret_key_base: "bFR2Q9vlIONUhb6IiGRIJ4TQ7x2L7afSMDR2qxHrnckaTiRwV8FGYHU5Yy2HHScI",
+  secret_key_base: System.get_env("SECRET_KEY_BASE",
+    "/d8p4MwXOA3uA9jZ2fIouO5BwvwOIRM9Gqny3Cf7XFaY/pQ1Yukf53H9iy9AugqP"),
   render_errors: [view: SchoolhubRouterWeb.ErrorView, accepts: ~w(html json), layout: false],
   pubsub_server: SchoolhubRouter.PubSub,
-  live_view: [signing_salt: "OQMmELra"]
+  live_view: [signing_salt: "OQMmELra"],
+  stripe_webhook_secret: System.get_env("STRIPE_WH_SECRET", "")
 
 config :schoolhub_router, SchoolhubRouter.Email,
   email_backend: System.get_env("EMAIL_USE_API", "")

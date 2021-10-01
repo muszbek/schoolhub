@@ -8,14 +8,16 @@ defmodule SchoolhubRouter.StripeLib do
 
   def create_session(conn, _server_params = %{"owner_email" => email,
 					      "priceId" => price_id}) do
-    
-    Session.create(%{:payment_method_types => ["card"],
+
+    session_data = %{:payment_method_types => ["card"],
 		     :mode => "subscription",
 		     :success_url => url_prefix() <> Routes.page_path(conn, :index),
 		     :cancel_url => url_prefix() <> Routes.server_path(conn, :new),
 		     :line_items => [%{:price => price_id,
 				       :quantity => 1}],
-		     :customer_email => email})
+		     :customer_email => email}
+    
+    Session.create(session_data)
   end
   
   defp url_prefix() do

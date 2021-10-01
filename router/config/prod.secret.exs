@@ -13,14 +13,6 @@ config :schoolhub_router, SchoolhubRouter.Repo,
   ssl_opts: [cacertfile: "priv/cert/chain.pem"],
   pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10")
 
-secret_key_base =
-  System.get_env("SECRET_KEY_BASE",
-    "/d8p4MwXOA3uA9jZ2fIouO5BwvwOIRM9Gqny3Cf7XFaY/pQ1Yukf53H9iy9AugqP") ||
-  raise """
-  environment variable SECRET_KEY_BASE is missing.
-  You can generate one by calling: mix phx.gen.secret
-  """
-
 config :schoolhub_router, SchoolhubRouterWeb.Endpoint,
   http: [
     port: String.to_integer(System.get_env("PORT") || "4000"),
@@ -32,8 +24,7 @@ config :schoolhub_router, SchoolhubRouterWeb.Endpoint,
     keyfile: "priv/cert/privkey.pem",
     certfile: "priv/cert/fullchain.pem",
     transport_options: [socket_opts: [:inet6]]
-  ],
-  secret_key_base: secret_key_base
+  ]
 
 # ## Using releases (Elixir v1.9+)
 #

@@ -22,8 +22,8 @@ defmodule SchoolhubRouterWeb.ServerController do
   def create(conn, %{"server" => server_params}) do
     case Instances.validate_server(server_params) do
       {:ok, ^server_params} ->
-	#StripeLib.create_session(conn, server_params)
-	do_create(conn, %{"server" => server_params})
+	StripeLib.create_session(conn, server_params)
+	#do_create(conn, %{"server" => server_params})
       {:error, %Ecto.Changeset{} = changeset} ->
         render(conn, "new.html", changeset: changeset)
     end
