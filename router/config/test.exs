@@ -29,7 +29,7 @@ config :schoolhub_router, SchoolhubRouter.RecycleLib,
   http_impl: SchoolhubRouterWeb.HttpMock
 
 config :stripity_stripe,
-  api_base_url: "http://stripe-mock:12111/v1/"
+  api_base_url: "http://localhost:12111/v1/"
 
 # Print only warnings and errors during test
 config :logger, level: :warn

@@ -17,8 +17,7 @@ config :schoolhub_router, SchoolhubRouterWeb.Endpoint,
     "/d8p4MwXOA3uA9jZ2fIouO5BwvwOIRM9Gqny3Cf7XFaY/pQ1Yukf53H9iy9AugqP"),
   render_errors: [view: SchoolhubRouterWeb.ErrorView, accepts: ~w(html json), layout: false],
   pubsub_server: SchoolhubRouter.PubSub,
-  live_view: [signing_salt: "OQMmELra"],
-  stripe_webhook_secret: System.get_env("STRIPE_WH_SECRET", "")
+  live_view: [signing_salt: "OQMmELra"]
 
 config :schoolhub_router, SchoolhubRouter.Email,
   email_backend: System.get_env("EMAIL_USE_API", "")
@@ -52,7 +51,8 @@ config :schoolhub_router, SchoolhubRouter.RecycleLib,
 # Configures Stripe
 config :stripity_stripe,
   api_key: System.get_env("STRIPE_SECRET",
-    "sk_test_51JfMahI0DC66QfKH5ZFJbyCRpehvusCSCwntEjlPLvuYBgEHcaEQ8GLuYFimTXnlAMSKxoH3bowXlpJa0dVrlX2z00qyKC7ie4")
+    "sk_test_51JfMahI0DC66QfKH5ZFJbyCRpehvusCSCwntEjlPLvuYBgEHcaEQ8GLuYFimTXnlAMSKxoH3bowXlpJa0dVrlX2z00qyKC7ie4"),
+  webhook_secret: System.get_env("STRIPE_WH_SECRET", "")
 
 # Configures Elixir's Logger
 config :logger, :console,
