@@ -24,7 +24,7 @@
   <%= password_input f, :confirm_admin_pw, [onchange: "check_pass();"] %>
   <%= error_tag f, :confirm_admin_pw %>
 
-  <input type="hidden" name="priceId" value="price_1JfOXQI0DC66QfK" />
+  <%= hidden_input f, :price_id, [value: "price_1JfOXQI0DC66QfKHyh8H0fpj"] %>
 
   <div>
     <%= submit "Create Server", [id: "submit", disabled: "true"] %>

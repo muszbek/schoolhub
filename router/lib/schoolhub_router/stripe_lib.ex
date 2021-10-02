@@ -7,7 +7,7 @@ defmodule SchoolhubRouter.StripeLib do
   alias Stripe.Session
 
   def create_session(conn, _server_params = %{"owner_email" => email,
-					      "priceId" => price_id}) do
+					      "price_id" => price_id}) do
 
     session_data = %{:payment_method_types => ["card"],
 		     :mode => "subscription",
@@ -22,11 +22,13 @@ defmodule SchoolhubRouter.StripeLib do
   
   defp url_prefix() do
     scheme = case Mix.env() do
-	       :prod -> "https://"
-	       _other -> "http://"
+	       :prod -> "https"
+	       _other -> "http"
 	     end
     port = ""
-    [host: domain] = Application.get_env(:schoolhub_router, SchoolhubRouterWeb.Endpoint)[:url]
-    scheme <> "://" <> domain <> port <> "/"
+    domain = Application.get_env(:schoolhub_router, SchoolhubRouterWeb.Endpoint)[:url]
+    |> Keyword.get(:host)
+    
+    scheme <> "://" <> domain <> port
   end
 end

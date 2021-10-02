@@ -5,7 +5,7 @@ defmodule SchoolhubRouterWeb.ServerControllerTest do
 
   @pod_address_suffix ".schoolhub.default.svc.cluster.local"
   @create_attrs %{name: "some_name", owner_email: "some_email", admin_pw: "some_pw",
-		  priceId: "price_1JfOXQI0DC66QfK"}
+		  price_id: "price_1JfOXQI0DC66QfKHyh8H0fpj"}
   @create_raw_attrs %{name: "some_name", address: "some_address" <> @pod_address_suffix,
 		      admin_pw: "some_pw", owner_email: "some_email"}
   @invalid_attrs %{name: nil, admin_pw: nil, owner_email: nil}
