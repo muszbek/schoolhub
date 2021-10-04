@@ -10,6 +10,7 @@ defmodule SchoolhubRouter.Instances do
   alias SchoolhubRouter.Instances.Server
   alias SchoolhubRouter.Instances.K8sLib
   alias SchoolhubRouter.RecycleLib
+  alias SchoolhubRouter.Email
 
   @pod_address_suffix ".schoolhub.default.svc.cluster.local"
   
@@ -89,6 +90,16 @@ defmodule SchoolhubRouter.Instances do
   end
 
   def commission_server(attrs \\ %{}) do
+    case do_commission_server(attrs) do
+      {:ok, server} ->
+	Email.confirm_reg_email(server)
+	:ok
+      {:error, error} ->
+	{:error, error}
+    end
+  end
+  
+  defp do_commission_server(attrs) do
     case get_inactive_server() do
       nil -> create_server_with_k8s(attrs)
       server -> recycle_server(server, attrs)

@@ -6,7 +6,7 @@ defmodule SchoolhubRouter.StripeLib do
   alias SchoolhubRouterWeb.Router.Helpers, as: Routes
   alias Stripe.Session
 
-  def create_session(conn, _server_params = %{"owner_email" => email,
+  def create_session(conn, server_params = %{"owner_email" => email,
 					      "price_id" => price_id}) do
 
     session_data = %{:payment_method_types => ["card"],
@@ -15,7 +15,8 @@ defmodule SchoolhubRouter.StripeLib do
 		     :cancel_url => url_prefix() <> Routes.server_path(conn, :new),
 		     :line_items => [%{:price => price_id,
 				       :quantity => 1}],
-		     :customer_email => email}
+		     :customer_email => email,
+		     :metadata => server_params}
     
     Session.create(session_data)
   end

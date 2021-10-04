@@ -1,10 +1,14 @@
 defmodule SchoolhubRouterWeb.StripeHandler do
   @behaviour Stripe.WebhookHandler
 
+  alias SchoolhubRouter.Instances
+  
   @impl true
-  def handle_event(%Stripe.Event{type: "checkout.session.completed"} = event) do
-    #TODO
-    :ok
+  def handle_event(%Stripe.Event{type: "checkout.session.completed",
+				 data: %{object: event_data_object}}) do
+
+    %{metadata: server_params} = event_data_object
+    Instances.commission_server(server_params)
   end
 
   @impl true

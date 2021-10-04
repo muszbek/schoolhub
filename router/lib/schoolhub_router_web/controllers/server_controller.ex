@@ -3,9 +3,9 @@ defmodule SchoolhubRouterWeb.ServerController do
 
   alias SchoolhubRouter.Instances
   alias SchoolhubRouter.Instances.Server
-  alias SchoolhubRouter.Email
   alias SchoolhubRouter.RecycleLib
   alias SchoolhubRouter.StripeLib
+  alias SchoolhubRouter.Email
   
   @pod_address_suffix ".schoolhub.default.svc.cluster.local"
   
@@ -31,25 +31,15 @@ defmodule SchoolhubRouterWeb.ServerController do
 
   def do_create(conn, %{"server" => server_params}) do
     case Instances.commission_server(server_params) do
-      {:ok, server} ->
-	Email.confirm_reg_email(server)
-	
+      :ok ->
         conn
         |> put_flash(:info, "Server created successfully.")
         |> redirect(to: Routes.page_path(conn, :index))
 
-      {:error, %K8s.Client.APIError{}} ->
+      {:error, error} ->
 	conn
-        |> put_flash(:error, "Server cannot be created due to internal error.")
-        |> redirect(to: Routes.server_path(conn, :new))
-
-      {:error, %Ecto.Changeset{} = changeset} ->
-        render(conn, "new.html", changeset: changeset)
-
-      {:error, _error} ->
-	conn
-        |> put_flash(:error, "Cannot connect to Kubernetes.")
-        |> redirect(to: Routes.server_path(conn, :new))
+        |> put_flash(:error, inspect(error))
+        |> redirect(to: Routes.page_path(conn, :index))
     end
   end
 

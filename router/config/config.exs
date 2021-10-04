@@ -40,7 +40,7 @@ config :schoolhub_router, SchoolhubRouter.Instances,
   signing_salt: System.get_env("SERVER_SIGNING_SALT", "6MVU0xcD")
 
 config :schoolhub_router, SchoolhubRouter.AdminLib,
-  signing_salt: System.get_env("ADMIN_SIGNING_SALT" , "JIFUvxqk"),
+  signing_salt: System.get_env("ADMIN_SIGNING_SALT", "JIFUvxqk"),
   admin_password: System.get_env("ADMIN_PASSWORD", "dummy_password")
 
 config :schoolhub_router, SchoolhubRouter.RecycleLib,
@@ -52,7 +52,7 @@ config :schoolhub_router, SchoolhubRouter.RecycleLib,
 config :stripity_stripe,
   api_key: System.get_env("STRIPE_SECRET",
     "sk_test_51JfMahI0DC66QfKH5ZFJbyCRpehvusCSCwntEjlPLvuYBgEHcaEQ8GLuYFimTXnlAMSKxoH3bowXlpJa0dVrlX2z00qyKC7ie4"),
-  webhook_secret: System.get_env("STRIPE_WH_SECRET", "")
+  webhook_secret: System.get_env("STRIPE_WH_SECRET", "whsec_2wxrWiZfcWA9pU70hcy8Z5tEflX9KHA5")
 
 # Configures Elixir's Logger
 config :logger, :console,
