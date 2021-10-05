@@ -48,6 +48,10 @@ defmodule SchoolhubRouterWeb.ServerController do
     render(conn, "show.html", server: server)
   end
 
+  def success(conn, _params) do
+    render(conn, "success.html")
+  end
+
   def to_instance(conn, %{"server_name" => server_name}) do
     case Instances.get_server_by_name(server_name) do
       nil ->

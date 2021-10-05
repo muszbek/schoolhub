@@ -1,0 +1,6 @@
+<h1>Subscribed</h1>
+
+Subscription to new server successful!</br>
+You should shortly receive a confirmation email and your server will be up in a few minutes!</br>
+
+<span><%= link "Back", to: Routes.page_path(@conn, :index) %></span>

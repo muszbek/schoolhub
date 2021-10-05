@@ -23,6 +23,13 @@ defmodule SchoolhubRouterWeb.ServerControllerTest do
     end
   end
 
+  describe "success" do
+    test "shows success page", %{conn: conn} do
+      conn = get(conn, Routes.server_path(conn, :success))
+      assert html_response(conn, 200) =~ "Subscribed"
+    end
+  end
+
   describe "new server" do
     test "renders form", %{conn: conn} do
       conn = get(conn, Routes.server_path(conn, :new))

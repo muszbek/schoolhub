@@ -27,7 +27,8 @@ defmodule SchoolhubRouterWeb.Router do
     get "/phoenix", PageController, :phoenix
     get "/description", DescriptionController, :index
     get "/contact", DescriptionController, :contact
-    
+
+    get "/servers/success", ServerController, :success
     get "/servers/unsubscribe", ServerController, :unsubscribe
     post "/servers/unsubscribe", ServerController, :email_unsubscribe
     get "/servers/unsubscribe/:token", ServerController, :token_unsubscribe

@@ -11,7 +11,7 @@ defmodule SchoolhubRouter.StripeLib do
 
     session_data = %{:payment_method_types => ["card"],
 		     :mode => "subscription",
-		     :success_url => url_prefix() <> Routes.page_path(conn, :index),
+		     :success_url => url_prefix() <> Routes.server_path(conn, :success),
 		     :cancel_url => url_prefix() <> Routes.server_path(conn, :new),
 		     :line_items => [%{:price => price_id,
 				       :quantity => 1}],
