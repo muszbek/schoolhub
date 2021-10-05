@@ -7,8 +7,12 @@ defmodule SchoolhubRouterWeb.StripeHandler do
   def handle_event(%Stripe.Event{type: "checkout.session.completed",
 				 data: %{object: event_data_object}}) do
 
-    %{metadata: server_params} = event_data_object
-    Instances.commission_server(server_params)
+    %{customer: customer_id, metadata: server_params} = event_data_object
+    
+    server_params
+    |> Map.put("customer_id", customer_id)
+    |> Map.put("last_paid", DateTime.utc_now)
+    |> Instances.commission_server()
   end
 
   @impl true

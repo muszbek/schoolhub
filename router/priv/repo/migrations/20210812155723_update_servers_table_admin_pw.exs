@@ -1,4 +1,4 @@
-defmodule SchoolhubRouter.Repo.Migrations.UpdateServersTable do
+defmodule SchoolhubRouter.Repo.Migrations.UpdateServersTableAdminPw do
   use Ecto.Migration
 
   def change do
