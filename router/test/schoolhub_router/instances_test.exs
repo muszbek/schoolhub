@@ -57,6 +57,16 @@ defmodule SchoolhubRouter.InstancesTest do
       assert Instances.get_server_by_address("non_existing_address") == nil
     end
 
+    test "get_server_by_customer/1 returns the server with given customer_id" do
+      {:ok, server} = server_fixture()
+      |> Instances.update_server(%{customer_id: "some_customer_id"})
+      assert Instances.get_server_by_customer(server.customer_id) == server
+    end
+
+    test "get_server_by_customer/1 returns nothing" do
+      assert Instances.get_server_by_customer("non_existing_customer_id") == nil
+    end
+
     test "get_inactive_server/0 returns nothing" do
       _server = server_fixture()
       assert Instances.get_inactive_server() == nil

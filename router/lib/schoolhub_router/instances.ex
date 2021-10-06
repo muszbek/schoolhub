@@ -60,6 +60,12 @@ defmodule SchoolhubRouter.Instances do
     |> Repo.one()
   end
 
+  def get_server_by_customer(customer_id) do
+    Server
+    |> where(customer_id: ^customer_id)
+    |> Repo.one()
+  end
+
   @doc """
   Creates a server.
 
