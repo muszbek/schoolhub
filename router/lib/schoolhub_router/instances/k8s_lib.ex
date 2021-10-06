@@ -2,14 +2,12 @@ defmodule SchoolhubRouter.Instances.K8sLib do
   @moduledoc """
   Library module for interacting with the Kubernetes API.
   """
-
-  # require Logger
   
   def connect() do
     K8s.Conn.from_service_account()
   end
 
-  def get_scale(conn) do
+  def get_scale({:ok, conn}) do
     operation = K8s.Client.get("apps/v1", "statefulsets/scale",
       [name: "schoolhub-instance", namespace: "default"])
     K8s.Client.run(conn, operation)

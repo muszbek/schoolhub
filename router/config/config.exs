@@ -37,7 +37,8 @@ config :schoolhub_router, SchoolhubRouter.Email.Http,
   mailjet_creds: System.get_env("MAILJET_CREDS", "dummy:dummy")
 
 config :schoolhub_router, SchoolhubRouter.Instances,
-  signing_salt: System.get_env("SERVER_SIGNING_SALT", "6MVU0xcD")
+  signing_salt: System.get_env("SERVER_SIGNING_SALT", "6MVU0xcD"),
+  k8s_impl: SchoolhubRouter.Instances.K8sLib
 
 config :schoolhub_router, SchoolhubRouter.AdminLib,
   signing_salt: System.get_env("ADMIN_SIGNING_SALT", "JIFUvxqk"),

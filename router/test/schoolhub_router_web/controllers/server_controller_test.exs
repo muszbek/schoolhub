@@ -47,11 +47,6 @@ defmodule SchoolhubRouterWeb.ServerControllerTest do
       conn = post(conn, Routes.server_path(conn, :create), server: @invalid_attrs)
       assert html_response(conn, 200) =~ "New Server"
     end
-
-    #test "redirects to new server when cannot connect to k8s", %{conn: conn} do
-    #  conn = post(conn, Routes.server_path(conn, :create), server: @create_attrs)
-    #  assert redirected_to(conn) == Routes.server_path(conn, :new)
-    #end
   end
 
   describe "redirect to instance" do

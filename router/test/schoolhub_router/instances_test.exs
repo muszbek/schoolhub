@@ -118,13 +118,13 @@ defmodule SchoolhubRouter.InstancesTest do
 	Instances.recycle_server(inactive_server, @invalid_attrs)
     end
 
-    test "create_server_with_k8s/1 with valid data returns error cannot connect to k8s" do
-      assert {:error, :enoent} = Instances.create_server_with_k8s(@valid_attrs)
+    test "create_server_with_k8s/1 with valid data returns server" do
+      assert {:ok, %Server{}} = Instances.create_server_with_k8s(@valid_attrs)
     end
 
-    test "synchronize_with_k8s/0 returns error cannot connect to k8s" do
+    test "synchronize_with_k8s/0 returns scale" do
       _server = server_fixture()
-      assert {:error, :enoent} = Instances.synchronize_with_k8s()
+      assert Instances.synchronize_with_k8s() == {:ok, 1}
     end
 
     test "update_server/2 with valid data updates the server" do

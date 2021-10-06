@@ -8,7 +8,6 @@ defmodule SchoolhubRouter.Instances do
   
   alias Phoenix.Token
   alias SchoolhubRouter.Instances.Server
-  alias SchoolhubRouter.Instances.K8sLib
   alias SchoolhubRouter.RecycleLib
   alias SchoolhubRouter.Email
 
@@ -163,8 +162,10 @@ defmodule SchoolhubRouter.Instances do
   defp do_create_server_with_k8s({:error, error}, _count), do: {:error, error}
 
   defp k8s_scale(server, count) do
-    K8sLib.connect()
-    |> K8sLib.scale(count+1)
+    k8s_impl = k8s_impl()
+    
+    k8s_impl.connect()
+    |> k8s_impl.scale(count+1)
     |> validate_server(server)
   end
 
@@ -176,9 +177,12 @@ defmodule SchoolhubRouter.Instances do
 
   def synchronize_with_k8s() do
     count = count_servers()
+    k8s_impl = k8s_impl()
+    
+    {:ok, %{"kind" => "Scale"}} = k8s_impl.connect()
+    |> k8s_impl.scale(count)
 
-    K8sLib.connect()
-    |> K8sLib.scale(count)
+    {:ok, count}
   end
 
   @doc """
@@ -237,6 +241,11 @@ defmodule SchoolhubRouter.Instances do
   def verify_token(token, max_age \\ 86400) do
     salt = Application.get_env(:schoolhub_router, __MODULE__)[:signing_salt]
     Token.verify(SchoolhubRouterWeb.Endpoint, salt, token, max_age: max_age)
+  end
+
+
+  defp k8s_impl() do
+    Application.get_env(:schoolhub_router, __MODULE__)[:k8s_impl]
   end
   
 end
