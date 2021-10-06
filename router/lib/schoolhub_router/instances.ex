@@ -245,7 +245,10 @@ defmodule SchoolhubRouter.Instances do
 
 
   defp k8s_impl() do
-    Application.get_env(:schoolhub_router, __MODULE__)[:k8s_impl]
+    case System.get_env("MOCK_K8S") do
+      "true" -> SchoolhubRouter.Instances.K8sMock
+      _ -> Application.get_env(:schoolhub_router, __MODULE__)[:k8s_impl]
+    end
   end
   
 end

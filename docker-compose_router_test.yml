@@ -80,6 +80,7 @@ services:
     environment:
       - MIX_ENV=prod
       - DOMAIN=$DOMAIN
+      - MOCK_K8S=true
     env_file:
       - ./postgres/postgres_router.env
 
