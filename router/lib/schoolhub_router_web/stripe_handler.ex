@@ -16,15 +16,27 @@ defmodule SchoolhubRouterWeb.StripeHandler do
   end
 
   @impl true
-  def handle_event(%Stripe.Event{type: "invoice.paid"} = event) do
-    #TODO
-    :ok
+  def handle_event(%Stripe.Event{type: "invoice.paid",
+				 data: %{object: event_data_object}}) do
+
+    payment_data = %{last_paid: DateTime.utc_now, last_unpaid: nil}
+    %{customer: customer_id} = event_data_object
+
+    customer_id
+    |> Instances.get_server_by_customer()
+    |> Instances.update_server(payment_data)
   end
 
   @impl true
-  def handle_event(%Stripe.Event{type: "invoice.payment_failed"} = event) do
-    #TODO
-    :ok
+  def handle_event(%Stripe.Event{type: "invoice.payment_failed",
+				 data: %{object: event_data_object}}) do
+    
+    payment_data = %{last_unpaid: DateTime.utc_now}
+    %{customer: customer_id} = event_data_object
+
+    customer_id
+    |> Instances.get_server_by_customer()
+    |> Instances.update_server(payment_data)
   end
 
   ## Return HTTP 200 for unhandled events
