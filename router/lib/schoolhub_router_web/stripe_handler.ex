@@ -22,9 +22,10 @@ defmodule SchoolhubRouterWeb.StripeHandler do
     payment_data = %{last_paid: DateTime.utc_now, last_unpaid: nil}
     %{customer: customer_id} = event_data_object
 
-    customer_id
-    |> Instances.get_server_by_customer()
-    |> Instances.update_server(payment_data)
+    case Instances.get_server_by_customer(customer_id) do
+      nil -> {:ok, :server_not_yet_created}
+      server -> Instances.update_server(server, payment_data)
+    end
   end
 
   @impl true
@@ -37,6 +38,14 @@ defmodule SchoolhubRouterWeb.StripeHandler do
     customer_id
     |> Instances.get_server_by_customer()
     |> Instances.update_server(payment_data)
+  end
+
+  @impl true
+  def handle_event(%Stripe.Event{type: "customer.subscription.deleted",
+				 data: %{object: event_data_object}}) do
+    
+    %{customer: customer_id} = event_data_object
+    :ok
   end
 
   ## Return HTTP 200 for unhandled events
