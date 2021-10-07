@@ -1,0 +1,12 @@
+<h1>Privacy policy</h1>
+
+The servers are created automatically.</br>
+All passwords are stored in an encrypted way, that they are impossible to decrypt from the database.</br>
+All messages outside of the server are HTTPS encrypted.</br>
+</br>
+All other data on the server is accessible for those with admin privileges (including the author of this software). This is in order to be able to provide direct support if needed.</br>
+</br>
+I am not diffusing your data anywhere.</br>
+The email addresses are only used for security reasons, sending subscription confirmation, invoices etc. No newsletters.</br>
+
+</br><span><%= link "Back", to: Routes.page_path(@conn, :index) %></span>

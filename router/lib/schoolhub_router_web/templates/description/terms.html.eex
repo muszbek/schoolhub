@@ -1,0 +1,15 @@
+<h1>Terms of service</h1>
+
+Upon subscription a new server is created automatically.</br>
+This server is tied to your email address that you submit during subscription.</br>
+</br>
+You excercise your ownership of this server by having admin rights, via the admin password that your submit during subscription.</br>
+Anyone can join your server with a valid email address if they know the name of your server, though you can remove them manually.
+They are not able to do much in the server, unless they receive an invitation from someone with elevated rights, or you give them elevated rights.</br>
+As admin, you have control over what your users can do.</br>
+As admin, you are also able to make other users admin.</br>
+</br>
+The server is operational as long as the subscription is active.</br>
+When the subscription is stopped, all data from the server gets permanently deleted.</br>
+
+</br><span><%= link "Back", to: Routes.page_path(@conn, :index) %></span>

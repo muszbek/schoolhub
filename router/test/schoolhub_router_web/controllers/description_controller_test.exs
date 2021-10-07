@@ -11,4 +11,14 @@ defmodule SchoolhubRouterWeb.DescriptionControllerTest do
     assert html_response(conn, 200) =~ "Contact"
   end
 
+  test "GET /terms", %{conn: conn} do
+    conn = get(conn, Routes.description_path(conn, :terms))
+    assert html_response(conn, 200) =~ "Terms"
+  end
+
+  test "GET /privacy", %{conn: conn} do
+    conn = get(conn, Routes.description_path(conn, :privacy))
+    assert html_response(conn, 200) =~ "Privacy"
+  end
+
 end
