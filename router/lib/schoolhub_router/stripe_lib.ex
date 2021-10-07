@@ -5,6 +5,7 @@ defmodule SchoolhubRouter.StripeLib do
 
   alias SchoolhubRouterWeb.Router.Helpers, as: Routes
   alias Stripe.Session
+  alias Stripe.BillingPortal.Session, as: BPSession
 
   def create_session(conn, server_params = %{"owner_email" => email,
 					      "price_id" => price_id}) do
@@ -19,6 +20,17 @@ defmodule SchoolhubRouter.StripeLib do
 		     :metadata => server_params}
     
     Session.create(session_data)
+  end
+
+  def create_billing_portal_session(conn, customer_id) do
+    session_data = %{customer: customer_id,
+		     return_url: url_prefix() <> Routes.page_path(conn, :index)}
+    BPSession.create(session_data)
+  end
+
+  def create_billing_portal_session(customer_id) do
+    session_data = %{customer: customer_id}
+    BPSession.create(session_data)
   end
   
   defp url_prefix() do
