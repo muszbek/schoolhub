@@ -2,6 +2,7 @@ defmodule SchoolhubRouterWeb.StripeHandler do
   @behaviour Stripe.WebhookHandler
 
   alias SchoolhubRouter.Instances
+  alias SchoolhubRouter.RecycleLib
   
   @impl true
   def handle_event(%Stripe.Event{type: "checkout.session.completed",
@@ -45,7 +46,8 @@ defmodule SchoolhubRouterWeb.StripeHandler do
 				 data: %{object: event_data_object}}) do
     
     %{customer: customer_id} = event_data_object
-    :ok
+    Instances.get_server_by_customer(customer_id)
+    |> RecycleLib.recycle_server()
   end
 
   ## Return HTTP 200 for unhandled events

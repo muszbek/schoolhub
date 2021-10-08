@@ -4,6 +4,7 @@ defmodule SchoolhubRouterWeb.HttpMock do
   """
 
   def get(_url, _, _options) do
-    {:error, %HTTPoison.Error{}}
+    {:ok, %{status_code: 200}}
+    # {:error, %HTTPoison.Error{}}
   end
 end
