@@ -6,7 +6,6 @@ defmodule SchoolhubRouter.Instances do
   import Ecto.Query, warn: false
   alias SchoolhubRouter.Repo
   
-  alias Phoenix.Token
   alias SchoolhubRouter.Instances.Server
   alias SchoolhubRouter.RecycleLib
   alias SchoolhubRouter.Email
@@ -230,17 +229,6 @@ defmodule SchoolhubRouter.Instances do
   """
   def change_server(%Server{} = server, attrs \\ %{}) do
     Server.changeset(server, attrs)
-  end
-
-  
-  def create_token(username) do
-    salt = Application.get_env(:schoolhub_router, __MODULE__)[:signing_salt]
-    _token = Token.sign(SchoolhubRouterWeb.Endpoint, salt, username)
-  end
-
-  def verify_token(token, max_age \\ 86400) do
-    salt = Application.get_env(:schoolhub_router, __MODULE__)[:signing_salt]
-    Token.verify(SchoolhubRouterWeb.Endpoint, salt, token, max_age: max_age)
   end
 
 

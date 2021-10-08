@@ -118,8 +118,20 @@ defmodule SchoolhubRouter.InstancesTest do
 	Instances.recycle_server(inactive_server, @invalid_attrs)
     end
 
+    test "commission_server/1 with valid data returns ok" do
+      assert :ok = Instances.commission_server(@valid_attrs)
+    end
+
+    test "commission_server/1 with invalid data returns error changeset" do
+      assert {:error, %Ecto.Changeset{}} = Instances.commission_server(@invalid_attrs)
+    end
+
     test "create_server_with_k8s/1 with valid data returns server" do
       assert {:ok, %Server{}} = Instances.create_server_with_k8s(@valid_attrs)
+    end
+
+    test "create_server_with_k8s/1 with invalid data returns error changeset" do
+      assert {:error, %Ecto.Changeset{}} = Instances.create_server_with_k8s(@invalid_attrs)
     end
 
     test "synchronize_with_k8s/0 returns scale" do

@@ -117,23 +117,7 @@ defmodule SchoolhubRouterWeb.ServerController do
     end
   end
 
-  def token_unsubscribe(conn, %{"token" => token}) do
-    token_result = Instances.verify_token(token)
-
-    case token_result do
-      {:ok, name} ->
-	do_unsubscribe(conn, name)
-      {:error, :invalid} ->
-	conn
-	|> put_flash(:error, "Unsubscribe token invalid!")
-	|> redirect(to: Routes.server_path(conn, :unsubscribe))
-      {:error, :expired} ->
-	conn
-	|> put_flash(:error, "Unsubscrube token expired!")
-	|> redirect(to: Routes.server_path(conn, :unsubscribe))
-    end
-  end
-
+  
   def do_unsubscribe(conn, name) do
     case Instances.get_server_by_name(name) do
       nil ->
