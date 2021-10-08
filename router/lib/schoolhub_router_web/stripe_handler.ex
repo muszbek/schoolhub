@@ -46,8 +46,11 @@ defmodule SchoolhubRouterWeb.StripeHandler do
 				 data: %{object: event_data_object}}) do
     
     %{customer: customer_id} = event_data_object
-    Instances.get_server_by_customer(customer_id)
-    |> RecycleLib.recycle_server()
+    
+    case Instances.get_server_by_customer(customer_id) do
+      nil -> {:ok, :server_already_recycled}
+      server -> RecycleLib.recycle_server(server)
+    end
   end
 
   ## Return HTTP 200 for unhandled events
