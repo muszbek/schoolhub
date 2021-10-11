@@ -99,11 +99,11 @@ defmodule SchoolhubRouter.InstancesTest do
       assert {:error, %Ecto.Changeset{}} = Instances.validate_server(@invalid_attrs)
     end
 
-    test "recycle_server/2 with valid data recycles a server" do
+    test "recommission_server/2 with valid data recommissions a server" do
       some_server = server_fixture()
       {:ok, inactive_server} = Instances.update_server(some_server, %{active: false})
       assert {:ok, %Server{} = server} =
-	Instances.recycle_server(inactive_server, @valid_other_raw_attrs)
+	Instances.recommission_server(inactive_server, @valid_other_raw_attrs)
       assert server.active == true
       assert server.address == "other_address"
       assert server.name == "other_name"
@@ -111,11 +111,11 @@ defmodule SchoolhubRouter.InstancesTest do
       assert server.admin_pw == "other_pw"
     end
 
-    test "recycle_server/2 with invalid data returns error changeset" do
+    test "recommission_server/2 with invalid data returns error changeset" do
       some_server = server_fixture()
       {:ok, inactive_server} = Instances.update_server(some_server, %{active: false})
       assert {:error, %Ecto.Changeset{}} =
-	Instances.recycle_server(inactive_server, @invalid_attrs)
+	Instances.recommission_server(inactive_server, @invalid_attrs)
     end
 
     test "commission_server/1 with valid data returns ok" do

@@ -2,6 +2,7 @@ defmodule SchoolhubRouterWeb.StripeHandlerTest do
   use SchoolhubRouterWeb.ConnCase
 
   alias SchoolhubRouterWeb.StripeHandler
+  alias SchoolhubRouter.Instances
 
   @customer "some_customer_id"
   @server_params %{name: "some_name", admin_pw: "some_pw", owner_email: "some_email"}
@@ -22,6 +23,10 @@ defmodule SchoolhubRouterWeb.StripeHandlerTest do
 					      metadata: @server_params}}}
       
       assert :ok = StripeHandler.handle_event(event)
+      server = Instances.get_server_by_customer(@customer)
+      assert server.customer_id == @customer
+      assert server.last_paid != nil
+      assert server.last_unpaid == nil
     end
 
     test "returns error changeset with incorrect data" do
@@ -41,6 +46,9 @@ defmodule SchoolhubRouterWeb.StripeHandlerTest do
 			    data: %{object: %{customer: @customer}}}
 
       assert {:ok, %{}} = StripeHandler.handle_event(event)
+      server = Instances.get_server_by_customer(@customer)
+      assert server.last_paid != nil
+      assert server.last_unpaid == nil
     end
 
     test "returns ok when server is not yet present" do
@@ -60,6 +68,8 @@ defmodule SchoolhubRouterWeb.StripeHandlerTest do
 			    data: %{object: %{customer: @customer}}}
 
       assert {:ok, %{}} = StripeHandler.handle_event(event)
+      server = Instances.get_server_by_customer(@customer)
+      assert server.last_unpaid != nil
     end
   end
 
@@ -71,7 +81,12 @@ defmodule SchoolhubRouterWeb.StripeHandlerTest do
       event = %Stripe.Event{type: "customer.subscription.deleted",
 			    data: %{object: %{customer: @customer}}}
 
+      server_before_recycle = Instances.get_server_by_customer(@customer)
       assert :ok = StripeHandler.handle_event(event)
+      server = Instances.get_server!(server_before_recycle.id)
+      assert server.customer_id == nil
+      assert server.last_paid == nil
+      assert server.last_unpaid == nil
     end
 
     test "returns ok when server is not present" do

@@ -106,7 +106,7 @@ defmodule SchoolhubRouter.Instances do
   defp do_commission_server(attrs) do
     case get_inactive_server() do
       nil -> create_server_with_k8s(attrs)
-      server -> recycle_server(server, attrs)
+      server -> recommission_server(server, attrs)
     end
   end
   
@@ -123,7 +123,7 @@ defmodule SchoolhubRouter.Instances do
     |> Repo.all()
   end
 
-  def recycle_server(%Server{} = server, attrs \\ %{}) do
+  def recommission_server(%Server{} = server, attrs \\ %{}) do
     attrs_with_active = attrs
     |> Map.put(:active, true)
     |> Morphix.atomorphify!()

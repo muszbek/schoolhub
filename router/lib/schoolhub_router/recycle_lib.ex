@@ -39,7 +39,7 @@ defmodule SchoolhubRouter.RecycleLib do
 
   defp reset_server(:error), do: :error
   defp reset_server(server) do
-    reset_attrs = %{active: false}
+    reset_attrs = %{active: false, customer_id: nil, last_paid: nil, last_unpaid: nil}
     {:ok, _server} = Instances.update_server(server, reset_attrs)
     :ok
   end
