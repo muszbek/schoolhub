@@ -10,8 +10,8 @@ defmodule SchoolhubWeb.ChatView do
   end
 
   def get_domain() do
-    [host: domain] = Application.get_env(:schoolhub, SchoolhubWeb.Endpoint)[:url]
-    domain
+    endpoint = Application.get_env(:schoolhub, SchoolhubWeb.Endpoint)[:url]
+    Keyword.get(endpoint, :host)
   end
 
   def get_port() do

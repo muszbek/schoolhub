@@ -2,8 +2,6 @@
 - grades to XMPP
 - implement more course functionality
 
-- disable course operations on deactivated courses
-
 - mongooseim whitelist access from HAProxy
 
 
@@ -31,5 +29,3 @@ k3d image import phx_server:v0.3 router_phx_server:v0.2 mongooseim/mongooseim:3.
 make it possible to reset database from api
 
 why two admin pw requests?
-
-unsubscribe fails if server is down
