@@ -23,6 +23,7 @@ defmodule SchoolhubWeb do
 
       import Plug.Conn
       import SchoolhubWeb.Gettext
+      import Phoenix.LiveView.Controller
       alias SchoolhubWeb.Routing
     end
   end
