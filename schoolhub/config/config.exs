@@ -14,10 +14,11 @@ config :schoolhub,
 # Configures the endpoint
 config :schoolhub, SchoolhubWeb.Endpoint,
   url: [host: "localhost"],
-  secret_key_base: "W4TTUbIMqVWjs4mGVGkjgjAZdyBkWlpr/otkWLa9Q0/dwkVkiXArkj6+M01XosTZ",
+  secret_key_base: System.get_env("SECRET_KEY_BASE",
+    "/d8p4MwXOA3uA9jZ2fIouO5BwvwOIRM9Gqny3Cf7XFaY/pQ1Yukf53H9iy9AugqP"),
   render_errors: [view: SchoolhubWeb.ErrorView, accepts: ~w(html json), layout: false],
   pubsub_server: Schoolhub.PubSub,
-  live_view: [signing_salt: "8UjvKI2x"]
+  live_view: [signing_salt: System.get_env("LIVE_SIGNING_SALT", "8UjvKI2x")]
 
 config :schoolhub, Schoolhub.Email,
   email_backend: System.get_env("EMAIL_USE_API", "")
@@ -51,7 +52,9 @@ config :logger, :console,
   metadata: [:request_id]
 
 # Use Jason for JSON parsing in Phoenix
-config :phoenix, :json_library, Jason
+config :phoenix,
+  json_library: Jason,
+  template_engines: [leex: Phoenix.LiveView.Engine]
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
