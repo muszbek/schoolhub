@@ -11,16 +11,20 @@ defmodule SchoolhubWeb.Routing do
 
   def route(fun_name, conn, args) do
     route_prefix = internal_host(conn)
-    path = Kernel.apply(String.to_existing_atom(@routes_module), fun_name, [conn] ++ args)
-    route_prefix <> path
+    route(fun_name, conn, args, route_prefix)
   end
 
-  def internal_host(conn) do
-    internal_host = get_req_header(conn, "x-internal-host")
-    _route_prefix = case internal_host do
-		      [] -> ""
-		      [hostname] -> "/" <> hostname
-		    end
+  def route(fun_name, conn, args, internal_host) do
+    path = Kernel.apply(String.to_existing_atom(@routes_module), fun_name, [conn] ++ args)
+    internal_host <> path
   end
+
+  def internal_host(%Plug.Conn{} = conn) do
+    host = get_req_header(conn, "x-internal-host")
+    _route_prefix = internal_host(host)
+  end
+  def internal_host([]), do: ""
+  def internal_host([hostname]), do: "/" <> hostname
+  def internal_host(hostname) when is_binary(hostname), do: hostname
   
 end
