@@ -5,7 +5,7 @@ defmodule Schoolhub.Email do
   
   def forgot_pw_email(conn, user) do
     backend = email_backend()
-    endpoint = Application.get_env(:schoolhub_router, SchoolhubRouterWeb.Endpoint)[:url]
+    endpoint = Application.get_env(:schoolhub, SchoolhubWeb.Endpoint)[:url]
     domain = Keyword.get(endpoint, :host)
     internal_host = Routing.internal_host(conn)
     
@@ -25,7 +25,7 @@ defmodule Schoolhub.Email do
   
   def confirm_reg_email(conn, attrs) do
     backend = email_backend()
-    endpoint = Application.get_env(:schoolhub_router, SchoolhubRouterWeb.Endpoint)[:url]
+    endpoint = Application.get_env(:schoolhub, SchoolhubWeb.Endpoint)[:url]
     domain = Keyword.get(endpoint, :host)
     internal_host = Routing.internal_host(conn)
 
