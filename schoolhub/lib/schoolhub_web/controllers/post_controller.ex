@@ -3,11 +3,13 @@ defmodule SchoolhubWeb.PostController do
 
   alias Schoolhub.Posts
   alias Schoolhub.Posts.Post
+  alias SchoolhubWeb.Routing
   
   @post_limit_default "5"
 
   def index(conn, %{"course_id" => course_id, "limit" => limit}) do
-    session = %{"conn" => conn, "course_id" => course_id, "limit" => limit}
+    host = Routing.internal_host(conn)
+    session = %{"internal_host" => host, "course_id" => course_id, "limit" => limit}
     live_render(conn, SchoolhubWeb.PostLive, session: session)
   end
   def index(conn, %{"course_id" => course_id}) do

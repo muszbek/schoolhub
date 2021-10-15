@@ -1,12 +1,11 @@
-<h1><%= link Schoolhub.Courses.get_course!(@course_id).name, to: Routing.route(:course_path, @conn, [:show, @course_id]) %></h1>
+<h1><%= link Schoolhub.Courses.get_course!(@course_id).name, to: Routing.route(:course_path, @socket, [:show, @course_id], @host) %></h1>
 <h2>Listing Posts</h2>
 
-<span><%= link "New Post", to: Routing.route(:course_post_path, @conn, [:new, @course_id]) %></span>
+<span><%= link "New Post", to: Routing.route(:course_post_path, @socket, [:new, @course_id], @host) %></span>
+<span><%= link "Back", to: Routing.route(:course_path, @socket, [:show, @course_id], @host) %></span>
 <%= if @post_limit !== -1 do %>
-<span><%= link "More", to: Routing.route(:course_post_path, @conn, [:index, @course_id,
-	  [limit: String.to_integer(@post_limit) + 5]]) %></span>
+<span><button phx-click="more_clicked">More</button></span>
 <% end %>
-<span><%= link "Back", to: Routing.route(:course_path, @conn, [:show, @course_id]) %></span>
 
 <table>
   <thead>
@@ -28,14 +27,14 @@
       <td><%= if post.pinned, do: "pinned" %></td>
 
       <td>
-        <span><%= link "Show", to: Routing.route(:course_post_path, @conn, [:show, @course_id, post]) %></span>
-        <span><%= link "Edit", to: Routing.route(:course_post_path, @conn, [:edit, @course_id, post]) %></span>
+        <span><%= link "Show", to: Routing.route(:course_post_path, @socket, [:show, @course_id, post], @host) %></span>
+        <span><%= link "Edit", to: Routing.route(:course_post_path, @socket, [:edit, @course_id, post], @host) %></span>
 	<span><%= if post.pinned, do:
-		  (link "Unpin", to: Routing.route(:course_post_post_path, @conn, [:pin, @course_id, post, [to_pin: false]]), method: :put),
+		  (link "Unpin", to: Routing.route(:course_post_post_path, @socket, [:pin, @course_id, post, [to_pin: false]], @host), method: :put),
 		  else:
-		  (link "Pin", to: Routing.route(:course_post_post_path, @conn, [:pin, @course_id, post, [to_pin: true]]), method: :put)
+		  (link "Pin", to: Routing.route(:course_post_post_path, @socket, [:pin, @course_id, post, [to_pin: true]], @host), method: :put)
 		  %></span>
-        <span><%= link "Delete", to: Routing.route(:course_post_path, @conn, [:delete, @course_id, post]), method: :delete, data: [confirm: "Are you sure?"] %></span>
+        <span><%= link "Delete", to: Routing.route(:course_post_path, @socket, [:delete, @course_id, post], @host), method: :delete, data: [confirm: "Are you sure?"] %></span>
       </td>
     </tr>
 <% end %>
