@@ -41,6 +41,17 @@ defmodule SchoolhubWeb.QuestionLive do
     {:noreply, assign(socket, new_assigns)}
   end
 
+  def handle_event("filter", %{"filter_field" => value}, socket) do
+    Logger.warn(inspect(value))
+    assigns = socket.assigns
+    filters_list = String.split(value, " ", [trim: true])
+    questions = Questions.filter_questions(assigns.course_id, assigns.user_id,
+      filters_list, assigns.only_following, @question_limit_def)
+    limit = if Enum.count(questions) < @question_limit_def, do: -1, else: @question_limit_def
+    new_assigns = [questions: questions, filters: filters_list, question_limit: limit]
+    {:noreply, assign(socket, new_assigns)}
+  end
+
   
   defp parse_following(%{"value" => "on"}), do: "only_following"
   defp parse_following(%{}), do: "all"

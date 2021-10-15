@@ -12,17 +12,6 @@ defmodule SchoolhubWeb.QuestionController do
     live_render(conn, SchoolhubWeb.QuestionLive, session: session)
   end
 
-  def filter(conn, %{"course_id" => course_id, "filters" => filters_string,
-		     "only_following" => only_following}) do
-    user_id = get_session(conn, :user_id)
-    filters_list = String.split(filters_string, "@", [trim: true])
-    questions = Questions.filter_questions(course_id, user_id, filters_list, only_following)
-    following = only_following
-    
-    render(conn, "index.html", questions: questions, course_id: course_id,
-      question_limit: -1, filters: filters_list, only_following: following)
-  end
-
   def new(conn, %{"course_id" => course_id}) do
     changeset = Questions.change_question(%Question{})
     render(conn, "new.html", changeset: changeset, course_id: course_id)

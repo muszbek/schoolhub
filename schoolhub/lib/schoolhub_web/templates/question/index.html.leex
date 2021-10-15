@@ -1,15 +1,13 @@
 <h1><%= link Schoolhub.Courses.get_course!(@course_id).name, to: Routing.route(:course_path, @socket, [:show, @course_id], @host) %></h1>
 <h2>Listing Questions</h2>
 
-<div id="filter">
-  <input type="search" id="filter_field" name="filter_field" placeholder="Separate multiple tags by spaces" value="<%= render_tag(@filters) %>">
-  
-  <input type="hidden" id="course_id" name="course_id" value="<%= @course_id %>">
-  <input type="button" onclick="filter()" value="Filter">
-</div>
+<form phx-change="filter">
+  <label>Filter questions by tags:</label>
+  <input type="search" name="filter_field" placeholder="Separate multiple tags by spaces">
+</form>
 
 <div>
-  <label>Only list questions you follow</label>
+  <label>Only list questions you follow:</label>
   <input type="checkbox" phx-click="only_following_changed" <%= checkbox_follow(@only_following) %>>
 </div>
 
@@ -64,32 +62,3 @@
 <% end %>
   </tbody>
 </table>
-
-<script>
-  filter = function() {
-      var course_id = document.getElementById("course_id").value;
-      
-      var filter_text = document.getElementById("filter_field").value;
-      var filter_checked = (filter_text === "") ? " " : filter_text;
-      var filter_param = filter_checked.replace(/ /g, "@");
-      var only_following = get_following_param();
-      
-      var url = window.location.origin
-	  .concat("/courses/")
-	  .concat(course_id)
-	  .concat("/questions/filters/")
-	  .concat(filter_param)
-	  .concat(only_following);
-      
-      window.location.href = url;
-  };
-
-  function get_following_param() {
-      var only_following_bool = document.getElementById("only_following").checked;
-      
-      if (only_following_bool)
-	  return "/only_following";
-      else
-	  return "/all";
-  };
-</script>

@@ -80,7 +80,6 @@ defmodule SchoolhubWeb.Router do
       resources "/posts/public", PostController, only: [:index, :show] do
 	resources "/replies", ReplyController, only: [:index, :show]
       end
-      get "/questions/filters/:filters/:only_following", QuestionController, :filter
       resources "/questions/public", QuestionController, only: [:index, :show] do
 	resources "/question_replies", QreplyController, only: [:index, :show]
       end

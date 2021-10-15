@@ -47,22 +47,6 @@ defmodule SchoolhubWeb.QuestionControllerTest do
     end
   end
 
-  describe "filter questions" do
-    setup [:create_course]
-
-    test "lists all questions", %{conn: conn, course_id: course_id} do
-      conn = get(conn, Routing.route(:course_question_path, conn, [:filter, course_id,
-	    "@", "all"]))
-      assert html_response(conn, 200) =~ "Listing Questions"
-    end
-    
-    test "lists no questions", %{conn: conn, course_id: course_id} do
-      conn = get(conn, Routing.route(:course_question_path, conn, [:filter, course_id,
-	    "invalid_filter", "only_following"]))
-      assert html_response(conn, 200) =~ "Listing Questions"
-    end
-  end
-
   describe "new question" do
     setup [:create_course]
     
