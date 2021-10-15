@@ -1,22 +1,23 @@
-<h1><%= link Schoolhub.Courses.get_course!(@course_id).name, to: Routing.route(:course_path, @conn, [:show, @course_id]) %></h1>
+<h1><%= link Schoolhub.Courses.get_course!(@course_id).name, to: Routing.route(:course_path, @socket, [:show, @course_id], @host) %></h1>
 <h2>Listing Questions</h2>
 
 <div id="filter">
   <input type="search" id="filter_field" name="filter_field" placeholder="Separate multiple tags by spaces" value="<%= render_tag(@filters) %>">
-  <div>
-    <label for="only_following">Only list questions you follow</label>
-    <input type="checkbox" id="only_following" name="only_following" <%= @only_following %>>
-  </div>
+  
   <input type="hidden" id="course_id" name="course_id" value="<%= @course_id %>">
   <input type="button" onclick="filter()" value="Filter">
 </div>
 
-<span><%= link "New Question", to: Routing.route(:course_question_path, @conn, [:new, @course_id]) %></span>
+<div>
+  <label>Only list questions you follow</label>
+  <input type="checkbox" phx-click="only_following_changed" <%= checkbox_follow(@only_following) %>>
+</div>
+
+<span><%= link "New Question", to: Routing.route(:course_question_path, @socket, [:new, @course_id], @host) %></span>
+<span><%= link "Back", to: Routing.route(:course_path, @socket, [:show, @course_id], @host) %></span>
 <%= if @question_limit !== -1 do %>
-<span><%= link "More", to: Routing.route(:course_question_path, @conn, [:index, @course_id,
-	  [limit: String.to_integer(@question_limit) + 5, only_following: @only_following]]) %></span>
+<span><button phx-click="more_clicked">More</button></span>
 <% end %>
-<span><%= link "Back", to: Routing.route(:course_path, @conn, [:show, @course_id]) %></span>
 
 <table>
   <thead>
@@ -34,7 +35,7 @@
   <tbody>
 <%= for question <- @questions do %>
     <tr>
-      <td><%= render_content(@conn, question) %></td>
+      <td><%= render_content(@user_id, question) %></td>
       <td><%= Schoolhub.Courses.get_username!(question.creator, @course_id) %></td>
       <td><%= render_tag(question.tags) %></td>
       <td><%= Enum.count(question.qreply) %></td>
@@ -42,22 +43,22 @@
       <td><%= if question.pinned, do: "pinned" %></td>
 
       <td>
-        <span><%= link "Show", to: Routing.route(:course_question_path, @conn, [:show, @course_id, question]) %></span>
-        <span><%= link "Edit", to: Routing.route(:course_question_path, @conn, [:edit, @course_id, question]) %></span>
+        <span><%= link "Show", to: Routing.route(:course_question_path, @socket, [:show, @course_id, question], @host) %></span>
+        <span><%= link "Edit", to: Routing.route(:course_question_path, @socket, [:edit, @course_id, question], @host) %></span>
 	
-	<span><%= if is_follow(@conn, question), do:
-		  (link "Unfollow", to: Routing.route(:course_question_follow_path, @conn, [:unfollow, @course_id, question]), method: :delete),
+	<span><%= if is_follow(@user_id, question), do:
+		  (link "Unfollow", to: Routing.route(:course_question_follow_path, @socket, [:unfollow, @course_id, question], @host), method: :delete),
 		  else:
-		  (link "Follow", to: Routing.route(:course_question_follow_path, @conn, [:follow, @course_id, question]), method: :post)
+		  (link "Follow", to: Routing.route(:course_question_follow_path, @socket, [:follow, @course_id, question], @host), method: :post)
 		  %></span>
 	
 	<span><%= if question.pinned, do:
-		  (link "Unpin", to: Routing.route(:course_question_question_path, @conn, [:pin, @course_id, question, [to_pin: false]]), method: :put),
+		  (link "Unpin", to: Routing.route(:course_question_question_path, @socket, [:pin, @course_id, question, [to_pin: false]], @host), method: :put),
 		  else:
-		  (link "Pin", to: Routing.route(:course_question_question_path, @conn, [:pin, @course_id, question, [to_pin: true]]), method: :put)
+		  (link "Pin", to: Routing.route(:course_question_question_path, @socket, [:pin, @course_id, question, [to_pin: true]], @host), method: :put)
 		  %></span>
 	
-        <span><%= link "Delete", to: Routing.route(:course_question_path, @conn, [:delete, @course_id, question]), method: :delete, data: [confirm: "Are you sure?"] %></span>
+        <span><%= link "Delete", to: Routing.route(:course_question_path, @socket, [:delete, @course_id, question], @host), method: :delete, data: [confirm: "Are you sure?"] %></span>
       </td>
     </tr>
 <% end %>

@@ -29,13 +29,16 @@ defmodule Schoolhub.Questions do
     |> Repo.preload(:qreply)
   end
 
-  def filter_questions(course_id, user_id, filters \\ [], following \\ "all") do
+  def filter_questions(course_id, user_id,
+    filters \\ [], following \\ "all", question_limit \\ @question_limit_default) do
+
     Question
     |> where(course_id: ^course_id)
     |> filter_following(user_id, following)
     |> order_by(desc: :pinned)
     |> order_by(desc: :inserted_at)
     |> where([q], fragment("? @> ?::varchar[]", q.tags, ^filters))
+    |> limit(^question_limit)
     |> Repo.all()
     |> Repo.preload(:qreply)
   end

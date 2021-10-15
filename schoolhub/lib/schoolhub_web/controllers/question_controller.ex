@@ -1,22 +1,15 @@
 defmodule SchoolhubWeb.QuestionController do
   use SchoolhubWeb, :controller
-  
+
+  alias Plug.Conn
   alias Schoolhub.Questions
   alias Schoolhub.Questions.Question
-
-  @question_limit_default "5"
-
-  def index(conn, %{"course_id" => course_id, "limit" => limit,
-		    "only_following" => only_following}) do
-    questions = Questions.list_course_questions(course_id, limit)
-    limit = if Enum.count(questions) < String.to_integer(limit), do: -1, else: limit
-    
-    render(conn, "index.html", questions: questions, course_id: course_id,
-      question_limit: limit, filters: [], only_following: only_following)
-  end
+  
   def index(conn, %{"course_id" => course_id}) do
-    index(conn, %{"course_id" => course_id, "limit" => @question_limit_default,
-		  "only_following" => false})
+    host = Routing.internal_host(conn)
+    user_id = Conn.get_session(conn, :user_id)
+    session = %{"internal_host" => host, "course_id" => course_id, "user_id" => user_id}
+    live_render(conn, SchoolhubWeb.QuestionLive, session: session)
   end
 
   def filter(conn, %{"course_id" => course_id, "filters" => filters_string,
@@ -24,7 +17,7 @@ defmodule SchoolhubWeb.QuestionController do
     user_id = get_session(conn, :user_id)
     filters_list = String.split(filters_string, "@", [trim: true])
     questions = Questions.filter_questions(course_id, user_id, filters_list, only_following)
-    following = parse_following(only_following)
+    following = only_following
     
     render(conn, "index.html", questions: questions, course_id: course_id,
       question_limit: -1, filters: filters_list, only_following: following)
@@ -55,8 +48,10 @@ defmodule SchoolhubWeb.QuestionController do
   end
 
   def show(conn, %{"course_id" => course_id, "id" => id}) do
+    user_id = get_session(conn, :user_id)
     question = Questions.get_question!(id)
-    render(conn, "show.html", question: question, course_id: course_id, qreplies: question.qreply)
+    render(conn, "show.html", question: question, course_id: course_id, user_id: user_id,
+      qreplies: question.qreply)
   end
 
   def edit(conn, %{"course_id" => course_id, "id" => id}) do
@@ -101,14 +96,6 @@ defmodule SchoolhubWeb.QuestionController do
     conn
     |> put_flash(:info, msg)
     |> redirect(to: Routing.route(:course_question_path, conn, [:index, course_id]))
-  end
-
-
-  defp parse_following(only_following) do
-    case only_following do
-      "all" -> ""
-      "only_following" -> "checked"
-    end
   end
   
 end

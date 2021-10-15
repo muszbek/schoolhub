@@ -32,7 +32,7 @@
 
 <span><%= link "Edit", to: Routing.route(:course_question_path, @conn, [:edit, @course_id, @question]) %></span>
 
-<span><%= if is_follow(@conn, @question), do:
+<span><%= if is_follow(@user_id, @question), do:
 		  (link "Unfollow", to: Routing.route(:course_question_follow_path, @conn, [:unfollow, @course_id, @question]), method: :delete),
 		  else:
 		  (link "Follow", to: Routing.route(:course_question_follow_path, @conn, [:follow, @course_id, @question]), method: :post)
