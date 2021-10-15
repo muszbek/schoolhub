@@ -5,7 +5,7 @@ defmodule Schoolhub.MixProject do
     [
       app: :schoolhub,
       version: "0.3.0",
-      elixir: "~> 1.7",
+      elixir: "~> 1.11",
       elixirc_paths: elixirc_paths(Mix.env()),
       compilers: [:phoenix, :gettext] ++ Mix.compilers(),
       start_permanent: Mix.env() == :prod,
@@ -46,12 +46,13 @@ defmodule Schoolhub.MixProject do
       {:gettext, "~> 0.11"},
       {:jason, "~> 1.0"},
       {:httpoison, "~> 1.8"},
+      {:plug, "1.10.4"},
       {:plug_cowboy, "~> 2.0"},
       {:bamboo, "~> 2.0.1"},
       {:bamboo_phoenix, "~> 1.0.0"},
       {:bamboo_smtp, "~> 4.0.0"},
       {:morphix, "~> 0.8.0"},
-      {:earmark, "~> 1.1"},
+      {:earmark, "1.4.15"},
       {:scramerl, git: "https://github.com/erdemaksu/scramerl"}
     ]
   end
