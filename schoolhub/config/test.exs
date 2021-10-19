@@ -23,6 +23,9 @@ config :schoolhub, SchoolhubWeb.Endpoint,
 config :schoolhub, Schoolhub.Mailer,
   adapter: BambooSMTP.TestAdapter
 
+config :schoolhub, Schoolhub.AdminLib,
+  http_adapter: SchoolhubWeb.HttpMock
+
 config :schoolhub, :xmpp,
   protocol: "ws",
   port: "5280"

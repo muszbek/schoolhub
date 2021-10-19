@@ -19,7 +19,6 @@ what is the EHLO email restart message? related to openDKIM, maybe testing that 
 
 minimal style changes
 pictures to courses
-liveview filtering
 follow descriptive
 
 remove picture

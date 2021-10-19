@@ -18,7 +18,8 @@ defmodule Schoolhub.AdminLib do
     ssl_opts = Application.get_env(:schoolhub, __MODULE__)[:ssl_opts]
     options = [ssl: ssl_opts]
 
-    response = HTTPoison.get!(url, [], options)
+    http_impl = http_impl()
+    response = http_impl.get!(url, [], options)
     response_body = Jason.decode!(response.body)
 
     handle_response(response_body)
@@ -47,6 +48,10 @@ defmodule Schoolhub.AdminLib do
     rescue
       Ecto.ConstraintError -> Logger.warn("Admin user already exists...")
     end
+  end
+
+  defp http_impl() do
+    Application.get_env(:schoolhub, __MODULE__)[:http_adapter]
   end
 
 end

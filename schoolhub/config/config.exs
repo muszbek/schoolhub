@@ -41,6 +41,7 @@ config :schoolhub, Schoolhub.Accounts,
   signing_salt: System.get_env("USER_SIGNING_SALT", "mKg5y9G6")
 
 config :schoolhub, Schoolhub.AdminLib,
+  http_adapter: HTTPoison,
   self_pod_name: System.get_env("POD_NAME", "schoolhub-instance-0"),
   router_host: "phx-server",
   router_port: 4001,
