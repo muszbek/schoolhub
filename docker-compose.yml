@@ -108,7 +108,7 @@ services:
     environment:
       - MIX_ENV=prod
       - DOMAIN=$DOMAIN
-      - EMAIL_USE_API=true
+      - EMAIL_USE_API=
       - MAILJET_CREDS=dummy:dummy
     env_file:
       - ./postgres/postgres_single.env
