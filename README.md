@@ -77,3 +77,5 @@ https://katedra.fr
 
 https://MYDOMAIN
 ```
+
+![infographic-display](https://github.com/muszbek/schoolhub/blob/master/katedra_info.jpg)
