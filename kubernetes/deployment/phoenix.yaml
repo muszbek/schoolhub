@@ -39,7 +39,7 @@ spec:
     spec:
       containers:
       - name: schoolhub-phoenix
-        image: phx_server:v0.3
+        image: phx_server:v0.4
         env:
         - name: MIX_ENV
           value: prod

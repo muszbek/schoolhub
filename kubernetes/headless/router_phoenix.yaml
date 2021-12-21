@@ -67,7 +67,7 @@ spec:
       serviceAccountName: instance-creator
       containers:
       - name: schoolhub-router-phoenix
-        image: router_phx_server:v0.2
+        image: router_phx_server:v0.4
         env:
         - name: MIX_ENV
           value: prod

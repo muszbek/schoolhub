@@ -62,7 +62,7 @@ services:
 
   phx-server:
     container_name: schoolhub_router_phoenix
-    image: router_phx_server:v0.2
+    image: router_phx_server:v0.4
     hostname: phx-server
     build:
       context: ./router

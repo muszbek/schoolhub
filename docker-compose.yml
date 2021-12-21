@@ -90,7 +90,7 @@ services:
 
   phx-server:
     container_name: phx-server
-    image: phx_server:v0.3
+    image: phx_server:v0.4
     hostname: phx-server
     build:
       context: ./schoolhub
